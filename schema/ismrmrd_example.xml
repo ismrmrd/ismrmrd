@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ismrmrdHeader xsi:schemaLocation="http://www.ismrm.org/ISMRMRD ismrmrd.xsd"
+        xmlns="http://www.ismrm.org/ISMRMRD"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  
+  <subjectInformation>
+    <patientName>Anonymous</patientName>
+    <patientWeight_kg>74.7</patientWeight_kg>
+  </subjectInformation>
+
+  <acquisitionSystemInformation>
+    <systemVendor>Siemens</systemVendor>
+    <systemModel>Avanto</systemModel>
+    <systemFieldStrength_T>1.5</systemFieldStrength_T>
+  </acquisitionSystemInformation>
+
+  <experimentalConditions>
+    <H1resonanceFrequencyHz>63500000</H1resonanceFrequencyHz>
+  </experimentalConditions>
+
+  <encoding>
+    <trajectory>cartesian</trajectory>
+    <encodingLimits>
+      <kspace_encoding_step_1>
+        <minimum>0</minimum>
+        <maximum>96</maximum>
+        <center>48</center>
+      </kspace_encoding_step_1>
+    </encodingLimits>
+
+    <encodedSpace>
+      <matrixSize>
+        <x>256</x>
+        <y>96</y>
+        <z>1</z>
+      </matrixSize>
+      <fieldOfView_m>
+        <x>0.600</x>
+        <y>0.230</y>
+        <z>0.006</z>
+      </fieldOfView_m>
+    </encodedSpace>
+
+    <reconSpace>
+      <matrixSize>
+        <x>128</x>
+        <y>96</y>
+        <z>1</z>
+      </matrixSize>
+
+      <fieldOfView_m>
+        <x>0.300</x>
+        <y>0.230</y>
+        <z>0.006</z>
+      </fieldOfView_m>
+    </reconSpace>
+  </encoding>
+
+  <userParameters>
+    <userParameterLong>
+      <name>MySpecialParameter1</name>
+      <value>724873268</value>
+    </userParameterLong>
+
+    <userParameterLong>
+      <name>AnotherSpecialParameter</name>
+      <value>19238719</value>
+    </userParameterLong>
+
+    <userParameterDouble>
+      <name>ADoubleParameter</name>
+      <value>76238.878437</value>
+    </userParameterDouble>
+  </userParameters>
+</ismrmrdHeader>

@@ -1,0 +1,1 @@
+/usr/bin/c++       CMakeFiles/ismrmrd.dir/main.cpp.o CMakeFiles/ismrmrd.dir/src/xsd/ismrmrd.cxx.o  -o ismrmrd -rdynamic -lxerces-c 
