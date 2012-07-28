@@ -18,6 +18,7 @@ elementFormDefault="qualified">
 	      <xs:element name="reconSpace"     type="encodingSpaceType"  minOccurs="1" maxOccurs="1"/>
 	      <xs:element name="encodingLimits" type="encodingLimitsType" minOccurs="1" maxOccurs="1"/>
 	      <xs:element name="trajectory"     type="trajectoryType"     minOccurs="1" maxOccurs="1"/>
+	      <xs:element name="trajectoryDescription" type="trajectoryDescriptionType" minOccurs="0" maxOccurs="1" />
 	    </xs:all>
 	  </xs:complexType>
 	</xs:element>
@@ -42,7 +43,7 @@ elementFormDefault="qualified">
   
   <xs:complexType name="experimentalConditionsType">
     <xs:all>
-      <xs:element name="H1resonanceFrequencyHz" type="xs:long"/>
+      <xs:element name="H1resonanceFrequency_Hz" type="xs:long"/>
     </xs:all>
   </xs:complexType>
 
@@ -111,6 +112,15 @@ elementFormDefault="qualified">
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:complexType name="trajectoryDescriptionType">
+    <xs:sequence>
+      <xs:element name="identifier" type="xs:string" minOccurs="1" maxOccurs="1" />
+      <xs:element name="userParameterLong"   type="userParameterLongType"   minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="userParameterDouble" type="userParameterDoubleType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="comment" type="xs:string" minOccurs="0" maxOccurs="1" />
+    </xs:sequence>
+  </xs:complexType>
+
   <xs:complexType name="userParameterLongType">
     <xs:all>
       <xs:element name="name"  type="xs:string"/>
@@ -124,5 +134,4 @@ elementFormDefault="qualified">
       <xs:element name="value" type="xs:double"/> 
     </xs:all>
   </xs:complexType>
-
 </xs:schema>

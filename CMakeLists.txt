@@ -15,3 +15,7 @@ WRAP_XSD(XSDS_SOURCES XSD_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/schema ${XSDS} OP
 INCLUDE_DIRECTORIES(${XSD_INCLUDES})
 add_executable(ismrmrd main.cpp ${XSDS_SOURCES})
 target_link_libraries(ismrmrd ${XERCESC_LIBRARIES})
+
+INSTALL(FILES ismrmrd.h DESTINATION include)
+INSTALL(FILES schema/ismrmrd.xsd DESTINATION schema)
+INSTALL(FILES cmake/FindIsmrmrd.cmake DESTINATION cmake)
