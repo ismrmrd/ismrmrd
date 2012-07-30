@@ -1,25 +1,76 @@
 #include "ismrmrd_hdf5.h"
+#include "ismrmrd_hdf5_datatypes.h"
 
-#include <H5Cpp.h>
 
-#ifndef H5_NO_NAMESPACE
-using namespace H5;
-#endif
-
+#include <iostream>
 #include <boost/algorithm/string.hpp>
 
 
 namespace ISMRMRD
 {
 
-  struct H5Acquisition
+int IsmrmrdDataset::openHDF5File()
+{
+
+	std::cout << "Opening dataset..." << std::endl;
+	if (file_exists_) {
+		try {
+			if (!H5File::isHdf5(filename_.c_str())) {
+				std::cerr << "File \"" << filename_ << "\" is not an HDF file file" << std::endl;
+				return -1;
+			}
+			file_ = boost::shared_ptr<H5File>(new H5File(filename_, H5F_ACC_RDWR));
+		} catch (...) {
+			std::cerr << "Failed to open HDF5 file." << std::endl;
+			return -1;
+		}
+		file_open_ = true;
+	} else if (create_file_if_needed_){
+		try {
+			file_ = boost::shared_ptr<H5File>(new H5File(filename_, H5F_ACC_TRUNC));
+		} catch (...) {
+			std::cerr << "Failed to create and open HDF5 file." << std::endl;
+			return -1;
+		}
+		file_open_ = true;
+	}
+
+	return 0;
+}
+
+
+
+
+  int H5AppendAcquisition(const Acquisition& a, const char* filename, const char* varname)
   {
-    AcquisitionHeader head;
-    hvl_t traj;
-    hvl_t data;
-  };
+	   /*
+
+    H5Acquisition tmp;
+    tmp.head = a.head_;
+
+    tmp.traj.len = a.head_.trajectory_dimensions*a.head_.number_of_samples;
+    tmp.traj.p = (void*) a.traj_;
+
+    tmp.data.len = a.head_.number_of_samples*a.head_.active_channels*2;
+    tmp.data.p = (void*) a.data_;
+
+    boost::shared_ptr<DataType> structdatatype = getHDF5CompositeType<STRUCT>();
+    boost::shared_ptr<DataType> vdatatype = getHDF5Type<DATATYPE>();
+    vdatatype = boost::shared_ptr<DataType>(new DataType(H5Tvlen_create (vdatatype->getId())));
+
+	CompType* ct = new CompType(sizeof(local_hdf5_append_struct<STRUCT>));
+	ct->insertMember( "h", HOFFSET(local_hdf5_append_struct<STRUCT>,h),  *structdatatype);
+	ct->insertMember( "d", HOFFSET(local_hdf5_append_struct<STRUCT>,d),  *vdatatype);
+
+	boost::shared_ptr<DataType> datatype(ct);
 
 
+	return hdf5_append_struct(&tmp, datatype, filename, varname);
+	*/
+    return 0;
+}
+
+  /*
 template <class T> boost::shared_ptr<CompType> getHDF5CompositeType();
 template <class T> boost::shared_ptr<DataType> getHDF5ArrayType(int LENGTH);
 
@@ -115,4 +166,6 @@ template <> boost::shared_ptr<CompType> getHDF5CompositeType<GadgetMessageAcquis
 
 	return hdf5_append_struct(&tmp, datatype, filename, varname);
 }
+*/
+
 } //End of ISMRMRD namespace

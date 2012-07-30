@@ -1,13 +1,18 @@
 # - Find ISMRMRRD
 #   ISMRMRD_FOUND       - True if ISMRMRD found.
 #   ISMRMRD_INCLUDE_DIR - where to find ismrmrd.h, etc.
+#   ISMRMRD_LIBRARIES    - libismrmrd.so, etc.
 
-FIND_PATH( ISMRMRD_INCLUDE_DIR "ismrmrd.h"
-           PATH_SUFFIXES "ismrmrd" )
+MESSAGE("GADGETRON_HOME: $ENV{GADGETRON_HOME}")
 
-# handle the QUIETLY and REQUIRED arguments and set TINYXML_FOUND to TRUE if
-# all listed variables are TRUE
+FIND_PATH( ISMRMRD_INCLUDE_DIR ismrmrd.h
+$ENV{GADGETRON_HOME}/include /usr/local/include)
+
+FIND_LIBRARY( ISMRMRD_LIBRARIES
+              NAMES "ismrmrd"
+              PATHS  $ENV{GADGETRON_HOME}/lib /usr/local/lib)
+
 INCLUDE( "FindPackageHandleStandardArgs" )
-FIND_PACKAGE_HANDLE_STANDARD_ARGS( "Ismrmrd" DEFAULT_MSG ISMRMRD_INCLUDE_DIR)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS( "Ismrmrd" DEFAULT_MSG ISMRMRD_INCLUDE_DIR ISMRMRD_LIBRARIES)
 
-MARK_AS_ADVANCED( ISMRMRD_INCLUDE_DIR)
+MARK_AS_ADVANCED( ISMRMRD_INCLUDE_DIR ISMRMRD_LIBRARIES)

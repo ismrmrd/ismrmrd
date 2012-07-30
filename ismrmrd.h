@@ -6,7 +6,7 @@
 /*    Brian Hargreaves  (bah@stanford.edu)                 */
 /*    Sebastian Kozerke (kozerke@biomed.ee.ethz.ch)        */
 
-#prama once
+#pragma once
 #ifndef ISMRMRD_H
 #define ISMRMRD_H
 
@@ -80,9 +80,9 @@ namespace ISMRMRD
    float              sample_time_us;                 //Time between samples in micro seconds, sampling BW
    float              position[3];                    //Three-dimensional spatial offsets from isocenter
    float              quarternion[4];                 //Angulation of acquisition
-   float	      patient_table_position[3];      //Patient table off-center
+   float	      	  patient_table_position[3];      //Patient table off-center
    EncodingCounters   idx;                            //Encoding loop counters, see above
-   uint32_t           user_int[8];                    //Free user parameters
+   int32_t            user_int[8];                    //Free user parameters
    float              user_float[8];                  //Free user parameters
  }; 
  
@@ -94,7 +94,7 @@ namespace ISMRMRD
      : traj_(0)
      , data_(0)
      {
-       memset(head_,0,sizeof(AcquisitionHeader));
+       memset(&head_,0,sizeof(AcquisitionHeader));
        head_.version = ISMRMRD_VERSION;
      }
 
