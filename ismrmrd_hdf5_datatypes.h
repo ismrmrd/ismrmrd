@@ -95,12 +95,6 @@ template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<AcquisitionHeader>()
 
 }
 
-struct AcquisitionHeader_with_data
-{
-	AcquisitionHeader head;
-	hvl_t traj;
-	hvl_t data;
-};
 
 struct complex_t
 {

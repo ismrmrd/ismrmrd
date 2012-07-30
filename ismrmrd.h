@@ -25,20 +25,72 @@ typedef unsigned __int64 uint64_t;
 #include <stdio.h>
 #include <string.h>
 
-#pragma pack(4) //Use 4 byte alignment
+#pragma pack(push, 4) //Use 4 byte alignment
 
 #define ISMRMRD_VERSION 1
 
 namespace ISMRMRD
 {
-  
+
+  class FlagBit
+  {
+
+  public:
+	  FlagBit(unsigned short b)
+	  	  : bitmask_(0)
+	  {
+		  if (b > 0) {
+			  bitmask_ = 1;
+			  bitmask_ = (bitmask_ << (b-1));
+		  }
+	  }
+
+	  bool isSet(uint64_t& m) {
+		  return ((m & bitmask_)>0);
+	  }
+
+	  uint64_t bitmask_;
+
+  };
+
   /* FLAGS */
-  //FIRST_SCAN_ SLICE,PARTITIONS, ETC
-  //LAST_SCAN
-  //Noise scan
-  //reference data (parallel imaging)
-  //Navigation data
-  //REVERSE
+  enum {
+	  /* Looping indicators */
+	  FIRST_IN_ENCODE_STEP1                	= 1,
+	  LAST_IN_ENCODE_STEP1    				= 2,
+	  FIRST_IN_ENCODE_STEP2   				= 3,
+	  LAST_IN_ENCODE_STEP2    				= 4,
+	  FIRST_IN_AVERAGE        				= 5,
+	  LAST_IN_AVERAGE         				= 6,
+	  FIRST_IN_SLICE          				= 7,
+	  LAST_IN_SLICE           				= 8,
+	  FIRST_IN_CONTRAST       				= 9,
+	  LAST_IN_CONTRAST        				= 10,
+	  FIRST_IN_PHASE          				= 11,
+	  LAST_IN_PHASE           				= 12,
+	  FIRST_IN_REPETITION     				= 13,
+	  LAST_IN_REPETITION      				= 14,
+	  FIRST_IN_SET            				= 15,
+	  LAST_IN_SET             				= 16,
+	  FIRST_IN_SEGMENT        				= 17,
+	  LAST_IN_SEGMENT         				= 18,
+
+	  IS_NOISE_MEASUREMENT                	= 19,
+	  IS_PARALLEL_CALIBRATION             	= 20,
+	  IS_PARALLEL_CALIBRATION_AND_IMAGING 	= 21,
+	  IS_REVERSE              				= 22,
+	  IS_NAVIGATION_DATA      				= 23,
+
+	  USER1                   				= 57,
+	  USER2                   				= 58,
+	  USER3                   				= 59,
+	  USER4                   				= 60,
+	  USER5                   				= 61,
+	  USER6                   				= 62,
+	  USER7                   				= 63,
+	  USER8                   				= 64
+  };
+
 
   /**
      Struct used for keeping track of typical loop counters in MR experiment.
@@ -103,6 +155,14 @@ namespace ISMRMRD
      if (data_) delete [] data_;
    }
 
+   bool isFlagSet(FlagBit f) {
+	   return f.isSet(head_.flags);
+   }
+
+   void setFlag(FlagBit f) {
+	   head_.flags |= f.bitmask_;
+   }
+
    AcquisitionHeader head_; //Header, see above
    
    float* traj_;            //Trajectory, elements = head_.trajectory_dimensions*head_.number_of_samples
@@ -115,5 +175,7 @@ namespace ISMRMRD
  };
 
 } //End of ISMRMRD namespace
+
+#pragma pack(pop) //Restore old alignmen
 
 #endif //ISMRMRD_H

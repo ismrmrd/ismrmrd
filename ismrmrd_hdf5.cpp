@@ -12,7 +12,6 @@ namespace ISMRMRD
 int IsmrmrdDataset::openHDF5File()
 {
 
-	std::cout << "Opening dataset..." << std::endl;
 	if (file_exists_) {
 		try {
 			if (!H5File::isHdf5(filename_.c_str())) {
@@ -33,139 +32,167 @@ int IsmrmrdDataset::openHDF5File()
 			return -1;
 		}
 		file_open_ = true;
+		file_exists_ = true;
+	} else {
+		std::cerr << "Unable to find HDF5 file (" << filename_ << "), and file cannot be created." << std::endl;
+		return -1;
 	}
 
 	return 0;
 }
 
 
-
-
-  int H5AppendAcquisition(const Acquisition& a, const char* filename, const char* varname)
-  {
-	   /*
-
-    H5Acquisition tmp;
-    tmp.head = a.head_;
-
-    tmp.traj.len = a.head_.trajectory_dimensions*a.head_.number_of_samples;
-    tmp.traj.p = (void*) a.traj_;
-
-    tmp.data.len = a.head_.number_of_samples*a.head_.active_channels*2;
-    tmp.data.p = (void*) a.data_;
-
-    boost::shared_ptr<DataType> structdatatype = getHDF5CompositeType<STRUCT>();
-    boost::shared_ptr<DataType> vdatatype = getHDF5Type<DATATYPE>();
-    vdatatype = boost::shared_ptr<DataType>(new DataType(H5Tvlen_create (vdatatype->getId())));
-
-	CompType* ct = new CompType(sizeof(local_hdf5_append_struct<STRUCT>));
-	ct->insertMember( "h", HOFFSET(local_hdf5_append_struct<STRUCT>,h),  *structdatatype);
-	ct->insertMember( "d", HOFFSET(local_hdf5_append_struct<STRUCT>,d),  *vdatatype);
-
-	boost::shared_ptr<DataType> datatype(ct);
-
-
-	return hdf5_append_struct(&tmp, datatype, filename, varname);
-	*/
-    return 0;
+bool IsmrmrdDataset::linkExists(const char* name)
+{
+	if (!file_open_) {
+		std::cerr << "IsmrmrdDataset::linkExists: file not open." << std::endl;
+		return -1;
+	}
+	std::vector<std::string> name_elements;
+	std::string splitstr("/");
+	std::string namestr(name);
+	boost::split(name_elements, namestr, boost::is_any_of(splitstr));
+	std::string current_path("");
+	for (unsigned int i = 0; i < name_elements.size(); i++) {
+		if (name_elements[i].size() > 0) {
+			current_path = current_path + std::string("/") + name_elements[i];
+			if (!H5Lexists(file_->getId(), current_path.c_str(), H5P_DEFAULT )) {
+				return false;
+			}
+		}
+	}
+	return true;
 }
 
-  /*
-template <class T> boost::shared_ptr<CompType> getHDF5CompositeType();
-template <class T> boost::shared_ptr<DataType> getHDF5ArrayType(int LENGTH);
-
-template <> boost::shared_ptr<DataType> getHDF5ArrayType<float>(int LENGTH)
+int IsmrmrdDataset::createGroupForDataset(const char* name)
 {
-	std::vector<hsize_t> dims(1,LENGTH);
-	//hid_t array_tid = H5Tarray_create(H5T_NATIVE_FLOAT, 1, &dims[0]);
-	boost::shared_ptr<DataType> ret(new ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]));
-	return ret;
+	if (!file_open_) {
+		std::cerr << "IsmrmrdDataset::linkExists: file not open." << std::endl;
+		return -1;
+	}
+
+	std::vector<std::string> name_elements;
+	std::string splitstr("/");
+	std::string namestr(name);
+	boost::split(name_elements, namestr, boost::is_any_of(splitstr));
+	std::string current_path("");
+	for (unsigned int i = 0; i < name_elements.size(); i++) {
+		if (name_elements[i].size() > 0) {
+			current_path = current_path + std::string("/") + name_elements[i];
+			if (!H5Lexists(file_->getId(), current_path.c_str(), H5P_DEFAULT )) {
+				file_->createGroup( current_path.c_str());
+			}
+		}
+	}
+	return 0;
 }
 
-template <> boost::shared_ptr<DataType> getHDF5ArrayType<ACE_UINT16>(int LENGTH)
+int IsmrmrdDataset::appendAcquisition(Acquisition* a)
 {
-	std::vector<hsize_t> dims(1,LENGTH);
-	//hid_t array_tid = H5Tarray_create(H5T_NATIVE_USHORT, 1, &dims[0]);
-	//boost::shared_ptr<DataType> ret(new DataType(array_tid));
-	boost::shared_ptr<DataType> ret(new ArrayType(PredType::NATIVE_USHORT, 1, &dims[0]));
-	return ret;
-}
+	std::vector<hsize_t> dims(2,1);
+	std::vector<hsize_t> max_dims(2,1);max_dims[0] = H5S_UNLIMITED;
 
-template <> boost::shared_ptr<CompType> getHDF5CompositeType<LoopCounters>()
-{
-	boost::shared_ptr<CompType> ret;
+	int rank = 2;
+	std::vector<hsize_t> ddims = dims;
+	std::vector<hsize_t> offset(rank,0);
+
+	bool new_dataset = false;
+
+	if (!dataset_open_) {
+		try {
+			boost::shared_ptr<DataType> datatype = getIsmrmrdHDF5Type<AcquisitionHeader_with_data>();
+			if (!linkExists(data_path_.c_str())) {
+				DataSpace mspace1( dims.size(), &dims[0], &max_dims[0]);
+				DSetCreatPropList cparms;
+				cparms.setChunk( dims.size(), &dims[0] );
+				dataset_ = boost::shared_ptr<DataSet>(new DataSet(file_->createDataSet( data_path_.c_str(), *datatype, mspace1, cparms)));
+				new_dataset = true;
+			} else {
+				dataset_ = boost::shared_ptr<DataSet>(new DataSet(file_->openDataSet(data_path_.c_str())));
+				DataType mtype = dataset_->getDataType();
+				if (!(mtype == (*datatype))) {
+					std::cout << "Attempting to append data to HDF5 dataset with the wrong type" << std::endl;
+					return -1;
+				}
+
+			}
+			dataset_open_ = true;
+		} catch( Exception& e ) {
+			std::cout << "Exception caught while opening (creating) HDF5 dataset" << std::endl;
+			std::cout << e.getDetailMsg() << std::endl;
+			return -1;
+		}
+	}
 
 	try {
-		ret = boost::shared_ptr<CompType>(new CompType(sizeof(LoopCounters)));
+		boost::shared_ptr<DataType> datatype = getIsmrmrdHDF5Type<AcquisitionHeader_with_data>();
+		AcquisitionHeader_with_data tmp;
+		tmp.head = a->head_;
+		tmp.traj.len = tmp.head.trajectory_dimensions*tmp.head.number_of_samples;
+		tmp.traj.p = static_cast<void*>(a->traj_);
 
-		ret->insertMember( "line",        HOFFSET(LoopCounters,line),        PredType::NATIVE_USHORT);
-		ret->insertMember( "acquisition", HOFFSET(LoopCounters,acquisition), PredType::NATIVE_USHORT);
-		ret->insertMember( "slice",       HOFFSET(LoopCounters,slice),       PredType::NATIVE_USHORT);
-		ret->insertMember( "partition",   HOFFSET(LoopCounters,partition),   PredType::NATIVE_USHORT);
-		ret->insertMember( "echo",        HOFFSET(LoopCounters,echo),        PredType::NATIVE_USHORT);
-		ret->insertMember( "phase",       HOFFSET(LoopCounters,phase),       PredType::NATIVE_USHORT);
-		ret->insertMember( "repetition",  HOFFSET(LoopCounters,repetition),  PredType::NATIVE_USHORT);
-		ret->insertMember( "set",         HOFFSET(LoopCounters,set),         PredType::NATIVE_USHORT);
-		ret->insertMember( "segment",     HOFFSET(LoopCounters,segment),     PredType::NATIVE_USHORT);
-		ret->insertMember( "channel",     HOFFSET(LoopCounters,channel),     PredType::NATIVE_USHORT);
-	} catch ( ... ) {
-		std::cout << "Exception caught while creating HDF5 compound datatype for LoopCounter" << std::endl;
+		tmp.data.len = tmp.head.active_channels*tmp.head.number_of_samples;
+		tmp.data.p = static_cast<void*>(a->data_);
+
+		DataSpace mspace1 = dataset_->getSpace();
+		rank = mspace1.getSimpleExtentNdims();
+		if (rank != 2) {
+			std::cerr << "Wrong rank (" << rank << ") found in HDF5 dataset" << std::endl;
+			return -1;
+		}
+
+		if (!new_dataset) {
+			mspace1.getSimpleExtentDims(&ddims[0], NULL);
+			offset[0] = ddims[0];
+			ddims[0]++;
+
+			dataset_->extend(&ddims[0]);
+		}
+		DataSpace fspace2 = dataset_->getSpace();
+		fspace2.selectHyperslab( H5S_SELECT_SET, &dims[0], &offset[0] );
+
+		DataSpace mspace2( rank, &dims[0] );
+		dataset_->write( &tmp, *datatype, mspace2, fspace2 );
+
+	} catch( Exception& e ) {
+		std::cout << "Exception caught while writing HDF5 data" << std::endl;
+		std::cout << e.getDetailMsg() << std::endl;
+		return -1;
 	}
-	return ret;
+
+	return 0;
 }
 
-template <> boost::shared_ptr<CompType> getHDF5CompositeType<GadgetMessageAcquisition>()
-{
-	boost::shared_ptr<CompType> ret(new CompType(sizeof(GadgetMessageAcquisition)));
-	ret->insertMember( "flags",              HOFFSET(GadgetMessageAcquisition,flags),               PredType::NATIVE_UINT);
-	ret->insertMember( "meas_uid",           HOFFSET(GadgetMessageAcquisition,meas_uid),            PredType::NATIVE_UINT);
-	ret->insertMember( "scan_counter",       HOFFSET(GadgetMessageAcquisition, scan_counter),       PredType::NATIVE_UINT);
-	ret->insertMember( "time_stamp",         HOFFSET(GadgetMessageAcquisition, time_stamp),         PredType::NATIVE_UINT);
-	ret->insertMember( "pmu_time_stamp",     HOFFSET(GadgetMessageAcquisition, pmu_time_stamp),         PredType::NATIVE_UINT);
-	ret->insertMember( "samples",            HOFFSET(GadgetMessageAcquisition, samples),            PredType::NATIVE_USHORT);
-	ret->insertMember( "channels",           HOFFSET(GadgetMessageAcquisition, channels),           PredType::NATIVE_USHORT);
-	ret->insertMember( "centre_column",      HOFFSET(GadgetMessageAcquisition, centre_column),           PredType::NATIVE_USHORT);
+int IsmrmrdDataset::writeHeader(std::string& xml) {
+	std::vector<hsize_t> dims(1,1);
+	std::vector<hsize_t> max_dims(1,1);
 
-	boost::shared_ptr<DataType> position_type = getHDF5ArrayType<float>(3);
-	boost::shared_ptr<DataType> quarterion_type = getHDF5ArrayType<float>(4);
-	boost::shared_ptr<CompType> loopcounters_type = getHDF5CompositeType<LoopCounters>();
+	boost::shared_ptr<DataSet> xml_dataset;
+	hid_t datatype = H5Tcopy (H5T_C_S1);
+	H5Tset_size (datatype, H5T_VARIABLE);
+	try {
+		if (!linkExists(xml_header_path_.c_str())) {
+			DataSpace mspace1( dims.size(), &dims[0], &max_dims[0]);
+			xml_dataset = boost::shared_ptr<DataSet>(new DataSet(file_->createDataSet( xml_header_path_.c_str(), datatype, mspace1)));
+		} else {
+			xml_dataset = boost::shared_ptr<DataSet>(new DataSet(file_->openDataSet(xml_header_path_.c_str())));
+			DataType mtype = dataset_->getDataType();
+			if (!(mtype == (datatype))) {
+				std::cout << "Attempting to append XML data to HDF5 dataset with the wrong type" << std::endl;
+				return -1;
+			}
+		}
+		DataSpace mspace1 = xml_dataset->getSpace();
+		xml_dataset->write( xml.c_str(), datatype, mspace1);
+	} catch( Exception& e ) {
+			std::cout << "Exception caught while writing XML Header to HDF5 file" << std::endl;
+			std::cout << e.getDetailMsg() << std::endl;
+			return -1;
+	}
 
-	ret->insertMember( "position",           HOFFSET(GadgetMessageAcquisition, position),       *position_type);
-	ret->insertMember( "quarternion",        HOFFSET(GadgetMessageAcquisition, quarternion),        *quarterion_type);
-	ret->insertMember( "table_position",     HOFFSET(GadgetMessageAcquisition, table_position),     PredType::NATIVE_FLOAT);
-	ret->insertMember( "idx",                HOFFSET(GadgetMessageAcquisition, idx),                *loopcounters_type);
-	ret->insertMember( "min_idx",            HOFFSET(GadgetMessageAcquisition, min_idx),            *loopcounters_type);
-	ret->insertMember( "max_idx",            HOFFSET(GadgetMessageAcquisition, max_idx),            *loopcounters_type);
 
-	return ret;
+
+ return 0;
 }
-
-
-  int H5AppendAcquisition(const Acquisition& a, const char* filename, const char* varname);
-  {
-
-    H5Acquisition tmp;
-    tmp.head = a.head_;
-
-    tmp.traj.len = a.head_.trajectory_dimensions*a.head_.number_of_samples;
-    tmp.traj.p = (void*) a.traj_;
-    
-    tmp.data.len = a.head_.number_of_samples*a.head_.active_channels*2;
-    tmp.data.p = (void*) a.data_;
-
-    boost::shared_ptr<DataType> structdatatype = getHDF5CompositeType<STRUCT>();
-    boost::shared_ptr<DataType> vdatatype = getHDF5Type<DATATYPE>();
-    vdatatype = boost::shared_ptr<DataType>(new DataType(H5Tvlen_create (vdatatype->getId())));
-
-	CompType* ct = new CompType(sizeof(local_hdf5_append_struct<STRUCT>));
-	ct->insertMember( "h", HOFFSET(local_hdf5_append_struct<STRUCT>,h),  *structdatatype);
-	ct->insertMember( "d", HOFFSET(local_hdf5_append_struct<STRUCT>,d),  *vdatatype);
-
-	boost::shared_ptr<DataType> datatype(ct);
-
-
-	return hdf5_append_struct(&tmp, datatype, filename, varname);
-}
-*/
 
 } //End of ISMRMRD namespace

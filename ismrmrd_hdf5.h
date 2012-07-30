@@ -26,31 +26,59 @@ public:
 	: filename_(filename)
 	, groupname_(groupname)
 	, file_open_(false)
+	, dataset_open_(false)
 	, create_file_if_needed_(create_file_if_needed)
 	{
 		std::ifstream ifile(filename_.c_str());
 		file_exists_ = ifile;
 
 		if (openHDF5File() < 0) {
-			std::cerr << "Error opening HDF file" << std::endl;
+			std::cerr << "IsmrmrdDataset: Error opening HDF file." << std::endl;
 		}
+
+		if (!linkExists(groupname_.c_str())) {
+			if (createGroupForDataset(groupname_.c_str()) < 0) {
+				std::cerr << "IsmrmrdDataset: Error create HDF5 group." << std::endl;
+			}
+		}
+
+		xml_header_path_ = groupname_ + std::string("/xml");
+		data_path_ = groupname_ + std::string("/data");
  	}
+
+	int appendAcquisition(Acquisition* a);
+	int writeHeader(std::string& xml);
+
+protected:
+	int openHDF5File();
+	bool linkExists(const char* name);
+	int createGroupForDataset(const char* name);
 
 	bool fileExists() {
 		return file_exists_;
 	}
 
-protected:
-	int openHDF5File();
-
 	std::string filename_;
 	std::string groupname_;
+	std::string xml_header_path_;
+	std::string data_path_;
+
 	bool file_open_;
 	bool file_exists_;
 	bool create_file_if_needed_;
+	bool dataset_open_;
 
 	boost::shared_ptr<H5File> file_;
+	boost::shared_ptr<DataSet> dataset_;
 
+};
+
+
+struct AcquisitionHeader_with_data
+{
+	AcquisitionHeader head;
+	hvl_t traj;
+	hvl_t data;
 };
 
 EXPORTISMRMRD int H5AppendAcquisition(Acquisition* a, const char* filename, const char* varname);
