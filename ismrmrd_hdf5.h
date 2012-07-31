@@ -49,6 +49,9 @@ public:
 	int appendAcquisition(Acquisition* a);
 	int writeHeader(std::string& xml);
 
+	boost::shared_ptr<std::string> readHeader();
+	boost::shared_ptr<Acquisition> readAcquisition(unsigned long index = 0);
+
 protected:
 	int openHDF5File();
 	bool linkExists(const char* name);
@@ -80,9 +83,6 @@ struct AcquisitionHeader_with_data
 	hvl_t traj;
 	hvl_t data;
 };
-
-EXPORTISMRMRD int H5AppendAcquisition(Acquisition* a, const char* filename, const char* varname);
-EXPORTISMRMRD boost::shared_ptr<Acquisition> H5ReadAcquisition(const char* filename, const char* varname, unsigned long index = 0);
 
 
 

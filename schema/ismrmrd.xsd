@@ -1,32 +1,28 @@
-<?xml version="1.0"?>
-
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-targetNamespace="http://www.ismrm.org/ISMRMRD"
-xmlns="http://www.ismrm.org/ISMRMRD"
-elementFormDefault="qualified">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema xmlns="http://www.ismrm.org/ISMRMRD" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.ismrm.org/ISMRMRD">
 
   <xs:element name="ismrmrdHeader">
     <xs:complexType>
       <xs:sequence>
-	<xs:element name="subjectInformation" type="subjectInformationType" minOccurs="0" maxOccurs="1" />
-	<xs:element name="acquisitionSystemInformation" type="acquisitionSystemInformationType" minOccurs="0" maxOccurs="1" /> 
-	<xs:element name="experimentalConditions" type="experimentalConditionsType" minOccurs="1" maxOccurs="1"/>
-	<xs:element name="encoding" maxOccurs="65535" minOccurs="1">
+	<xs:element maxOccurs="1" minOccurs="0" name="subjectInformation" type="subjectInformationType"/>
+	<xs:element maxOccurs="1" minOccurs="0" name="acquisitionSystemInformation" type="acquisitionSystemInformationType"/> 
+	<xs:element maxOccurs="1" minOccurs="1" name="experimentalConditions" type="experimentalConditionsType"/>
+	<xs:element maxOccurs="65535" minOccurs="1" name="encoding">
 	  <xs:complexType>
 	    <xs:all>
-	      <xs:element name="encodedSpace"   type="encodingSpaceType"  minOccurs="1" maxOccurs="1"/>
-	      <xs:element name="reconSpace"     type="encodingSpaceType"  minOccurs="1" maxOccurs="1"/>
-	      <xs:element name="encodingLimits" type="encodingLimitsType" minOccurs="1" maxOccurs="1"/>
-	      <xs:element name="trajectory"     type="trajectoryType"     minOccurs="1" maxOccurs="1"/>
-	      <xs:element name="trajectoryDescription" type="trajectoryDescriptionType" minOccurs="0" maxOccurs="1" />
+	      <xs:element maxOccurs="1" minOccurs="1" name="encodedSpace" type="encodingSpaceType"/>
+	      <xs:element maxOccurs="1" minOccurs="1" name="reconSpace" type="encodingSpaceType"/>
+	      <xs:element maxOccurs="1" minOccurs="1" name="encodingLimits" type="encodingLimitsType"/>
+	      <xs:element maxOccurs="1" minOccurs="1" name="trajectory" type="trajectoryType"/>
+	      <xs:element maxOccurs="1" minOccurs="0" name="trajectoryDescription" type="trajectoryDescriptionType"/>
 	    </xs:all>
 	  </xs:complexType>
 	</xs:element>
-	<xs:element name="userParameters" minOccurs="0" maxOccurs="1">
+	<xs:element maxOccurs="1" minOccurs="0" name="userParameters">
 	  <xs:complexType>
 	    <xs:sequence>
-	      <xs:element name="userParameterLong"   type="userParameterLongType"   minOccurs="0" maxOccurs="unbounded"/>
-	      <xs:element name="userParameterDouble" type="userParameterDoubleType" minOccurs="0" maxOccurs="unbounded"/>
+	      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterLong" type="userParameterLongType"/>
+	      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterDouble" type="userParameterDoubleType"/>
 	    </xs:sequence>
 	  </xs:complexType>
 	</xs:element>
@@ -36,8 +32,8 @@ elementFormDefault="qualified">
 
   <xs:complexType name="subjectInformationType">
     <xs:all>
-      <xs:element name="patientName" type="xs:string" minOccurs="0"/>
-      <xs:element name="patientWeight_kg" type="xs:float" minOccurs="0"/>
+      <xs:element minOccurs="0" name="patientName" type="xs:string"/>
+      <xs:element minOccurs="0" name="patientWeight_kg" type="xs:float"/>
     </xs:all>
   </xs:complexType>
   
@@ -49,9 +45,10 @@ elementFormDefault="qualified">
 
   <xs:complexType name="acquisitionSystemInformationType">
     <xs:all>
-      <xs:element name="systemVendor" type="xs:string"  minOccurs="0"/>
-      <xs:element name="systemModel"  type="xs:string"  minOccurs="0"/>
-      <xs:element name="systemFieldStrength_T" type="xs:float" minOccurs="0"/>
+      <xs:element minOccurs="0" name="systemVendor" type="xs:string"/>
+      <xs:element minOccurs="0" name="systemModel" type="xs:string"/>
+      <xs:element minOccurs="0" name="systemFieldStrength_T" type="xs:float"/>
+      <xs:element minOccurs="0" name="receivedChannels" type="xs:unsignedShort"/>
     </xs:all>
   </xs:complexType>
 
@@ -60,18 +57,18 @@ elementFormDefault="qualified">
       <xs:element name="matrixSize">
 	<xs:complexType>
 	  <xs:sequence>
-	    <xs:element type="xs:unsignedShort" name="x" default="1" minOccurs="1" maxOccurs="1"/>
-	    <xs:element type="xs:unsignedShort" name="y" default="1" minOccurs="1" maxOccurs="1"/>
-	    <xs:element type="xs:unsignedShort" name="z" default="1" minOccurs="1" maxOccurs="1"/>
+	    <xs:element default="1" maxOccurs="1" minOccurs="1" name="x" type="xs:unsignedShort"/>
+	    <xs:element default="1" maxOccurs="1" minOccurs="1" name="y" type="xs:unsignedShort"/>
+	    <xs:element default="1" maxOccurs="1" minOccurs="1" name="z" type="xs:unsignedShort"/>
 	  </xs:sequence>
 	</xs:complexType>
       </xs:element>
       <xs:element name="fieldOfView_m">
 	<xs:complexType>
 	  <xs:sequence>
-	    <xs:element type="xs:float" name="x" minOccurs="1" maxOccurs="1"/>
-	    <xs:element type="xs:float" name="y" minOccurs="1" maxOccurs="1"/>
-	    <xs:element type="xs:float" name="z" minOccurs="1" maxOccurs="1"/>
+	    <xs:element maxOccurs="1" minOccurs="1" name="x" type="xs:float"/>
+	    <xs:element maxOccurs="1" minOccurs="1" name="y" type="xs:float"/>
+	    <xs:element maxOccurs="1" minOccurs="1" name="z" type="xs:float"/>
 	  </xs:sequence>
 	</xs:complexType>
       </xs:element>
@@ -80,24 +77,24 @@ elementFormDefault="qualified">
 
   <xs:complexType name="limitType">
     <xs:all> 
-      <xs:element name="minimum" type="xs:unsignedShort" default="0"/>
-      <xs:element name="maximum" type="xs:unsignedShort" default="0"/>
-      <xs:element name="center" type="xs:unsignedShort" default="0"/>
+      <xs:element default="0" name="minimum" type="xs:unsignedShort"/>
+      <xs:element default="0" name="maximum" type="xs:unsignedShort"/>
+      <xs:element default="0" name="center" type="xs:unsignedShort"/>
     </xs:all>
   </xs:complexType>
 
   <xs:complexType name="encodingLimitsType">
     <xs:all>
-      <xs:element name="kspace_encoding_step_0" type="limitType" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="kspace_encoding_step_1" type="limitType" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="kspace_encoding_step_2" type="limitType" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="average"                type="limitType" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="slice"                  type="limitType" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="contrast"               type="limitType" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="phase"                  type="limitType" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="repetition"             type="limitType" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="set"                    type="limitType" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="segment"                type="limitType" minOccurs="0" maxOccurs="1"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="kspace_encoding_step_0" type="limitType"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="kspace_encoding_step_1" type="limitType"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="kspace_encoding_step_2" type="limitType"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="average" type="limitType"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="slice" type="limitType"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="contrast" type="limitType"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="phase" type="limitType"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="repetition" type="limitType"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="set" type="limitType"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="segment" type="limitType"/>
     </xs:all>
   </xs:complexType>
 
@@ -114,23 +111,23 @@ elementFormDefault="qualified">
 
   <xs:complexType name="trajectoryDescriptionType">
     <xs:sequence>
-      <xs:element name="identifier" type="xs:string" minOccurs="1" maxOccurs="1" />
-      <xs:element name="userParameterLong"   type="userParameterLongType"   minOccurs="0" maxOccurs="unbounded"/>
-      <xs:element name="userParameterDouble" type="userParameterDoubleType" minOccurs="0" maxOccurs="unbounded"/>
-      <xs:element name="comment" type="xs:string" minOccurs="0" maxOccurs="1" />
+      <xs:element maxOccurs="1" minOccurs="1" name="identifier" type="xs:string"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterLong" type="userParameterLongType"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterDouble" type="userParameterDoubleType"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="comment" type="xs:string"/>
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="userParameterLongType">
     <xs:all>
-      <xs:element name="name"  type="xs:string"/>
+      <xs:element name="name" type="xs:string"/>
       <xs:element name="value" type="xs:long"/> 
     </xs:all>
   </xs:complexType>
 
   <xs:complexType name="userParameterDoubleType">
     <xs:all>
-      <xs:element name="name"  type="xs:string"/>
+      <xs:element name="name" type="xs:string"/>
       <xs:element name="value" type="xs:double"/> 
     </xs:all>
   </xs:complexType>
