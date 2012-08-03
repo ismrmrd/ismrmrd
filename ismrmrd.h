@@ -24,6 +24,8 @@ typedef unsigned __int64 uint64_t;
 
 #include <stdio.h>
 #include <string.h>
+#include <exception>
+#include <iostream>
 
 #pragma pack(push, 4) //Use 4 byte alignment
 
@@ -151,8 +153,7 @@ namespace ISMRMRD
      }
 
    ~Acquisition() {
-     if (traj_) delete [] traj_;
-     if (data_) delete [] data_;
+	   deleteData();
    }
 
    bool isFlagSet(FlagBit f) {
@@ -161,6 +162,58 @@ namespace ISMRMRD
 
    void setFlag(FlagBit f) {
 	   head_.flags |= f.bitmask_;
+   }
+
+   Acquisition(const Acquisition& a) {   // copy constructor
+	   head_ = a.head_;
+	   if (head_.trajectory_dimensions > 0) {
+		   size_t trajectory_elements = head_.number_of_samples*head_.trajectory_dimensions;
+		   try {
+			   traj_ = new float[trajectory_elements];
+		   } catch (std::exception& e) {
+			   std::cerr << "Unable to allocate trajectory in ISMRMRD::Acquisition: " << e.what() << std::endl;
+		   }
+		   memcpy(traj_,a.traj_,sizeof(float)*trajectory_elements);
+	   } else {
+		   traj_ = 0;
+	   }
+
+	   size_t data_elements = head_.number_of_samples*head_.active_channels;
+	   if (data_elements > 0) {
+		   try {
+			   data_ = new float[data_elements*2]; //*2 for complex
+		   } catch (std::exception& e) {
+			   std::cerr << "Unable to allocate trajectory in ISMRMRD::Acquisition: " << e.what() << std::endl;
+		   }
+		   memcpy(data_,a.data_,sizeof(float)*2*data_elements);
+	   } else {
+		   data_ = 0;
+	   }
+   }
+
+   Acquisition& operator=(const Acquisition& a) {
+	   head_ = a.head_;
+	   deleteData();
+	   if (head_.trajectory_dimensions > 0) {
+		   size_t trajectory_elements = head_.number_of_samples*head_.trajectory_dimensions;
+		   try {
+			   traj_ = new float[trajectory_elements];
+		   } catch (std::exception& e) {
+			   std::cerr << "Unable to allocate trajectory in ISMRMRD::Acquisition: " << e.what() << std::endl;
+		   }
+		   memcpy(traj_,a.traj_,sizeof(float)*trajectory_elements);
+	   }
+
+	   size_t data_elements = head_.number_of_samples*head_.active_channels;
+	   if (data_elements > 0) {
+		   try {
+			   data_ = new float[data_elements*2]; //*2 for complex
+		   } catch (std::exception& e) {
+			   std::cerr << "Unable to allocate trajectory in ISMRMRD::Acquisition: " << e.what() << std::endl;
+		   }
+		   memcpy(data_,a.data_,sizeof(float)*2*data_elements);
+	   }
+	   return *this;
    }
 
    AcquisitionHeader head_; //Header, see above
@@ -172,6 +225,12 @@ namespace ISMRMRD
    float* data_;            //Actual data, elements = head_.number_of_samples*head_.active_channels*2 
                             //   [re,im,re,im,.....,re,im,re,im,.....,re,im,re,im,.....]
                             //    ---channel 1-------channel 2---------channel 3-----
+
+ protected:
+   void deleteData() {
+	 if (traj_) {delete [] traj_; traj_ = 0;}
+	 if (data_) {delete [] data_; data_ = 0;}
+   }
  };
 
 } //End of ISMRMRD namespace

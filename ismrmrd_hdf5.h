@@ -51,6 +51,7 @@ public:
 
 	boost::shared_ptr<std::string> readHeader();
 	boost::shared_ptr<Acquisition> readAcquisition(unsigned long index = 0);
+	unsigned long getNumberOfAcquisitions();
 
 protected:
 	int openHDF5File();

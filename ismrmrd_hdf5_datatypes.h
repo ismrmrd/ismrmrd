@@ -122,7 +122,7 @@ template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<AcquisitionHeader_wit
 
 
 	ret->insertMember( "head",  HOFFSET(AcquisitionHeader_with_data,head),   	*head_type);
-	ret->insertMember( "traj", HOFFSET(AcquisitionHeader_with_data,traj),  		*cxvdatatype);
+	ret->insertMember( "traj", HOFFSET(AcquisitionHeader_with_data,traj),  		*realvdatatype);
 	ret->insertMember( "data", HOFFSET(AcquisitionHeader_with_data,data),  		*cxvdatatype);
 	return ret;
 }

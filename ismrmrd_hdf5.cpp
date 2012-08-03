@@ -46,7 +46,7 @@ bool IsmrmrdDataset::linkExists(const char* name)
 {
 	if (!file_open_) {
 		std::cerr << "IsmrmrdDataset::linkExists: file not open." << std::endl;
-		return -1;
+		return false;
 	}
 	std::vector<std::string> name_elements;
 	std::string splitstr("/");
@@ -163,6 +163,40 @@ int IsmrmrdDataset::appendAcquisition(Acquisition* a)
 	return 0;
 }
 
+unsigned long IsmrmrdDataset::getNumberOfAcquisitions()
+{
+	unsigned long ret = 0;
+
+	if (!linkExists(data_path_.c_str())) {
+		std::cerr << "Data path (" << data_path_ << ") does not exist in HDF5 dataset" << std::endl;
+		return ret;
+	}
+
+	if (!dataset_open_) {
+		try{
+			dataset_ = boost::shared_ptr<DataSet>(new DataSet(file_->openDataSet(data_path_.c_str())));
+			dataset_open_ = true;
+		} catch( Exception& e ) {
+			std::cout << "Exception caught while opening HDF5 dataset" << std::endl;
+			std::cout << e.getDetailMsg() << std::endl;
+			return ret;
+		}
+	}
+
+	try {
+		DataSpace dataspace = dataset_->getSpace();
+		int rank = dataspace.getSimpleExtentNdims();
+		std::vector<hsize_t> dims(rank,0);
+		dataspace.getSimpleExtentDims(&dims[0]);
+		ret = dims[0];
+	} catch (...) {
+		std::cout << "Error caught while attempting to access the number of elements in HDF5 file" << std::endl;
+		return ret;
+	}
+
+	return ret;
+}
+
 boost::shared_ptr< Acquisition > IsmrmrdDataset::readAcquisition(unsigned long int index)
 {
 	boost::shared_ptr<Acquisition> ret;
@@ -202,7 +236,7 @@ boost::shared_ptr< Acquisition > IsmrmrdDataset::readAcquisition(unsigned long i
 			return ret;
 		}
 
-		std::vector<hsize_t> slice_dims(rank,0);
+		std::vector<hsize_t> slice_dims(rank,1);
 		std::vector<hsize_t> offset(rank,0);
 
 		slice_dims[0] = 1;
