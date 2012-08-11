@@ -74,7 +74,7 @@ template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<AcquisitionHeader>()
 
 	dims[0] = 4;
 	boost::shared_ptr<DataType> quaterion_array_type(new ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]));
-	ret->insertMember( "quarternion", 				HOFFSET(AcquisitionHeader, quarternion), 			*quaterion_array_type);
+	ret->insertMember( "quaternion", 				HOFFSET(AcquisitionHeader, quaternion), 			*quaterion_array_type);
 
 	dims[0] = 3;
 	boost::shared_ptr<DataType> table_array_type(new ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]));

@@ -133,8 +133,8 @@ namespace ISMRMRD
    uint16_t           trajectory_dimensions;          //Indicates the dimensionality of the trajectory vector (0 means no trajectory)
    float              sample_time_us;                 //Time between samples in micro seconds, sampling BW
    float              position[3];                    //Three-dimensional spatial offsets from isocenter
-   float              quarternion[4];                 //Angulation of acquisition
-   float	      	  patient_table_position[3];      //Patient table off-center
+   float              quaternion[4];                  //Angulation of acquisition
+   float              patient_table_position[3];      //Patient table off-center
    EncodingCounters   idx;                            //Encoding loop counters, see above
    int32_t            user_int[8];                    //Free user parameters
    float              user_float[8];                  //Free user parameters

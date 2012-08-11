@@ -14,9 +14,9 @@ int main (int argc, char* argv[])
 
     std::cout << "Number of encoding spaces: " << s->encoding().size() << std::endl;
     for (ismrmrdHeader::encoding_sequence::iterator i (s->encoding().begin ()); i != s->encoding().end(); ++i) {
-      std::cout << "FOV: " << i->encodedSpace().fieldOfView_m().x() 
-		<< ", " << i->encodedSpace().fieldOfView_m().y() 
-		<< ", " << i->encodedSpace().fieldOfView_m().z() << std::endl;
+      std::cout << "FOV: " << i->encodedSpace().fieldOfView_mm().x()
+		<< ", " << i->encodedSpace().fieldOfView_mm().y()
+		<< ", " << i->encodedSpace().fieldOfView_mm().z() << std::endl;
     }
   }
   catch (const xml_schema::exception& e) {

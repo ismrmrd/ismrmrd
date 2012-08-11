@@ -64,7 +64,7 @@
 	  </xs:sequence>
 	</xs:complexType>
       </xs:element>
-      <xs:element name="fieldOfView_m">
+      <xs:element name="fieldOfView_mm">
 	<xs:complexType>
 	  <xs:sequence>
 	    <xs:element maxOccurs="1" minOccurs="1" name="x" type="xs:float"/>
