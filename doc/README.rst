@@ -47,8 +47,8 @@ Overview
 
 The raw data format combines a mix of flexible data structures (XML header) and fixed structures (equivalent to C-structs). A raw data set consist of 2 sections:
 
-1. A flexible XML format document that can contain an arbitrary number of fields and accomodate everything from simple values (b-values, etc.) to entire vendor protocols, etc. This purpose of this XML document is to provide parameters that may be meaningful for some experiments but not for others. This XML format is defined by an XML Schema Definition file (ismrmrd.xsd). 
-2. Raw data section. This section contains all the acquired data in the experiment. Each data item is preceeded by a C-struct with encoding numbers, etc. Following this data header is a channel header and data for each acquired channel. The raw data headers are defined in a C/C++ header file (ismrmrd.h)
+1. A flexible XML format document that can contain an arbitrary number of fields and accommodate everything from simple values (b-values, etc.) to entire vendor protocols, etc. This purpose of this XML document is to provide parameters that may be meaningful for some experiments but not for others. This XML format is defined by an XML Schema Definition file (ismrmrd.xsd). 
+2. Raw data section. This section contains all the acquired data in the experiment. Each data item is preceded by a C-struct with encoding numbers, etc. Following this data header is a channel header and data for each acquired channel. The raw data headers are defined in a C/C++ header file (ismrmrd.h)
 
 Flexible Data Header
 .....................
@@ -60,7 +60,7 @@ An example of an XML file for a Cartesian 3D acquisition could look like:
 .. include:: ../schema/ismrmrd_example.xml
    :literal:
 
-The most critical elements for image reconstruction are contained in the ``<encoding>`` section of the document, which describes the encoded spaced and also the target reconstructed space. Along with the ``<encodingLimits>`` this section allows the reconstruction program to determine matrix sizes, oversampling factors, partial fourier, etc. In the example above, data is acquired with two-fold oversampling in the read-out (``x``) direction, which is reflected in the larger matrix size in the encoded space compared to the reconstruction space. The field of view is also twice as large in the encoded space. For the first phase encoding dimension (``y``), we have a combination of oversamling (20%), reduced phase resolution (only 83 lines of k-space acquired, and partial Fourier sampling, which is reflected in the asymetric center of the encoding limits of the ``<kspace_encoding_step_1>``. Specifically, the data lines would be placed into the encoding space like this:
+The most critical elements for image reconstruction are contained in the ``<encoding>`` section of the document, which describes the encoded spaced and also the target reconstructed space. Along with the ``<encodingLimits>`` this section allows the reconstruction program to determine matrix sizes, oversampling factors, partial Fourier, etc. In the example above, data is acquired with two-fold oversampling in the read-out (``x``) direction, which is reflected in the larger matrix size in the encoded space compared to the reconstruction space. The field of view is also twice as large in the encoded space. For the first phase encoding dimension (``y``), we have a combination of oversampling (20%), reduced phase resolution (only 83 lines of k-space acquired, and partial Fourier sampling, which is reflected in the asymmetric center of the encoding limits of the ``<kspace_encoding_step_1>``. Specifically, the data lines would be placed into the encoding space like this:
 
 ::
 
@@ -70,11 +70,11 @@ The most critical elements for image reconstruction are contained in the ``<enco
                          ^               ^                                  ^
                          0              28                                  83
 
-After FFT, only the central 116 lines are kept, i.e. there is a reduced field of view in the phase encoding direction. Center and encoding limits for the readout dimension is not given in the XML header. This is to accomodate sequences where the center of the readout may change from readout to readout (alternating directions of readout). There is a field on the individual data headers (see below) to indicate the center of the readout.
+After FFT, only the central 116 lines are kept, i.e. there is a reduced field of view in the phase encoding direction. Center and encoding limits for the readout dimension is not given in the XML header. This is to accommodate sequences where the center of the readout may change from readout to readout (alternating directions of readout). There is a field on the individual data headers (see below) to indicate the center of the readout.
 
 An experiment can have multiple encoding spaces and it is possible to indicate on each acquired data readout, which encoding space the data belongs to (see below).
 
-In addition to the defined field in the xml header, it is possible to add an arbitrary number of user defined parameters to accomodate special sequence parameters. Please consult the xml schema_ to see how user parameters are defined. Briefly, the XML header can have a section at the end which looks like:
+In addition to the defined field in the xml header, it is possible to add an arbitrary number of user defined parameters to accommodate special sequence parameters. Please consult the xml schema_ to see how user parameters are defined. Briefly, the XML header can have a section at the end which looks like:
 
 ::
 
@@ -94,7 +94,7 @@ In addition to the defined field in the xml header, it is possible to add an arb
 Fixed Data structures
 ......................
 
-Each acquisition is preceeded by the following fixed layout structure:
+Each acquisition is preceded by the following fixed layout structure:
 
 .. include:: ../ismrmrd.h
    :literal:
@@ -108,11 +108,11 @@ Where EncodingCounters are defined as:
    :start-line: 100
    :end-line: 112
 
-The interpretation of some of these fields may vary from sequence to sequence, i.e. for a Cartesian sequence, ``kspace_encode_step_1`` would be the phase encoding step, for a spiral sequence where phase encoding direction does not make sense, it would be the spiral interleave number. The ``encoding_space_ref`` enables the user to tie an acquisition to a specific encoding space (see above) in case there are multiple, e.g. in situations where a calibration scan may be integrated in the acquition. 
+The interpretation of some of these fields may vary from sequence to sequence, i.e. for a Cartesian sequence, ``kspace_encode_step_1`` would be the phase encoding step, for a spiral sequence where phase encoding direction does not make sense, it would be the spiral interleave number. The ``encoding_space_ref`` enables the user to tie an acquisition to a specific encoding space (see above) in case there are multiple, e.g. in situations where a calibration scan may be integrated in the acquisition. 
 
-The flags field is a bitmask, which in principle can be used freely by the user, but suggested flag values are given in ``ismrmrd.h``, it is recommended not to use already designated flag bits for custom purposes. Ther are a set of bits reserved for prototyping (bits 57-64), please see ``ismrmrd.h`` for details. 
+The flags field is a bit mask, which in principle can be used freely by the user, but suggested flag values are given in ``ismrmrd.h``, it is recommended not to use already designated flag bits for custom purposes. There are a set of bits reserved for prototyping (bits 57-64), please see ``ismrmrd.h`` for details. 
 
-The header contains a ``trajectory_dimensions`` field. If the value of this field is larger than 0, it means that trajectories are stored with each invidual acquisition. For a 2D acquisition, the ``trajectory_dimensions`` would typically be 2 and the convention (for memory layout) is that the header is followed immediately by the trajectory before the complex data. There is an example of how this memory layout could be implemented with a C++ class in the ``ismrmrd.h`` file:
+The header contains a ``trajectory_dimensions`` field. If the value of this field is larger than 0, it means that trajectories are stored with each individual acquisition. For a 2D acquisition, the ``trajectory_dimensions`` would typically be 2 and the convention (for memory layout) is that the header is followed immediately by the trajectory before the complex data. There is an example of how this memory layout could be implemented with a C++ class in the ``ismrmrd.h`` file:
 
 ::
    
@@ -133,12 +133,12 @@ The header contains a ``trajectory_dimensions`` field. If the value of this fiel
 
    };
 
-This suggested memory layout is only a suggestion. The HDF5 interface (see below) can be used to read the data into many different datastructures. In fact, the user can choose to read only part of the header or not read the data, etc. 
+This suggested memory layout is only a suggestion. The HDF5 interface (see below) can be used to read the data into many different data structures. In fact, the user can choose to read only part of the header or not read the data, etc. 
 
 File Storage
 -------------
 
-The ISMRM Raw Data format is stored in HDF5 format. Details on this format can be found at the HDF5_ website. Briefly it is a hierarchical dataformat (much like a file system), which can contain multiple variable organized in groups (like folders in a file system). The variables can contain arrays of data values, custom defined structs, or simple text fields. It is the convention (but not a requirement) that the ISMRMRD datasets are stored in a group called ``/dataset``. The XML configuration is stored in the variable ``/dataset/xml`` and the data is stored in ``/dataset/data``. HDF5 files can ve viewed with the HDFView application which is available on the HDF5 website for multiple platforms. Files can also be read directly in Matlab, in fact Matlab uses (since fileformat v7.3) HDF5 as its internal dataformat in the ``.mat`` files. As an example the data from an ISMRMRD file with name ``myfile.h5`` can be read in matlab with a command like:
+The ISMRM Raw Data format is stored in HDF5 format. Details on this format can be found at the HDF5_ website. Briefly it is a hierarchical data format (much like a file system), which can contain multiple variable organized in groups (like folders in a file system). The variables can contain arrays of data values, custom defined structs, or simple text fields. It is the convention (but not a requirement) that the ISMRMRD datasets are stored in a group called ``/dataset``. The XML configuration is stored in the variable ``/dataset/xml`` and the data is stored in ``/dataset/data``. HDF5 files can be viewed with the HDFView application which is available on the HDF5 website for multiple platforms. Files can also be read directly in Matlab, in fact Matlab uses (since file format v7.3) HDF5 as its internal data format in the ``.mat`` files. As an example the data from an ISMRMRD file with name ``myfile.h5`` can be read in matlab with a command like:
 
 ::
 
@@ -238,7 +238,7 @@ Since the XML part of the header is defined in the ``schema/ismrmrd.xsd`` file, 
    //Use the configuration, e.g.:
    std::cout << "Number of encoding spaces: " << cfg->encoding().size() << std::endl;
 
-Again, this is not a requirement for using the ISMRMRD format, the XML can be parsed with numerous other xml parsing libraries. The schema file ``schema/ismrmrd.xsd`` gives the user the option of validating the XML header before parsing, which is recommeded to reduce the chance of hard to detect errors in your code due to missing or malformed parameters. 
+Again, this is not a requirement for using the ISMRMRD format, the XML can be parsed with numerous other xml parsing libraries. The schema file ``schema/ismrmrd.xsd`` gives the user the option of validating the XML header before parsing, which is recommended to reduce the chance of hard to detect errors in your code due to missing or malformed parameters. 
 
 Matlab Example Code and Datasets
 --------------------------------
