@@ -49,6 +49,7 @@
       <xs:element minOccurs="0" name="systemVendor" type="xs:string"/>
       <xs:element minOccurs="0" name="systemModel" type="xs:string"/>
       <xs:element minOccurs="0" name="systemFieldStrength_T" type="xs:float"/>
+      <xs:element minOccurs="0" name="relativeReceiverNoiseBandwidth" type="xs:float"/>
       <xs:element minOccurs="0" name="receiverChannels" type="xs:unsignedShort"/>
     </xs:all>
   </xs:complexType>

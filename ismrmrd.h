@@ -139,7 +139,7 @@ namespace ISMRMRD
    int32_t            user_int[8];                    //Free user parameters
    float              user_float[8];                  //Free user parameters
  }; 
- 
+
  class Acquisition
  {
 
