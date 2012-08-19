@@ -4,7 +4,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="Docutils 0.8.1: http://docutils.sourceforge.net/" />
-<title>Magnetic Resonance Raw Data Standard</title>
+<title>ISMRM Raw Data Format (ISMRMRD)</title>
 <style type="text/css">
 
 /*
@@ -314,56 +314,30 @@ ul.auto-toc {
 </style>
 </head>
 <body>
-<div class="document" id="magnetic-resonance-raw-data-standard">
-<h1 class="title">Magnetic Resonance Raw Data Standard</h1>
+<div class="document" id="ismrm-raw-data-format-ismrmrd">
+<h1 class="title">ISMRM Raw Data Format (ISMRMRD)</h1>
 
-<p>DRAFT - Version 0.1 - July 2012</p>
-<div class="section" id="todo">
-<h1>TODO</h1>
-<ul>
-<li><p class="first">Make More Example Datasets</p>
-<blockquote>
+<div class="section" id="preamble">
+<h1>Preamble</h1>
+<p>A prerequisite for sharing magnetic resonance (imaging) reconstruction algorithms and code is a common raw data format. This document describes such a common raw data format and attempts to capture the data fields that are require to describe enough details about the magnetic resonance experiment to reconstruct images from the data.</p>
+<p>This standard was developed by a subcommittee of the ISMRM Sedona 2013 workshop. Comments and requests for additions/modifications can be sent to:</p>
 <ul class="simple">
-<li>Radial</li>
-<li>Diffusion</li>
-<li>Phase contrast flow</li>
+<li>Michael S. Hansen (michael.hansen AT nih DOT gov)</li>
+<li>Wally Block (wblock AT cae DOT wisc DOT edu)</li>
+<li>Mark Griswold (mag46 AT case DOT edu)</li>
+<li>Brian Hargreaves (bah AT stanford DOT edu)</li>
+<li>Peter Boernert (peter.boernert AT philips DOT com)</li>
+<li>Jim Pipe (Jim.Pipe AT DignityHealth DOT org)</li>
 </ul>
-</blockquote>
-</li>
-<li><p class="first">Flag definitions.</p>
-<blockquote>
-<ul class="simple">
-<li>Do we need more flags?</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first">Converters for vendor raw data</p>
-<blockquote>
-<ul class="simple">
-<li>Siemens (Hansen)</li>
-<li>Philips (Kozerke? Boernert?)</li>
-<li>GE (Hargreaves?)</li>
-<li>Bruker (Hansen?)</li>
-</ul>
-</blockquote>
-</li>
-</ul>
+<p>The source code, examples, and example datasets can be found on the ISMRM Raw Data Sourceforge <a class="reference external" href="http://sourceforge.net/projects/ismrmrd">website</a>.</p>
+<p>To download the source code, clone the git archive:</p>
+<pre class="literal-block">
+git clone git://git.code.sf.net/p/ismrmrd/code ismrmrd-code
+</pre>
 </div>
 <div class="section" id="change-log">
 <h1>Change log</h1>
 <p>August 2012 - First draft.</p>
-</div>
-<div class="section" id="preamble">
-<h1>Preamble</h1>
-<p>A prerequisite for sharing magnetic resonance (imaging) reconstruction algorithms and code is a common raw data format. This document describes such a common raw data format and attempts to capture all the data fields that are require to describe enough details about the magnetic resonance experiment to reconstruct images from the data.</p>
-<p>This standard was developed by a subcommittee of the ISMRM Sedona 2013 workshop. Comments and requests for additions/modifications can be sent to:</p>
-<ul class="simple">
-<li>Michael S. Hansen (<a class="reference external" href="mailto:michael.hansen&#64;nih.gov">michael.hansen&#64;nih.gov</a>)</li>
-<li>Wally Block (<a class="reference external" href="mailto:wblock&#64;cae.wisc.edu">wblock&#64;cae.wisc.edu</a>)</li>
-<li>Mark Griswold (<a class="reference external" href="mailto:mag46&#64;case.edu">mag46&#64;case.edu</a>)</li>
-<li>Brian Hargreaves (<a class="reference external" href="mailto:bah&#64;stanford.edu">bah&#64;stanford.edu</a>)</li>
-<li>Peter Boernert (<a class="reference external" href="mailto:peter.boernert&#64;philips.com">peter.boernert&#64;philips.com</a>)</li>
-</ul>
 </div>
 <div class="section" id="overview">
 <h1>Overview</h1>
@@ -635,7 +609,13 @@ std::cout &lt;&lt; &quot;Number of encoding spaces: &quot; &lt;&lt; cfg-&gt;enco
 </div>
 <div class="section" id="matlab-example-code-and-datasets">
 <h1>Matlab Example Code and Datasets</h1>
-<p>The <tt class="docutils literal">examples</tt> folder contains datasets and some matlab code to illustrate simple interaction with the ISMRMRD data format. For instance, to reconstruct a 2D Cartesian acquisition (10 image repetitions), type (from the <tt class="docutils literal">examples/matlab</tt> folder):</p>
+<p>The <tt class="docutils literal">examples</tt> folder contains some matlab code to illustrate simple interaction with the ISMRMRD data format. The examples use test data sets, wich can be downloaded from the Sourceforge <a class="reference external" href="http://sourceforge.net/projects/ismrmrd">website</a>. Go to the <tt class="docutils literal">examples/data</tt> folder and type the following to download the data:</p>
+<pre class="literal-block">
+wget https://sourceforge.net/projects/ismrmrd/files/data/3D_partial_fourier.h5
+wget https://sourceforge.net/projects/ismrmrd/files/data/simple_gre.h5
+wget https://sourceforge.net/projects/ismrmrd/files/data/simple_spiral.h5
+</pre>
+<p>For instance, to reconstruct a 2D Cartesian acquisition (10 image repetitions), type (from the <tt class="docutils literal">examples/matlab</tt> folder):</p>
 <pre class="literal-block">
 &gt;&gt; images = simple_cartesian_recon('../data/simple_gre.h5');
 Reconstructing image 1....done
@@ -728,6 +708,7 @@ Reconstructing image 10....done
       &lt;xs:element minOccurs=&quot;0&quot; name=&quot;systemVendor&quot; type=&quot;xs:string&quot;/&gt;
       &lt;xs:element minOccurs=&quot;0&quot; name=&quot;systemModel&quot; type=&quot;xs:string&quot;/&gt;
       &lt;xs:element minOccurs=&quot;0&quot; name=&quot;systemFieldStrength_T&quot; type=&quot;xs:float&quot;/&gt;
+      &lt;xs:element minOccurs=&quot;0&quot; name=&quot;relativeReceiverNoiseBandwidth&quot; type=&quot;xs:float&quot;/&gt;
       &lt;xs:element minOccurs=&quot;0&quot; name=&quot;receiverChannels&quot; type=&quot;xs:unsignedShort&quot;/&gt;
     &lt;/xs:all&gt;
   &lt;/xs:complexType&gt;

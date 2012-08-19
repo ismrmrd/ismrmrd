@@ -1,45 +1,33 @@
-Magnetic Resonance Raw Data Standard
-*************************************
+ISMRM Raw Data Format (ISMRMRD)
+*******************************
 
-DRAFT - Version 0.1 - July 2012
+Preamble
+---------
 
-TODO
--------------------------
+A prerequisite for sharing magnetic resonance (imaging) reconstruction algorithms and code is a common raw data format. This document describes such a common raw data format and attempts to capture the data fields that are require to describe enough details about the magnetic resonance experiment to reconstruct images from the data.
 
-* Make More Example Datasets
+This standard was developed by a subcommittee of the ISMRM Sedona 2013 workshop. Comments and requests for additions/modifications can be sent to:
 
-	- Radial
-	- Diffusion
-	- Phase contrast flow
+* Michael S. Hansen (michael.hansen AT nih DOT gov)
+* Wally Block (wblock AT cae DOT wisc DOT edu)
+* Mark Griswold (mag46 AT case DOT edu)
+* Brian Hargreaves (bah AT stanford DOT edu)
+* Peter Boernert (peter.boernert AT philips DOT com)
+* Jim Pipe (Jim.Pipe AT DignityHealth DOT org)
 
-* Flag definitions.
+The source code, examples, and example datasets can be found on the ISMRM Raw Data Sourceforge website_.
 
-	- Do we need more flags?
+.. _website: http://sourceforge.net/projects/ismrmrd
 
-* Converters for vendor raw data 
+To download the source code, clone the git archive::
 
-	- Siemens (Hansen)
-	- Philips (Kozerke? Boernert?)
-	- GE (Hargreaves?)
-	- Bruker (Hansen?)
+  git clone git://git.code.sf.net/p/ismrmrd/code ismrmrd-code
+
 
 Change log
 ----------
 
 August 2012 - First draft.
-
-Preamble
----------
-
-A prerequisite for sharing magnetic resonance (imaging) reconstruction algorithms and code is a common raw data format. This document describes such a common raw data format and attempts to capture all the data fields that are require to describe enough details about the magnetic resonance experiment to reconstruct images from the data.
-
-This standard was developed by a subcommittee of the ISMRM Sedona 2013 workshop. Comments and requests for additions/modifications can be sent to:
-
-* Michael S. Hansen (michael.hansen@nih.gov)
-* Wally Block (wblock@cae.wisc.edu)
-* Mark Griswold (mag46@case.edu)
-* Brian Hargreaves (bah@stanford.edu)
-* Peter Boernert (peter.boernert@philips.com)
 
 
 Overview
@@ -98,15 +86,15 @@ Each acquisition is preceded by the following fixed layout structure:
 
 .. include:: ../ismrmrd.h
    :literal:
-   :start-line: 116
-   :end-line: 141
+   :start-line: 118
+   :end-line: 143
 
 Where EncodingCounters are defined as:
 
 .. include:: ../ismrmrd.h
    :literal:
-   :start-line: 100
-   :end-line: 112
+   :start-line: 102
+   :end-line: 114
 
 The interpretation of some of these fields may vary from sequence to sequence, i.e. for a Cartesian sequence, ``kspace_encode_step_1`` would be the phase encoding step, for a spiral sequence where phase encoding direction does not make sense, it would be the spiral interleave number. The ``encoding_space_ref`` enables the user to tie an acquisition to a specific encoding space (see above) in case there are multiple, e.g. in situations where a calibration scan may be integrated in the acquisition. 
 
@@ -243,7 +231,14 @@ Again, this is not a requirement for using the ISMRMRD format, the XML can be pa
 Matlab Example Code and Datasets
 --------------------------------
 
-The ``examples`` folder contains datasets and some matlab code to illustrate simple interaction with the ISMRMRD data format. For instance, to reconstruct a 2D Cartesian acquisition (10 image repetitions), type (from the ``examples/matlab`` folder):
+The ``examples`` folder contains some matlab code to illustrate simple interaction with the ISMRMRD data format. The examples use test data sets, wich can be downloaded from the Sourceforge website_. Go to the ``examples/data`` folder and type the following to download the data::
+
+  wget https://sourceforge.net/projects/ismrmrd/files/data/3D_partial_fourier.h5
+  wget https://sourceforge.net/projects/ismrmrd/files/data/simple_gre.h5
+  wget https://sourceforge.net/projects/ismrmrd/files/data/simple_spiral.h5
+
+
+For instance, to reconstruct a 2D Cartesian acquisition (10 image repetitions), type (from the ``examples/matlab`` folder):
 
 ::
 
