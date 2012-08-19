@@ -11,15 +11,17 @@
 #define ISMRMRD_H
 
 /* Cross platform section for defining integer types */
-#ifdef _MSC_VER
-typedef __int16 int16_t;
-typedef unsigned __int16 uint16_t;
-typedef __int32 int32_t;
-typedef unsigned __int32 uint32_t;
-typedef __int64 int64_t;
-typedef unsigned __int64 uint64_t;
-#else
-#include <stdint.h>
+#ifndef ISMRMRD_HAS_BASIC_TYPES
+	#ifdef _MSC_VER
+		typedef __int16 int16_t;
+		typedef unsigned __int16 uint16_t;
+		typedef __int32 int32_t;
+		typedef unsigned __int32 uint32_t;
+		typedef __int64 int64_t;
+		typedef unsigned __int64 uint64_t;
+	#else
+		#include <stdint.h>
+	#endif
 #endif
 
 #include <stdio.h>
@@ -27,7 +29,7 @@ typedef unsigned __int64 uint64_t;
 #include <exception>
 #include <iostream>
 
-#pragma pack(push, 4) //Use 4 byte alignment
+#pragma pack(push, 2) //Use 2 byte alignment
 
 #define ISMRMRD_VERSION 1
 
