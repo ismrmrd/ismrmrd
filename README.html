@@ -334,6 +334,10 @@ ul.auto-toc {
 <pre class="literal-block">
 git clone git://git.code.sf.net/p/ismrmrd/code ismrmrd-code
 </pre>
+<p>Alternatively download the zip file with the source code:</p>
+<pre class="literal-block">
+wget https://sourceforge.net/projects/ismrmrd/files/src/ismrmrd_latest.zip
+</pre>
 </div>
 <div class="section" id="change-log">
 <h1>Change log</h1>
@@ -803,6 +807,26 @@ Reconstructing image 10....done
 &lt;/xs:schema&gt;
 
 </pre>
+</div>
+<div class="section" id="frequently-asked-questions">
+<h2>Frequently Asked Questions</h2>
+<ul>
+<li><p class="first">I am trying to compile on Mac OSX Lion and I am getting strange errors.</p>
+<blockquote>
+<p>in version 3.3.0 of CodeSynthesis XSD there is a problem with the clang compiler. It can build with clang on os x 10.7 (Lion) by editing
+<cite>/usr/local/include/xsd/cxx/zc-istream.txx</cite>. Change line 35 from:</p>
+<pre class="literal-block">
+setg (b, b, e);
+</pre>
+<p>to:</p>
+<pre class="literal-block">
+std::streambuf::setg (b, b, e);
+</pre>
+<p>See also:
+<a class="reference external" href="http://codesynthesis.com/pipermail/xsd-users/2011-May/003283.html">http://codesynthesis.com/pipermail/xsd-users/2011-May/003283.html</a></p>
+</blockquote>
+</li>
+</ul>
 </div>
 </div>
 </div>

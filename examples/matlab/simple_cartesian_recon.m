@@ -14,7 +14,7 @@ function [images] = simple_cartesian_recon(ismrmrdfile)
 header = ismrmrd_header2struct(h5read(ismrmrdfile,'/dataset/xml'));
 
 
-%Is this a spiral acquisition
+%Is this a cartesian acquisition
 if (~strcmp(header.ismrmrdHeader.encoding.trajectory.Text,'cartesian')),
    error('This is not a cartesian dataset'); 
 end

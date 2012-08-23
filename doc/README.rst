@@ -23,6 +23,10 @@ To download the source code, clone the git archive::
 
   git clone git://git.code.sf.net/p/ismrmrd/code ismrmrd-code
 
+Alternatively download the zip file with the source code::
+
+  wget https://sourceforge.net/projects/ismrmrd/files/src/ismrmrd_latest.zip
+
 
 Change log
 ----------
@@ -291,3 +295,20 @@ XML Schema Definition
 .. include:: ../schema/ismrmrd.xsd
    :literal:
 
+
+Frequently Asked Questions
+...........................
+
+*   I am trying to compile on Mac OSX Lion and I am getting strange errors.
+
+	in version 3.3.0 of CodeSynthesis XSD there is a problem with the clang compiler. It can build with clang on os x 10.7 (Lion) by editing
+	`/usr/local/include/xsd/cxx/zc-istream.txx`. Change line 35 from::
+	
+      		setg (b, b, e);
+      		
+	to::
+	
+      		std::streambuf::setg (b, b, e);
+
+	See also:
+	http://codesynthesis.com/pipermail/xsd-users/2011-May/003283.html
