@@ -16,14 +16,16 @@ SET(XSD_ARGS cxx-tree --generate-serialization --export-symbol EXPORTISMRMRD --h
 WRAP_XSD(XSDS_SOURCES XSD_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/schema ${XSDS} OPTIONS ${XSD_ARGS})
 
 INCLUDE_DIRECTORIES(${XSD_INCLUDES} ${XERCESC_INCLUDE_DIR} ${Boost_INCLUDE_DIR} ${HDF5_INCLUDES})
-add_executable(ismrmrd_test main.cpp ${XSDS_SOURCES})
-target_link_libraries(ismrmrd_test ${XERCESC_LIBRARIES})
-
 add_library(ismrmrd SHARED ismrmrd_hdf5.cpp ${XSDS_SOURCES})
 target_link_libraries(ismrmrd ${HDF5_LIBRARIES} ${XERCESC_LIBRARIES})
+
+add_executable(ismrmrd_test main.cpp ${XSDS_SOURCES})
+target_link_libraries(ismrmrd_test ${XERCESC_LIBRARIES} ismrmrd)
 
 INSTALL(FILES ismrmrd.h ${XSDS_SOURCES} ismrmrd_hdf5.h ismrmrd_hdf5_datatypes.h ismrmrd_export.h DESTINATION include)
 INSTALL(FILES schema/ismrmrd.xsd DESTINATION schema)
 INSTALL(FILES cmake/FindIsmrmrd.cmake DESTINATION cmake)
 INSTALL(TARGETS ismrmrd DESTINATION lib)
 INSTALL(TARGETS ismrmrd_test DESTINATION bin)
+
+add_subdirectory(doc)
