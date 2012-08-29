@@ -7,14 +7,12 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 find_package(XSD REQUIRED)
 find_package(XercesC REQUIRED)
 find_package(Boost REQUIRED)
-find_package(HDF5 1.8 COMPONENTS C CXX HL REQUIRED)
+find_package(HDF5 1.8 COMPONENTS C CXX REQUIRED)
 
 #Process the XSD files
 SET(XSDS schema/ismrmrd.xsd)
 SET(XSD_ARGS cxx-tree --generate-serialization --export-symbol EXPORTISMRMRD --hxx-prologue-file ${CMAKE_SOURCE_DIR}/ismrmrd_export.h)
-
 WRAP_XSD(XSDS_SOURCES XSD_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/schema ${XSDS} OPTIONS ${XSD_ARGS})
-
 INCLUDE_DIRECTORIES(${XSD_INCLUDES} ${XERCESC_INCLUDE_DIR} ${Boost_INCLUDE_DIR} ${HDF5_INCLUDES})
 add_library(ismrmrd SHARED ismrmrd_hdf5.cpp ${XSDS_SOURCES})
 target_link_libraries(ismrmrd ${HDF5_LIBRARIES} ${XERCESC_LIBRARIES})

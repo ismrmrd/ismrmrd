@@ -7,6 +7,7 @@
 
 #include <fstream>
 #include <boost/shared_ptr.hpp>
+#include <boost/thread.hpp>
 
 
 #include <H5Cpp.h>
@@ -198,6 +199,42 @@ protected:
 	boost::shared_ptr<DataSet> dataset_;
 };
 
+/**
+ *  Convenience class to provide thread-safe access to HDF5 in cases
+ *  where that is not compiled into the HDF5 library.
+ */
+class EXPORTISMRMRD  HDF5Lock
+{
+
+public:
+	static HDF5Lock* instance();
+
+	void acquire();
+	void release();
+
+protected:
+	HDF5Lock()
+	: mutex_() { }
+
+	virtual ~HDF5Lock() { }
+
+	static HDF5Lock* instance_;
+
+	boost::mutex mutex_;
+};
+
+class HDF5Exclusive
+{
+public:
+	HDF5Exclusive() {
+		HDF5Lock::instance()->acquire();
+	}
+
+	~HDF5Exclusive() {
+		HDF5Lock::instance()->release();
+	}
+
+};
 
 
 } //end of ISMRMRD namespace

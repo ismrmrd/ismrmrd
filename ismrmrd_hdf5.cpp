@@ -555,5 +555,25 @@ template boost::shared_ptr< Image<unsigned short> > IsmrmrdDataset::readImage(co
 template boost::shared_ptr< Image< std::complex<float> > > IsmrmrdDataset::readImage(const char* varname, unsigned long index);
 template boost::shared_ptr< Image< std::complex<double> > > IsmrmrdDataset::readImage(const char* varname, unsigned long index);
 
+
+HDF5Lock* HDF5Lock::instance()
+{
+		if (!instance_) instance_ = new HDF5Lock();
+		return instance_;
+}
+
+void HDF5Lock::acquire()
+{
+	mutex_.lock();
+}
+
+void HDF5Lock::release()
+{
+	mutex_.unlock();
+}
+
+EXPORTISMRMRD HDF5Lock* HDF5Lock::instance_ = NULL;
+
+
 } //End of ISMRMRD namespace
 

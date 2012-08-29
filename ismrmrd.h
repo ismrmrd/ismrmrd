@@ -62,42 +62,42 @@ public:
 };
 #endif //__cplusplus
 
-/* ACQUISITION FLAGS */
-enum {
+/** ACQUISITION FLAGS */
+enum AcquisitionFlags {
 	/* Looping indicators */
-	FIRST_IN_ENCODE_STEP1                	= 1,
-	LAST_IN_ENCODE_STEP1    				= 2,
-	FIRST_IN_ENCODE_STEP2   				= 3,
-	LAST_IN_ENCODE_STEP2    				= 4,
-	FIRST_IN_AVERAGE        				= 5,
-	LAST_IN_AVERAGE         				= 6,
-	FIRST_IN_SLICE          				= 7,
-	LAST_IN_SLICE           				= 8,
-	FIRST_IN_CONTRAST       				= 9,
-	LAST_IN_CONTRAST        				= 10,
-	FIRST_IN_PHASE          				= 11,
-	LAST_IN_PHASE           				= 12,
-	FIRST_IN_REPETITION     				= 13,
-	LAST_IN_REPETITION      				= 14,
-	FIRST_IN_SET            				= 15,
-	LAST_IN_SET             				= 16,
-	FIRST_IN_SEGMENT        				= 17,
-	LAST_IN_SEGMENT         				= 18,
+	ACQ_FIRST_IN_ENCODE_STEP1                	= 1,
+	ACQ_LAST_IN_ENCODE_STEP1    				= 2,
+	ACQ_FIRST_IN_ENCODE_STEP2   				= 3,
+	ACQ_LAST_IN_ENCODE_STEP2    				= 4,
+	ACQ_FIRST_IN_AVERAGE        				= 5,
+	ACQ_LAST_IN_AVERAGE         				= 6,
+	ACQ_FIRST_IN_SLICE          				= 7,
+	ACQ_LAST_IN_SLICE           				= 8,
+	ACQ_FIRST_IN_CONTRAST       				= 9,
+	ACQ_LAST_IN_CONTRAST        				= 10,
+	ACQ_FIRST_IN_PHASE          				= 11,
+	ACQ_LAST_IN_PHASE           				= 12,
+	ACQ_FIRST_IN_REPETITION     				= 13,
+	ACQ_LAST_IN_REPETITION      				= 14,
+	ACQ_FIRST_IN_SET            				= 15,
+	ACQ_LAST_IN_SET             				= 16,
+	ACQ_FIRST_IN_SEGMENT        				= 17,
+	ACQ_LAST_IN_SEGMENT         				= 18,
 
-	IS_NOISE_MEASUREMENT                	= 19,
-	IS_PARALLEL_CALIBRATION             	= 20,
-	IS_PARALLEL_CALIBRATION_AND_IMAGING 	= 21,
-	IS_REVERSE              				= 22,
-	IS_NAVIGATION_DATA      				= 23,
+	ACQ_IS_NOISE_MEASUREMENT                	= 19,
+	ACQ_IS_PARALLEL_CALIBRATION             	= 20,
+	ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING 	= 21,
+	ACQ_IS_REVERSE              				= 22,
+	ACQ_IS_NAVIGATION_DATA      				= 23,
 
-	USER1                   				= 57,
-	USER2                   				= 58,
-	USER3                   				= 59,
-	USER4                   				= 60,
-	USER5                   				= 61,
-	USER6                   				= 62,
-	USER7                   				= 63,
-	USER8                   				= 64
+	ACQ_USER1                   				= 57,
+	ACQ_USER2                   				= 58,
+	ACQ_USER3                   				= 59,
+	ACQ_USER4                   				= 60,
+	ACQ_USER5                   				= 61,
+	ACQ_USER6                   				= 62,
+	ACQ_USER7                   				= 63,
+	ACQ_USER8                   				= 64
 };
 
 
@@ -106,16 +106,16 @@ enum {
 
  */
 struct EncodingCounters {
-	uint16_t kspace_encode_step_1; //e.g. phase encoding line number
-	uint16_t kspace_encode_step_2; //e.g. partition encodning number
-	uint16_t average;              //e.g. signal average number
-	uint16_t slice;                //e.g. imaging slice number
-	uint16_t contrast;             //e.g. echo number in multi-echo
-	uint16_t phase;                //e.g. cardiac phase number
-	uint16_t repetition;           //e.g. dynamic number for dynamic scanning
-	uint16_t set;                  //e.g. flow encodning set
-	uint16_t segment;              //e.g. segment number for segmented acquisition
-	uint16_t user[8];              //Free user parameters
+	uint16_t kspace_encode_step_1; /**< e.g. phase encoding line number */
+	uint16_t kspace_encode_step_2; /**< e.g. partition encodning number */
+	uint16_t average;              /**< e.g. signal average number */
+	uint16_t slice;                /**< e.g. imaging slice number */
+	uint16_t contrast;             /**< e.g. echo number in multi-echo */
+	uint16_t phase;                /**< e.g. cardiac phase number */
+	uint16_t repetition;           /**< e.g. dynamic number for dynamic scanning */
+	uint16_t set;                  /**< e.g. flow encodning set */
+	uint16_t segment;              /**< e.g. segment number for segmented acquisition */
+	uint16_t user[8];              /**< Free user parameters */
 };
 
 /**
@@ -123,28 +123,28 @@ struct EncodingCounters {
  */
 struct AcquisitionHeader
 {
-	uint16_t           version;                        //First unsigned int indicates the version
-	uint64_t           flags;                          //bit field with flags
-	uint32_t           measurement_uid;                //Unique ID for the measurement
-	uint32_t           scan_counter;                   //Current acquisition number in the measurement
-	uint32_t           acquisition_time_stamp;         //Acquisition clock
-	uint32_t           physiology_time_stamp[3];       //Physiology time stamps, e.g. ecg, breating, etc.
-	uint16_t           number_of_samples;              //Number of samples acquired
-	uint16_t           available_channels;             //Available coils
-	uint16_t           active_channels;                //Active coils on current acquisiton
-	uint64_t           channel_mask[16];               //Mask to indicate which channels are active. Support for 1024 channels
-	uint16_t           discard_pre;                    //Samples to be discarded at the beginning of acquisition
-	uint16_t           discard_post;                   //Samples to be discarded at the end of acquisition
-	uint16_t           center_sample;                  //Sample at the center of k-space
-	uint16_t           encoding_space_ref;             //Reference to an encoding space, typically only one per acquisition
-	uint16_t           trajectory_dimensions;          //Indicates the dimensionality of the trajectory vector (0 means no trajectory)
-	float              sample_time_us;                 //Time between samples in micro seconds, sampling BW
-	float              position[3];                    //Three-dimensional spatial offsets from isocenter
-	float              quaternion[4];                  //Angulation of acquisition
-	float              patient_table_position[3];      //Patient table off-center
-	EncodingCounters   idx;                            //Encoding loop counters, see above
-	int32_t            user_int[8];                    //Free user parameters
-	float              user_float[8];                  //Free user parameters
+	uint16_t           version;                        /**< First unsigned int indicates the version */
+	uint64_t           flags;                          /**< bit field with flags */
+	uint32_t           measurement_uid;                /**< Unique ID for the measurement */
+	uint32_t           scan_counter;                   /**< Current acquisition number in the measurement */
+	uint32_t           acquisition_time_stamp;         /**< Acquisition clock */
+	uint32_t           physiology_time_stamp[3];       /**< Physiology time stamps, e.g. ecg, breating, etc. */
+	uint16_t           number_of_samples;              /**< Number of samples acquired */
+	uint16_t           available_channels;             /**< Available coils */
+	uint16_t           active_channels;                /**< Active coils on current acquisiton */
+	uint64_t           channel_mask[16];               /**< Mask to indicate which channels are active. Support for 1024 channels */
+	uint16_t           discard_pre;                    /**< Samples to be discarded at the beginning of acquisition */
+	uint16_t           discard_post;                   /**< Samples to be discarded at the end of acquisition */
+	uint16_t           center_sample;                  /**< Sample at the center of k-space */
+	uint16_t           encoding_space_ref;             /**< Reference to an encoding space, typically only one per acquisition */
+	uint16_t           trajectory_dimensions;          /**< Indicates the dimensionality of the trajectory vector (0 means no trajectory) */
+	float              sample_time_us;                 /**< Time between samples in micro seconds, sampling BW */
+	float              position[3];                    /**< Three-dimensional spatial offsets from isocenter */
+	float              quaternion[4];                  /**< Angulation of acquisition */
+	float              patient_table_position[3];      /**< Patient table off-center */
+	EncodingCounters   idx;                            /**< Encoding loop counters, see above */
+	int32_t            user_int[8];                    /**< Free user parameters */
+	float              user_float[8];                  /**< Free user parameters */
 };
 
 #ifdef __cplusplus
@@ -224,15 +224,15 @@ public:
 		return *this;
 	}
 
-	AcquisitionHeader head_; //Header, see above
+	AcquisitionHeader head_; /**< Header, see above */
 
-	float* traj_;            //Trajectory, elements = head_.trajectory_dimensions*head_.number_of_samples
-							 //   [kx,ky,kx,ky.....]        (for head_.trajectory_dimensions = 2)
-							 //   [kx,ky,kz,kx,ky,kz,.....] (for head_.trajectory_dimensions = 3)
+	float* traj_;            /**< Trajectory, elements = head_.trajectory_dimensions*head_.number_of_samples
+							       [kx,ky,kx,ky.....]        (for head_.trajectory_dimensions = 2)
+							       [kx,ky,kz,kx,ky,kz,.....] (for head_.trajectory_dimensions = 3)           */
 
-	float* data_;            //Actual data, elements = head_.number_of_samples*head_.active_channels*2
-	                         //   [re,im,re,im,.....,re,im,re,im,.....,re,im,re,im,.....]
-	                         //    ---channel 1-------channel 2---------channel 3-----
+	float* data_;            /**< Actual data, elements = head_.number_of_samples*head_.active_channels*2
+	                               [re,im,re,im,.....,re,im,re,im,.....,re,im,re,im,.....]
+	                                 ---channel 1-------channel 2---------channel 3-----                     */
 
 protected:
 	void deleteData() {
@@ -242,35 +242,72 @@ protected:
 };
 #endif //__cplusplus
 
-/* Definition of ISMRM Raw Data Image structures */
+enum ImageDataType
+{
+	DATA_FLOAT = 1,
+	DATA_DOUBLE,
+	DATA_COMPLEX_FLOAT,
+	DATA_COMPLEX_DOUBLE,
+	DATA_UNSIGNED_SHORT
+};
+
+enum ImageType
+{
+	TYPE_MAGNITUDE = 1,
+	TYPE_PHASE,
+	TYPE_REAL,
+	TYPE_IMAG,
+	TYPE_COMPLEX
+};
+
+/** IMAGE FLAGS */
+enum ImageFlags {
+	IMAGE_IS_NAVIGATION_DATA      				= 23,
+
+	IMAGE_USER1                   				= 57,
+	IMAGE_USER2                   				= 58,
+	IMAGE_USER3                   				= 59,
+	IMAGE_USER4                   				= 60,
+	IMAGE_USER5                   				= 61,
+	IMAGE_USER6                   				= 62,
+	IMAGE_USER7                   				= 63,
+	IMAGE_USER8                   				= 64
+};
+
+/**
+ *  Definition of ISMRM Raw Data Image structure
+ */
 struct ImageHeader
 {
-	uint16_t           version;                        //First unsigned int indicates the version
-	uint64_t           flags;                          //bit field with flags
-	uint32_t           measurement_uid;                //Unique ID for the measurement
-	uint16_t           matrix_size[3];                 //Pixels in the 3 spatial dimensions
-	float              field_of_view[3];               //Size (in mm) of the 3 spatial dimensions
-	uint16_t           channels;                       //Number of receive channels
-	float              position[3];                    //Three-dimensional spatial offsets from isocenter
-	float              quaternion[4];                  //Angulation of acquisition
-	float              patient_table_position[3];      //Patient table off-center
-	uint16_t           average;                        //e.g. signal average number
-	uint16_t           slice;                          //e.g. imaging slice number
-	uint16_t           contrast;                       //e.g. echo number in multi-echo
-	uint16_t           phase;                          //e.g. cardiac phase number
-	uint16_t           repetition;                     //e.g. dynamic number for dynamic scanning
-	uint16_t           set;                            //e.g. flow encodning set
-	uint32_t           acquisition_time_stamp;         //Acquisition clock
-	uint32_t           physiology_time_stamp[3];       //Physiology time stamps, e.g. ecg, breating, etc.
-	uint16_t           image_data_type;                //e.g. unsigned short, float, complex float, etc.
-	uint16_t           image_type;                     //e.g. magnitude, phase, complex, real, imag, etc.
-	uint16_t           image_index;
-	uint16_t	       image_series_index;
-	int32_t            user_int[8];                    //Free user parameters
-	float              user_float[8];                  //Free user parameters
+	uint16_t           	version;                        /**< First unsigned int indicates the version */
+	uint64_t           	flags;                          /**< bit field with flags */
+	uint32_t           	measurement_uid;                /**< Unique ID for the measurement  */
+	uint16_t           	matrix_size[3];                 /**< Pixels in the 3 spatial dimensions */
+	float              	field_of_view[3];               /**< Size (in mm) of the 3 spatial dimensions */
+	uint16_t           	channels;                       /**< Number of receive channels */
+	float              	position[3];                    /**< Three-dimensional spatial offsets from isocenter */
+	float              	quaternion[4];                  /**< Angulation of acquisition */
+	float              	patient_table_position[3];      /**< Patient table off-center */
+	uint16_t           	average;                        /**< e.g. signal average number */
+	uint16_t           	slice;                          /**< e.g. imaging slice number */
+	uint16_t           	contrast;                       /**< e.g. echo number in multi-echo */
+	uint16_t           	phase;                          /**< e.g. cardiac phase number */
+	uint16_t           	repetition;                     /**< e.g. dynamic number for dynamic scanning */
+	uint16_t           	set;                            /**< e.g. flow encodning set */
+	uint32_t           	acquisition_time_stamp;         /**< Acquisition clock */
+	uint32_t           	physiology_time_stamp[3];       /**< Physiology time stamps, e.g. ecg, breating, etc. */
+	uint16_t           	image_data_type;                /**< e.g. unsigned short, float, complex float, etc. */
+	uint16_t           	image_type;                     /**< e.g. magnitude, phase, complex, real, imag, etc. */
+	uint16_t           	image_index;					/**< e.g. image number in series of images  */
+	uint16_t			image_series_index;             /**< e.g. series number */
+	int32_t            	user_int[8];                    /**< Free user parameters */
+	float              	user_float[8];                  /**< Free user parameters */
 };
 
 #ifdef __cplusplus
+/**
+ *   Container for an image (header and data)
+ */
 template <typename T> class Image {
 
 public:
@@ -333,9 +370,9 @@ public:
 				head_.channels;
 	}
 
-	ImageHeader head_;     //ImageHeader as defined above
-	T* data_;              //Data, array of size (matrix_size[0]*matrix_size[1]*matrix_size[2]*channels),
-	                       //first spatial dimension is fastest changing array index, channels outer most (slowest changing).
+	ImageHeader head_;     /**< ImageHeader as defined above */
+	T* data_;              /**< Data, array of size (matrix_size[0]*matrix_size[1]*matrix_size[2]*channels),
+	                            first spatial dimension is fastest changing array index, channels outer most (slowest changing). */
 
 protected:
 	void deleteData() {
@@ -347,20 +384,23 @@ protected:
 
 };
 
+/**
+ *  Container for generic array. This structure is used through the HDF5 file interaction.
+ */
 template <typename T> class NDArrayContainer
 {
 public:
 	NDArrayContainer() {}
 
-	NDArrayContainer(std::vector<unsigned int>& dimensions, T* d) {
+	NDArrayContainer(const std::vector<unsigned int>& dimensions, T* d) {
 		dimensions_ = dimensions;
 		data_.assign(d, d+elements());
 	}
 
 	virtual ~NDArrayContainer() {}
 
-	std::vector<unsigned int> dimensions_;
-	std::vector<T> data_;
+	std::vector<unsigned int> dimensions_; /**< Array with dimensions of the array. First dimension is fastest moving in the array */
+	std::vector<T> data_;                  /**< The data itself. A vector is used here for easy memory management                  */
 
 	size_t elements() {
 		if (dimensions_.size() == 0) {

@@ -1,6 +1,8 @@
 ISMRM Raw Data Format (ISMRMRD)
 *******************************
 
+.. contents::
+
 Preamble
 ---------
 
@@ -8,12 +10,19 @@ A prerequisite for sharing magnetic resonance (imaging) reconstruction algorithm
 
 This standard was developed by a subcommittee of the ISMRM Sedona 2013 workshop. Comments and requests for additions/modifications can be sent to:
 
-* Michael S. Hansen (michael.hansen AT nih DOT gov)
+* Michael S. Hansen (michael DOT hansen AT nih DOT gov)
 * Wally Block (wblock AT cae DOT wisc DOT edu)
 * Mark Griswold (mag46 AT case DOT edu)
 * Brian Hargreaves (bah AT stanford DOT edu)
-* Peter Boernert (peter.boernert AT philips DOT com)
+* Peter Boernert (peter DOT boernert AT philips DOT com)
+* Sebastian Kozerke (kozerke AT biomed DOT ee DOT ethz DOT ch)
+* Craig Meyer (cmeyer AT virginia DOT edu)
+* Doug Noll (dnoll AT umich DOT edu)
 * Jim Pipe (Jim.Pipe AT DignityHealth DOT org)
+
+
+Obtaining and Installing
+-------------------------
 
 The source code, examples, and example datasets can be found on the ISMRM Raw Data Sourceforge website_.
 
@@ -27,6 +36,45 @@ Alternatively download the zip file with the source code::
 
   wget https://sourceforge.net/projects/ismrmrd/files/src/ismrmrd_latest.zip
 
+API Documentation can be found at http://ismrmrd.sourceforge.net/api.
+
+
+Dependencies
+.............
+
+The ISMRM Raw Data format is described by an XML schema_ and some C-style structs with fixed memory layout and as such does not have dependencies. However, it uses HDF5 files for storage and a C++ library for reading and writing the ISMRMRD files is included in this distribution. Furthermore, since the XML header is defined with an XML schema_, we encourage using XML data binding when writing software using the format. In the ISMRMRD distribution we use the CodeSynthesis XSD (http://www.codesynthesis.com/products/xsd/) package to generate a C++ class representation of the XML schema. To compile all components of this distribution you need:
+
+
+* HDF5 (version 1.8 or higher) libraries. Available from http://www.hdfgroup.org/downloads/index.html. 
+* Boost (http://www.boost.org/)
+* CodeSynthesis XSD (http://www.codesynthesis.com/products/xsd/)
+* Xerces-C XML parser library (http://xerces.apache.org/xerces-c/)
+* Cmake build tool (http://www.cmake.org/)
+* Doxygen if you would like to generate API documentation (http://www.doxygen.org)
+* Git if you would like to use the source code archive (http://git-scm.com/)
+
+.. note:: It is only necessary to install the dependencies if you wish to develop compiled C/C++ software, which uses the ISMRMRD format. The format can be read in Matlab without installing any additional software. 
+
+
+Linux installation
+...................
+
+The dependencies mentioned above should be included in most linux distributions. On Ubuntu you can install all required dependencies with::
+
+  sudo apt-get install libhdf5-serial-dev h5utils cmake cmake-curses-gui libboost-dev libxerces-c-dev xsdcxx doxygen git
+
+After installation of dependencies, the library can be installed with::
+
+  git clone git://git.code.sf.net/p/ismrmrd/code ismrmrd-code
+  cd ismrmrd-code/
+  mkdir build
+  cd build
+  cmake ../
+  make
+  sudo make install
+
+Last command will install the library in ``/usr/local/ismrmrd``.
+
 
 Change log
 ----------
@@ -37,10 +85,12 @@ August 2012 - First draft.
 Overview
 ---------
 
-The raw data format combines a mix of flexible data structures (XML header) and fixed structures (equivalent to C-structs). A raw data set consist of 2 sections:
+The raw data format combines a mix of flexible data structures (XML header) and fixed structures (equivalent to C-structs). A raw data set consist mainly of 2 sections:
 
 1. A flexible XML format document that can contain an arbitrary number of fields and accommodate everything from simple values (b-values, etc.) to entire vendor protocols, etc. This purpose of this XML document is to provide parameters that may be meaningful for some experiments but not for others. This XML format is defined by an XML Schema Definition file (ismrmrd.xsd). 
 2. Raw data section. This section contains all the acquired data in the experiment. Each data item is preceded by a C-struct with encoding numbers, etc. Following this data header is a channel header and data for each acquired channel. The raw data headers are defined in a C/C++ header file (ismrmrd.h)
+
+In addition to these sections, the ISMRMRD format also specifies an image header for storing reconstructed images and the accompanying C++ library provides a convenient way of writing such images into HDF5 files along with generic arrays for storing less well defined data structures, e.g. coil sensitivity maps or other calibration data. 
 
 Flexible Data Header
 .....................
@@ -86,19 +136,19 @@ In addition to the defined field in the xml header, it is possible to add an arb
 Fixed Data structures
 ......................
 
-Each acquisition is preceded by the following fixed layout structure:
+Each raw data acquisition is preceded by the following fixed layout structure:
 
 .. include:: ../ismrmrd.h
    :literal:
-   :start-line: 118
-   :end-line: 143
+   :start-line: 123
+   :end-line: 148
 
 Where EncodingCounters are defined as:
 
 .. include:: ../ismrmrd.h
    :literal:
-   :start-line: 102
-   :end-line: 114
+   :start-line: 107
+   :end-line: 119
 
 The interpretation of some of these fields may vary from sequence to sequence, i.e. for a Cartesian sequence, ``kspace_encode_step_1`` would be the phase encoding step, for a spiral sequence where phase encoding direction does not make sense, it would be the spiral interleave number. The ``encoding_space_ref`` enables the user to tie an acquisition to a specific encoding space (see above) in case there are multiple, e.g. in situations where a calibration scan may be integrated in the acquisition. 
 
@@ -125,7 +175,25 @@ The header contains a ``trajectory_dimensions`` field. If the value of this fiel
 
    };
 
-This suggested memory layout is only a suggestion. The HDF5 interface (see below) can be used to read the data into many different data structures. In fact, the user can choose to read only part of the header or not read the data, etc. 
+This suggested memory layout is only a suggestion. The HDF5 interface (see below) can be used to read the data into many different data structures. In fact, the user can choose to read only part of the header or not read the data, etc.
+
+As mentioned above, the ISMRMRD format also suggests a way to store reconstructed images (or maybe image data used for calibration). An ``ImageHeader`` structure is defined in ``ismrmrd.h``:
+
+.. include:: ../ismrmrd.h
+   :literal:
+   :start-line: 279
+   :end-line: 305
+
+In a similar fashion to the raw data acquisition data, the intention is to store a header followed by the image data. Since image data can be in several different format (e.g. float, complex, etc.), the memory layout is less well defined but can be described as::
+
+  template <typename T> class Image {
+
+  ImageHeader head_;     //ImageHeader as defined above
+  T* data_;              //Data, array of size (matrix_size[0]*matrix_size[1]*matrix_size[2]*channels),
+                         //first spatial dimension is fastest changing array index, channels outer most (slowest changing).
+  };
+ 
+
 
 File Storage
 -------------
@@ -174,6 +242,8 @@ The ISMRM Raw Data format is stored in HDF5 format. Details on this format can b
 
 The HDF5 file format can be access from C, C++, and java using the libraries provided on the HDF5 website. The ISMRMRD distribution also comes with some C++ wrappers that can be used for easy access (read and write) from C++ programs. See below.
 
+In addition to storing acquisition data and images as defined by the headers above, the HDF5 format also enables storage of generic multi-dimensional arrays. The ISMRMRD format does not explicitly define how such data should be stored, but leaves it open for the user to add variables and data as dictated by a given application. 
+
 .. _HDF5: http://www.hdfgroup.org/HDF5/
 
 C++ Support Library
@@ -186,13 +256,47 @@ To enable easy prototyping of C++ software using the ISMRMRD data format, a simp
    class EXPORTISMRMRD IsmrmrdDataset
    {
     public:
-	    IsmrmrdDataset(const char* filename, const char* groupname, bool create_file_if_needed = true);
-	    int appendAcquisition(Acquisition* a);
-	    int writeHeader(std::string& xml);
 
-	    boost::shared_ptr<std::string> readHeader();
-	    boost::shared_ptr<Acquisition> readAcquisition(unsigned long index = 0);
-	    unsigned long getNumberOfAcquisitions();
+	IsmrmrdDataset(const char* filename, const char* groupname, bool create_file_if_needed = true)
+	: filename_(filename)
+	, groupname_(groupname)
+	, file_open_(false)
+	, dataset_open_(false)
+	, create_file_if_needed_(create_file_if_needed)
+	{
+		std::ifstream ifile(filename_.c_str());
+		file_exists_ = ifile;
+
+		if (openHDF5File() < 0) {
+			std::cerr << "IsmrmrdDataset: Error opening HDF file." << std::endl;
+		}
+
+		if (!linkExists(groupname_.c_str())) {
+			if (createGroupForDataset(groupname_.c_str()) < 0) {
+				std::cerr << "IsmrmrdDataset: Error create HDF5 group." << std::endl;
+			}
+		}
+
+		xml_header_path_ = groupname_ + std::string("/xml");
+		data_path_ = groupname_ + std::string("/data");
+ 	}
+
+	int appendAcquisition(Acquisition* a);
+	boost::shared_ptr<Acquisition> readAcquisition(unsigned long index = 0);
+	unsigned long getNumberOfAcquisitions();
+
+	int writeHeader(std::string& xml);
+	boost::shared_ptr<std::string> readHeader();
+
+	template <typename T> int appendImage(Image<T>& m, const char* varname);
+	template <typename T> boost::shared_ptr< Image<T> > readImage(const char* varname, unsigned long index = 0);
+
+	int appendImageHeader(ImageHeader& h, const char* varname);
+	boost::shared_ptr< ImageHeader > readImageHeader(const char* varname, unsigned long index = 0);
+
+	template <typename T> int appendArray(NDArrayContainer<T>& a, const char* varname);
+	template <typename T> int appendArray(std::vector<unsigned int>& dimensions, T* data, const char* varname);
+	template <typename T> boost::shared_ptr< NDArrayContainer<T> > readArray(const char* varname, unsigned long index = 0);
     };
 
 
