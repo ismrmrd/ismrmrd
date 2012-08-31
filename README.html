@@ -324,20 +324,21 @@ ul.auto-toc {
 <li><a class="reference internal" href="#obtaining-and-installing" id="id2">Obtaining and Installing</a><ul>
 <li><a class="reference internal" href="#dependencies" id="id3">Dependencies</a></li>
 <li><a class="reference internal" href="#linux-installation" id="id4">Linux installation</a></li>
+<li><a class="reference internal" href="#mac-osx-installation" id="id5">Mac OSX Installation</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#change-log" id="id5">Change log</a></li>
-<li><a class="reference internal" href="#overview" id="id6">Overview</a><ul>
-<li><a class="reference internal" href="#flexible-data-header" id="id7">Flexible Data Header</a></li>
-<li><a class="reference internal" href="#fixed-data-structures" id="id8">Fixed Data structures</a></li>
+<li><a class="reference internal" href="#change-log" id="id6">Change log</a></li>
+<li><a class="reference internal" href="#overview" id="id7">Overview</a><ul>
+<li><a class="reference internal" href="#flexible-data-header" id="id8">Flexible Data Header</a></li>
+<li><a class="reference internal" href="#fixed-data-structures" id="id9">Fixed Data structures</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#file-storage" id="id9">File Storage</a></li>
-<li><a class="reference internal" href="#c-support-library" id="id10">C++ Support Library</a></li>
-<li><a class="reference internal" href="#matlab-example-code-and-datasets" id="id11">Matlab Example Code and Datasets</a></li>
-<li><a class="reference internal" href="#appendix" id="id12">Appendix</a><ul>
-<li><a class="reference internal" href="#xml-schema-definition" id="id13">XML Schema Definition</a></li>
-<li><a class="reference internal" href="#frequently-asked-questions" id="id14">Frequently Asked Questions</a></li>
+<li><a class="reference internal" href="#file-storage" id="id10">File Storage</a></li>
+<li><a class="reference internal" href="#c-support-library" id="id11">C++ Support Library</a></li>
+<li><a class="reference internal" href="#matlab-example-code-and-datasets" id="id12">Matlab Example Code and Datasets</a></li>
+<li><a class="reference internal" href="#appendix" id="id13">Appendix</a><ul>
+<li><a class="reference internal" href="#xml-schema-definition" id="id14">XML Schema Definition</a></li>
+<li><a class="reference internal" href="#frequently-asked-questions" id="id15">Frequently Asked Questions</a></li>
 </ul>
 </li>
 </ul>
@@ -405,13 +406,40 @@ sudo make install
 </pre>
 <p>Last command will install the library in <tt class="docutils literal">/usr/local/ismrmrd</tt>.</p>
 </div>
+<div class="section" id="mac-osx-installation">
+<h2><a class="toc-backref" href="#id5">Mac OSX Installation</a></h2>
+<p>There are numerous different package management systems for Mac. In this example, we have used MacPorts (<a class="reference external" href="http://www.macports.org/">http://www.macports.org/</a>). First install the dependencies available in MacPorts:</p>
+<pre class="literal-block">
+sudo port install wget hdf5-18 h5utils boost xercesc3 git cmake doxygen
+</pre>
+<p>Next install CodeSynthesis XSD (<a class="reference external" href="http://www.codesynthesis.com/products/xsd/">http://www.codesynthesis.com/products/xsd/</a>):</p>
+<pre class="literal-block">
+wget http://www.codesynthesis.com/download/xsd/3.3/macosx/i686/xsd-3.3.0-i686-macosx.tar.bz2
+tar -xzf xsd-3.3.0-i686-macosx.tar.bz2
+cd xsd-3.3.0-i686-macosx
+sudo cp bin/xsd /usr/local/bin/
+sudo cp -r libxsd/xsd /usr/local/include/
+</pre>
+<p>See <a class="reference internal" href="#faq">faq</a> for details on problems on some Mac OSX Lion systems.</p>
+<p>Last step is to download and compile:</p>
+<pre class="literal-block">
+git clone git://git.code.sf.net/p/ismrmrd/code ismrmrd-code
+cd ismrmrd-code/
+mkdir build
+cd build/
+cmake ../
+make
+sudo make install
+</pre>
+<p>Last command will install the library in <tt class="docutils literal">/usr/local/ismrmrd</tt>.</p>
+</div>
 </div>
 <div class="section" id="change-log">
-<h1><a class="toc-backref" href="#id5">Change log</a></h1>
+<h1><a class="toc-backref" href="#id6">Change log</a></h1>
 <p>August 2012 - First draft.</p>
 </div>
 <div class="section" id="overview">
-<h1><a class="toc-backref" href="#id6">Overview</a></h1>
+<h1><a class="toc-backref" href="#id7">Overview</a></h1>
 <p>The raw data format combines a mix of flexible data structures (XML header) and fixed structures (equivalent to C-structs). A raw data set consist mainly of 2 sections:</p>
 <ol class="arabic simple">
 <li>A flexible XML format document that can contain an arbitrary number of fields and accommodate everything from simple values (b-values, etc.) to entire vendor protocols, etc. This purpose of this XML document is to provide parameters that may be meaningful for some experiments but not for others. This XML format is defined by an XML Schema Definition file (ismrmrd.xsd).</li>
@@ -419,7 +447,7 @@ sudo make install
 </ol>
 <p>In addition to these sections, the ISMRMRD format also specifies an image header for storing reconstructed images and the accompanying C++ library provides a convenient way of writing such images into HDF5 files along with generic arrays for storing less well defined data structures, e.g. coil sensitivity maps or other calibration data.</p>
 <div class="section" id="flexible-data-header">
-<h2><a class="toc-backref" href="#id7">Flexible Data Header</a></h2>
+<h2><a class="toc-backref" href="#id8">Flexible Data Header</a></h2>
 <p>The flexible data structure is defined by the xml schema definition in <tt class="docutils literal">schema/ismrmrd.xsd</tt> (<a class="reference internal" href="#schema">schema</a> is included in appendix below).</p>
 <p>An example of an XML file for a Cartesian 3D acquisition could look like:</p>
 <pre class="literal-block">
@@ -517,7 +545,7 @@ sudo make install
 </pre>
 </div>
 <div class="section" id="fixed-data-structures">
-<h2><a class="toc-backref" href="#id8">Fixed Data structures</a></h2>
+<h2><a class="toc-backref" href="#id9">Fixed Data structures</a></h2>
 <p>Each raw data acquisition is preceded by the following fixed layout structure:</p>
 <pre class="literal-block">
 struct AcquisitionHeader
@@ -627,7 +655,7 @@ T* data_;              //Data, array of size (matrix_size[0]*matrix_size[1]*matr
 </div>
 </div>
 <div class="section" id="file-storage">
-<h1><a class="toc-backref" href="#id9">File Storage</a></h1>
+<h1><a class="toc-backref" href="#id10">File Storage</a></h1>
 <p>The ISMRM Raw Data format is stored in HDF5 format. Details on this format can be found at the <a class="reference external" href="http://www.hdfgroup.org/HDF5/">HDF5</a> website. Briefly it is a hierarchical data format (much like a file system), which can contain multiple variable organized in groups (like folders in a file system). The variables can contain arrays of data values, custom defined structs, or simple text fields. It is the convention (but not a requirement) that the ISMRMRD datasets are stored in a group called <tt class="docutils literal">/dataset</tt>. The XML configuration is stored in the variable <tt class="docutils literal">/dataset/xml</tt> and the data is stored in <tt class="docutils literal">/dataset/data</tt>. HDF5 files can be viewed with the HDFView application which is available on the HDF5 website for multiple platforms. Files can also be read directly in Matlab, in fact Matlab uses (since file format v7.3) HDF5 as its internal data format in the <tt class="docutils literal">.mat</tt> files. As an example the data from an ISMRMRD file with name <tt class="docutils literal">myfile.h5</tt> can be read in matlab with a command like:</p>
 <pre class="literal-block">
 &gt;&gt; data = h5read('simple_gre.h5', '/dataset/data');
@@ -672,7 +700,7 @@ data: {1x1281 cell}
 <p>In addition to storing acquisition data and images as defined by the headers above, the HDF5 format also enables storage of generic multi-dimensional arrays. The ISMRMRD format does not explicitly define how such data should be stored, but leaves it open for the user to add variables and data as dictated by a given application.</p>
 </div>
 <div class="section" id="c-support-library">
-<h1><a class="toc-backref" href="#id10">C++ Support Library</a></h1>
+<h1><a class="toc-backref" href="#id11">C++ Support Library</a></h1>
 <p>To enable easy prototyping of C++ software using the ISMRMRD data format, a simple C++ wrapper class is provided (defined in <tt class="docutils literal">ismrmrd_hdf5.h</tt>):</p>
 <pre class="literal-block">
 class EXPORTISMRMRD IsmrmrdDataset
@@ -754,7 +782,7 @@ std::cout &lt;&lt; &quot;Number of encoding spaces: &quot; &lt;&lt; cfg-&gt;enco
 <p>Again, this is not a requirement for using the ISMRMRD format, the XML can be parsed with numerous other xml parsing libraries. The schema file <tt class="docutils literal">schema/ismrmrd.xsd</tt> gives the user the option of validating the XML header before parsing, which is recommended to reduce the chance of hard to detect errors in your code due to missing or malformed parameters.</p>
 </div>
 <div class="section" id="matlab-example-code-and-datasets">
-<h1><a class="toc-backref" href="#id11">Matlab Example Code and Datasets</a></h1>
+<h1><a class="toc-backref" href="#id12">Matlab Example Code and Datasets</a></h1>
 <p>The <tt class="docutils literal">examples</tt> folder contains some matlab code to illustrate simple interaction with the ISMRMRD data format. The examples use test data sets, wich can be downloaded from the Sourceforge <a class="reference external" href="http://sourceforge.net/projects/ismrmrd">website</a>. Go to the <tt class="docutils literal">examples/data</tt> folder and type the following to download the data:</p>
 <pre class="literal-block">
 wget https://sourceforge.net/projects/ismrmrd/files/data/3D_partial_fourier.h5
@@ -799,9 +827,9 @@ Reconstructing image 10....done
 </pre>
 </div>
 <div class="section" id="appendix">
-<h1><a class="toc-backref" href="#id12">Appendix</a></h1>
+<h1><a class="toc-backref" href="#id13">Appendix</a></h1>
 <div class="section" id="xml-schema-definition">
-<h2><a class="toc-backref" href="#id13">XML Schema Definition</a></h2>
+<h2><a class="toc-backref" href="#id14">XML Schema Definition</a></h2>
 <pre class="literal-block" id="schema">
 &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;
 &lt;xs:schema xmlns=&quot;http://www.ismrm.org/ISMRMRD&quot; xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot; elementFormDefault=&quot;qualified&quot; targetNamespace=&quot;http://www.ismrm.org/ISMRMRD&quot;&gt;
@@ -951,8 +979,8 @@ Reconstructing image 10....done
 </pre>
 </div>
 <div class="section" id="frequently-asked-questions">
-<h2><a class="toc-backref" href="#id14">Frequently Asked Questions</a></h2>
-<ul>
+<h2><a class="toc-backref" href="#id15">Frequently Asked Questions</a></h2>
+<ul id="faq">
 <li><p class="first">I am trying to compile on Mac OSX Lion and I am getting strange errors.</p>
 <blockquote>
 <p>in version 3.3.0 of CodeSynthesis XSD there is a problem with the clang compiler. It can build with clang on os x 10.7 (Lion) by editing
