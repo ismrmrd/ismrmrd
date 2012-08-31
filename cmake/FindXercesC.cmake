@@ -9,6 +9,7 @@ FIND_PATH(XERCESC_INCLUDE_DIR xercesc/dom/DOM.hpp
   $ENV{XERCESCROOT}/src/
   /usr/local/include
   /usr/include
+  /opt/local/include
 )
 
 FIND_LIBRARY(XERCESC_LIBRARIES
@@ -20,6 +21,7 @@ FIND_LIBRARY(XERCESC_LIBRARIES
     $ENV{XERCESCROOT}/lib
     /usr/local/lib
     /usr/lib
+    /opt/local/lib
 )
 
 # if the include a the library are found then we have it
