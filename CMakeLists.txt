@@ -6,6 +6,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 find_package(XSD REQUIRED)
 find_package(XercesC REQUIRED)
+set(Boost_NO_BOOST_CMAKE ON)
 find_package(Boost COMPONENTS thread system REQUIRED)
 find_package(HDF5 1.8 COMPONENTS C CXX HL REQUIRED)
 
