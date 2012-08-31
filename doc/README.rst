@@ -75,6 +75,34 @@ After installation of dependencies, the library can be installed with::
 
 Last command will install the library in ``/usr/local/ismrmrd``.
 
+Mac OSX Installation
+.....................
+
+There are numerous different package management systems for Mac. In this example, we have used MacPorts (http://www.macports.org/). First install the dependencies available in MacPorts::
+
+   sudo port install wget hdf5-18 h5utils boost xercesc3 git cmake doxygen
+
+Next install CodeSynthesis XSD (http://www.codesynthesis.com/products/xsd/)::
+
+   wget http://www.codesynthesis.com/download/xsd/3.3/macosx/i686/xsd-3.3.0-i686-macosx.tar.bz2
+   tar -xzf xsd-3.3.0-i686-macosx.tar.bz2 
+   cd xsd-3.3.0-i686-macosx
+   sudo cp bin/xsd /usr/local/bin/
+   sudo cp -r libxsd/xsd /usr/local/include/
+
+See faq_ for details on problems on some Mac OSX Lion systems.
+
+Last step is to download and compile::
+
+   git clone git://git.code.sf.net/p/ismrmrd/code ismrmrd-code
+   cd ismrmrd-code/
+   mkdir build
+   cd build/
+   cmake ../
+   make
+   sudo make install
+
+Last command will install the library in ``/usr/local/ismrmrd``.
 
 Change log
 ----------
@@ -402,6 +430,7 @@ XML Schema Definition
 
 Frequently Asked Questions
 ...........................
+.. _faq:
 
 *   I am trying to compile on Mac OSX Lion and I am getting strange errors.
 
