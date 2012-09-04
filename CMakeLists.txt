@@ -1,6 +1,15 @@
 cmake_minimum_required(VERSION 2.8)
 project(ISMRMRD)
 
+if (WIN32)
+ADD_DEFINITIONS(-DWIN32 -D_WIN32 -D_WINDOWS)
+ADD_DEFINITIONS(-DUNICODE -D_UNICODE)
+ADD_DEFINITIONS(-D_CRT_SECURE_NO_WARNINGS)
+SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
+SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3")
+endif (WIN32)
+
+
 set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/ismrmrd)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
@@ -14,11 +23,12 @@ find_package(HDF5 1.8 COMPONENTS C CXX HL REQUIRED)
 SET(XSDS schema/ismrmrd.xsd)
 SET(XSD_ARGS cxx-tree --generate-serialization --export-symbol EXPORTISMRMRD --hxx-prologue-file ${CMAKE_SOURCE_DIR}/ismrmrd_export.h)
 WRAP_XSD(XSDS_SOURCES XSD_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/schema ${XSDS} OPTIONS ${XSD_ARGS})
-INCLUDE_DIRECTORIES(${XSD_INCLUDES} ${XERCESC_INCLUDE_DIR} ${Boost_INCLUDE_DIR} ${HDF5_INCLUDE_DIR})
+INCLUDE_DIRECTORIES(${XSD_INCLUDES} ${XSD_INCLUDE_DIR} ${XERCESC_INCLUDE_DIR} ${Boost_INCLUDE_DIR} ${HDF5_INCLUDE_DIR} ${HDF5_INCLUDE_DIR}/cpp)
+LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 add_library(ismrmrd SHARED ismrmrd_hdf5.cpp ${XSDS_SOURCES})
 target_link_libraries(ismrmrd ${HDF5_LIBRARIES} ${XERCESC_LIBRARIES} ${Boost_LIBRARIES})
 
-add_executable(ismrmrd_test main.cpp ${XSDS_SOURCES})
+add_executable(ismrmrd_test main.cpp)
 target_link_libraries(ismrmrd_test ${XERCESC_LIBRARIES} ismrmrd)
 
 INSTALL(FILES ismrmrd.h ${XSDS_SOURCES} ismrmrd_hdf5.h ismrmrd_hdf5_datatypes.h ismrmrd_export.h DESTINATION include)
