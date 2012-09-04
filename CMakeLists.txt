@@ -17,7 +17,8 @@ find_package(XSD REQUIRED)
 find_package(XercesC REQUIRED)
 set(Boost_NO_BOOST_CMAKE ON)
 find_package(Boost COMPONENTS thread system REQUIRED)
-find_package(HDF5 1.8 COMPONENTS C CXX HL REQUIRED)
+find_package(HDF5 1.8 COMPONENTS C CXX REQUIRED)
+
 
 #Process the XSD files
 SET(XSDS schema/ismrmrd.xsd)
@@ -26,7 +27,27 @@ WRAP_XSD(XSDS_SOURCES XSD_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/schema ${XSDS} OP
 INCLUDE_DIRECTORIES(${XSD_INCLUDES} ${XSD_INCLUDE_DIR} ${XERCESC_INCLUDE_DIR} ${Boost_INCLUDE_DIR} ${HDF5_INCLUDE_DIR} ${HDF5_INCLUDE_DIR}/cpp)
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 add_library(ismrmrd SHARED ismrmrd_hdf5.cpp ${XSDS_SOURCES})
-target_link_libraries(ismrmrd ${HDF5_LIBRARIES} ${XERCESC_LIBRARIES} ${Boost_LIBRARIES})
+
+#The findHDF5.cmake does not work very well on Windows, let's help it out
+IF(WIN32)
+	SET(HDF5_LIB_DIR ${HDF5_INCLUDE_DIR}/../lib)
+	target_link_libraries(ismrmrd optimized ${HDF5_LIB_DIR}/hdf5dll.lib)
+	target_link_libraries(ismrmrd optimized ${HDF5_LIB_DIR}/hdf5_cppdll.lib)
+	target_link_libraries(ismrmrd optimized ${HDF5_LIB_DIR}/hdf5_hldll.lib)
+
+	target_link_libraries(ismrmrd debug ${HDF5_LIB_DIR}/hdf5ddll.lib)
+	target_link_libraries(ismrmrd debug ${HDF5_LIB_DIR}/hdf5_cppddll.lib)
+	target_link_libraries(ismrmrd debug ${HDF5_LIB_DIR}/hdf5_hlddll.lib)
+
+	target_link_libraries(ismrmrd optimized ${HDF5_LIB_DIR}/zlib.lib)
+	target_link_libraries(ismrmrd optimized ${HDF5_LIB_DIR}/szip.lib)
+	target_link_libraries(ismrmrd debug ${HDF5_LIB_DIR}/zlib_D.lib)
+	target_link_libraries(ismrmrd debug ${HDF5_LIB_DIR}/szip_D.lib)
+
+	target_link_libraries(ismrmrd ${XERCESC_LIBRARIES} ${Boost_LIBRARIES})
+ELSE (WIN32)
+	target_link_libraries(ismrmrd ${HDF5_LIBRARIES} ${XERCESC_LIBRARIES} ${Boost_LIBRARIES})
+ENDIF(WIN32)
 
 add_executable(ismrmrd_test main.cpp)
 target_link_libraries(ismrmrd_test ${XERCESC_LIBRARIES} ismrmrd)
