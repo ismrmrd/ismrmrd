@@ -19,6 +19,7 @@ int IsmrmrdDataset::openHDF5File()
 				return -1;
 			}
 			file_ = boost::shared_ptr<H5File>(new H5File(filename_, H5F_ACC_RDWR));
+
 		} catch (...) {
 			std::cerr << "Failed to open HDF5 file." << std::endl;
 			return -1;
@@ -27,6 +28,14 @@ int IsmrmrdDataset::openHDF5File()
 	} else if (create_file_if_needed_){
 		try {
 			file_ = boost::shared_ptr<H5File>(new H5File(filename_, H5F_ACC_TRUNC));
+
+			//We will close and then immediately open the file again.
+			//We need to make sure the file is saved as an HDF5 file in case other processes and functions
+			//need to access it immediately. The line above does not cause the file to be marked as and HDF5 file.
+			//H5File::isHdf5(filename_.c_str()) will return false at this point.
+			file_->close();
+			file_ = boost::shared_ptr<H5File>(new H5File(filename_, H5F_ACC_RDWR));
+
 		} catch (...) {
 			std::cerr << "Failed to create and open HDF5 file." << std::endl;
 			return -1;

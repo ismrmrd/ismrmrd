@@ -71,7 +71,7 @@ public:
 	, create_file_if_needed_(create_file_if_needed)
 	{
 		std::ifstream ifile(filename_.c_str());
-		file_exists_ = ifile;
+		file_exists_ = ifile.is_open();
 
 		if (openHDF5File() < 0) {
 			std::cerr << "IsmrmrdDataset: Error opening HDF file." << std::endl;
