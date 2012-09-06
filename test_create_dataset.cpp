@@ -90,8 +90,7 @@ int main(int argc, char** argv)
 	fftshift(reinterpret_cast<std::complex<float>*>(tmp),&img_test->data_[0],img_test->dimensions_[0],img_test->dimensions_[1]);
 
 	//Create the FFTW plan
-	fftwf_plan p = fftwf_plan_dft_2d(img_test->dimensions_[0], img_test->dimensions_[1],
-	                                tmp,tmp, FFTW_FORWARD, FFTW_ESTIMATE);
+	fftwf_plan p = fftwf_plan_dft_2d(img_test->dimensions_[1], img_test->dimensions_[0], tmp,tmp, FFTW_FORWARD, FFTW_ESTIMATE);
 
 	fftwf_execute(p);
 
@@ -106,21 +105,6 @@ int main(int argc, char** argv)
 		std::cout << "Error adding kspace to dataset" << std::endl;
 		return -1;
 	}
-
-	/* This is what one could to to get the magnitude of k-space
-	NDArrayContainer< float > abs_array;
-	abs_array.dimensions_ = img_test->dimensions_;
-	abs_array.data_.resize(img_test->data_.size(),0.0);
-
-	for (unsigned int i = 0; i < abs_array.data_.size();i++) {
-		abs_array.data_[i] = abs(img_test->data_[i]);
-	}
-
-	if (d.appendArray(abs_array,"the_square_k_abs") < 0) {
-		std::cout << "Error adding kspace to dataset" << std::endl;
-		return -1;
-	}
-	*/
 
 	//Let's append the data to the file
 	ISMRMRD::Acquisition acq;
@@ -140,6 +124,11 @@ int main(int argc, char** argv)
 			acq.setFlag(ISMRMRD::FlagBit(ISMRMRD::ACQ_LAST_IN_SLICE));
 		}
 		acq.head_.idx.kspace_encode_step_1 = i;
+		acq.head_.active_channels = 1;
+		acq.head_.available_channels = 1;
+		acq.head_.number_of_samples = readout;
+		acq.head_.center_sample = (readout>>1);
+		acq.head_.sample_time_us = 5.0;
 		memcpy(acq.data_,&img_test->data_[i*readout],sizeof(float)*readout*2);
 		d.appendAcquisition(&acq);
 	}
