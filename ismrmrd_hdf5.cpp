@@ -201,12 +201,12 @@ template <typename T> int IsmrmrdDataset::appendArray(NDArrayContainer<T>& a, co
 	return 0;
 }
 
-template int IsmrmrdDataset::appendArray(NDArrayContainer< unsigned short int >& a,const char* varname);
-template int IsmrmrdDataset::appendArray(NDArrayContainer< float >& a,const char* varname);
-template int IsmrmrdDataset::appendArray(NDArrayContainer< double >& a,const char* varname);
-template int IsmrmrdDataset::appendArray(NDArrayContainer< std::complex<float> >& a,const char* varname);
-template int IsmrmrdDataset::appendArray(NDArrayContainer< std::complex<double> >& a,const char* varname);
-template int IsmrmrdDataset::appendArray(NDArrayContainer< ImageHeader >& a,const char* varname);
+template EXPORTISMRMRD int IsmrmrdDataset::appendArray(NDArrayContainer< unsigned short int >& a,const char* varname);
+template EXPORTISMRMRD int IsmrmrdDataset::appendArray(NDArrayContainer< float >& a,const char* varname);
+template EXPORTISMRMRD int IsmrmrdDataset::appendArray(NDArrayContainer< double >& a,const char* varname);
+template EXPORTISMRMRD int IsmrmrdDataset::appendArray(NDArrayContainer< std::complex<float> >& a,const char* varname);
+template EXPORTISMRMRD int IsmrmrdDataset::appendArray(NDArrayContainer< std::complex<double> >& a,const char* varname);
+template EXPORTISMRMRD int IsmrmrdDataset::appendArray(NDArrayContainer< ImageHeader >& a,const char* varname);
 
 template <typename T> boost::shared_ptr< NDArrayContainer<T> > IsmrmrdDataset::readArray(const char* varname, unsigned long int index)
 {
@@ -269,11 +269,11 @@ template <typename T> boost::shared_ptr< NDArrayContainer<T> > IsmrmrdDataset::r
 
 }
 
-template boost::shared_ptr< NDArrayContainer<unsigned short int> > IsmrmrdDataset::readArray(const char* varname, unsigned long int index);
-template boost::shared_ptr< NDArrayContainer<float> > IsmrmrdDataset::readArray(const char* varname, unsigned long int index);
-template boost::shared_ptr< NDArrayContainer<double> > IsmrmrdDataset::readArray(const char* varname, unsigned long int index);
-template boost::shared_ptr< NDArrayContainer< std::complex<float> > > IsmrmrdDataset::readArray(const char* varname, unsigned long int index);
-template boost::shared_ptr< NDArrayContainer< std::complex<double> > > IsmrmrdDataset::readArray(const char* varname, unsigned long int index);
+template EXPORTISMRMRD boost::shared_ptr< NDArrayContainer<unsigned short int> > IsmrmrdDataset::readArray(const char* varname, unsigned long int index);
+template EXPORTISMRMRD boost::shared_ptr< NDArrayContainer<float> > IsmrmrdDataset::readArray(const char* varname, unsigned long int index);
+template EXPORTISMRMRD boost::shared_ptr< NDArrayContainer<double> > IsmrmrdDataset::readArray(const char* varname, unsigned long int index);
+template EXPORTISMRMRD boost::shared_ptr< NDArrayContainer< std::complex<float> > > IsmrmrdDataset::readArray(const char* varname, unsigned long int index);
+template EXPORTISMRMRD boost::shared_ptr< NDArrayContainer< std::complex<double> > > IsmrmrdDataset::readArray(const char* varname, unsigned long int index);
 
 
 int IsmrmrdDataset::appendAcquisition(Acquisition* a)
@@ -552,17 +552,17 @@ boost::shared_ptr< ImageHeader > IsmrmrdDataset::readImageHeader(const char* var
 	return ret;
 }
 
-template int IsmrmrdDataset::appendImage(Image<float>& m, const char* varname);
-template int IsmrmrdDataset::appendImage(Image<double>& m, const char* varname);
-template int IsmrmrdDataset::appendImage(Image<unsigned short>& m, const char* varname);
-template int IsmrmrdDataset::appendImage(Image< std::complex<float> >& m, const char* varname);
-template int IsmrmrdDataset::appendImage(Image< std::complex<double> >& m, const char* varname);
+template EXPORTISMRMRD int IsmrmrdDataset::appendImage(Image<float>& m, const char* varname);
+template EXPORTISMRMRD int IsmrmrdDataset::appendImage(Image<double>& m, const char* varname);
+template EXPORTISMRMRD int IsmrmrdDataset::appendImage(Image<unsigned short>& m, const char* varname);
+template EXPORTISMRMRD int IsmrmrdDataset::appendImage(Image< std::complex<float> >& m, const char* varname);
+template EXPORTISMRMRD int IsmrmrdDataset::appendImage(Image< std::complex<double> >& m, const char* varname);
 
-template boost::shared_ptr< Image<float> > IsmrmrdDataset::readImage(const char* varname, unsigned long index);
-template boost::shared_ptr< Image<double> > IsmrmrdDataset::readImage(const char* varname, unsigned long index);
-template boost::shared_ptr< Image<unsigned short> > IsmrmrdDataset::readImage(const char* varname, unsigned long index);
-template boost::shared_ptr< Image< std::complex<float> > > IsmrmrdDataset::readImage(const char* varname, unsigned long index);
-template boost::shared_ptr< Image< std::complex<double> > > IsmrmrdDataset::readImage(const char* varname, unsigned long index);
+template EXPORTISMRMRD boost::shared_ptr< Image<float> > IsmrmrdDataset::readImage(const char* varname, unsigned long index);
+template EXPORTISMRMRD boost::shared_ptr< Image<double> > IsmrmrdDataset::readImage(const char* varname, unsigned long index);
+template EXPORTISMRMRD boost::shared_ptr< Image<unsigned short> > IsmrmrdDataset::readImage(const char* varname, unsigned long index);
+template EXPORTISMRMRD boost::shared_ptr< Image< std::complex<float> > > IsmrmrdDataset::readImage(const char* varname, unsigned long index);
+template EXPORTISMRMRD boost::shared_ptr< Image< std::complex<double> > > IsmrmrdDataset::readImage(const char* varname, unsigned long index);
 
 
 HDF5Lock* HDF5Lock::instance()

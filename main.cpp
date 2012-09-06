@@ -27,6 +27,7 @@ template <typename T, int mat_x, int mat_y, int mat_z, int chan> int appendImage
 	}
 
 	d.appendImage(img,varname);
+	return 0;
 
 }
 
