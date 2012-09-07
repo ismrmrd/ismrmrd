@@ -49,6 +49,7 @@ template<typename TI, typename TO> void circshift(TO *out, const TI *in, int xdi
 
 #define fftshift(out, in, x, y) circshift(out, in, x, y, (x/2), (y/2))
 
+/* MAIN APPLICATION */
 int main(int argc, char** argv)
 {
 	std::cout << "ISMRMRD Test Dataset Creation App" << std::endl;
@@ -162,5 +163,3 @@ int main(int argc, char** argv)
 
 	return 0;
 }
-
-
