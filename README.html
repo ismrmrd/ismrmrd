@@ -3,13 +3,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.8.1: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.9.1: http://docutils.sourceforge.net/" />
 <title>ISMRM Raw Data Format (ISMRMRD)</title>
 <style type="text/css">
 
 /*
 :Author: David Goodger (goodger@python.org)
-:Id: $Id: html4css1.css 7056 2011-06-17 10:50:48Z milde $
+:Id: $Id: html4css1.css 7434 2012-05-11 21:06:27Z milde $
 :Copyright: This stylesheet has been placed in the public domain.
 
 Default cascading style sheet for the HTML output of Docutils.
@@ -249,9 +249,17 @@ pre.address {
   margin-top: 0 ;
   font: inherit }
 
-pre.literal-block, pre.doctest-block, pre.math {
+pre.literal-block, pre.doctest-block, pre.math, pre.code {
   margin-left: 2em ;
   margin-right: 2em }
+
+pre.code .ln { /* line numbers */
+  color: grey;
+}
+
+.code {
+  background-color: #eeeeee
+}
 
 span.classifier {
   font-family: sans-serif ;
@@ -325,20 +333,24 @@ ul.auto-toc {
 <li><a class="reference internal" href="#dependencies" id="id3">Dependencies</a></li>
 <li><a class="reference internal" href="#linux-installation" id="id4">Linux installation</a></li>
 <li><a class="reference internal" href="#mac-osx-installation" id="id5">Mac OSX Installation</a></li>
+<li><a class="reference internal" href="#windows-installation" id="id6">Windows Installation</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#change-log" id="id6">Change log</a></li>
 <li><a class="reference internal" href="#overview" id="id7">Overview</a><ul>
 <li><a class="reference internal" href="#flexible-data-header" id="id8">Flexible Data Header</a></li>
 <li><a class="reference internal" href="#fixed-data-structures" id="id9">Fixed Data structures</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#file-storage" id="id10">File Storage</a></li>
-<li><a class="reference internal" href="#c-support-library" id="id11">C++ Support Library</a></li>
-<li><a class="reference internal" href="#matlab-example-code-and-datasets" id="id12">Matlab Example Code and Datasets</a></li>
-<li><a class="reference internal" href="#appendix" id="id13">Appendix</a><ul>
-<li><a class="reference internal" href="#xml-schema-definition" id="id14">XML Schema Definition</a></li>
+<li><a class="reference internal" href="#c-support-library" id="id11">C++ Support Library</a><ul>
+<li><a class="reference internal" href="#c-example-applications" id="id12">C++ Example Applications</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#matlab-example-code-and-datasets" id="id13">Matlab Example Code and Datasets</a></li>
+<li><a class="reference internal" href="#appendix" id="id14">Appendix</a><ul>
 <li><a class="reference internal" href="#frequently-asked-questions" id="id15">Frequently Asked Questions</a></li>
+<li><a class="reference internal" href="#xml-schema-definition" id="id16">XML Schema Definition</a></li>
+<li><a class="reference internal" href="#windows-7-64-bit-powershell-install-script" id="id17">Windows 7 (64-bit) Powershell Install Script</a></li>
 </ul>
 </li>
 </ul>
@@ -382,6 +394,8 @@ wget https://sourceforge.net/projects/ismrmrd/files/src/ismrmrd_latest.zip
 <li>Cmake build tool (<a class="reference external" href="http://www.cmake.org/">http://www.cmake.org/</a>)</li>
 <li>Doxygen if you would like to generate API documentation (<a class="reference external" href="http://www.doxygen.org">http://www.doxygen.org</a>)</li>
 <li>Git if you would like to use the source code archive (<a class="reference external" href="http://git-scm.com/">http://git-scm.com/</a>)</li>
+<li>FFTW if you would like to compile some of the example applications
+(<a class="reference external" href="http://www.fftw.org">http://www.fftw.org</a>)</li>
 </ul>
 <div class="note">
 <p class="first admonition-title">Note</p>
@@ -392,7 +406,7 @@ wget https://sourceforge.net/projects/ismrmrd/files/src/ismrmrd_latest.zip
 <h2><a class="toc-backref" href="#id4">Linux installation</a></h2>
 <p>The dependencies mentioned above should be included in most linux distributions. On Ubuntu you can install all required dependencies with:</p>
 <pre class="literal-block">
-sudo apt-get install libhdf5-serial-dev h5utils cmake cmake-curses-gui libboost-dev libxerces-c-dev xsdcxx doxygen git
+sudo apt-get install libhdf5-serial-dev h5utils cmake cmake-curses-gui libboost-dev libboost-thread-dev libboost-system-dev libxerces-c-dev xsdcxx doxygen git
 </pre>
 <p>After installation of dependencies, the library can be installed with:</p>
 <pre class="literal-block">
@@ -433,10 +447,56 @@ sudo make install
 </pre>
 <p>Last command will install the library in <tt class="docutils literal">/usr/local/ismrmrd</tt>.</p>
 </div>
+<div class="section" id="windows-installation">
+<h2><a class="toc-backref" href="#id6">Windows Installation</a></h2>
+<p>Setting up a Windows development environment is usually a bit more challenging than working on Unix platforms where most library dependencies are easily installed with package management systems (see above). The general Windows installation instructions (you may have to make adjustments for your setup) is as follows:</p>
+<ul class="simple">
+<li>Starting with a Windows 7 (64-bit) machine with Visual Studio 2010 installed.</li>
+<li>Install CMake (<a class="reference external" href="http://www.cmake.org/files/v2.8/cmake-2.8.9-win32-x86.exe">http://www.cmake.org/files/v2.8/cmake-2.8.9-win32-x86.exe</a>)</li>
+<li>Install Git (<a class="reference external" href="http://msysgit.googlecode.com/files/Git-1.7.11-preview20120710.exe">http://msysgit.googlecode.com/files/Git-1.7.11-preview20120710.exe</a>)</li>
+<li>Install HDF5 (<a class="reference external" href="http://www.hdfgroup.org/ftp/HDF5/current/bin/windows/HDF5189-win64-vs10-shared.zip">http://www.hdfgroup.org/ftp/HDF5/current/bin/windows/HDF5189-win64-vs10-shared.zip</a>)</li>
+<li>Install HDFView (<a class="reference external" href="http://www.hdfgroup.org/ftp/HDF5/hdf-java/hdfview/hdfview_install_win64.exe">http://www.hdfgroup.org/ftp/HDF5/hdf-java/hdfview/hdfview_install_win64.exe</a>)</li>
+<li>Install CodeSynthesis XSD (<a class="reference external" href="http://www.codesynthesis.com/download/xsd/3.3/windows/i686/xsd-3.3.msi">http://www.codesynthesis.com/download/xsd/3.3/windows/i686/xsd-3.3.msi</a>)</li>
+<li>Install Boost (<a class="reference external" href="http://boostpro.com/download/x64/boost_1_51_setup.exe">http://boostpro.com/download/x64/boost_1_51_setup.exe</a>)<ul>
+<li>Just install everything for VS2010 and worry about which versions you need later.</li>
+</ul>
+</li>
+<li>Install FFTW (<a class="reference external" href="ftp://ftp.fftw.org/pub/fftw/fftw-3.3.2-dll64.zip">ftp://ftp.fftw.org/pub/fftw/fftw-3.3.2-dll64.zip</a>)<ul>
+<li>You need to create <tt class="docutils literal">.lib</tt> files manually after installing. See instructions at <a class="reference external" href="http://www.fftw.org/install/windows.html">http://www.fftw.org/install/windows.html</a></li>
+</ul>
+</li>
+<li>Make sure the paths to your new libraries are in your PATH environment variable:<ul>
+<li>Boost libraries  (typically <tt class="docutils literal"><span class="pre">C:\Program</span> Files\boost\boost_1_51\lib</tt>)</li>
+<li>Code Synthesis XSD (typically <tt class="docutils literal"><span class="pre">C:\Program</span> Files <span class="pre">(x86)\CodeSynthesis</span> XSD <span class="pre">3.3\bin\;C:\Program</span> Files <span class="pre">(x86)\CodeSynthesis</span> XSD 3.3\bin64\</tt>)</li>
+<li>FFTW libraries (typically <tt class="docutils literal"><span class="pre">C:\MRILibraries\fftw3</span></tt>)</li>
+<li>HDF5 libraries (typically <tt class="docutils literal"><span class="pre">C:\Program</span> Files\HDF Group\HDF5\1.8.9\bin</tt>)</li>
+<li>ISMRMRD (typically <tt class="docutils literal"><span class="pre">C:\Program</span> <span class="pre">Files\ismrmrd\bin;C:\Program</span> Files\ismrmrd\bin</tt>)</li>
+</ul>
+</li>
+</ul>
+<p>This can seem a bit daunting, we have included a Windows <a class="reference internal" href="#powershell">powershell</a> script, which you can use to guide you through the installation process.</p>
+<p>After installing all dependencies, download the code, e.g. from a git bash shell:</p>
+<pre class="literal-block">
+git clone git://git.code.sf.net/p/ismrmrd/code ismrmrd-code
+cd ismrmrd-code/
+mkdir build
+cd build/
+cmake-gui.exe
+</pre>
+<p>Last command will open CMake's graphical user interface. Hit the configure button and deal with the dependencies that CMake is unable to find. Hit configure again and repeat the process until CMake has enough information to configure. Once the configuration is complete, you can hit generate to generate a Visual Studio project, which you can open and use to build ISMRMRD. There are step-by-step commands included in the <a class="reference internal" href="#powershell">powershell</a> script below to guide you through the CMake configuration and build process from the command line. The command line CMake configuration line (assuming you have installed with the paths above), would look something like (backslashes are just there to break the command over multiple lines):</p>
+<pre class="literal-block">
+cmake -G&quot;Visual Studio 10 Win64&quot; -DBOOST_ROOT=C:/Program Files/boost/boost_1_51 \
+    -DXERCESC_INCLUDE_DIR=C:/Program Files (x86)/CodeSynthesis XSD 3.3/include/xercesc \
+    -DXERCESC_LIBRARIES=C:/Program Files (x86)/CodeSynthesis XSD 3.3/lib64/vc-10.0/xerces-c_3.lib \
+    -DXSD_DIR=C:/Program Files (x86)/CodeSynthesis XSD 3.3 \
+    -DFFTW3_INCLUDE_DIR=C:/MRILibraries/fftw3 \
+    -DFFTW3F_LIBRARY=C:/MRILibraries/fftw3/libfftw3f-3.lib ../
+</pre>
+<p>Again, you may have to adjust for your specific installation paths. After generating the Visual Studio project, you can build from a Visual Studio Command Prompt with:</p>
+<pre class="literal-block">
+msbuild .\ISMRMRD.sln /p:Configuration=Release
+</pre>
 </div>
-<div class="section" id="change-log">
-<h1><a class="toc-backref" href="#id6">Change log</a></h1>
-<p>August 2012 - First draft.</p>
 </div>
 <div class="section" id="overview">
 <h1><a class="toc-backref" href="#id7">Overview</a></h1>
@@ -780,9 +840,257 @@ try {
 std::cout &lt;&lt; &quot;Number of encoding spaces: &quot; &lt;&lt; cfg-&gt;encoding().size() &lt;&lt; std::endl;
 </pre>
 <p>Again, this is not a requirement for using the ISMRMRD format, the XML can be parsed with numerous other xml parsing libraries. The schema file <tt class="docutils literal">schema/ismrmrd.xsd</tt> gives the user the option of validating the XML header before parsing, which is recommended to reduce the chance of hard to detect errors in your code due to missing or malformed parameters.</p>
+<div class="section" id="c-example-applications">
+<h2><a class="toc-backref" href="#id12">C++ Example Applications</a></h2>
+<p>The distribution includes two example applications, one that creates a simple 2D single-channel dataset from scratch and one that reconstructs this dataset (you need FFTW installed to compile these test applications). The data generation application looks like this (<tt class="docutils literal">test_create_dataset.cpp</tt>):</p>
+<pre class="literal-block">
+
+int main(int argc, char** argv)
+{
+        std::cout &lt;&lt; &quot;ISMRMRD Test Dataset Creation App&quot; &lt;&lt; std::endl;
+
+        const unsigned int readout = 256;
+        const unsigned int phase_encoding_lines = 128;
+
+        ISMRMRD::IsmrmrdDataset d(&quot;testdata.h5&quot;,&quot;dataset&quot;);
+
+        //Let's create the &quot;original&quot; image in the file for reference
+        if (appendImageArray&lt; std::complex&lt;float&gt;, readout, phase_encoding_lines &gt;(d, &quot;the_square&quot;) &lt; 0) {
+                std::cout &lt;&lt; &quot;Error adding image to dataset&quot; &lt;&lt; std::endl;
+                return -1;
+        }
+
+        //Read it back from the file
+        boost::shared_ptr&lt; ISMRMRD::NDArrayContainer&lt;std::complex&lt;float&gt; &gt; &gt; img_test =
+                        d.readArray&lt; std::complex&lt;float&gt; &gt;(&quot;the_square&quot;, 0);
+
+        if (img_test.get() == 0) {
+                std::cout &lt;&lt; &quot;Error reading image array from file&quot; &lt;&lt; std::endl;
+                return -1;
+        }
+
+        std::cout &lt;&lt; &quot;Image Array dimensions: &quot;;
+        for (int di = 0; di &lt; img_test-&gt;dimensions_.size(); di++) {
+                std::cout &lt;&lt; img_test-&gt;dimensions_[di] &lt;&lt; &quot; &quot;;
+        }
+        std::cout &lt;&lt; std::endl;
+
+        //Let's FFT this image to k-space
+        fftwf_complex* tmp = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex)*img_test-&gt;data_.size());
+
+        if (!tmp) {
+                std::cout &lt;&lt; &quot;Error allocating temporary storage for FFTW&quot; &lt;&lt; std::endl;
+                return -1;
+        }
+
+        fftshift(reinterpret_cast&lt;std::complex&lt;float&gt;*&gt;(tmp),&amp;img_test-&gt;data_[0],img_test-&gt;dimensions_[0],img_test-&gt;dimensions_[1]);
+
+        //Create the FFTW plan
+        fftwf_plan p = fftwf_plan_dft_2d(img_test-&gt;dimensions_[1], img_test-&gt;dimensions_[0], tmp,tmp, FFTW_FORWARD, FFTW_ESTIMATE);
+
+        fftwf_execute(p);
+
+        fftshift(&amp;img_test-&gt;data_[0],reinterpret_cast&lt;std::complex&lt;float&gt;*&gt;(tmp),img_test-&gt;dimensions_[0],img_test-&gt;dimensions_[1]);
+
+        //Clean up.
+        fftwf_destroy_plan(p);
+        fftwf_free(tmp);
+
+        //Let keep the &quot;original&quot; k-space in the file for reference
+        if (d.appendArray(*img_test,&quot;the_square_k&quot;) &lt; 0) {
+                std::cout &lt;&lt; &quot;Error adding kspace to dataset&quot; &lt;&lt; std::endl;
+                return -1;
+        }
+
+        //Let's append the data to the file
+        ISMRMRD::Acquisition acq;
+
+        acq.data_ = new float[readout*2];
+        if (!acq.data_) {
+                std::cout &lt;&lt; &quot;Error allocating memory for the acquisition&quot; &lt;&lt; std::endl;
+        }
+
+        for (unsigned int i = 0; i &lt; phase_encoding_lines; i++) {
+                acq.head_.flags = 0;
+                //Set some flags
+                if (i == 0) {
+                        acq.setFlag(ISMRMRD::FlagBit(ISMRMRD::ACQ_FIRST_IN_SLICE));
+                }
+                if (i == (phase_encoding_lines-1)) {
+                        acq.setFlag(ISMRMRD::FlagBit(ISMRMRD::ACQ_LAST_IN_SLICE));
+                }
+                acq.head_.idx.kspace_encode_step_1 = i;
+                acq.head_.active_channels = 1;
+                acq.head_.available_channels = 1;
+                acq.head_.number_of_samples = readout;
+                acq.head_.center_sample = (readout&gt;&gt;1);
+                acq.head_.sample_time_us = 5.0;
+                memcpy(acq.data_,&amp;img_test-&gt;data_[i*readout],sizeof(float)*readout*2);
+                d.appendAcquisition(&amp;acq);
+        }
+
+        //Let's create a header, we will use the C++ class generated by XSD
+        ISMRMRD::experimentalConditionsType exp(63500000); //~1.5T
+        ISMRMRD::ismrmrdHeader h(exp);
+
+        //Create an encoding section
+        ISMRMRD::encodingSpaceType es(ISMRMRD::matrixSize(readout,phase_encoding_lines,1),ISMRMRD::fieldOfView_mm(600,300,6));
+        ISMRMRD::encodingSpaceType rs(ISMRMRD::matrixSize((readout&gt;&gt;1),phase_encoding_lines,1),ISMRMRD::fieldOfView_mm(300,300,6));
+        ISMRMRD::encodingLimitsType el;
+        el.kspace_encoding_step_1(ISMRMRD::limitType(0,phase_encoding_lines-1,(phase_encoding_lines&gt;&gt;1)));
+        ISMRMRD::encoding e(es,rs,el,ISMRMRD::trajectoryType::cartesian);
+
+        //Add the encoding section to the header
+        h.encoding().push_back(e);
+
+        //Add any additional fields that you may want would go here....
+
+        //Serialize the header
+        xml_schema::namespace_infomap map;
+        map[&quot;&quot;].name = &quot;http://www.ismrm.org/ISMRMRD&quot;;
+        map[&quot;&quot;].schema = &quot;ismrmrd.xsd&quot;;
+        std::stringstream str;
+        ISMRMRD::ismrmrdHeader_(str, h, map);
+        std::string xml_header = str.str();
+
+        //Write the header to the data file.
+        d.writeHeader(xml_header);
+
+        return 0;
+}
+
+</pre>
+<p>To reconstruct this synthetic dataset, you can use the test reconstruction application (<tt class="docutils literal">test_recon_dataset.cpp</tt>):</p>
+<pre class="literal-block">
+
+int main(int argc, char** argv)
+{
+        if (argc &lt; 3) {
+                print_usage(argv[0]);
+                return -1;
+        }
+
+        std::string datafile(argv[1]);
+        std::string schemafile(argv[2]);
+
+        std::cout &lt;&lt; &quot;Simple ISMRMRD Reconstruction program&quot; &lt;&lt; std::endl;
+        std::cout &lt;&lt; &quot;   - filename: &quot; &lt;&lt; datafile &lt;&lt; std::endl;
+        std::cout &lt;&lt; &quot;   - schema  : &quot; &lt;&lt; schemafile &lt;&lt; std::endl;
+
+        //Let's open the dataset
+        ISMRMRD::IsmrmrdDataset d(datafile.c_str(),&quot;dataset&quot;);
+
+        //We will start by getting the header and turning it into a C++ class
+        //In order to do true validation of the XML, we will use the XML schema
+        xml_schema::properties props;
+        props.schema_location (&quot;http://www.ismrm.org/ISMRMRD&quot;, schemafile);
+
+        boost::shared_ptr&lt;std::string&gt; xml = d.readHeader();
+        std::istringstream str_stream(*xml, std::stringstream::in);
+
+        boost::shared_ptr&lt;ISMRMRD::ismrmrdHeader&gt; cfg;
+
+        try {
+                cfg = boost::shared_ptr&lt;ISMRMRD::ismrmrdHeader&gt;(ISMRMRD::ismrmrdHeader_ (str_stream,0,props));
+        }  catch (const xml_schema::exception&amp; e) {
+                std::cout &lt;&lt; &quot;Failed to parse XML Parameters: &quot; &lt;&lt; e.what() &lt;&lt; std::endl;
+        }
+
+        //Let's print some information from the header
+        ISMRMRD::ismrmrdHeader::encoding_sequence e_seq = cfg-&gt;encoding();
+        if (e_seq.size() != 1) {
+                std::cout &lt;&lt; &quot;Number of encoding spaces: &quot; &lt;&lt; e_seq.size() &lt;&lt; std::endl;
+                std::cout &lt;&lt; &quot;This simple reconstruction application only supports one encoding space&quot; &lt;&lt; std::endl;
+                return -1;
+        }
+
+        ISMRMRD::encodingSpaceType e_space = (*e_seq.begin()).encodedSpace();
+        ISMRMRD::encodingSpaceType r_space = (*e_seq.begin()).reconSpace();
+        ISMRMRD::encodingLimitsType e_limits = (*e_seq.begin()).encodingLimits();
+
+        std::cout &lt;&lt; &quot;Encoding Matrix Size        : [&quot; &lt;&lt; e_space.matrixSize().x() &lt;&lt; &quot;, &quot; &lt;&lt; e_space.matrixSize().y() &lt;&lt; &quot;, &quot; &lt;&lt; e_space.matrixSize().z() &lt;&lt; &quot;]&quot; &lt;&lt; std::endl;
+        std::cout &lt;&lt; &quot;Reconstruction Matrix Size  : [&quot; &lt;&lt; r_space.matrixSize().x() &lt;&lt; &quot;, &quot; &lt;&lt; r_space.matrixSize().y() &lt;&lt; &quot;, &quot; &lt;&lt; r_space.matrixSize().z() &lt;&lt; &quot;]&quot; &lt;&lt; std::endl;
+        std::cout &lt;&lt; &quot;Number of acquisitions      : &quot; &lt;&lt; d.getNumberOfAcquisitions() &lt;&lt; std::endl;
+
+        if (e_space.matrixSize().z() != 1) {
+                std::cout &lt;&lt; &quot;This simple reconstruction application only supports 2D encoding spaces&quot; &lt;&lt; std::endl;
+                return -1;
+        }
+
+        //Allocate a buffer for the data
+        ISMRMRD::NDArrayContainer&lt; std::complex&lt;float&gt; &gt; buffer;
+        buffer.dimensions_.push_back(e_space.matrixSize().x());
+        buffer.dimensions_.push_back(e_space.matrixSize().y());
+        buffer.data_.resize(e_space.matrixSize().x()*e_space.matrixSize().y(), std::complex&lt;float&gt;(0.0,0.0));
+
+        //Now loop through and copy data
+        unsigned int number_of_acquisitions = d.getNumberOfAcquisitions();
+        for (unsigned int i = 0; i &lt; number_of_acquisitions; i++) {
+                //Read one acquisition at a time
+                boost::shared_ptr&lt;ISMRMRD::Acquisition&gt; acq = d.readAcquisition(i);
+
+                //Copy data, we should probably be more careful here and do more tests....
+                //We are not considering multiple channels here.
+                unsigned int offset = acq-&gt;head_.idx.kspace_encode_step_1*buffer.dimensions_[0];
+                memcpy(&amp;buffer.data_[offset],acq-&gt;data_,sizeof(float)*2*buffer.dimensions_[0]);
+        }
+
+        //Let's FFT the k-space to image
+        fftwf_complex* tmp = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex)*buffer.data_.size());
+
+        if (!tmp) {
+                std::cout &lt;&lt; &quot;Error allocating temporary storage for FFTW&quot; &lt;&lt; std::endl;
+                return -1;
+        }
+
+        fftshift(reinterpret_cast&lt;std::complex&lt;float&gt;*&gt;(tmp),&amp;buffer.data_[0],buffer.dimensions_[0],buffer.dimensions_[1]);
+
+        //Create the FFTW plan
+        fftwf_plan p = fftwf_plan_dft_2d(buffer.dimensions_[1], buffer.dimensions_[0], tmp,tmp, FFTW_BACKWARD, FFTW_ESTIMATE);
+
+        fftwf_execute(p);
+
+        fftshift(&amp;buffer.data_[0],reinterpret_cast&lt;std::complex&lt;float&gt;*&gt;(tmp),buffer.dimensions_[0],buffer.dimensions_[1]);
+
+        //Clean up.
+        fftwf_destroy_plan(p);
+        fftwf_free(tmp);
+
+        //Now, let's remove the oversampling in the readout and take the magnitude
+        //Allocate a buffer for the data
+        ISMRMRD::NDArrayContainer&lt; float &gt; img;
+        img.dimensions_.push_back(r_space.matrixSize().x());
+        img.dimensions_.push_back(r_space.matrixSize().y());
+        img.data_.resize(r_space.matrixSize().x()*r_space.matrixSize().y(), 0.0);
+
+        for (unsigned int y = 0; y &lt; img.dimensions_[1]; y++) {
+                for (unsigned int x = 0; x &lt; img.dimensions_[0]; x++) {
+                        img.data_[y*img.dimensions_[0]+x] =
+                                std::abs(buffer.data_[y*buffer.dimensions_[0] + x + ((e_space.matrixSize().x()-r_space.matrixSize().x())&gt;&gt;1)]);
+                }
+        }
+
+        //Let's write the reconstructed image straight in the same data file
+        ISMRMRD::ImageHeader img_h;
+        img_h.channels = 1;
+        img_h.image_data_type = ISMRMRD::DATA_COMPLEX_FLOAT; //This is actually just guidance
+        img_h.image_type      = ISMRMRD::TYPE_COMPLEX;       //This is actually just guidance
+        img_h.slice = 0;
+        //And so on
+
+        //Now append, we will append image and header separately (in two different datasets)
+        d.appendImageHeader(img_h,&quot;myimage.head&quot;);
+        d.appendArray(img,&quot;myimage.img&quot;);
+
+
+        return 0;
+}
+
+</pre>
+</div>
 </div>
 <div class="section" id="matlab-example-code-and-datasets">
-<h1><a class="toc-backref" href="#id12">Matlab Example Code and Datasets</a></h1>
+<h1><a class="toc-backref" href="#id13">Matlab Example Code and Datasets</a></h1>
 <p>The <tt class="docutils literal">examples</tt> folder contains some matlab code to illustrate simple interaction with the ISMRMRD data format. The examples use test data sets, wich can be downloaded from the Sourceforge <a class="reference external" href="http://sourceforge.net/projects/ismrmrd">website</a>. Go to the <tt class="docutils literal">examples/data</tt> folder and type the following to download the data:</p>
 <pre class="literal-block">
 wget https://sourceforge.net/projects/ismrmrd/files/data/3D_partial_fourier.h5
@@ -827,9 +1135,29 @@ Reconstructing image 10....done
 </pre>
 </div>
 <div class="section" id="appendix">
-<h1><a class="toc-backref" href="#id13">Appendix</a></h1>
+<h1><a class="toc-backref" href="#id14">Appendix</a></h1>
+<div class="section" id="frequently-asked-questions">
+<h2><a class="toc-backref" href="#id15">Frequently Asked Questions</a></h2>
+<ul id="faq">
+<li><p class="first">I am trying to compile on Mac OSX Lion and I am getting strange errors.</p>
+<blockquote>
+<p>in version 3.3.0 of CodeSynthesis XSD there is a problem with the clang compiler. It can build with clang on os x 10.7 (Lion) by editing
+<cite>/usr/local/include/xsd/cxx/zc-istream.txx</cite>. Change line 35 from:</p>
+<pre class="literal-block">
+setg (b, b, e);
+</pre>
+<p>to:</p>
+<pre class="literal-block">
+std::streambuf::setg (b, b, e);
+</pre>
+<p>See also:
+<a class="reference external" href="http://codesynthesis.com/pipermail/xsd-users/2011-May/003283.html">http://codesynthesis.com/pipermail/xsd-users/2011-May/003283.html</a></p>
+</blockquote>
+</li>
+</ul>
+</div>
 <div class="section" id="xml-schema-definition">
-<h2><a class="toc-backref" href="#id14">XML Schema Definition</a></h2>
+<h2><a class="toc-backref" href="#id16">XML Schema Definition</a></h2>
 <pre class="literal-block" id="schema">
 &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;
 &lt;xs:schema xmlns=&quot;http://www.ismrm.org/ISMRMRD&quot; xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot; elementFormDefault=&quot;qualified&quot; targetNamespace=&quot;http://www.ismrm.org/ISMRMRD&quot;&gt;
@@ -978,25 +1306,255 @@ Reconstructing image 10....done
 
 </pre>
 </div>
-<div class="section" id="frequently-asked-questions">
-<h2><a class="toc-backref" href="#id15">Frequently Asked Questions</a></h2>
-<ul id="faq">
-<li><p class="first">I am trying to compile on Mac OSX Lion and I am getting strange errors.</p>
-<blockquote>
-<p>in version 3.3.0 of CodeSynthesis XSD there is a problem with the clang compiler. It can build with clang on os x 10.7 (Lion) by editing
-<cite>/usr/local/include/xsd/cxx/zc-istream.txx</cite>. Change line 35 from:</p>
-<pre class="literal-block">
-setg (b, b, e);
+<div class="section" id="windows-7-64-bit-powershell-install-script">
+<h2><a class="toc-backref" href="#id17">Windows 7 (64-bit) Powershell Install Script</a></h2>
+<pre class="literal-block" id="powershell">
+#    Script for installing the required dependencied for 
+
+#    the ISMRM Raw Data Format on Windows.
+
+#    
+
+#    Prerequisites:
+
+#        - Windows 7 (64-bit)
+
+#        - Visual Studio (C/C++) installed
+
+#
+
+
+
+function download_file($url,$destination) {
+
+    #Let's set up a webclient for all the files we have to download
+
+    $client = New-Object System.Net.WebClient
+
+    $client.DownloadFile($url,$destination)
+
+}
+
+
+
+function unzip($zipPath, $destination){
+
+    $shell = new-object -com shell.application;
+
+    $zip = $shell.NameSpace($zipPath);
+
+    if ((Test-Path -path $destination) -ne $True)
+
+    {
+
+        New-Item $destination -type directory
+
+    }
+
+    foreach($item in $zip.items()){
+
+        $shell.Namespace($destination).copyhere($item)
+
+    }
+
+}
+
+
+
+function Set-VS-Environment () {
+
+    $file = (Get-ChildItem Env:VS100COMNTOOLS).Value + &quot;vsvars32.bat&quot;
+
+    $cmd = &quot;`&quot;$file`&quot; &amp; set&quot;
+
+    cmd /c $cmd | Foreach-Object {
+
+       $p, $v = $_.split('=')
+
+       Set-Item -path env:$p -value $v
+
+   }
+
+}
+
+
+
+function add_path($pathname) {
+
+    if ($env:path  -match [regex]::escape($pathname)) {
+
+        Write-Host &quot;Path $path already exists&quot;
+
+    } else {
+
+        setx PATH &quot;$env:path;$pathname&quot; -m
+
+    }
+
+}
+
+
+
+Write-Host &quot;ISMRMRD Raw Data Format Dependencies Installation&quot;
+
+
+
+$library_location = &quot;C:\MRILibraries&quot;
+
+$download_location = &quot;C:\MRILibraries\downloads&quot;
+
+
+
+
+
+#Let's first check if we have the library folder and if not create it
+
+if ((Test-Path -path $library_location) -ne $True)
+
+{
+
+    Write-Host &quot;Library location: &quot; $library_location &quot; not found, creating&quot;
+
+    New-Item $library_location -type directory
+
+}
+
+else
+
+{
+
+    Write-Host &quot;Library location: &quot; $library_location &quot; found.&quot;
+
+}
+
+
+
+#Now check if we have the library folder and if not create it
+
+if ((Test-Path -path $download_location) -ne $True)
+
+{
+
+    Write-Host &quot;Download location: &quot; $download_location &quot; not found, creating&quot;
+
+    New-Item $download_location -type directory
+
+}
+
+else
+
+{
+
+    Write-Host &quot;Download location: &quot; $download_location &quot; found.&quot;
+
+}
+
+
+
+#Download and install CMAKE
+
+download_file &quot;http://www.cmake.org/files/v2.8/cmake-2.8.9-win32-x86.exe&quot; ($download_location + &quot;\cmake-2.8.9-win32-x86.exe&quot;)
+
+&amp; ($download_location + &quot;\cmake-2.8.9-win32-x86.exe&quot;)
+
+
+
+#Download and install Git
+
+download_file &quot;http://msysgit.googlecode.com/files/Git-1.7.11-preview20120710.exe&quot; ($download_location + &quot;\Git-1.7.11-preview20120710.exe&quot;)
+
+&amp; ($download_location + &quot;\Git-1.7.11-preview20120710.exe&quot;)
+
+
+
+#Download, unzip, and install HDF5
+
+download_file &quot;http://www.hdfgroup.org/ftp/HDF5/current/bin/windows/HDF5189-win64-vs10-shared.zip&quot; ($download_location + &quot;\HDF5189-win64-vs10-shared.zip&quot;)
+
+unzip ($download_location + &quot;\HDF5189-win64-vs10-shared.zip&quot;)  &quot;$download_location\hdf5_binaries&quot;
+
+&amp; &quot;$download_location\hdf5_binaries\HDF5-1.8.9-win64.exe&quot;
+
+
+
+#Download, install HDFView
+
+download_file &quot;http://www.hdfgroup.org/ftp/HDF5/hdf-java/hdfview/hdfview_install_win64.exe&quot; ($download_location + &quot;\hdfview_install_win64.exe&quot;)
+
+&amp; ($download_location + &quot;\hdfview_install_win64.exe&quot;)
+
+
+
+#Download and install CodeSynthesis XSD
+
+download_file &quot;http://www.codesynthesis.com/download/xsd/3.3/windows/i686/xsd-3.3.msi&quot; ($download_location + &quot;\xsd-3.3.msi&quot;)
+
+&amp; ($download_location + &quot;\xsd-3.3.msi&quot;)
+
+
+
+#Download and install boost
+
+download_file &quot;http://boostpro.com/download/x64/boost_1_51_setup.exe&quot; ($download_location + &quot;\boost_1_51_setup.exe&quot;)
+
+&amp; ($download_location + &quot;\boost_1_51_setup.exe&quot;)
+
+
+
+#FFTW
+
+download_file &quot;ftp://ftp.fftw.org/pub/fftw/fftw-3.3.2-dll64.zip&quot; ($download_location + &quot;\fftw-3.3.2-dll64.zip&quot;)
+
+Set-VS-Environment
+
+unzip ($download_location + &quot;\fftw-3.3.2-dll64.zip&quot;)  &quot;$library_location\fftw3&quot;
+
+cd &quot;$library_location\fftw3&quot;
+
+&amp; lib &quot;/machine:X64&quot; &quot;/def:libfftw3-3.def&quot;
+
+&amp; lib &quot;/machine:X64&quot; &quot;/def:libfftw3f-3.def&quot;
+
+&amp; lib &quot;/machine:X64&quot; &quot;/def:libfftw3l-3.def&quot;
+
+
+
+
+
+#Message reminding to set paths
+
+Write-Host &quot;Please ensure that paths to the following locations are in your PATH environment variable: &quot;
+
+Write-Host &quot;    - Boost libraries    (typically C:\Program Files\boost\boost_1_51\lib)&quot;
+
+Write-Host &quot;    - Code Synthesis XSD (typically C:\Program Files (x86)\CodeSynthesis XSD 3.3\bin\;C:\Program Files (x86)\CodeSynthesis XSD 3.3\bin64\)&quot;
+
+Write-Host &quot;    - FFTW libraries     (typically C:\MRILibraries\fftw3)&quot;
+
+Write-Host &quot;    - HDF5 libraries     (typically C:\Program Files\HDF Group\HDF5\1.8.9\bin)&quot;
+
+Write-Host &quot;    - ISMRMRD            (typically C:\Program Files\ismrmrd\bin;C:\Program Files\ismrmrd\bin)&quot;
+
+
+
+
+
+#Now download and compile ISMRMRD
+
+download_file &quot;http://sourceforge.net/projects/ismrmrd/files/src/ismrmrd_latest.zip&quot; ($download_location + &quot;\ismrmrd_latest.zip&quot;)
+
+unzip ($download_location + &quot;\ismrmrd_latest.zip&quot;)  &quot;$library_location\ismrmrd&quot;
+
+cd &quot;$library_location\ismrmrd&quot;
+
+New-Item &quot;build&quot; -type directory
+
+cd build
+
+&amp; cmake &quot;-G&quot; &quot;Visual Studio 10 Win64&quot; &quot;-DBOOST_ROOT=C:/Program Files/boost/boost_1_51&quot; &quot;-DXERCESC_INCLUDE_DIR=C:/Program Files (x86)/CodeSynthesis XSD 3.3/include/xercesc&quot; &quot;-DXERCESC_LIBRARIES=C:/Program Files (x86)/CodeSynthesis XSD 3.3/lib64/vc-10.0/xerces-c_3.lib&quot; &quot;-DXSD_DIR=C:/Program Files (x86)/CodeSynthesis XSD 3.3&quot; &quot;-DFFTW3_INCLUDE_DIR=C:/MRILibraries/fftw3&quot; &quot;-DFFTW3F_LIBRARY=C:/MRILibraries/fftw3/libfftw3f-3.lib&quot; &quot;../&quot; 
+
+msbuild .\ISMRMRD.sln /p:Configuration=Release
 </pre>
-<p>to:</p>
-<pre class="literal-block">
-std::streambuf::setg (b, b, e);
-</pre>
-<p>See also:
-<a class="reference external" href="http://codesynthesis.com/pipermail/xsd-users/2011-May/003283.html">http://codesynthesis.com/pipermail/xsd-users/2011-May/003283.html</a></p>
-</blockquote>
-</li>
-</ul>
 </div>
 </div>
 </div>

@@ -32,6 +32,7 @@ void print_usage(const char* application)
 	std::cout << "  - " << application << " <HDF5_FILENAME> " << "<SCHEMA_FILENAME>" << std::endl;
 }
 
+/* MAIN APPLICATION */
 int main(int argc, char** argv)
 {
 	if (argc < 3) {
@@ -154,7 +155,3 @@ int main(int argc, char** argv)
 
 	return 0;
 }
-
-
-
-

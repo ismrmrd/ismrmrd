@@ -52,6 +52,8 @@ The ISMRM Raw Data format is described by an XML schema_ and some C-style struct
 * Cmake build tool (http://www.cmake.org/)
 * Doxygen if you would like to generate API documentation (http://www.doxygen.org)
 * Git if you would like to use the source code archive (http://git-scm.com/)
+* FFTW if you would like to compile some of the example applications
+  (http://www.fftw.org)
 
 .. note:: It is only necessary to install the dependencies if you wish to develop compiled C/C++ software, which uses the ISMRMRD format. The format can be read in Matlab without installing any additional software. 
 
@@ -61,7 +63,7 @@ Linux installation
 
 The dependencies mentioned above should be included in most linux distributions. On Ubuntu you can install all required dependencies with::
 
-  sudo apt-get install libhdf5-serial-dev h5utils cmake cmake-curses-gui libboost-dev libxerces-c-dev xsdcxx doxygen git
+  sudo apt-get install libhdf5-serial-dev h5utils cmake cmake-curses-gui libboost-dev libboost-thread-dev libboost-system-dev libxerces-c-dev xsdcxx doxygen git
 
 After installation of dependencies, the library can be installed with::
 
@@ -104,10 +106,62 @@ Last step is to download and compile::
 
 Last command will install the library in ``/usr/local/ismrmrd``.
 
-Change log
-----------
 
-August 2012 - First draft.
+Windows Installation
+.....................
+
+Setting up a Windows development environment is usually a bit more challenging than working on Unix platforms where most library dependencies are easily installed with package management systems (see above). The general Windows installation instructions (you may have to make adjustments for your setup) is as follows:
+
+* Starting with a Windows 7 (64-bit) machine with Visual Studio 2010 installed.
+
+* Install CMake (http://www.cmake.org/files/v2.8/cmake-2.8.9-win32-x86.exe)
+
+* Install Git (http://msysgit.googlecode.com/files/Git-1.7.11-preview20120710.exe)
+
+* Install HDF5 (http://www.hdfgroup.org/ftp/HDF5/current/bin/windows/HDF5189-win64-vs10-shared.zip)
+
+* Install HDFView (http://www.hdfgroup.org/ftp/HDF5/hdf-java/hdfview/hdfview_install_win64.exe)
+
+* Install CodeSynthesis XSD (http://www.codesynthesis.com/download/xsd/3.3/windows/i686/xsd-3.3.msi)
+
+* Install Boost (http://boostpro.com/download/x64/boost_1_51_setup.exe)
+
+  - Just install everything for VS2010 and worry about which versions you need later.
+
+* Install FFTW (ftp://ftp.fftw.org/pub/fftw/fftw-3.3.2-dll64.zip)
+
+  - You need to create ``.lib`` files manually after installing. See instructions at http://www.fftw.org/install/windows.html
+
+* Make sure the paths to your new libraries are in your PATH environment variable:
+
+  - Boost libraries  (typically ``C:\Program Files\boost\boost_1_51\lib``)
+  - Code Synthesis XSD (typically ``C:\Program Files (x86)\CodeSynthesis XSD 3.3\bin\;C:\Program Files (x86)\CodeSynthesis XSD 3.3\bin64\``)
+  - FFTW libraries (typically ``C:\MRILibraries\fftw3``)
+  - HDF5 libraries (typically ``C:\Program Files\HDF Group\HDF5\1.8.9\bin``)
+  - ISMRMRD (typically ``C:\Program Files\ismrmrd\bin;C:\Program Files\ismrmrd\bin``)
+
+This can seem a bit daunting, we have included a Windows powershell_ script, which you can use to guide you through the installation process. 
+
+After installing all dependencies, download the code, e.g. from a git bash shell::
+
+   git clone git://git.code.sf.net/p/ismrmrd/code ismrmrd-code
+   cd ismrmrd-code/
+   mkdir build
+   cd build/
+   cmake-gui.exe
+
+Last command will open CMake's graphical user interface. Hit the configure button and deal with the dependencies that CMake is unable to find. Hit configure again and repeat the process until CMake has enough information to configure. Once the configuration is complete, you can hit generate to generate a Visual Studio project, which you can open and use to build ISMRMRD. There are step-by-step commands included in the powershell_ script below to guide you through the CMake configuration and build process from the command line. The command line CMake configuration line (assuming you have installed with the paths above), would look something like (backslashes are just there to break the command over multiple lines)::
+
+    cmake -G"Visual Studio 10 Win64" -DBOOST_ROOT=C:/Program Files/boost/boost_1_51 \
+	-DXERCESC_INCLUDE_DIR=C:/Program Files (x86)/CodeSynthesis XSD 3.3/include/xercesc \
+	-DXERCESC_LIBRARIES=C:/Program Files (x86)/CodeSynthesis XSD 3.3/lib64/vc-10.0/xerces-c_3.lib \
+	-DXSD_DIR=C:/Program Files (x86)/CodeSynthesis XSD 3.3 \
+	-DFFTW3_INCLUDE_DIR=C:/MRILibraries/fftw3 \
+	-DFFTW3F_LIBRARY=C:/MRILibraries/fftw3/libfftw3f-3.lib ../
+
+Again, you may have to adjust for your specific installation paths. After generating the Visual Studio project, you can build from a Visual Studio Command Prompt with::
+
+   msbuild .\ISMRMRD.sln /p:Configuration=Release
 
 
 Overview
@@ -364,6 +418,22 @@ Since the XML part of the header is defined in the ``schema/ismrmrd.xsd`` file, 
 
 Again, this is not a requirement for using the ISMRMRD format, the XML can be parsed with numerous other xml parsing libraries. The schema file ``schema/ismrmrd.xsd`` gives the user the option of validating the XML header before parsing, which is recommended to reduce the chance of hard to detect errors in your code due to missing or malformed parameters. 
 
+C++ Example Applications
+..........................
+
+The distribution includes two example applications, one that creates a simple 2D single-channel dataset from scratch and one that reconstructs this dataset (you need FFTW installed to compile these test applications). The data generation application looks like this (``test_create_dataset.cpp``):
+
+.. include:: ../test_create_dataset.cpp
+   :literal:
+   :start-after: /* MAIN APPLICATION */
+
+To reconstruct this synthetic dataset, you can use the test reconstruction application (``test_recon_dataset.cpp``):
+
+.. include:: ../test_recon_dataset.cpp
+   :literal:
+   :start-after: /* MAIN APPLICATION */
+
+
 Matlab Example Code and Datasets
 --------------------------------
 
@@ -420,14 +490,6 @@ Finally, there is also a spiral dataset. This dataset illustrates how the flexib
 Appendix
 ---------
 
-XML Schema Definition
-......................
-.. _schema:
-
-.. include:: ../schema/ismrmrd.xsd
-   :literal:
-
-
 Frequently Asked Questions
 ...........................
 .. _faq:
@@ -445,3 +507,17 @@ Frequently Asked Questions
 
 	See also:
 	http://codesynthesis.com/pipermail/xsd-users/2011-May/003283.html
+
+XML Schema Definition
+......................
+.. _schema:
+
+.. include:: ../schema/ismrmrd.xsd
+   :literal:
+
+Windows 7 (64-bit) Powershell Install Script
+.............................................
+.. _powershell:
+
+.. include:: WindowsISMRMRDInstallDependencies.ps1
+   :literal:

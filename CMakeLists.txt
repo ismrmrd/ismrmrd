@@ -49,9 +49,6 @@ ELSE (WIN32)
 	target_link_libraries(ismrmrd ${HDF5_LIBRARIES} ${XERCESC_LIBRARIES} ${Boost_LIBRARIES})
 ENDIF(WIN32)
 
-add_executable(ismrmrd_test main.cpp)
-target_link_libraries(ismrmrd_test ${XERCESC_LIBRARIES} ismrmrd)
-
 find_package(FFTW3 COMPONENTS single)
 IF(FFTW3_FOUND)
 	MESSAGE("FFTW3 Found, building test applications")
@@ -70,6 +67,5 @@ INSTALL(FILES ismrmrd.h ${XSDS_SOURCES} ismrmrd_hdf5.h ismrmrd_hdf5_datatypes.h 
 INSTALL(FILES schema/ismrmrd.xsd DESTINATION schema)
 INSTALL(FILES cmake/FindIsmrmrd.cmake DESTINATION cmake)
 INSTALL(TARGETS ismrmrd DESTINATION lib)
-INSTALL(TARGETS ismrmrd_test DESTINATION bin)
 
 add_subdirectory(doc)
