@@ -1,6 +1,7 @@
 classdef FlagBit
+
     properties
-        bitmask_ = uint16(0);
+        bitmask_ = uint64(0);
     end
     
     methods
@@ -16,12 +17,12 @@ classdef FlagBit
     methods
         
         function obj = set.bitmask_(obj,b)
-            obj.bitmask_ = uint16(b);
+            obj.bitmask_ = uint64(b);
         end % bitmask_ set function
         
         function b = isSet(obj,m)
-            if (bitand(obj.bitmask_, uint16(m))>0)
-               b = true;
+            if (bitand(obj.bitmask_, uint64(m))>0)
+                b = true;
             else
                 b = false;
             end

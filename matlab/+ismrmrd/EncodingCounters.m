@@ -58,4 +58,5 @@ classdef EncodingCounters
         end
         
     end
+   
 end % EncodingCounters

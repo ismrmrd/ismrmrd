@@ -1,4 +1,4 @@
-filename = 'simple_gre.h5';
+filename = '~/gadgetron/ismrmrd_data/testdata.h5';
 
 % Open the HDF5 File
 file = H5F.open(filename, 'H5F_ACC_RDONLY', 'H5P_DEFAULT');
@@ -26,6 +26,9 @@ space = H5D.get_space(dset);
 H5S.get_simple_extent_dims(space);
 [~,dims,~] = H5S.get_simple_extent_dims(space);
 nacq = dims(1);
+% Select the first acquisition
+%data = H5D.read(dset, 'H5ML_DEFAULT', 'H5S_ALL','H5S_ALL','H5P_DEFAULT');
+data = H5D.read(dset, ismrmrd.hdf5_datatypes.getType_Acquisition, 'H5S_ALL','H5S_ALL','H5P_DEFAULT');
 
 % Close the data
 %H5D.close (dset);
