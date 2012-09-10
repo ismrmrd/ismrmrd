@@ -320,7 +320,7 @@ int IsmrmrdDataset::appendAcquisition(Acquisition* a)
 		tmp.traj.len = tmp.head.trajectory_dimensions*tmp.head.number_of_samples;
 		tmp.traj.p = static_cast<void*>(a->traj_);
 
-		tmp.data.len = tmp.head.active_channels*tmp.head.number_of_samples;
+		tmp.data.len = tmp.head.active_channels*tmp.head.number_of_samples*2;
 		tmp.data.p = static_cast<void*>(a->data_);
 
 		DataSpace mspace1 = dataset_->getSpace();

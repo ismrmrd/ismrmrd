@@ -176,13 +176,13 @@ template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<AcquisitionHeader_wit
 	boost::shared_ptr<CompType> ret = boost::shared_ptr<CompType>(new CompType(sizeof(AcquisitionHeader_with_data)));
 
 	boost::shared_ptr<DataType>  head_type = getIsmrmrdHDF5Type<AcquisitionHeader>();
-	boost::shared_ptr<DataType> cxvdatatype = getIsmrmrdHDF5Type<complex_t>();
-	cxvdatatype = boost::shared_ptr<DataType>(new DataType(H5Tvlen_create (cxvdatatype->getId())));
+	//boost::shared_ptr<DataType> cxvdatatype = getIsmrmrdHDF5Type<complex_t>();
+	//cxvdatatype = boost::shared_ptr<DataType>(new DataType(H5Tvlen_create (cxvdatatype->getId())));
 	boost::shared_ptr<DataType> realvdatatype = boost::shared_ptr<DataType>(new DataType(H5Tvlen_create (PredType::NATIVE_FLOAT.getId())));
 
 	ret->insertMember( "head",  HOFFSET(AcquisitionHeader_with_data,head),   	*head_type);
 	ret->insertMember( "traj", HOFFSET(AcquisitionHeader_with_data,traj),  		*realvdatatype);
-	ret->insertMember( "data", HOFFSET(AcquisitionHeader_with_data,data),  		*cxvdatatype);
+	ret->insertMember( "data", HOFFSET(AcquisitionHeader_with_data,data),  		*realvdatatype);
 	return ret;
 }
 

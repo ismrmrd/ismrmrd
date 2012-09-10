@@ -65,7 +65,7 @@ classdef hdf5_datatypes
             H5T.insert(b, 'segment', offset, 'H5T_NATIVE_UINT16');
             offset = offset + H5T.get_size('H5T_NATIVE_UINT16');
             
-            H5T.insert(b, 'user', offset, H5T.array_create('H5T_NATIVE_UINT16',[1 8]));
+            H5T.insert(b, 'user', offset, H5T.array_create('H5T_NATIVE_UINT16',[8]));
             
         end
  
@@ -113,7 +113,7 @@ classdef hdf5_datatypes
             H5T.insert(b, 'acquisition_time_stamp', offset, 'H5T_NATIVE_UINT32');
             offset = offset + H5T.get_size('H5T_NATIVE_UINT32');
             
-            H5T.insert(b, 'physiology_time_stamp', offset, H5T.array_create('H5T_NATIVE_UINT32',[1 3]));
+            H5T.insert(b, 'physiology_time_stamp', offset, H5T.array_create('H5T_NATIVE_UINT32',[3]));
             offset = offset + 3*H5T.get_size('H5T_NATIVE_UINT32');
             
             H5T.insert(b, 'number_of_samples', offset, 'H5T_NATIVE_UINT16');
@@ -125,7 +125,7 @@ classdef hdf5_datatypes
             H5T.insert(b, 'active_channels', offset, 'H5T_NATIVE_UINT16');
             offset = offset + H5T.get_size('H5T_NATIVE_UINT16');
             
-            H5T.insert(b, 'channel_mask', offset, H5T.array_create('H5T_NATIVE_UINT64',[1 16]));
+            H5T.insert(b, 'channel_mask', offset, H5T.array_create('H5T_NATIVE_UINT64',[16]));
             offset = offset + 16*H5T.get_size('H5T_NATIVE_UINT64');
             
             H5T.insert(b, 'discard_pre', offset, 'H5T_NATIVE_UINT16');
@@ -146,22 +146,22 @@ classdef hdf5_datatypes
             H5T.insert(b, 'sample_time_us', offset, 'H5T_NATIVE_FLOAT');
             offset = offset + H5T.get_size('H5T_NATIVE_FLOAT');
 
-            H5T.insert(b, 'position', offset, H5T.array_create('H5T_NATIVE_FLOAT',[1 3]));
+            H5T.insert(b, 'position', offset, H5T.array_create('H5T_NATIVE_FLOAT',[3]));
             offset = offset + 3*H5T.get_size('H5T_NATIVE_FLOAT');
 
-            H5T.insert(b, 'quaternion', offset, H5T.array_create('H5T_NATIVE_FLOAT',[1 4]));
+            H5T.insert(b, 'quaternion', offset, H5T.array_create('H5T_NATIVE_FLOAT',[4]));
             offset = offset + 4*H5T.get_size('H5T_NATIVE_FLOAT');
             
-            H5T.insert(b, 'patient_table_position', offset, H5T.array_create('H5T_NATIVE_FLOAT',[1 3]));
+            H5T.insert(b, 'patient_table_position', offset, H5T.array_create('H5T_NATIVE_FLOAT',[3]));
             offset = offset + 3*H5T.get_size('H5T_NATIVE_FLOAT');
             
             H5T.insert(b, 'idx', offset, ismrmrd.hdf5_datatypes.getType_EncodingCounters);
             offset = offset + H5T.get_size(ismrmrd.hdf5_datatypes.getType_EncodingCounters);
             
-            H5T.insert(b, 'user_int', offset, H5T.array_create('H5T_NATIVE_INT32',[1 8]));
+            H5T.insert(b, 'user_int', offset, H5T.array_create('H5T_NATIVE_INT32',[8]));
             offset = offset + 8*H5T.get_size('H5T_NATIVE_INT32');
 
-            H5T.insert(b, 'user_float', offset, H5T.array_create('H5T_NATIVE_FLOAT',[1 8]));
+            H5T.insert(b, 'user_float', offset, H5T.array_create('H5T_NATIVE_FLOAT',[8]));
             %offset = offset + 8*H5T.get_size('H5T_NATIVE_FLOAT');
 
         end

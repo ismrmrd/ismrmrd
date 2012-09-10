@@ -1,4 +1,4 @@
-filename = '~/gadgetron/ismrmrd_data/testdata.h5';
+filename = '~/temp/testdata.h5';
 
 % Open the HDF5 File
 file = H5F.open(filename, 'H5F_ACC_RDONLY', 'H5P_DEFAULT');
