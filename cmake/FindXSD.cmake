@@ -17,11 +17,21 @@ if(XSD_INCLUDE_DIR)
 	#in cache already
 	SET(XSD_FOUND TRUE)
 else(XSD_INCLUDE_DIR)
+	IF (WIN32) 
 	find_program(XSD_EXECUTABLE NAMES "bin/${__XSD_NAME}" "${__XSD_NAME}"
 	     PATHS
 		 ${XSD_DIR}
 		 ${XSD_DIR}/bin
 	)
+	ELSE(WIN32)
+	find_file(XSD_EXECUTABLE NAMES ${__XSD_NAME}
+	     PATHS
+	         /usr/local/bin
+		 /usr/bin
+		 ${XSD_DIR}
+		 ${XSD_DIR}/bin
+	)
+	ENDIF(WIN32)
 
 	if(XSD_EXECUTABLE)
 		SET(XSD_FOUND TRUE)
