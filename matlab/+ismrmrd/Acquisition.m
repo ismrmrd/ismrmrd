@@ -12,7 +12,7 @@ classdef Acquisition
     
     % Methods
     methods
-
+        
         function obj = set.head_(obj,v)
             obj.head_ = v;
         end
@@ -22,7 +22,11 @@ classdef Acquisition
         end
         
         function obj = set.data_(obj,v)
-            obj.data_ = single(complex(v));
+            if isreal(v)
+                obj.data_ = single(v(1:2:end) + 1j*v(2:2:end));
+            else
+                obj.data_ = single(v);
+            end
         end
 
         function b = isFlagSet(obj,flag)
