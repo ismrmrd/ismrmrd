@@ -42,7 +42,7 @@ for p=1:length(raw_data.head.flags),
       continue; 
    end
    
-   d = reshape(complex(raw_data.data{p}.real, raw_data.data{p}.imag), samples, channels);
+   d = reshape(complex(raw_data.data{p}(1:2:end), raw_data.data{p}(2:2:end)), samples, channels);
    t = reshape(raw_data.traj{p}, raw_data.head.trajectory_dimensions(p), samples);
    current_interleave = raw_data.head.idx.kspace_encode_step_1(p)+1;
    start_sample = samples_to_skip_start+1;
