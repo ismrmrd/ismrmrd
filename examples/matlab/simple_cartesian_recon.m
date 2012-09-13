@@ -54,7 +54,7 @@ for p=1:length(raw_data.head.flags),
    end
    line_number      = (int32(raw_data.head.idx.kspace_encode_step_1(p))-center_line)+bitshift(matrix_size(2),-1);  
    partition_number = (int32(raw_data.head.idx.kspace_encode_step_2(p))-center_partition)+bitshift(matrix_size(3),-1);  
-   buffer(:,line_number+1,partition_number+1,:) = reshape(complex(raw_data.data{p}.real, raw_data.data{p}.imag), samples, 1, 1, channels);
+   buffer(:,line_number+1,partition_number+1,:) = reshape(complex(raw_data.data{p}(1:2:end), raw_data.data{p}(2:2:end)), samples, 1, 1, channels);
    
    if (bitget(uint64(raw_data.head.flags(p)),8)), %Is this the last in slice? We should make an image
       fprintf('Reconstructing image %d....', counter+1); 
