@@ -18,6 +18,7 @@
 	    </xs:all>
 	  </xs:complexType>
 	</xs:element>
+	<xs:element maxOccurs="1" minOccurs="0" name="parallelImaging" type="parallelImagingType"/>
 	<xs:element maxOccurs="1" minOccurs="0" name="sequenceTiming" type="sequenceTimingType"/>
 	<xs:element maxOccurs="1" minOccurs="0" name="userParameters">
 	  <xs:complexType>
@@ -140,5 +141,40 @@
       <xs:element name="name" type="xs:string"/>
       <xs:element name="value" type="xs:double"/> 
     </xs:all>
+  </xs:complexType>
+  
+	<xs:complexType name="accelerationFactorType">
+		<xs:all>
+			<xs:element name="kspace_encoding_step_1" type="xs:unsignedShort"/>
+			<xs:element name="kspace_encoding_step_2" type="xs:unsignedShort"/>	  			
+		</xs:all>
+	</xs:complexType>
+	
+  <xs:simpleType name="calibrationModeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="embedded"/>
+      <xs:enumeration value="interleaved"/>
+      <xs:enumeration value="separate"/>
+      <xs:enumeration value="external"/>
+      <xs:enumeration value="other"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="interleavingDimensionType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="phase"/>
+      <xs:enumeration value="repetition"/>
+      <xs:enumeration value="contrast"/>
+      <xs:enumeration value="average"/>
+      <xs:enumeration value="other"/>
+    </xs:restriction>
+  </xs:simpleType>	  
+
+  <xs:complexType name="parallelImagingType">
+  	<xs:sequence>
+  	 <xs:element type="accelerationFactorType" name="accelerationFactor"/>
+  	 <xs:element maxOccurs="1" minOccurs="0" type="calibrationModeType" name="calibrationMode"/>
+  	 <xs:element maxOccurs="1" minOccurs="0" type="interleavingDimensionType" name="interleavingDimension"/>
+  	</xs:sequence>
   </xs:complexType>
 </xs:schema>

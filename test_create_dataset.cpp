@@ -150,6 +150,11 @@ int main(int argc, char** argv)
 
 	//Add any additional fields that you may want would go here....
 
+	//e.g. parallel imaging
+	//ISMRMRD::parallelImagingType parallel(ISMRMRD::accelerationFactorType(2,1));
+	//parallel.calibrationMode(ISMRMRD::calibrationModeType::embedded);
+    //h.parallelImaging(parallel);
+
 	//Serialize the header
 	xml_schema::namespace_infomap map;
 	map[""].name = "http://www.ismrm.org/ISMRMRD";
