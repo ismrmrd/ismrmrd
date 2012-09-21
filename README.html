@@ -329,28 +329,29 @@ ul.auto-toc {
 <p class="topic-title first">Contents</p>
 <ul class="simple">
 <li><a class="reference internal" href="#preamble" id="id1">Preamble</a></li>
-<li><a class="reference internal" href="#obtaining-and-installing" id="id2">Obtaining and Installing</a><ul>
-<li><a class="reference internal" href="#dependencies" id="id3">Dependencies</a></li>
-<li><a class="reference internal" href="#linux-installation" id="id4">Linux installation</a></li>
-<li><a class="reference internal" href="#mac-osx-installation" id="id5">Mac OSX Installation</a></li>
-<li><a class="reference internal" href="#windows-installation" id="id6">Windows Installation</a></li>
+<li><a class="reference internal" href="#developers-contributors" id="id2">Developers/Contributors</a></li>
+<li><a class="reference internal" href="#obtaining-and-installing" id="id3">Obtaining and Installing</a><ul>
+<li><a class="reference internal" href="#dependencies" id="id4">Dependencies</a></li>
+<li><a class="reference internal" href="#linux-installation" id="id5">Linux installation</a></li>
+<li><a class="reference internal" href="#mac-osx-installation" id="id6">Mac OSX Installation</a></li>
+<li><a class="reference internal" href="#windows-installation" id="id7">Windows Installation</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#overview" id="id7">Overview</a><ul>
-<li><a class="reference internal" href="#flexible-data-header" id="id8">Flexible Data Header</a></li>
-<li><a class="reference internal" href="#fixed-data-structures" id="id9">Fixed Data structures</a></li>
+<li><a class="reference internal" href="#overview" id="id8">Overview</a><ul>
+<li><a class="reference internal" href="#flexible-data-header" id="id9">Flexible Data Header</a></li>
+<li><a class="reference internal" href="#fixed-data-structures" id="id10">Fixed Data structures</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#file-storage" id="id10">File Storage</a></li>
-<li><a class="reference internal" href="#c-support-library" id="id11">C++ Support Library</a><ul>
-<li><a class="reference internal" href="#c-example-applications" id="id12">C++ Example Applications</a></li>
+<li><a class="reference internal" href="#file-storage" id="id11">File Storage</a></li>
+<li><a class="reference internal" href="#c-support-library" id="id12">C++ Support Library</a><ul>
+<li><a class="reference internal" href="#c-example-applications" id="id13">C++ Example Applications</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#matlab-example-code-and-datasets" id="id13">Matlab Example Code and Datasets</a></li>
-<li><a class="reference internal" href="#appendix" id="id14">Appendix</a><ul>
-<li><a class="reference internal" href="#frequently-asked-questions" id="id15">Frequently Asked Questions</a></li>
-<li><a class="reference internal" href="#xml-schema-definition" id="id16">XML Schema Definition</a></li>
-<li><a class="reference internal" href="#windows-7-64-bit-powershell-install-script" id="id17">Windows 7 (64-bit) Powershell Install Script</a></li>
+<li><a class="reference internal" href="#matlab-example-code-and-datasets" id="id14">Matlab Example Code and Datasets</a></li>
+<li><a class="reference internal" href="#appendix" id="id15">Appendix</a><ul>
+<li><a class="reference internal" href="#frequently-asked-questions" id="id16">Frequently Asked Questions</a></li>
+<li><a class="reference internal" href="#xml-schema-definition" id="id17">XML Schema Definition</a></li>
+<li><a class="reference internal" href="#windows-7-64-bit-powershell-install-script" id="id18">Windows 7 (64-bit) Powershell Install Script</a></li>
 </ul>
 </li>
 </ul>
@@ -371,8 +372,16 @@ ul.auto-toc {
 <li>Jim Pipe (Jim.Pipe AT DignityHealth DOT org)</li>
 </ul>
 </div>
+<div class="section" id="developers-contributors">
+<h1><a class="toc-backref" href="#id2">Developers/Contributors</a></h1>
+<ul class="simple">
+<li>Michael S. Hansen, National Institutes of Health, USA</li>
+<li>Nick Zwart, Barrow Neurological Institute, Phoenix, Arizona</li>
+<li>Souheil Inati, National Institutes of Health, USA</li>
+</ul>
+</div>
 <div class="section" id="obtaining-and-installing">
-<h1><a class="toc-backref" href="#id2">Obtaining and Installing</a></h1>
+<h1><a class="toc-backref" href="#id3">Obtaining and Installing</a></h1>
 <p>The source code, examples, and example datasets can be found on the ISMRM Raw Data Sourceforge <a class="reference external" href="http://sourceforge.net/projects/ismrmrd">website</a>.</p>
 <p>To download the source code, clone the git archive:</p>
 <pre class="literal-block">
@@ -384,7 +393,7 @@ wget https://sourceforge.net/projects/ismrmrd/files/src/ismrmrd_latest.zip
 </pre>
 <p>API Documentation can be found at <a class="reference external" href="http://ismrmrd.sourceforge.net/api">http://ismrmrd.sourceforge.net/api</a>.</p>
 <div class="section" id="dependencies">
-<h2><a class="toc-backref" href="#id3">Dependencies</a></h2>
+<h2><a class="toc-backref" href="#id4">Dependencies</a></h2>
 <p>The ISMRM Raw Data format is described by an XML <a class="reference internal" href="#schema">schema</a> and some C-style structs with fixed memory layout and as such does not have dependencies. However, it uses HDF5 files for storage and a C++ library for reading and writing the ISMRMRD files is included in this distribution. Furthermore, since the XML header is defined with an XML <a class="reference internal" href="#schema">schema</a>, we encourage using XML data binding when writing software using the format. In the ISMRMRD distribution we use the CodeSynthesis XSD (<a class="reference external" href="http://www.codesynthesis.com/products/xsd/">http://www.codesynthesis.com/products/xsd/</a>) package to generate a C++ class representation of the XML schema. To compile all components of this distribution you need:</p>
 <ul class="simple">
 <li>HDF5 (version 1.8 or higher) libraries. Available from <a class="reference external" href="http://www.hdfgroup.org/downloads/index.html">http://www.hdfgroup.org/downloads/index.html</a>.</li>
@@ -403,7 +412,7 @@ wget https://sourceforge.net/projects/ismrmrd/files/src/ismrmrd_latest.zip
 </div>
 </div>
 <div class="section" id="linux-installation">
-<h2><a class="toc-backref" href="#id4">Linux installation</a></h2>
+<h2><a class="toc-backref" href="#id5">Linux installation</a></h2>
 <p>The dependencies mentioned above should be included in most linux distributions. On Ubuntu you can install all required dependencies with:</p>
 <pre class="literal-block">
 sudo apt-get install libhdf5-serial-dev h5utils cmake cmake-curses-gui libboost-dev libboost-thread-dev libboost-system-dev libxerces-c-dev xsdcxx doxygen git
@@ -421,7 +430,7 @@ sudo make install
 <p>Last command will install the library in <tt class="docutils literal">/usr/local/ismrmrd</tt>.</p>
 </div>
 <div class="section" id="mac-osx-installation">
-<h2><a class="toc-backref" href="#id5">Mac OSX Installation</a></h2>
+<h2><a class="toc-backref" href="#id6">Mac OSX Installation</a></h2>
 <p>There are numerous different package management systems for Mac. In this example, we have used MacPorts (<a class="reference external" href="http://www.macports.org/">http://www.macports.org/</a>). First install the dependencies available in MacPorts:</p>
 <pre class="literal-block">
 sudo port install wget hdf5-18 h5utils boost xercesc3 git cmake doxygen
@@ -448,7 +457,7 @@ sudo make install
 <p>Last command will install the library in <tt class="docutils literal">/usr/local/ismrmrd</tt>.</p>
 </div>
 <div class="section" id="windows-installation">
-<h2><a class="toc-backref" href="#id6">Windows Installation</a></h2>
+<h2><a class="toc-backref" href="#id7">Windows Installation</a></h2>
 <p>Setting up a Windows development environment is usually a bit more challenging than working on Unix platforms where most library dependencies are easily installed with package management systems (see above). The general Windows installation instructions (you may have to make adjustments for your setup) is as follows:</p>
 <ul class="simple">
 <li>Starting with a Windows 7 (64-bit) machine with Visual Studio 2010 installed.</li>
@@ -499,7 +508,7 @@ msbuild .\ISMRMRD.sln /p:Configuration=Release
 </div>
 </div>
 <div class="section" id="overview">
-<h1><a class="toc-backref" href="#id7">Overview</a></h1>
+<h1><a class="toc-backref" href="#id8">Overview</a></h1>
 <p>The raw data format combines a mix of flexible data structures (XML header) and fixed structures (equivalent to C-structs). A raw data set consist mainly of 2 sections:</p>
 <ol class="arabic simple">
 <li>A flexible XML format document that can contain an arbitrary number of fields and accommodate everything from simple values (b-values, etc.) to entire vendor protocols, etc. This purpose of this XML document is to provide parameters that may be meaningful for some experiments but not for others. This XML format is defined by an XML Schema Definition file (ismrmrd.xsd).</li>
@@ -507,7 +516,7 @@ msbuild .\ISMRMRD.sln /p:Configuration=Release
 </ol>
 <p>In addition to these sections, the ISMRMRD format also specifies an image header for storing reconstructed images and the accompanying C++ library provides a convenient way of writing such images into HDF5 files along with generic arrays for storing less well defined data structures, e.g. coil sensitivity maps or other calibration data.</p>
 <div class="section" id="flexible-data-header">
-<h2><a class="toc-backref" href="#id8">Flexible Data Header</a></h2>
+<h2><a class="toc-backref" href="#id9">Flexible Data Header</a></h2>
 <p>The flexible data structure is defined by the xml schema definition in <tt class="docutils literal">schema/ismrmrd.xsd</tt> (<a class="reference internal" href="#schema">schema</a> is included in appendix below).</p>
 <p>An example of an XML file for a Cartesian 3D acquisition could look like:</p>
 <pre class="literal-block">
@@ -605,7 +614,7 @@ msbuild .\ISMRMRD.sln /p:Configuration=Release
 </pre>
 </div>
 <div class="section" id="fixed-data-structures">
-<h2><a class="toc-backref" href="#id9">Fixed Data structures</a></h2>
+<h2><a class="toc-backref" href="#id10">Fixed Data structures</a></h2>
 <p>Each raw data acquisition is preceded by the following fixed layout structure:</p>
 <pre class="literal-block">
 struct AcquisitionHeader
@@ -715,7 +724,7 @@ T* data_;              //Data, array of size (matrix_size[0]*matrix_size[1]*matr
 </div>
 </div>
 <div class="section" id="file-storage">
-<h1><a class="toc-backref" href="#id10">File Storage</a></h1>
+<h1><a class="toc-backref" href="#id11">File Storage</a></h1>
 <p>The ISMRM Raw Data format is stored in HDF5 format. Details on this format can be found at the <a class="reference external" href="http://www.hdfgroup.org/HDF5/">HDF5</a> website. Briefly it is a hierarchical data format (much like a file system), which can contain multiple variable organized in groups (like folders in a file system). The variables can contain arrays of data values, custom defined structs, or simple text fields. It is the convention (but not a requirement) that the ISMRMRD datasets are stored in a group called <tt class="docutils literal">/dataset</tt>. The XML configuration is stored in the variable <tt class="docutils literal">/dataset/xml</tt> and the data is stored in <tt class="docutils literal">/dataset/data</tt>. HDF5 files can be viewed with the HDFView application which is available on the HDF5 website for multiple platforms. Files can also be read directly in Matlab, in fact Matlab uses (since file format v7.3) HDF5 as its internal data format in the <tt class="docutils literal">.mat</tt> files. As an example the data from an ISMRMRD file with name <tt class="docutils literal">myfile.h5</tt> can be read in matlab with a command like:</p>
 <pre class="literal-block">
 &gt;&gt; data = h5read('simple_gre.h5', '/dataset/data');
@@ -760,7 +769,7 @@ data: {1x1281 cell}
 <p>In addition to storing acquisition data and images as defined by the headers above, the HDF5 format also enables storage of generic multi-dimensional arrays. The ISMRMRD format does not explicitly define how such data should be stored, but leaves it open for the user to add variables and data as dictated by a given application.</p>
 </div>
 <div class="section" id="c-support-library">
-<h1><a class="toc-backref" href="#id11">C++ Support Library</a></h1>
+<h1><a class="toc-backref" href="#id12">C++ Support Library</a></h1>
 <p>To enable easy prototyping of C++ software using the ISMRMRD data format, a simple C++ wrapper class is provided (defined in <tt class="docutils literal">ismrmrd_hdf5.h</tt>):</p>
 <pre class="literal-block">
 class EXPORTISMRMRD IsmrmrdDataset
@@ -841,7 +850,7 @@ std::cout &lt;&lt; &quot;Number of encoding spaces: &quot; &lt;&lt; cfg-&gt;enco
 </pre>
 <p>Again, this is not a requirement for using the ISMRMRD format, the XML can be parsed with numerous other xml parsing libraries. The schema file <tt class="docutils literal">schema/ismrmrd.xsd</tt> gives the user the option of validating the XML header before parsing, which is recommended to reduce the chance of hard to detect errors in your code due to missing or malformed parameters.</p>
 <div class="section" id="c-example-applications">
-<h2><a class="toc-backref" href="#id12">C++ Example Applications</a></h2>
+<h2><a class="toc-backref" href="#id13">C++ Example Applications</a></h2>
 <p>The distribution includes two example applications, one that creates a simple 2D single-channel dataset from scratch and one that reconstructs this dataset (you need FFTW installed to compile these test applications). The data generation application looks like this (<tt class="docutils literal">test_create_dataset.cpp</tt>):</p>
 <pre class="literal-block">
 
@@ -944,6 +953,11 @@ int main(int argc, char** argv)
         h.encoding().push_back(e);
 
         //Add any additional fields that you may want would go here....
+
+        //e.g. parallel imaging
+        //ISMRMRD::parallelImagingType parallel(ISMRMRD::accelerationFactorType(2,1));
+        //parallel.calibrationMode(ISMRMRD::calibrationModeType::embedded);
+    //h.parallelImaging(parallel);
 
         //Serialize the header
         xml_schema::namespace_infomap map;
@@ -1090,7 +1104,7 @@ int main(int argc, char** argv)
 </div>
 </div>
 <div class="section" id="matlab-example-code-and-datasets">
-<h1><a class="toc-backref" href="#id13">Matlab Example Code and Datasets</a></h1>
+<h1><a class="toc-backref" href="#id14">Matlab Example Code and Datasets</a></h1>
 <p>The <tt class="docutils literal">examples</tt> folder contains some matlab code to illustrate simple interaction with the ISMRMRD data format. The examples use test data sets, wich can be downloaded from the Sourceforge <a class="reference external" href="http://sourceforge.net/projects/ismrmrd">website</a>. Go to the <tt class="docutils literal">examples/data</tt> folder and type the following to download the data:</p>
 <pre class="literal-block">
 wget https://sourceforge.net/projects/ismrmrd/files/data/3D_partial_fourier.h5
@@ -1135,9 +1149,9 @@ Reconstructing image 10....done
 </pre>
 </div>
 <div class="section" id="appendix">
-<h1><a class="toc-backref" href="#id14">Appendix</a></h1>
+<h1><a class="toc-backref" href="#id15">Appendix</a></h1>
 <div class="section" id="frequently-asked-questions">
-<h2><a class="toc-backref" href="#id15">Frequently Asked Questions</a></h2>
+<h2><a class="toc-backref" href="#id16">Frequently Asked Questions</a></h2>
 <ul id="faq">
 <li><p class="first">I am trying to compile on Mac OSX Lion and I am getting strange errors.</p>
 <blockquote>
@@ -1157,7 +1171,7 @@ std::streambuf::setg (b, b, e);
 </ul>
 </div>
 <div class="section" id="xml-schema-definition">
-<h2><a class="toc-backref" href="#id16">XML Schema Definition</a></h2>
+<h2><a class="toc-backref" href="#id17">XML Schema Definition</a></h2>
 <pre class="literal-block" id="schema">
 &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;
 &lt;xs:schema xmlns=&quot;http://www.ismrm.org/ISMRMRD&quot; xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot; elementFormDefault=&quot;qualified&quot; targetNamespace=&quot;http://www.ismrm.org/ISMRMRD&quot;&gt;
@@ -1179,6 +1193,7 @@ std::streambuf::setg (b, b, e);
             &lt;/xs:all&gt;
           &lt;/xs:complexType&gt;
         &lt;/xs:element&gt;
+        &lt;xs:element maxOccurs=&quot;1&quot; minOccurs=&quot;0&quot; name=&quot;parallelImaging&quot; type=&quot;parallelImagingType&quot;/&gt;
         &lt;xs:element maxOccurs=&quot;1&quot; minOccurs=&quot;0&quot; name=&quot;sequenceTiming&quot; type=&quot;sequenceTimingType&quot;/&gt;
         &lt;xs:element maxOccurs=&quot;1&quot; minOccurs=&quot;0&quot; name=&quot;userParameters&quot;&gt;
           &lt;xs:complexType&gt;
@@ -1302,258 +1317,169 @@ std::streambuf::setg (b, b, e);
       &lt;xs:element name=&quot;value&quot; type=&quot;xs:double&quot;/&gt; 
     &lt;/xs:all&gt;
   &lt;/xs:complexType&gt;
+  
+        &lt;xs:complexType name=&quot;accelerationFactorType&quot;&gt;
+                &lt;xs:all&gt;
+                        &lt;xs:element name=&quot;kspace_encoding_step_1&quot; type=&quot;xs:unsignedShort&quot;/&gt;
+                        &lt;xs:element name=&quot;kspace_encoding_step_2&quot; type=&quot;xs:unsignedShort&quot;/&gt;                             
+                &lt;/xs:all&gt;
+        &lt;/xs:complexType&gt;
+        
+  &lt;xs:simpleType name=&quot;calibrationModeType&quot;&gt;
+    &lt;xs:restriction base=&quot;xs:string&quot;&gt;
+      &lt;xs:enumeration value=&quot;embedded&quot;/&gt;
+      &lt;xs:enumeration value=&quot;interleaved&quot;/&gt;
+      &lt;xs:enumeration value=&quot;separate&quot;/&gt;
+      &lt;xs:enumeration value=&quot;external&quot;/&gt;
+      &lt;xs:enumeration value=&quot;other&quot;/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;
+
+  &lt;xs:simpleType name=&quot;interleavingDimensionType&quot;&gt;
+    &lt;xs:restriction base=&quot;xs:string&quot;&gt;
+      &lt;xs:enumeration value=&quot;phase&quot;/&gt;
+      &lt;xs:enumeration value=&quot;repetition&quot;/&gt;
+      &lt;xs:enumeration value=&quot;contrast&quot;/&gt;
+      &lt;xs:enumeration value=&quot;average&quot;/&gt;
+      &lt;xs:enumeration value=&quot;other&quot;/&gt;
+    &lt;/xs:restriction&gt;
+  &lt;/xs:simpleType&gt;        
+
+  &lt;xs:complexType name=&quot;parallelImagingType&quot;&gt;
+        &lt;xs:sequence&gt;
+         &lt;xs:element type=&quot;accelerationFactorType&quot; name=&quot;accelerationFactor&quot;/&gt;
+         &lt;xs:element maxOccurs=&quot;1&quot; minOccurs=&quot;0&quot; type=&quot;calibrationModeType&quot; name=&quot;calibrationMode&quot;/&gt;
+         &lt;xs:element maxOccurs=&quot;1&quot; minOccurs=&quot;0&quot; type=&quot;interleavingDimensionType&quot; name=&quot;interleavingDimension&quot;/&gt;
+        &lt;/xs:sequence&gt;
+  &lt;/xs:complexType&gt;
 &lt;/xs:schema&gt;
 
 </pre>
 </div>
 <div class="section" id="windows-7-64-bit-powershell-install-script">
-<h2><a class="toc-backref" href="#id17">Windows 7 (64-bit) Powershell Install Script</a></h2>
+<h2><a class="toc-backref" href="#id18">Windows 7 (64-bit) Powershell Install Script</a></h2>
 <pre class="literal-block" id="powershell">
-#    Script for installing the required dependencied for 
-
-#    the ISMRM Raw Data Format on Windows.
-
-#    
-
-#    Prerequisites:
-
-#        - Windows 7 (64-bit)
-
-#        - Visual Studio (C/C++) installed
-
-#
-
-
-
-function download_file($url,$destination) {
-
-    #Let's set up a webclient for all the files we have to download
-
-    $client = New-Object System.Net.WebClient
-
-    $client.DownloadFile($url,$destination)
-
-}
-
-
-
-function unzip($zipPath, $destination){
-
-    $shell = new-object -com shell.application;
-
-    $zip = $shell.NameSpace($zipPath);
-
-    if ((Test-Path -path $destination) -ne $True)
-
-    {
-
-        New-Item $destination -type directory
-
-    }
-
-    foreach($item in $zip.items()){
-
-        $shell.Namespace($destination).copyhere($item)
-
-    }
-
-}
-
-
-
-function Set-VS-Environment () {
-
-    $file = (Get-ChildItem Env:VS100COMNTOOLS).Value + &quot;vsvars32.bat&quot;
-
-    $cmd = &quot;`&quot;$file`&quot; &amp; set&quot;
-
-    cmd /c $cmd | Foreach-Object {
-
-       $p, $v = $_.split('=')
-
-       Set-Item -path env:$p -value $v
-
-   }
-
-}
-
-
-
-function add_path($pathname) {
-
-    if ($env:path  -match [regex]::escape($pathname)) {
-
-        Write-Host &quot;Path $path already exists&quot;
-
-    } else {
-
-        setx PATH &quot;$env:path;$pathname&quot; -m
-
-    }
-
-}
-
-
-
-Write-Host &quot;ISMRMRD Raw Data Format Dependencies Installation&quot;
-
-
-
-$library_location = &quot;C:\MRILibraries&quot;
-
-$download_location = &quot;C:\MRILibraries\downloads&quot;
-
-
-
-
-
-#Let's first check if we have the library folder and if not create it
-
-if ((Test-Path -path $library_location) -ne $True)
-
-{
-
-    Write-Host &quot;Library location: &quot; $library_location &quot; not found, creating&quot;
-
-    New-Item $library_location -type directory
-
-}
-
-else
-
-{
-
-    Write-Host &quot;Library location: &quot; $library_location &quot; found.&quot;
-
-}
-
-
-
-#Now check if we have the library folder and if not create it
-
-if ((Test-Path -path $download_location) -ne $True)
-
-{
-
-    Write-Host &quot;Download location: &quot; $download_location &quot; not found, creating&quot;
-
-    New-Item $download_location -type directory
-
-}
-
-else
-
-{
-
-    Write-Host &quot;Download location: &quot; $download_location &quot; found.&quot;
-
-}
-
-
-
-#Download and install CMAKE
-
-download_file &quot;http://www.cmake.org/files/v2.8/cmake-2.8.9-win32-x86.exe&quot; ($download_location + &quot;\cmake-2.8.9-win32-x86.exe&quot;)
-
-&amp; ($download_location + &quot;\cmake-2.8.9-win32-x86.exe&quot;)
-
-
-
-#Download and install Git
-
-download_file &quot;http://msysgit.googlecode.com/files/Git-1.7.11-preview20120710.exe&quot; ($download_location + &quot;\Git-1.7.11-preview20120710.exe&quot;)
-
-&amp; ($download_location + &quot;\Git-1.7.11-preview20120710.exe&quot;)
-
-
-
-#Download, unzip, and install HDF5
-
-download_file &quot;http://www.hdfgroup.org/ftp/HDF5/current/bin/windows/HDF5189-win64-vs10-shared.zip&quot; ($download_location + &quot;\HDF5189-win64-vs10-shared.zip&quot;)
-
-unzip ($download_location + &quot;\HDF5189-win64-vs10-shared.zip&quot;)  &quot;$download_location\hdf5_binaries&quot;
-
-&amp; &quot;$download_location\hdf5_binaries\HDF5-1.8.9-win64.exe&quot;
-
-
-
-#Download, install HDFView
-
-download_file &quot;http://www.hdfgroup.org/ftp/HDF5/hdf-java/hdfview/hdfview_install_win64.exe&quot; ($download_location + &quot;\hdfview_install_win64.exe&quot;)
-
-&amp; ($download_location + &quot;\hdfview_install_win64.exe&quot;)
-
-
-
-#Download and install CodeSynthesis XSD
-
-download_file &quot;http://www.codesynthesis.com/download/xsd/3.3/windows/i686/xsd-3.3.msi&quot; ($download_location + &quot;\xsd-3.3.msi&quot;)
-
-&amp; ($download_location + &quot;\xsd-3.3.msi&quot;)
-
-
-
-#Download and install boost
-
-download_file &quot;http://boostpro.com/download/x64/boost_1_51_setup.exe&quot; ($download_location + &quot;\boost_1_51_setup.exe&quot;)
-
-&amp; ($download_location + &quot;\boost_1_51_setup.exe&quot;)
-
-
-
-#FFTW
-
-download_file &quot;ftp://ftp.fftw.org/pub/fftw/fftw-3.3.2-dll64.zip&quot; ($download_location + &quot;\fftw-3.3.2-dll64.zip&quot;)
-
-Set-VS-Environment
-
-unzip ($download_location + &quot;\fftw-3.3.2-dll64.zip&quot;)  &quot;$library_location\fftw3&quot;
-
-cd &quot;$library_location\fftw3&quot;
-
-&amp; lib &quot;/machine:X64&quot; &quot;/def:libfftw3-3.def&quot;
-
-&amp; lib &quot;/machine:X64&quot; &quot;/def:libfftw3f-3.def&quot;
-
-&amp; lib &quot;/machine:X64&quot; &quot;/def:libfftw3l-3.def&quot;
-
-
-
-
-
-#Message reminding to set paths
-
-Write-Host &quot;Please ensure that paths to the following locations are in your PATH environment variable: &quot;
-
-Write-Host &quot;    - Boost libraries    (typically C:\Program Files\boost\boost_1_51\lib)&quot;
-
-Write-Host &quot;    - Code Synthesis XSD (typically C:\Program Files (x86)\CodeSynthesis XSD 3.3\bin\;C:\Program Files (x86)\CodeSynthesis XSD 3.3\bin64\)&quot;
-
-Write-Host &quot;    - FFTW libraries     (typically C:\MRILibraries\fftw3)&quot;
-
-Write-Host &quot;    - HDF5 libraries     (typically C:\Program Files\HDF Group\HDF5\1.8.9\bin)&quot;
-
-Write-Host &quot;    - ISMRMRD            (typically C:\Program Files\ismrmrd\bin;C:\Program Files\ismrmrd\bin)&quot;
-
-
-
-
-
-#Now download and compile ISMRMRD
-
-download_file &quot;http://sourceforge.net/projects/ismrmrd/files/src/ismrmrd_latest.zip&quot; ($download_location + &quot;\ismrmrd_latest.zip&quot;)
-
-unzip ($download_location + &quot;\ismrmrd_latest.zip&quot;)  &quot;$library_location\ismrmrd&quot;
-
-cd &quot;$library_location\ismrmrd&quot;
-
-New-Item &quot;build&quot; -type directory
-
-cd build
-
-&amp; cmake &quot;-G&quot; &quot;Visual Studio 10 Win64&quot; &quot;-DBOOST_ROOT=C:/Program Files/boost/boost_1_51&quot; &quot;-DXERCESC_INCLUDE_DIR=C:/Program Files (x86)/CodeSynthesis XSD 3.3/include/xercesc&quot; &quot;-DXERCESC_LIBRARIES=C:/Program Files (x86)/CodeSynthesis XSD 3.3/lib64/vc-10.0/xerces-c_3.lib&quot; &quot;-DXSD_DIR=C:/Program Files (x86)/CodeSynthesis XSD 3.3&quot; &quot;-DFFTW3_INCLUDE_DIR=C:/MRILibraries/fftw3&quot; &quot;-DFFTW3F_LIBRARY=C:/MRILibraries/fftw3/libfftw3f-3.lib&quot; &quot;../&quot; 
-
-msbuild .\ISMRMRD.sln /p:Configuration=Release
+ #         S c r i p t   f o r   i n s t a l l i n g   t h e   r e q u i r e d   d e p e n d e n c i e d   f o r   
+ #         t h e   I S M R M   R a w   D a t a   F o r m a t   o n   W i n d o w s . 
+ #         
+ #         P r e r e q u i s i t e s : 
+ #                 -   W i n d o w s   7   ( 6 4 - b i t ) 
+ #                 -   V i s u a l   S t u d i o   ( C / C + + )   i n s t a l l e d 
+ # 
+ 
+ f u n c t i o n   d o w n l o a d _ f i l e ( $ u r l , $ d e s t i n a t i o n )   { 
+         # L e t ' s   s e t   u p   a   w e b c l i e n t   f o r   a l l   t h e   f i l e s   w e   h a v e   t o   d o w n l o a d 
+         $ c l i e n t   =   N e w - O b j e c t   S y s t e m . N e t . W e b C l i e n t 
+         $ c l i e n t . D o w n l o a d F i l e ( $ u r l , $ d e s t i n a t i o n ) 
+ } 
+ 
+ f u n c t i o n   u n z i p ( $ z i p P a t h ,   $ d e s t i n a t i o n ) { 
+         $ s h e l l   =   n e w - o b j e c t   - c o m   s h e l l . a p p l i c a t i o n ; 
+         $ z i p   =   $ s h e l l . N a m e S p a c e ( $ z i p P a t h ) ; 
+         i f   ( ( T e s t - P a t h   - p a t h   $ d e s t i n a t i o n )   - n e   $ T r u e ) 
+         { 
+                 N e w - I t e m   $ d e s t i n a t i o n   - t y p e   d i r e c t o r y 
+         } 
+         f o r e a c h ( $ i t e m   i n   $ z i p . i t e m s ( ) ) { 
+                 $ s h e l l . N a m e s p a c e ( $ d e s t i n a t i o n ) . c o p y h e r e ( $ i t e m ) 
+         } 
+ } 
+ 
+ f u n c t i o n   S e t - V S - E n v i r o n m e n t   ( )   { 
+         $ f i l e   =   ( G e t - C h i l d I t e m   E n v : V S 1 0 0 C O M N T O O L S ) . V a l u e   +   &quot; v s v a r s 3 2 . b a t &quot; 
+         $ c m d   =   &quot; ` &quot; $ f i l e ` &quot;   &amp;   s e t &quot; 
+         c m d   / c   $ c m d   |   F o r e a c h - O b j e c t   { 
+               $ p ,   $ v   =   $ _ . s p l i t ( ' = ' ) 
+               S e t - I t e m   - p a t h   e n v : $ p   - v a l u e   $ v 
+       } 
+ } 
+ 
+ f u n c t i o n   a d d _ p a t h ( $ p a t h n a m e )   { 
+         i f   ( $ e n v : p a t h     - m a t c h   [ r e g e x ] : : e s c a p e ( $ p a t h n a m e ) )   { 
+                 W r i t e - H o s t   &quot; P a t h   $ p a t h   a l r e a d y   e x i s t s &quot; 
+         }   e l s e   { 
+                 s e t x   P A T H   &quot; $ e n v : p a t h ; $ p a t h n a m e &quot;   - m 
+         } 
+ } 
+ 
+ W r i t e - H o s t   &quot; I S M R M R D   R a w   D a t a   F o r m a t   D e p e n d e n c i e s   I n s t a l l a t i o n &quot; 
+ 
+ $ l i b r a r y _ l o c a t i o n   =   &quot; C : \ M R I L i b r a r i e s &quot; 
+ $ d o w n l o a d _ l o c a t i o n   =   &quot; C : \ M R I L i b r a r i e s \ d o w n l o a d s &quot; 
+ 
+ # L e t ' s   f i r s t   c h e c k   i f   w e   h a v e   t h e   l i b r a r y   f o l d e r   a n d   i f   n o t   c r e a t e   i t 
+ i f   ( ( T e s t - P a t h   - p a t h   $ l i b r a r y _ l o c a t i o n )   - n e   $ T r u e ) 
+ { 
+         W r i t e - H o s t   &quot; L i b r a r y   l o c a t i o n :   &quot;   $ l i b r a r y _ l o c a t i o n   &quot;   n o t   f o u n d ,   c r e a t i n g &quot; 
+         N e w - I t e m   $ l i b r a r y _ l o c a t i o n   - t y p e   d i r e c t o r y 
+ } 
+ e l s e 
+ { 
+         W r i t e - H o s t   &quot; L i b r a r y   l o c a t i o n :   &quot;   $ l i b r a r y _ l o c a t i o n   &quot;   f o u n d . &quot; 
+ } 
+ 
+ # N o w   c h e c k   i f   w e   h a v e   t h e   l i b r a r y   f o l d e r   a n d   i f   n o t   c r e a t e   i t 
+ i f   ( ( T e s t - P a t h   - p a t h   $ d o w n l o a d _ l o c a t i o n )   - n e   $ T r u e ) 
+ { 
+         W r i t e - H o s t   &quot; D o w n l o a d   l o c a t i o n :   &quot;   $ d o w n l o a d _ l o c a t i o n   &quot;   n o t   f o u n d ,   c r e a t i n g &quot; 
+         N e w - I t e m   $ d o w n l o a d _ l o c a t i o n   - t y p e   d i r e c t o r y 
+ } 
+ e l s e 
+ { 
+         W r i t e - H o s t   &quot; D o w n l o a d   l o c a t i o n :   &quot;   $ d o w n l o a d _ l o c a t i o n   &quot;   f o u n d . &quot; 
+ } 
+ 
+ # D o w n l o a d   a n d   i n s t a l l   C M A K E 
+ d o w n l o a d _ f i l e   &quot; h t t p : / / w w w . c m a k e . o r g / f i l e s / v 2 . 8 / c m a k e - 2 . 8 . 9 - w i n 3 2 - x 8 6 . e x e &quot;   ( $ d o w n l o a d _ l o c a t i o n   +   &quot; \ c m a k e - 2 . 8 . 9 - w i n 3 2 - x 8 6 . e x e &quot; ) 
+ &amp;   ( $ d o w n l o a d _ l o c a t i o n   +   &quot; \ c m a k e - 2 . 8 . 9 - w i n 3 2 - x 8 6 . e x e &quot; ) 
+ 
+ # D o w n l o a d   a n d   i n s t a l l   G i t 
+ d o w n l o a d _ f i l e   &quot; h t t p : / / m s y s g i t . g o o g l e c o d e . c o m / f i l e s / G i t - 1 . 7 . 1 1 - p r e v i e w 2 0 1 2 0 7 1 0 . e x e &quot;   ( $ d o w n l o a d _ l o c a t i o n   +   &quot; \ G i t - 1 . 7 . 1 1 - p r e v i e w 2 0 1 2 0 7 1 0 . e x e &quot; ) 
+ &amp;   ( $ d o w n l o a d _ l o c a t i o n   +   &quot; \ G i t - 1 . 7 . 1 1 - p r e v i e w 2 0 1 2 0 7 1 0 . e x e &quot; ) 
+ 
+ # D o w n l o a d ,   u n z i p ,   a n d   i n s t a l l   H D F 5 
+ d o w n l o a d _ f i l e   &quot; h t t p : / / w w w . h d f g r o u p . o r g / f t p / H D F 5 / c u r r e n t / b i n / w i n d o w s / H D F 5 1 8 9 - w i n 6 4 - v s 1 0 - s h a r e d . z i p &quot;   ( $ d o w n l o a d _ l o c a t i o n   +   &quot; \ H D F 5 1 8 9 - w i n 6 4 - v s 1 0 - s h a r e d . z i p &quot; ) 
+ u n z i p   ( $ d o w n l o a d _ l o c a t i o n   +   &quot; \ H D F 5 1 8 9 - w i n 6 4 - v s 1 0 - s h a r e d . z i p &quot; )     &quot; $ d o w n l o a d _ l o c a t i o n \ h d f 5 _ b i n a r i e s &quot; 
+ &amp;   &quot; $ d o w n l o a d _ l o c a t i o n \ h d f 5 _ b i n a r i e s \ H D F 5 - 1 . 8 . 9 - w i n 6 4 . e x e &quot; 
+ 
+ # D o w n l o a d ,   i n s t a l l   H D F V i e w 
+ d o w n l o a d _ f i l e   &quot; h t t p : / / w w w . h d f g r o u p . o r g / f t p / H D F 5 / h d f - j a v a / h d f v i e w / h d f v i e w _ i n s t a l l _ w i n 6 4 . e x e &quot;   ( $ d o w n l o a d _ l o c a t i o n   +   &quot; \ h d f v i e w _ i n s t a l l _ w i n 6 4 . e x e &quot; ) 
+ &amp;   ( $ d o w n l o a d _ l o c a t i o n   +   &quot; \ h d f v i e w _ i n s t a l l _ w i n 6 4 . e x e &quot; ) 
+ 
+# D o w n l o a d   a n d   i n s t a l l   C o d e S y n t h e s i s   X S D 
+ d o w n l o a d _ f i l e   &quot; h t t p : / / w w w . c o d e s y n t h e s i s . c o m / d o w n l o a d / x s d / 3 . 3 / w i n d o w s / i 6 8 6 / x s d - 3 . 3 . m s i &quot;   ( $ d o w n l o a d _ l o c a t i o n   +   &quot; \ x s d - 3 . 3 . m s i &quot; ) 
+ &amp;   ( $ d o w n l o a d _ l o c a t i o n   +   &quot; \ x s d - 3 . 3 . m s i &quot; ) 
+ 
+ # D o w n l o a d   a n d   i n s t a l l   b o o s t 
+ d o w n l o a d _ f i l e   &quot; h t t p : / / b o o s t p r o . c o m / d o w n l o a d / x 6 4 / b o o s t _ 1 _ 5 1 _ s e t u p . e x e &quot;   ( $ d o w n l o a d _ l o c a t i o n   +   &quot; \ b o o s t _ 1 _ 5 1 _ s e t u p . e x e &quot; ) 
+ &amp;   ( $ d o w n l o a d _ l o c a t i o n   +   &quot; \ b o o s t _ 1 _ 5 1 _ s e t u p . e x e &quot; ) 
+ 
+ # F F T W 
+ d o w n l o a d _ f i l e   &quot; f t p : / / f t p . f f t w . o r g / p u b / f f t w / f f t w - 3 . 3 . 2 - d l l 6 4 . z i p &quot;   ( $ d o w n l o a d _ l o c a t i o n   +   &quot; \ f f t w - 3 . 3 . 2 - d l l 6 4 . z i p &quot; ) 
+ S e t - V S - E n v i r o n m e n t 
+ u n z i p   ( $ d o w n l o a d _ l o c a t i o n   +   &quot; \ f f t w - 3 . 3 . 2 - d l l 6 4 . z i p &quot; )     &quot; $ l i b r a r y _ l o c a t i o n \ f f t w 3 &quot; 
+ c d   &quot; $ l i b r a r y _ l o c a t i o n \ f f t w 3 &quot; 
+ &amp;   l i b   &quot; / m a c h i n e : X 6 4 &quot;   &quot; / d e f : l i b f f t w 3 - 3 . d e f &quot; 
+ &amp;   l i b   &quot; / m a c h i n e : X 6 4 &quot;   &quot; / d e f : l i b f f t w 3 f - 3 . d e f &quot; 
+ &amp;   l i b   &quot; / m a c h i n e : X 6 4 &quot;   &quot; / d e f : l i b f f t w 3 l - 3 . d e f &quot; 
+ 
+ # M e s s a g e   r e m i n d i n g   t o   s e t   p a t h s 
+ W r i t e - H o s t   &quot; P l e a s e   e n s u r e   t h a t   p a t h s   t o   t h e   f o l l o w i n g   l o c a t i o n s   a r e   i n   y o u r   P A T H   e n v i r o n m e n t   v a r i a b l e :   &quot; 
+ W r i t e - H o s t   &quot;         -   B o o s t   l i b r a r i e s         ( t y p i c a l l y   C : \ P r o g r a m   F i l e s \ b o o s t \ b o o s t _ 1 _ 5 1 \ l i b ) &quot; 
+ W r i t e - H o s t   &quot;         -   C o d e   S y n t h e s i s   X S D   ( t y p i c a l l y   C : \ P r o g r a m   F i l e s   ( x 8 6 ) \ C o d e S y n t h e s i s   X S D   3 . 3 \ b i n \ ; C : \ P r o g r a m   F i l e s   ( x 8 6 ) \ C o d e S y n t h e s i s   X S D   3 . 3 \ b i n 6 4 \ ) &quot; 
+ W r i t e - H o s t   &quot;         -   F F T W   l i b r a r i e s           ( t y p i c a l l y   C : \ M R I L i b r a r i e s \ f f t w 3 ) &quot; 
+ W r i t e - H o s t   &quot;         -   H D F 5   l i b r a r i e s           ( t y p i c a l l y   C : \ P r o g r a m   F i l e s \ H D F   G r o u p \ H D F 5 \ 1 . 8 . 9 \ b i n ) &quot; 
+ W r i t e - H o s t   &quot;         -   I S M R M R D                         ( t y p i c a l l y   C : \ P r o g r a m   F i l e s \ i s m r m r d \ b i n ; C : \ P r o g r a m   F i l e s \ i s m r m r d \ b i n ) &quot; 
+ 
+ 
+ # N o w   d o w n l o a d   a n d   c o m p i l e   I S M R M R D 
+ d o w n l o a d _ f i l e   &quot; h t t p : / / s o u r c e f o r g e . n e t / p r o j e c t s / i s m r m r d / f i l e s / s r c / i s m r m r d _ l a t e s t . z i p &quot;   ( $ d o w n l o a d _ l o c a t i o n   +   &quot; \ i s m r m r d _ l a t e s t . z i p &quot; ) 
+ u n z i p   ( $ d o w n l o a d _ l o c a t i o n   +   &quot; \ i s m r m r d _ l a t e s t . z i p &quot; )     &quot; $ l i b r a r y _ l o c a t i o n \ i s m r m r d &quot; 
+ c d   &quot; $ l i b r a r y _ l o c a t i o n \ i s m r m r d &quot; 
+ N e w - I t e m   &quot; b u i l d &quot;   - t y p e   d i r e c t o r y 
+ c d   b u i l d 
+ &amp;   c m a k e   &quot; - G &quot;   &quot; V i s u a l   S t u d i o   1 0   W i n 6 4 &quot;   &quot; - D B O O S T _ R O O T = C : / P r o g r a m   F i l e s / b o o s t / b o o s t _ 1 _ 5 1 &quot;   &quot; - D X E R C E S C _ I N C L U D E _ D I R = C : / P r o g r a m   F i l e s   ( x 8 6 ) / C o d e S y n t h e s i s   X S D   3 . 3 / i n c l u d e / x e r c e s c &quot;   &quot; - D X E R C E S C _ L I B R A R I E S = C : / P r o g r a m   F i l e s   ( x 8 6 ) / C o d e S y n t h e s i s   X S D   3 . 3 / l i b 6 4 / v c - 1 0 . 0 / x e r c e s - c _ 3 . l i b &quot;   &quot; - D X S D _ D I R = C : / P r o g r a m   F i l e s   ( x 8 6 ) / C o d e S y n t h e s i s   X S D   3 . 3 &quot;   &quot; - D F F T W 3 _ I N C L U D E _ D I R = C : / M R I L i b r a r i e s / f f t w 3 &quot;   &quot; - D F F T W 3 F _ L I B R A R Y = C : / M R I L i b r a r i e s / f f t w 3 / l i b f f t w 3 f - 3 . l i b &quot;   &quot; . . / &quot;   
+ m s b u i l d   . \ I S M R M R D . s l n   / p : C o n f i g u r a t i o n = R e l e a s e
 </pre>
 </div>
 </div>

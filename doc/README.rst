@@ -20,6 +20,12 @@ This standard was developed by a subcommittee of the ISMRM Sedona 2013 workshop.
 * Doug Noll (dnoll AT umich DOT edu)
 * Jim Pipe (Jim.Pipe AT DignityHealth DOT org)
 
+Developers/Contributors
+------------------------
+
+* Michael S. Hansen, National Institutes of Health, USA
+* Nick Zwart, Barrow Neurological Institute, Phoenix, Arizona
+* Souheil Inati, National Institutes of Health, USA
 
 Obtaining and Installing
 -------------------------
