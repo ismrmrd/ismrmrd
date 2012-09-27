@@ -7,7 +7,7 @@
 	<xs:element maxOccurs="1" minOccurs="0" name="subjectInformation" type="subjectInformationType"/>
 	<xs:element maxOccurs="1" minOccurs="0" name="acquisitionSystemInformation" type="acquisitionSystemInformationType"/> 
 	<xs:element maxOccurs="1" minOccurs="1" name="experimentalConditions" type="experimentalConditionsType"/>
-	<xs:element maxOccurs="65535" minOccurs="1" name="encoding">
+	<xs:element maxOccurs="unbounded" minOccurs="1" name="encoding">
 	  <xs:complexType>
 	    <xs:all>
 	      <xs:element maxOccurs="1" minOccurs="1" name="encodedSpace" type="encodingSpaceType"/>

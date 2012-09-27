@@ -2,11 +2,11 @@ classdef AcquisitionHeader
     
     properties
         version = uint16(0);                           % First unsigned int indicates the version %
-        flag = uint64(0);                              % bit field with flags %
+        flags = uint64(0);                             % bit field with flags %
         measurement_uid = uint32(0);                   % Unique ID for the measurement %
         scan_counter = uint32(0);                      % Current acquisition number in the measurement %
         acquisition_time_stamp = uint32(0);            % Acquisition clock %
-        physiology_time_stamp = zeros(1,3,'uint32');   % Physiology time stamps, e.g. ecg, breating, etc. %
+        physiology_time_stamp = zeros(3,1,'uint32');   % Physiology time stamps, e.g. ecg, breating, etc. %
         number_of_samples = uint16(0);                 % Number of samples acquired %
         available_channels = uint16(0);                % Available coils %
         active_channels = uint16(0);                   % Active coils on current acquisiton %
@@ -31,8 +31,8 @@ classdef AcquisitionHeader
             obj.version = uint16(v);
         end
 
-        function obj = set.flag(obj,v)
-            obj.flag = uint64(v);
+        function obj = set.flags(obj,v)
+            obj.flags = uint64(v);
         end
         
         function obj = set.measurement_uid(obj,v)
@@ -70,7 +70,7 @@ classdef AcquisitionHeader
             if (length(v)~=16)
                 error('AcquisitionHeader.channel_mask must have 16 elements')
             end
-            obj.channel_mask = uint16(v);
+            obj.channel_mask = uint64(v);
         end
         
         function obj = set.discard_pre(obj,v)
@@ -116,6 +116,19 @@ classdef AcquisitionHeader
                 error('AcquisitionHeader.patient_table_position must have 3 elements')
             end
             obj.patient_table_position = single(v);
+        end
+                
+        function obj = set.idx(obj,v)
+            if isa(v,'ismrmrd.EncodingCounters')
+                obj.idx = v;
+            else
+                % not of the correct type, hope it's a struct 
+                % and try to copy one element at a time
+                u = fieldnames(obj.idx);
+                for p = 1:length(u)
+                    obj.idx = setfield(obj.idx,u{p},getfield(v,u{p}));
+                end
+            end
         end
         
         function obj = set.user_int(obj,v)

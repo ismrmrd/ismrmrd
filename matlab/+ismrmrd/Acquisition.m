@@ -5,8 +5,8 @@ classdef Acquisition
     properties
 
         head = ismrmrd.AcquisitionHeader;
-        traj = [];
-        data = [];
+        traj = single([]);
+        data = single([]);
 
     end % Properties
     
@@ -14,7 +14,16 @@ classdef Acquisition
     methods
         
         function obj = set.head(obj,v)
-            obj.head = v;
+            if isa(v,'ismrmrd.AcquisitionHeader')
+                obj.head = v;
+            else
+                % not of the correct type, hope it's a struct 
+                % and try to copy one element at a time
+                u = fieldnames(obj.head);
+                for p = 1:length(u)
+                    obj.head = setfield(obj.head,u{p},getfield(v,u{p}));
+                end
+            end
         end
         
         function obj = set.traj(obj,v)
@@ -22,11 +31,7 @@ classdef Acquisition
         end
         
         function obj = set.data(obj,v)
-            if isreal(v)
-                obj.data = single(v(1:2:end) + 1j*v(2:2:end));
-            else
-                obj.data = single(v);
-            end
+            obj.data = single(v);        
         end
 
         function b = isFlagSet(obj,flag)
