@@ -5,7 +5,7 @@
     <xs:complexType>
       <xs:sequence>
 	<xs:element maxOccurs="1" minOccurs="0" name="subjectInformation" type="subjectInformationType"/>
-	<xs:element maxOccurs="1" minOccurs="0" name="acquisitionSystemInformation" type="acquisitionSystemInformationType"/> 
+	<xs:element maxOccurs="1" minOccurs="0" name="acquisitionSystemInformation" type="acquisitionSystemInformationType"/>
 	<xs:element maxOccurs="1" minOccurs="1" name="experimentalConditions" type="experimentalConditionsType"/>
 	<xs:element maxOccurs="unbounded" minOccurs="1" name="encoding">
 	  <xs:complexType>
@@ -20,6 +20,7 @@
 	</xs:element>
 	<xs:element maxOccurs="1" minOccurs="0" name="parallelImaging" type="parallelImagingType"/>
 	<xs:element maxOccurs="1" minOccurs="0" name="sequenceTiming" type="sequenceTimingType"/>
+        <xs:element maxOccurs="1" minOccurs="0" name="dicomParameters" type="dicomParametersType"/>
 	<xs:element maxOccurs="1" minOccurs="0" name="userParameters">
 	  <xs:complexType>
 	    <xs:sequence>
@@ -38,7 +39,7 @@
       <xs:element minOccurs="0" name="patientWeight_kg" type="xs:float"/>
     </xs:all>
   </xs:complexType>
-  
+
   <xs:complexType name="experimentalConditionsType">
     <xs:all>
       <xs:element name="H1resonanceFrequency_Hz" type="xs:long"/>
@@ -79,7 +80,7 @@
   </xs:complexType>
 
   <xs:complexType name="limitType">
-    <xs:all> 
+    <xs:all>
       <xs:element default="0" name="minimum" type="xs:unsignedShort"/>
       <xs:element default="0" name="maximum" type="xs:unsignedShort"/>
       <xs:element default="0" name="center" type="xs:unsignedShort"/>
@@ -132,24 +133,96 @@
   <xs:complexType name="userParameterLongType">
     <xs:all>
       <xs:element name="name" type="xs:string"/>
-      <xs:element name="value" type="xs:long"/> 
+      <xs:element name="value" type="xs:long"/>
     </xs:all>
   </xs:complexType>
 
   <xs:complexType name="userParameterDoubleType">
     <xs:all>
       <xs:element name="name" type="xs:string"/>
-      <xs:element name="value" type="xs:double"/> 
+      <xs:element name="value" type="xs:double"/>
     </xs:all>
   </xs:complexType>
-  
-	<xs:complexType name="accelerationFactorType">
-		<xs:all>
-			<xs:element name="kspace_encoding_step_1" type="xs:unsignedShort"/>
-			<xs:element name="kspace_encoding_step_2" type="xs:unsignedShort"/>	  			
-		</xs:all>
-	</xs:complexType>
-	
+
+  <xs:complexType name="dicomParametersType">
+    <xs:all>
+      <xs:element minOccurs="1" maxOccurs="1" name="dicomPatient">
+        <xs:complexType>
+          <xs:all>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="patientID"/>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="patientBirthdate"/>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="patientSex"/>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:long" name="patientAge_y"/>
+          </xs:all>
+        </xs:complexType>
+      </xs:element>
+      <xs:element minOccurs="1" maxOccurs="1" name="dicomStudy">
+        <xs:complexType>
+          <xs:all>
+            <xs:element minOccurs="0" maxOccurs="1" name="referencedImageSequence">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:string" name="referencedSOPInstanceUID"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="studyInstanceUID"/>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:long" name="studyID"/>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="studyDate"/>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="studyTime"/>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="referringPhysicianName"/>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:long" name="accessionNumber"/>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="studyDescription"/>
+          </xs:all>
+        </xs:complexType>
+      </xs:element>
+      <xs:element minOccurs="1" maxOccurs="1" name="dicomSeries">
+        <xs:complexType>
+          <xs:all>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="seriesInstanceUID"/>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:long" name="seriesNumber"/>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="seriesDate"/>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="seriesTime"/>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="protocolName"/>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="seriesDescription"/>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="patientPosition"/>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="frameOfReferenceUID"/>
+          </xs:all>
+        </xs:complexType>
+      </xs:element>
+      <xs:element minOccurs="1" maxOccurs="1" name="dicomMRImage">
+        <xs:complexType>
+          <xs:all>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="imageType"/>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="scanningSequence"/>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="sequenceVariant"/>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="scanOptions"/>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="mrAcquisitionType"/>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:long" name="echoTrainLength"/>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:float" name="triggerTime"/>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:long" name="flipAngle_deg"/>
+            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="freqEncodingDirection"/>
+          </xs:all>
+        </xs:complexType>
+      </xs:element>
+      <xs:element minOccurs="0" maxOccurs="1" name="dicomGeneralEquipment">
+        <xs:complexType>
+          <xs:all>
+            <xs:element minOccurs="0" maxOccurs="1" type="xs:string" name="institutionName"/>
+            <xs:element minOccurs="0" maxOccurs="1" type="xs:string" name="stationName"/>
+          </xs:all>
+        </xs:complexType>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="accelerationFactorType">
+    <xs:all>
+      <xs:element name="kspace_encoding_step_1" type="xs:unsignedShort"/>
+      <xs:element name="kspace_encoding_step_2" type="xs:unsignedShort"/>
+    </xs:all>
+  </xs:complexType>
+
   <xs:simpleType name="calibrationModeType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="embedded"/>
@@ -168,7 +241,7 @@
       <xs:enumeration value="average"/>
       <xs:enumeration value="other"/>
     </xs:restriction>
-  </xs:simpleType>	  
+  </xs:simpleType>
 
   <xs:complexType name="parallelImagingType">
   	<xs:sequence>
