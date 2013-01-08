@@ -26,6 +26,7 @@ Developers/Contributors
 * Michael S. Hansen, National Institutes of Health, USA
 * Nick Zwart, Barrow Neurological Institute, Phoenix, Arizona
 * Souheil Inati, National Institutes of Health, USA
+* Joe Naegele, National Institutes of Health, USA
 
 Obtaining and Installing
 -------------------------
@@ -51,7 +52,7 @@ Dependencies
 The ISMRM Raw Data format is described by an XML schema_ and some C-style structs with fixed memory layout and as such does not have dependencies. However, it uses HDF5 files for storage and a C++ library for reading and writing the ISMRMRD files is included in this distribution. Furthermore, since the XML header is defined with an XML schema_, we encourage using XML data binding when writing software using the format. In the ISMRMRD distribution we use the CodeSynthesis XSD (http://www.codesynthesis.com/products/xsd/) package to generate a C++ class representation of the XML schema. To compile all components of this distribution you need:
 
 
-* HDF5 (version 1.8 or higher) libraries. Available from http://www.hdfgroup.org/downloads/index.html. 
+* HDF5 (version 1.8 or higher) libraries. Available from http://www.hdfgroup.org/downloads/index.html.
 * Boost (http://www.boost.org/)
 * CodeSynthesis XSD (http://www.codesynthesis.com/products/xsd/)
 * Xerces-C XML parser library (http://xerces.apache.org/xerces-c/)
@@ -61,7 +62,7 @@ The ISMRM Raw Data format is described by an XML schema_ and some C-style struct
 * FFTW if you would like to compile some of the example applications
   (http://www.fftw.org)
 
-.. note:: It is only necessary to install the dependencies if you wish to develop compiled C/C++ software, which uses the ISMRMRD format. The format can be read in Matlab without installing any additional software. 
+.. note:: It is only necessary to install the dependencies if you wish to develop compiled C/C++ software, which uses the ISMRMRD format. The format can be read in Matlab without installing any additional software.
 
 
 Linux installation
@@ -93,7 +94,7 @@ There are numerous different package management systems for Mac. In this example
 Next install CodeSynthesis XSD (http://www.codesynthesis.com/products/xsd/)::
 
    wget http://www.codesynthesis.com/download/xsd/3.3/macosx/i686/xsd-3.3.0-i686-macosx.tar.bz2
-   tar -xzf xsd-3.3.0-i686-macosx.tar.bz2 
+   tar -xzf xsd-3.3.0-i686-macosx.tar.bz2
    cd xsd-3.3.0-i686-macosx
    sudo cp bin/xsd /usr/local/bin/
    sudo cp -r libxsd/xsd /usr/local/include/
@@ -146,7 +147,7 @@ Setting up a Windows development environment is usually a bit more challenging t
   - HDF5 libraries (typically ``C:\Program Files\HDF Group\HDF5\1.8.9\bin``)
   - ISMRMRD (typically ``C:\Program Files\ismrmrd\bin;C:\Program Files\ismrmrd\bin``)
 
-This can seem a bit daunting, we have included a Windows powershell_ script, which you can use to guide you through the installation process. 
+This can seem a bit daunting, we have included a Windows powershell_ script, which you can use to guide you through the installation process.
 
 After installing all dependencies, download the code, e.g. from a git bash shell::
 
@@ -175,10 +176,10 @@ Overview
 
 The raw data format combines a mix of flexible data structures (XML header) and fixed structures (equivalent to C-structs). A raw data set consist mainly of 2 sections:
 
-1. A flexible XML format document that can contain an arbitrary number of fields and accommodate everything from simple values (b-values, etc.) to entire vendor protocols, etc. This purpose of this XML document is to provide parameters that may be meaningful for some experiments but not for others. This XML format is defined by an XML Schema Definition file (ismrmrd.xsd). 
+1. A flexible XML format document that can contain an arbitrary number of fields and accommodate everything from simple values (b-values, etc.) to entire vendor protocols, etc. This purpose of this XML document is to provide parameters that may be meaningful for some experiments but not for others. This XML format is defined by an XML Schema Definition file (ismrmrd.xsd).
 2. Raw data section. This section contains all the acquired data in the experiment. Each data item is preceded by a C-struct with encoding numbers, etc. Following this data header is a channel header and data for each acquired channel. The raw data headers are defined in a C/C++ header file (ismrmrd.h)
 
-In addition to these sections, the ISMRMRD format also specifies an image header for storing reconstructed images and the accompanying C++ library provides a convenient way of writing such images into HDF5 files along with generic arrays for storing less well defined data structures, e.g. coil sensitivity maps or other calibration data. 
+In addition to these sections, the ISMRMRD format also specifies an image header for storing reconstructed images and the accompanying C++ library provides a convenient way of writing such images into HDF5 files along with generic arrays for storing less well defined data structures, e.g. coil sensitivity maps or other calibration data.
 
 Flexible Data Header
 .....................
@@ -217,7 +218,7 @@ In addition to the defined field in the xml header, it is possible to add an arb
      </userParameterLong>
      <userParameterDouble>
        <name>MyDoubleVar</name><value>87.6676</value>
-     </userParameterDouble>    
+     </userParameterDouble>
    </userParameters>
 
 
@@ -238,26 +239,26 @@ Where EncodingCounters are defined as:
    :start-line: 107
    :end-line: 119
 
-The interpretation of some of these fields may vary from sequence to sequence, i.e. for a Cartesian sequence, ``kspace_encode_step_1`` would be the phase encoding step, for a spiral sequence where phase encoding direction does not make sense, it would be the spiral interleave number. The ``encoding_space_ref`` enables the user to tie an acquisition to a specific encoding space (see above) in case there are multiple, e.g. in situations where a calibration scan may be integrated in the acquisition. 
+The interpretation of some of these fields may vary from sequence to sequence, i.e. for a Cartesian sequence, ``kspace_encode_step_1`` would be the phase encoding step, for a spiral sequence where phase encoding direction does not make sense, it would be the spiral interleave number. The ``encoding_space_ref`` enables the user to tie an acquisition to a specific encoding space (see above) in case there are multiple, e.g. in situations where a calibration scan may be integrated in the acquisition.
 
-The flags field is a bit mask, which in principle can be used freely by the user, but suggested flag values are given in ``ismrmrd.h``, it is recommended not to use already designated flag bits for custom purposes. There are a set of bits reserved for prototyping (bits 57-64), please see ``ismrmrd.h`` for details. 
+The flags field is a bit mask, which in principle can be used freely by the user, but suggested flag values are given in ``ismrmrd.h``, it is recommended not to use already designated flag bits for custom purposes. There are a set of bits reserved for prototyping (bits 57-64), please see ``ismrmrd.h`` for details.
 
 The header contains a ``trajectory_dimensions`` field. If the value of this field is larger than 0, it means that trajectories are stored with each individual acquisition. For a 2D acquisition, the ``trajectory_dimensions`` would typically be 2 and the convention (for memory layout) is that the header is followed immediately by the trajectory before the complex data. There is an example of how this memory layout could be implemented with a C++ class in the ``ismrmrd.h`` file:
 
 ::
-   
+
    class Acquisition
    {
 
    //....
- 
+
    AcquisitionHeader head_; //Header, see above
-   
+
    float* traj_;            //Trajectory, elements = head_.trajectory_dimensions*head_.number_of_samples
                             //   [kx,ky,kx,ky.....]        (for head_.trajectory_dimensions = 2)
                             //   [kx,ky,kz,kx,ky,kz,.....] (for head_.trajectory_dimensions = 3)
 
-   float* data_;            //Actual data, elements = head_.number_of_samples*head_.active_channels*2 
+   float* data_;            //Actual data, elements = head_.number_of_samples*head_.active_channels*2
                             //   [re,im,re,im,.....,re,im,re,im,.....,re,im,re,im,.....]
                             //    ---channel 1-------channel 2---------channel 3-----
 
@@ -280,7 +281,7 @@ In a similar fashion to the raw data acquisition data, the intention is to store
   T* data_;              //Data, array of size (matrix_size[0]*matrix_size[1]*matrix_size[2]*channels),
                          //first spatial dimension is fastest changing array index, channels outer most (slowest changing).
   };
- 
+
 
 
 File Storage
@@ -293,7 +294,7 @@ The ISMRM Raw Data format is stored in HDF5 format. Details on this format can b
    >> data = h5read('simple_gre.h5', '/dataset/data');
    >> data
 
-   data = 
+   data =
 
    head: [1x1 struct]
    traj: {1x1281 cell}
@@ -301,7 +302,7 @@ The ISMRM Raw Data format is stored in HDF5 format. Details on this format can b
 
     >> data.head
 
-    ans = 
+    ans =
 
                    version: [1x1281 uint16]
                      flags: [1x1281 uint64]
@@ -326,11 +327,11 @@ The ISMRM Raw Data format is stored in HDF5 format. Details on this format can b
                   user_int: [8x1281 int32]
                 user_float: [8x1281 single]
 
-    >> 
+    >>
 
 The HDF5 file format can be access from C, C++, and java using the libraries provided on the HDF5 website. The ISMRMRD distribution also comes with some C++ wrappers that can be used for easy access (read and write) from C++ programs. See below.
 
-In addition to storing acquisition data and images as defined by the headers above, the HDF5 format also enables storage of generic multi-dimensional arrays. The ISMRMRD format does not explicitly define how such data should be stored, but leaves it open for the user to add variables and data as dictated by a given application. 
+In addition to storing acquisition data and images as defined by the headers above, the HDF5 format also enables storage of generic multi-dimensional arrays. The ISMRMRD format does not explicitly define how such data should be stored, but leaves it open for the user to add variables and data as dictated by a given application.
 
 .. _HDF5: http://www.hdfgroup.org/HDF5/
 
@@ -389,9 +390,9 @@ To enable easy prototyping of C++ software using the ISMRMRD data format, a simp
 
 
 Using this wrapper, C++ applications can be programmed as:
-    
+
 ::
-    
+
    boost::shared_ptr<ISMRMRD::IsmrmrdDataset> ismrmrd_dataset(new ISMRMRD::IsmrmrdDataset(hdf5_in_data_file,hdf5_in_group));
    boost::shared_ptr<std::string> xml_config = ismrmrd_dataset->readHeader();
 
@@ -400,7 +401,7 @@ Using this wrapper, C++ applications can be programmed as:
    unsigned long acquisitions = ismrmrd_dataset->getNumberOfAcquisitions();
 
    for (unsigned long int i = 0; i < acquisitions; i++) {
-     boost::shared_ptr<ISMRMRD::Acquisition> acq_tmp = ismrmrd_dataset->readAcquisition(i);	     
+     boost::shared_ptr<ISMRMRD::Acquisition> acq_tmp = ismrmrd_dataset->readAcquisition(i);
      //Do something with the data
    }
 
@@ -412,7 +413,7 @@ Since the XML part of the header is defined in the ``schema/ismrmrd.xsd`` file, 
    props.schema_location ("http://www.ismrm.org/ISMRMRD",std::string("/full/path/to/ismrmrd.xsd"));
    std::istringstream str_stream(xml, std::stringstream::in);
    boost::shared_ptr<ISMRMRD::ismrmrdHeader> cfg;
-   
+
    try {
       cfg = boost::shared_ptr<ISMRMRD::ismrmrdHeader>(ISMRMRD::ismrmrdHeader_ (str_stream,0,props));
    }  catch (const xml_schema::exception& e) {
@@ -422,7 +423,7 @@ Since the XML part of the header is defined in the ``schema/ismrmrd.xsd`` file, 
    //Use the configuration, e.g.:
    std::cout << "Number of encoding spaces: " << cfg->encoding().size() << std::endl;
 
-Again, this is not a requirement for using the ISMRMRD format, the XML can be parsed with numerous other xml parsing libraries. The schema file ``schema/ismrmrd.xsd`` gives the user the option of validating the XML header before parsing, which is recommended to reduce the chance of hard to detect errors in your code due to missing or malformed parameters. 
+Again, this is not a requirement for using the ISMRMRD format, the XML can be parsed with numerous other xml parsing libraries. The schema file ``schema/ismrmrd.xsd`` gives the user the option of validating the XML header before parsing, which is recommended to reduce the chance of hard to detect errors in your code due to missing or malformed parameters.
 
 C++ Example Applications
 ..........................
@@ -465,7 +466,7 @@ For instance, to reconstruct a 2D Cartesian acquisition (10 image repetitions), 
    Reconstructing image 8....done
    Reconstructing image 9....done
    Reconstructing image 10....done
-   >> 
+   >>
 
 You should see one of the reconstructed images display. An example is also given of a 3D acquisition with partial Fourier, phase and slice oversampling, etc. Reconstruct this dataset with:
 
@@ -474,7 +475,7 @@ You should see one of the reconstructed images display. An example is also given
    >> images = simple_cartesian_recon('../data/3D_partial_fourier.h5');
    Reconstructing image 1....done
 
-The center slice of the volume should be displayed at the end of the reconstruction. 
+The center slice of the volume should be displayed at the end of the reconstruction.
 
 Finally, there is also a spiral dataset. This dataset illustrates how the flexible section of the ``<trajectoryDescription>`` can be used to add user defined parameters and an identifier to describe the trajectory. This dataset is also an example of storing the trajectory with the data for direct reconstruction. Reconstruct this dataset with:
 
@@ -491,7 +492,7 @@ Finally, there is also a spiral dataset. This dataset illustrates how the flexib
    Reconstructing image 8....done
    Reconstructing image 9....done
    Reconstructing image 10....done
-   >> 
+   >>
 
 Appendix
 ---------
@@ -504,11 +505,11 @@ Frequently Asked Questions
 
 	in version 3.3.0 of CodeSynthesis XSD there is a problem with the clang compiler. It can build with clang on os x 10.7 (Lion) by editing
 	`/usr/local/include/xsd/cxx/zc-istream.txx`. Change line 35 from::
-	
+
       		setg (b, b, e);
-      		
+
 	to::
-	
+
       		std::streambuf::setg (b, b, e);
 
 	See also:

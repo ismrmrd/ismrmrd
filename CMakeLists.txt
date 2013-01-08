@@ -30,6 +30,11 @@ LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 add_library(ismrmrd SHARED ismrmrd_hdf5.cpp)
 add_library(ismrmrd_xsd SHARED ${XSDS_SOURCES})
 
+# Process the MATLAB files
+file(GLOB MatlabMFiles  ${CMAKE_SOURCE_DIR}/matlab/+ismrmrd/*.m)
+# Convert the schema to Java Classes
+
+
 #The findHDF5.cmake does not work very well on Windows, let's help it out
 IF(WIN32)
 	SET(HDF5_LIB_DIR ${HDF5_INCLUDE_DIR}/../lib)
@@ -72,5 +77,6 @@ INSTALL(FILES schema/ismrmrd.xsd DESTINATION schema)
 INSTALL(FILES cmake/FindIsmrmrd.cmake DESTINATION cmake)
 INSTALL(TARGETS ismrmrd DESTINATION lib)
 INSTALL(TARGETS ismrmrd_xsd DESTINATION lib)
+INSTALL(FILES ${MatlabMFiles} DESTINATION matlab/+ismrmrd)
 
 add_subdirectory(doc)

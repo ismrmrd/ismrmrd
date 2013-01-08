@@ -499,9 +499,10 @@ boost::shared_ptr<std::string> IsmrmrdDataset::readHeader()
 	try {
 		boost::shared_ptr<DataSet> xml_dataset = boost::shared_ptr<DataSet>(new DataSet(file_->openDataSet(xml_header_path_.c_str())));
 		boost::shared_ptr<DataType> datatype(new StrType(0, H5T_VARIABLE));
-		xml_dataset->read(*ret,*datatype);
+		DataType dt = xml_dataset->getDataType();
+		xml_dataset->read(*ret,dt);
 	} catch( Exception& e ) {
-		std::cout << "Exception caught while readin XML Header to HDF5 file" << std::endl;
+		std::cout << "Exception caught while reading XML Header to HDF5 file" << std::endl;
 		std::cout << e.getDetailMsg() << std::endl;
 		return ret;
     }

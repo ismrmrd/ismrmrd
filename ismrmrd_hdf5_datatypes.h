@@ -22,25 +22,25 @@ namespace ISMRMRD
 template <typename T> boost::shared_ptr<DataType> getIsmrmrdHDF5Type();
 
 
-template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<float>()
+template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<float>()
 {
 	boost::shared_ptr<DataType> ret(new DataType(H5Tcopy(H5T_NATIVE_FLOAT)));
 	return ret;
 }
 
-template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<double>()
+template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<double>()
 {
 	boost::shared_ptr<DataType> ret(new DataType(H5Tcopy(H5T_NATIVE_DOUBLE)));
 	return ret;
 }
 
-template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<char>()
+template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<char>()
 {
 	boost::shared_ptr<DataType> ret(new DataType(H5Tcopy(H5T_NATIVE_CHAR)));
 	return ret;
 }
 
-template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type< std::complex<float> >()
+template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type< std::complex<float> >()
 {
 	CompType* ct = new CompType(sizeof( std::complex<float> ));
 	ct->insertMember( "real",  0,              PredType::NATIVE_FLOAT);
@@ -49,7 +49,7 @@ template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type< std::complex<float> 
 	return ret;
 }
 
-template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type< std::complex<double> >()
+template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type< std::complex<double> >()
 {
 	CompType* ct = new CompType(sizeof( std::complex<double> ));
 	ct->insertMember( "real",  0,              PredType::NATIVE_DOUBLE);
@@ -59,13 +59,13 @@ template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type< std::complex<double>
 }
 
 
-template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type< unsigned short >()
+template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type< unsigned short >()
 {
 	boost::shared_ptr<DataType> ret(new DataType(H5Tcopy(H5T_NATIVE_USHORT)));
 	return ret;
 }
 
-template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<EncodingCounters>()
+template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<EncodingCounters>()
 {
 
 	boost::shared_ptr<CompType> ret = boost::shared_ptr<CompType>(new CompType(sizeof(EncodingCounters)));
@@ -87,7 +87,7 @@ template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<EncodingCounters>()
 	return ret;
 };
 
-template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<AcquisitionHeader>()
+template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<AcquisitionHeader>()
 {
 	boost::shared_ptr<CompType> ret = boost::shared_ptr<CompType>(new CompType(sizeof(AcquisitionHeader)));
 	ret->insertMember( "version", 					HOFFSET(AcquisitionHeader, version), 				PredType::NATIVE_UINT16);
@@ -155,7 +155,7 @@ struct double_complex_t
 };
 
 
-template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<complex_t>()
+template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<complex_t>()
 {
 	boost::shared_ptr<CompType> ret = boost::shared_ptr<CompType>(new CompType(sizeof(complex_t)));
 	ret->insertMember( "real",  HOFFSET(complex_t,real),   PredType::NATIVE_FLOAT);
@@ -163,7 +163,7 @@ template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<complex_t>()
 	return ret;
 }
 
-template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<double_complex_t>()
+template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<double_complex_t>()
 {
 	boost::shared_ptr<CompType> ret = boost::shared_ptr<CompType>(new CompType(sizeof(double_complex_t)));
 	ret->insertMember( "real",  HOFFSET(complex_t,real),   PredType::NATIVE_DOUBLE);
@@ -171,7 +171,7 @@ template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<double_complex_t>()
 	return ret;
 }
 
-template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<AcquisitionHeader_with_data>()
+template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<AcquisitionHeader_with_data>()
 {
 	boost::shared_ptr<CompType> ret = boost::shared_ptr<CompType>(new CompType(sizeof(AcquisitionHeader_with_data)));
 
@@ -186,7 +186,7 @@ template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<AcquisitionHeader_wit
 	return ret;
 }
 
-template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader>()
+template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader>()
 {
 
 	boost::shared_ptr<CompType> ret = boost::shared_ptr<CompType>(new CompType(sizeof(ImageHeader)));
@@ -249,7 +249,7 @@ template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader>()
 }
 
 
-template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader_with_data<float> >()
+template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader_with_data<float> >()
 {
 	boost::shared_ptr<CompType> ret = boost::shared_ptr<CompType>(new CompType(sizeof(ImageHeader_with_data<float>)));
 	boost::shared_ptr<DataType>  head_type = getIsmrmrdHDF5Type<ImageHeader>();
@@ -260,7 +260,7 @@ template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader_with_data
 	return ret;
 }
 
-template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader_with_data<double> >()
+template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader_with_data<double> >()
 {
 	boost::shared_ptr<CompType> ret = boost::shared_ptr<CompType>(new CompType(sizeof(ImageHeader_with_data<double>)));
 	boost::shared_ptr<DataType>  head_type = getIsmrmrdHDF5Type<ImageHeader>();
@@ -271,7 +271,7 @@ template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader_with_data
 	return ret;
 }
 
-template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader_with_data<unsigned short> >()
+template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader_with_data<unsigned short> >()
 {
 	boost::shared_ptr<CompType> ret = boost::shared_ptr<CompType>(new CompType(sizeof(ImageHeader_with_data<unsigned short>)));
 	boost::shared_ptr<DataType>  head_type = getIsmrmrdHDF5Type<ImageHeader>();
@@ -282,7 +282,7 @@ template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader_with_data
 	return ret;
 }
 
-template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader_with_data<complex_t> >()
+template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader_with_data<complex_t> >()
 {
 	boost::shared_ptr<CompType> ret = boost::shared_ptr<CompType>(new CompType(sizeof(ImageHeader_with_data<complex_t>)));
 	boost::shared_ptr<DataType>  head_type = getIsmrmrdHDF5Type<ImageHeader>();
@@ -293,7 +293,7 @@ template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader_with_data
 	return ret;
 }
 
-template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader_with_data<double_complex_t> >()
+template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader_with_data<double_complex_t> >()
 {
 	boost::shared_ptr<CompType> ret = boost::shared_ptr<CompType>(new CompType(sizeof(ImageHeader_with_data<double_complex_t>)));
 	boost::shared_ptr<DataType>  head_type = getIsmrmrdHDF5Type<ImageHeader>();
@@ -304,12 +304,12 @@ template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader_with_data
 	return ret;
 }
 
-template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader_with_data< std::complex<float> > >()
+template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader_with_data< std::complex<float> > >()
 {
 	return getIsmrmrdHDF5Type<ImageHeader_with_data<complex_t> >();
 }
 
-template <> boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader_with_data< std::complex<double> > >()
+template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader_with_data< std::complex<double> > >()
 {
 	return getIsmrmrdHDF5Type<ImageHeader_with_data<double_complex_t> >();
 }
