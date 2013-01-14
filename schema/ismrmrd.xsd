@@ -5,6 +5,8 @@
     <xs:complexType>
       <xs:sequence>
 	<xs:element maxOccurs="1" minOccurs="0" name="subjectInformation" type="subjectInformationType"/>
+	<xs:element maxOccurs="1" minOccurs="0" name="studyInformation" type="studyInformationType"/>
+	<xs:element maxOccurs="1" minOccurs="0" name="measurementInformation" type="measurementInformationType"/>
 	<xs:element maxOccurs="1" minOccurs="0" name="acquisitionSystemInformation" type="acquisitionSystemInformationType"/>
 	<xs:element maxOccurs="1" minOccurs="1" name="experimentalConditions" type="experimentalConditionsType"/>
 	<xs:element maxOccurs="unbounded" minOccurs="1" name="encoding">
@@ -19,7 +21,7 @@
 	  </xs:complexType>
 	</xs:element>
 	<xs:element maxOccurs="1" minOccurs="0" name="parallelImaging" type="parallelImagingType"/>
-	<xs:element maxOccurs="1" minOccurs="0" name="sequenceTiming" type="sequenceTimingType"/>
+	<xs:element maxOccurs="1" minOccurs="0" name="sequenceParameters" type="sequenceParametersType"/>
         <xs:element maxOccurs="1" minOccurs="0" name="dicomParameters" type="dicomParametersType"/>
 	<xs:element maxOccurs="1" minOccurs="0" name="userParameters">
 	  <xs:complexType>
@@ -37,6 +39,26 @@
     <xs:all>
       <xs:element minOccurs="0" name="patientName" type="xs:string"/>
       <xs:element minOccurs="0" name="patientWeight_kg" type="xs:float"/>
+      <xs:element minOccurs="0" name="patientID" type="xs:string"/>
+      <xs:element minOccurs="0" name="patientBirthdate" type="xs:date"/>
+      <xs:element minOccurs="0" name="patientGender">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:pattern value="[MFO]"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="studyInformationType">
+    <xs:all>
+      <xs:element minOccurs="1" name="studyDate" type="xs:date"/>
+      <xs:element minOccurs="1" name="studyTime" type="xs:time"/>
+      <xs:element minOccurs="0" name="studyID" type="xs:string"/>
+      <xs:element minOccurs="0" name="accessionNumber" type="xs:long"/>
+      <xs:element minOccurs="0" name="referringPhysicianName" type="xs:string"/>
+      <xs:element minOccurs="0" name="studyDescription" type="xs:string"/>
     </xs:all>
   </xs:complexType>
 
@@ -53,6 +75,8 @@
       <xs:element minOccurs="0" name="systemFieldStrength_T" type="xs:float"/>
       <xs:element minOccurs="0" name="relativeReceiverNoiseBandwidth" type="xs:float"/>
       <xs:element minOccurs="0" name="receiverChannels" type="xs:unsignedShort"/>
+      <xs:element minOccurs="0" name="institutionName" type="xs:string"/>
+      <xs:element minOccurs="0" name="stationName" type="xs:string"/>
     </xs:all>
   </xs:complexType>
 
@@ -122,7 +146,7 @@
     </xs:sequence>
   </xs:complexType>
 
-  <xs:complexType name="sequenceTimingType">
+  <xs:complexType name="sequenceParametersType">
   	<xs:sequence>
   		<xs:element minOccurs="1" maxOccurs="unbounded" type="xs:float" name="TR"/>
   		<xs:element minOccurs="1" maxOccurs="unbounded" type="xs:float" name="TE"/>
@@ -144,75 +168,66 @@
     </xs:all>
   </xs:complexType>
 
+  <xs:complexType name="measurementInformationType">
+    <xs:all>
+      <xs:element minOccurs="1" name="seriesDate" type="xs:date"/>
+      <xs:element minOccurs="1" name="seriesTime" type="xs:time"/>
+      <xs:element minOccurs="1" name="patientPosition">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="HFP"/>
+            <xs:enumeration value="HFS"/>
+            <xs:enumeration value="HFDR"/>
+            <xs:enumeration value="HFDL"/>
+            <xs:enumeration value="FFP"/>
+            <xs:enumeration value="FFS"/>
+            <xs:enumeration value="FFDR"/>
+            <xs:enumeration value="FFDL"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element minOccurs="0" name="protocolName" type="xs:string"/>
+      <xs:element minOccurs="0" name="seriesDescription" type="xs:string"/>
+    </xs:all>
+  </xs:complexType>
+
   <xs:complexType name="dicomParametersType">
     <xs:all>
-      <xs:element minOccurs="1" maxOccurs="1" name="dicomPatient">
+      <xs:element minOccurs="1" name="studyInstanceUID" type="xs:string"/>
+      <xs:element minOccurs="0" name="seriesInstanceUIDRoot" type="xs:string"/>
+      <xs:element minOccurs="0" name="frameOfReferenceUID" type="xs:string"/>
+
+      <xs:element minOccurs="0" name="referencedImageSequence">
         <xs:complexType>
-          <xs:all>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="patientID"/>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="patientBirthdate"/>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="patientSex"/>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:long" name="patientAge_y"/>
-          </xs:all>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="referencedSOPInstanceUID" type="xs:string"/>
+          </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element minOccurs="1" maxOccurs="1" name="dicomStudy">
+
+      <xs:element minOccurs="0" name="MRImageModule">
         <xs:complexType>
           <xs:all>
-            <xs:element minOccurs="0" maxOccurs="1" name="referencedImageSequence">
-              <xs:complexType>
-                <xs:sequence>
-                  <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:string" name="referencedSOPInstanceUID"/>
-                </xs:sequence>
-              </xs:complexType>
+            <xs:element minOccurs="0" name="imageType" type="xs:string"/>
+            <xs:element minOccurs="0" name="scanningSequence" type="xs:string"/>
+            <xs:element minOccurs="0" name="sequenceVariant" type="xs:string"/>
+            <xs:element minOccurs="0" name="scanOptions" type="xs:string"/>
+            <xs:element minOccurs="0" name="mrAcquisitionType" type="xs:string"/>
+            <xs:element minOccurs="0" name="echoTrainLength" type="xs:long"/>
+            <xs:element minOccurs="0" name="triggerTime" type="xs:float"/>
+            <xs:element minOccurs="0" name="flipAngle_deg" type="xs:long"/>
+            <xs:element minOccurs="0" name="freqEncodingDirection">
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:enumeration value="ROW"/>
+                  <xs:enumeration value="COL"/>
+                </xs:restriction>
+              </xs:simpleType>
             </xs:element>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="studyInstanceUID"/>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:long" name="studyID"/>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="studyDate"/>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="studyTime"/>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="referringPhysicianName"/>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:long" name="accessionNumber"/>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="studyDescription"/>
           </xs:all>
         </xs:complexType>
       </xs:element>
-      <xs:element minOccurs="1" maxOccurs="1" name="dicomSeries">
-        <xs:complexType>
-          <xs:all>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="seriesInstanceUID"/>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:long" name="seriesNumber"/>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="seriesDate"/>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="seriesTime"/>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="protocolName"/>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="seriesDescription"/>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="patientPosition"/>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="frameOfReferenceUID"/>
-          </xs:all>
-        </xs:complexType>
-      </xs:element>
-      <xs:element minOccurs="1" maxOccurs="1" name="dicomMRImage">
-        <xs:complexType>
-          <xs:all>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="imageType"/>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="scanningSequence"/>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="sequenceVariant"/>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="scanOptions"/>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="mrAcquisitionType"/>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:long" name="echoTrainLength"/>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:float" name="triggerTime"/>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:long" name="flipAngle_deg"/>
-            <xs:element minOccurs="1" maxOccurs="1" type="xs:string" name="freqEncodingDirection"/>
-          </xs:all>
-        </xs:complexType>
-      </xs:element>
-      <xs:element minOccurs="0" maxOccurs="1" name="dicomGeneralEquipment">
-        <xs:complexType>
-          <xs:all>
-            <xs:element minOccurs="0" maxOccurs="1" type="xs:string" name="institutionName"/>
-            <xs:element minOccurs="0" maxOccurs="1" type="xs:string" name="stationName"/>
-          </xs:all>
-        </xs:complexType>
-      </xs:element>
+
     </xs:all>
   </xs:complexType>
 
