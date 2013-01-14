@@ -1,0 +1,43 @@
+cmake_minimum_required(VERSION 2.8)
+project(ISMRMRD_EXAMPLES)
+
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+if (WIN32)
+ADD_DEFINITIONS(-DWIN32 -D_WIN32 -D_WINDOWS)
+ADD_DEFINITIONS(-DUNICODE -D_UNICODE)
+ADD_DEFINITIONS(-D_CRT_SECURE_NO_WARNINGS)
+SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
+SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3")
+endif (WIN32)
+
+set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/ismrmrd)
+
+find_package(Ismrmrd REQUIRED)
+find_package(FFTW3 COMPONENTS single REQUIRED)
+
+include_directories (
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${ISMRMRD_INCLUDE_DIR}
+    ${FFTW3_INCLUDE_DIR}
+)
+
+add_executable(ismrmrd_create_dataset test_create_dataset.cpp)
+target_link_libraries(
+    ismrmrd_create_dataset
+    ${ISMRMRD_LIBRARIES}
+    ${ISMRMRD_XSD_LIBRARIES}
+    ${FFTW3_LIBRARIES}
+)
+INSTALL(TARGETS ismrmrd_create_dataset DESTINATION bin)
+
+add_executable(ismrmrd_recon_dataset test_recon_dataset.cpp)
+target_link_libraries(
+    ismrmrd_recon_dataset
+    ${ISMRMRD_LIBRARIES}
+    ${ISMRMRD_XSD_LIBRARIES}
+    ${FFTW3_LIBRARIES}
+)
+INSTALL(TARGETS ismrmrd_recon_dataset DESTINATION bin)
+
+

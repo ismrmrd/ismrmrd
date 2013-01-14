@@ -19,7 +19,6 @@ set(Boost_NO_BOOST_CMAKE ON)
 find_package(Boost COMPONENTS thread system REQUIRED)
 find_package(HDF5 1.8 COMPONENTS C CXX REQUIRED)
 
-
 #Process the XSD files
 SET(XSDS schema/ismrmrd.xsd)
 SET(XSD_ARGS cxx-tree --generate-serialization --export-symbol EXPORTISMRMRDXSD --hxx-prologue-file ${CMAKE_SOURCE_DIR}/ismrmrd_xsd_export.h)
@@ -58,20 +57,6 @@ ENDIF(WIN32)
 
 target_link_libraries(ismrmrd_xsd ${XERCESC_LIBRARIES})
 
-find_package(FFTW3 COMPONENTS single)
-IF(FFTW3_FOUND)
-	MESSAGE("FFTW3 Found, building test applications")
-	INCLUDE_DIRECTORIES(${FFTW3_INCLUDE_DIR})
-	add_executable(ismrmrd_create_dataset test_create_dataset.cpp)
-	target_link_libraries(ismrmrd_create_dataset ${XERCESC_LIBRARIES} ismrmrd ismrmrd_xsd ${FFTW3_LIBRARIES})
-	INSTALL(TARGETS ismrmrd_create_dataset DESTINATION bin)
-	add_executable(ismrmrd_recon_dataset test_recon_dataset.cpp)
-	target_link_libraries(ismrmrd_recon_dataset ${XERCESC_LIBRARIES} ismrmrd ismrmrd_xsd ${FFTW3_LIBRARIES})
-	INSTALL(TARGETS ismrmrd_recon_dataset DESTINATION bin)
-ELSE(FFTW3_FOUND)
-	MESSAGE("FFTW3 NOT Found....cannot build test applications")
-ENDIF(FFTW3_FOUND)
-
 INSTALL(FILES ismrmrd.h ${XSDS_SOURCES} ismrmrd_hdf5.h ismrmrd_hdf5_datatypes.h ismrmrd_export.h DESTINATION include)
 INSTALL(FILES schema/ismrmrd.xsd DESTINATION schema)
 INSTALL(FILES cmake/FindIsmrmrd.cmake DESTINATION cmake)
@@ -80,3 +65,4 @@ INSTALL(TARGETS ismrmrd_xsd DESTINATION lib)
 INSTALL(FILES ${MatlabMFiles} DESTINATION matlab/+ismrmrd)
 
 add_subdirectory(doc)
+add_subdirectory(examples/c++)
