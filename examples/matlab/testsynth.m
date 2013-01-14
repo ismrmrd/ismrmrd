@@ -1,26 +1,37 @@
-% Read an existing file
-f = ismrmrd.file('../examples/data/testdata.h5');
+%% ISMRM Raw Data Matlab Interface
+% Tutorial introduction to the MATLAB interface of the ISMRM Raw Data
+% file format.
 
-% Output file
-synthfile = 'test_mat_synth.h5';
+%% Overview
+% For a detailed description of the ISMRM Raw Data file format, please
+% consult the documentation on the project home page:
+% <http://ismrmrd.sourceforge.com>
+%
+% The ISMRM Raw Data Matlab interface is distributed as a package folder
+% (+ismrmrd) containing a set of Matlab classes and functions and a Java
+% interface to the XML header.
+%
+% Install the package folder and add it to your Matlab path.
+% Change the path below to match your install location.
+addpath('/usr/local/ismrmd/matlab');
 
+%% Creating an ISMRMRD file with synthetic data
+%
 
-% Get its header
-xmlhdr = f.readxml();
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Generate a Synthetic Data Set %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Create a fake signal
+% A simulated object: a square in the middle of an image with value 1.
 nx = 256; ny = 256;
 rho = zeros(nx,ny,'single');
 rho(nx/4+1:3*nx/4,ny/4+1:3*ny/4) = 1;
-kdat = fftshift(fft2(fftshift(rho)));
+
+% The synthetic k-space signal from a conventional evenly sampled MR experiment
+kdata = fftshift(fft2(fftshift(rho)));
 
 % Create a new ISMRMRD file
 g = ismrmrd.file(synthfile);
 
-% Write the xml header
+% Construct the XML header
+
+% Write the XML header
 g.writexml(xmlhdr);
 
 % Initialize the acquisition object
@@ -34,17 +45,15 @@ acq.head.center_sample = nx/2;
 % stuff the data, and append.  For this example, read ky from top to bottom.
 for p = ny:-1:1
     acq.head.idx.kspace_encode_step_1 = p-1;
-    acq.data = kdat(:,p);
-    g.appendAcquisition(acq);
+    acq.data = kdata(:,p);
+    f.appendAcquisition(acq);
 end
 
 % close
-g.close();
+f.close();
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Read it in and reconstruct it %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Reconstruct an image from an existing ISMRMRD file
+%
 % Open the ISMRMRD file
 g = ismrmrd.file(synthfile);
 
@@ -53,6 +62,7 @@ xml = g.readxml();
 
 % Read the number of acquisitions
 nky = g.getNumberOfAcquisitions();
+
 % Read the first acquisition
 acq1 = g.readAcquisition(1);
 nx = acq1.head.number_of_samples;
@@ -70,9 +80,6 @@ rhohat = fftshift(ifft2(fftshift(kdata)));
 
 imagesc(abs(rhohat)); axis image; axis off; colorbar
 title('Reconstructed image');
-
-% close
-g.close();
 
 % close the original dataset
 f.close();
