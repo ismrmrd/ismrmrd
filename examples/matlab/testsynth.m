@@ -13,7 +13,7 @@
 %
 % Install the package folder and add it to your Matlab path.
 % Change the path below to match your install location.
-addpath('/usr/local/ismrmd/matlab');
+%addpath('/usr/local/ismrmd/matlab');
 
 %% Creating an ISMRMRD file with synthetic data
 %
@@ -27,7 +27,7 @@ rho(nx/4+1:3*nx/4,ny/4+1:3*ny/4) = 1;
 kdata = fftshift(fft2(fftshift(rho)));
 
 % Create a new ISMRMRD file
-g = ismrmrd.file(synthfile);
+g = ismrmrd.file('synthetic.h5');
 
 % Construct the XML header
 
