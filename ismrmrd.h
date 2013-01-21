@@ -419,7 +419,8 @@ public:
 
 	NDArrayContainer(const std::vector<unsigned int>& dimensions, T* d) {
 		dimensions_ = dimensions;
-		data_ = std::valarray<T>(d, elements());
+		data_.resize(elements());
+		memcpy(&data_[0],d,sizeof(T)*elements());
 	}
 
 	virtual ~NDArrayContainer() {}

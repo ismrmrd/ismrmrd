@@ -255,7 +255,7 @@ template <typename T> boost::shared_ptr< NDArrayContainer<T> > IsmrmrdDataset::r
 
 		DataSpace memspace(rank,&slice_dims[0]);
 
-		ret->data_ = std::valarray<T>(ret->elements());
+		ret->data_.resize(ret->elements());
 
 		//OK finally ready, now read the data.
 		d.read(reinterpret_cast<void*>(&(ret->data_[0])), *datatype, memspace, dataspace, H5P_DEFAULT);
