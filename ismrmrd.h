@@ -31,6 +31,7 @@ typedef unsigned __int64 uint64_t;
 #include <exception>
 #include <iostream>
 #include <vector>
+#include <valarray>
 #endif
 
 #pragma pack(push, 2) //Use 2 byte alignment
@@ -54,7 +55,7 @@ public:
 		}
 	}
 
-	bool isSet(uint64_t& m) {
+	bool isSet(const uint64_t& m) const {
 		return ((m & bitmask_)>0);
 	}
 
@@ -165,66 +166,78 @@ public:
 		deleteData();
 	}
 
-	bool isFlagSet(FlagBit f) {
+	bool isFlagSet(const FlagBit& f) const {
 		return f.isSet(head_.flags);
 	}
 
-	void setFlag(FlagBit f) {
+	void setFlag(const FlagBit& f) {
 		head_.flags |= f.bitmask_;
 	}
 
 	Acquisition(const Acquisition& a) {   // copy constructor
-		head_ = a.head_;
-		if (head_.trajectory_dimensions > 0) {
-			size_t trajectory_elements = head_.number_of_samples*head_.trajectory_dimensions;
-			try {
-				traj_ = new float[trajectory_elements];
-			} catch (std::exception& e) {
-				std::cerr << "Unable to allocate trajectory in ISMRMRD::Acquisition: " << e.what() << std::endl;
+		
+		if (this != &a) {
+
+			head_ = a.head_;
+			if (head_.trajectory_dimensions > 0) {
+				size_t trajectory_elements = head_.number_of_samples*head_.trajectory_dimensions;
+				try {
+					traj_ = new float[trajectory_elements];
+				} catch (std::exception& e) {
+					std::cerr << "Unable to allocate trajectory in ISMRMRD::Acquisition: " << e.what() << std::endl;
+				}
+				memcpy(traj_,a.traj_,sizeof(float)*trajectory_elements);
+			} else {
+				traj_ = 0;
 			}
-			memcpy(traj_,a.traj_,sizeof(float)*trajectory_elements);
-		} else {
-			traj_ = 0;
+			
+			size_t data_elements = head_.number_of_samples*head_.active_channels;
+			if (data_elements > 0) {
+				try {
+					data_ = new float[data_elements*2]; //*2 for complex
+				} catch (std::exception& e) {
+					std::cerr << "Unable to allocate trajectory in ISMRMRD::Acquisition: " << e.what() << std::endl;
+				}
+				memcpy(data_,a.data_,sizeof(float)*2*data_elements);
+			} else {
+				data_ = 0;
+			}
+
 		}
 
-		size_t data_elements = head_.number_of_samples*head_.active_channels;
-		if (data_elements > 0) {
-			try {
-				data_ = new float[data_elements*2]; //*2 for complex
-			} catch (std::exception& e) {
-				std::cerr << "Unable to allocate trajectory in ISMRMRD::Acquisition: " << e.what() << std::endl;
-			}
-			memcpy(data_,a.data_,sizeof(float)*2*data_elements);
-		} else {
-			data_ = 0;
-		}
 	}
 
 	Acquisition& operator=(const Acquisition& a) {
-		head_ = a.head_;
-		deleteData();
-		if (head_.trajectory_dimensions > 0) {
-			size_t trajectory_elements = head_.number_of_samples*head_.trajectory_dimensions;
-			try {
-				traj_ = new float[trajectory_elements];
-			} catch (std::exception& e) {
-				std::cerr << "Unable to allocate trajectory in ISMRMRD::Acquisition: " << e.what() << std::endl;
-			}
-			memcpy(traj_,a.traj_,sizeof(float)*trajectory_elements);
-		}
 
-		size_t data_elements = head_.number_of_samples*head_.active_channels;
-		if (data_elements > 0) {
-			try {
-				data_ = new float[data_elements*2]; //*2 for complex
-			} catch (std::exception& e) {
-				std::cerr << "Unable to allocate trajectory in ISMRMRD::Acquisition: " << e.what() << std::endl;
+		if (this != &a) {
+
+			head_ = a.head_;
+			deleteData(); // IMHO: Check if we can't use the old data and just overwrite. Way cheaper.
+			if (head_.trajectory_dimensions > 0) {
+				size_t trajectory_elements = head_.number_of_samples*head_.trajectory_dimensions;
+				try {
+					traj_ = new float[trajectory_elements];
+				} catch (std::exception& e) {
+					std::cerr << "Unable to allocate trajectory in ISMRMRD::Acquisition: " << e.what() << std::endl;
+				}
+				memcpy(traj_,a.traj_,sizeof(float)*trajectory_elements);
 			}
-			memcpy(data_,a.data_,sizeof(float)*2*data_elements);
+			
+			size_t data_elements = head_.number_of_samples*head_.active_channels;
+			if (data_elements > 0) {
+				try {
+					data_ = new float[data_elements*2]; //*2 for complex
+				} catch (std::exception& e) {
+					std::cerr << "Unable to allocate trajectory in ISMRMRD::Acquisition: " << e.what() << std::endl;
+				}
+				memcpy(data_,a.data_,sizeof(float)*2*data_elements);
+			}
+
 		}
+		
 		return *this;
 	}
-
+	
 	AcquisitionHeader head_; /**< Header, see above */
 
 	float* traj_;            /**< Trajectory, elements = head_.trajectory_dimensions*head_.number_of_samples
@@ -324,15 +337,18 @@ public:
 		deleteData();
 	}
 
-	bool isFlagSet(FlagBit f) {
+	bool isFlagSet(FlagBit& f) const {
 		return f.isSet(head_.flags);
 	}
 
-	void setFlag(FlagBit f) {
+	void setFlag(FlagBit& f) {
 		head_.flags |= f.bitmask_;
 	}
 
 	Image(const Image& a) {   // copy constructor
+
+		if (this &= &a) {
+
 		head_ = a.head_;
 
 		size_t elements = getNumberOfElements();
@@ -346,9 +362,14 @@ public:
 		} else {
 			data_ = 0;
 		}
+
+		}
+
 	}
 
 	Image& operator=(const Image& a) {
+
+		if (this &= &a) {
 		head_ = a.head_;
 
 		deleteData();
@@ -361,10 +382,13 @@ public:
 			}
 			memcpy(data_,a.data_,sizeof(T)*elements);
 		}
+
+		}
+
 		return *this;
 	}
 
-	size_t getNumberOfElements() {
+	size_t getNumberOfElements() const {
 		return head_.matrix_size[0]*
 				head_.matrix_size[1]*
 				head_.matrix_size[2]*
@@ -395,13 +419,17 @@ public:
 
 	NDArrayContainer(const std::vector<unsigned int>& dimensions, T* d) {
 		dimensions_ = dimensions;
-		data_.assign(d, d+elements());
+		size_t ne = elements();
+
+		data_.resize(ne);
+		memcpy (&data_[0], d, elements()*sizeof(T));
+		//data_.assign(d, d+elements()); REVISIT!
 	}
 
 	virtual ~NDArrayContainer() {}
 
 	std::vector<unsigned int> dimensions_; /**< Array with dimensions of the array. First dimension is fastest moving in the array */
-	std::vector<T> data_;                  /**< The data itself. A vector is used here for easy memory management                  */
+	std::valarray<T> data_;               /**< The data itself. A vector is used here for easy memory management                  */
 
 	size_t elements() const {
 		if (dimensions_.size() == 0) {
