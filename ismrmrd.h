@@ -421,8 +421,8 @@ public:
 		dimensions_ = dimensions;
 		size_t ne = elements();
 
-		data_.resize(ne);
-		memcpy (&data_[0], d, elements()*sizeof(T));
+		data_ = std::valarray<T>(d, ne);
+		//memcpy (&data_[0], d, elements()*sizeof(T));
 		//data_.assign(d, d+elements()); REVISIT!
 	}
 
