@@ -1,4 +1,4 @@
-% Acquisition
+% File
 classdef file
 
     properties
@@ -6,6 +6,7 @@ classdef file
         filename = '';
         datapath = '';
         xmlpath = '';
+        xmlhdr = [];
     end
     
     methods
@@ -22,6 +23,9 @@ classdef file
                 H5P.close(fcpl);
             end
             
+            % Set the filename
+            obj.filename = filename;
+            
             % Set the group name
             %   default is dataset
             if nargin == 1
@@ -33,17 +37,27 @@ classdef file
             obj.datapath  = ['/' groupname '/data'];
             
             % Check if the group exists
-            %   if it does not exist, create it
             lapl_id=H5P.create('H5P_LINK_ACCESS');
             if (H5L.exists(obj.fid,grouppath,lapl_id) == 0)
+                % group does not exist, create it and set a default header
                 group_id = H5G.create(obj.fid, grouppath, 0);
                 H5G.close(group_id);
+                % create a default xml header object
+                obj.xmlhdr = ismrmrd.XMLHeader();
+            else
+                % group exists, read the xml header
+                % and create a new convert it to an xml header object
+                obj.xmlhdr = ismrmrd.XMLHeader().stringToHeader(obj.readxml());
             end
             H5P.close(lapl_id);
         
         end
         
         function obj = close(obj)
+            % synchronize the xml header
+            xmlstring = ismrmrd.XMLHeader.headerToString(obj.xmlhdr);
+            obj.writexml(xmlstring);
+            % close the file
             H5F.close(obj.fid);
         end
         
@@ -82,6 +96,9 @@ classdef file
             % No validation is performed.  You're on your own.
             
             % TODO: add error checking on the write and return a status
+            % TODO: if the matlab variable length string bug is resolved
+            % then we should change this logic to just modify the length
+            % and overwrite.
             
             % Check if the XML header exists
             %   if it does not exist, create it
