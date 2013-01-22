@@ -1,6 +1,8 @@
 The ISMRMRD Matlab Interface
 ============================
 
+The ISMRM raw data file format is based on HDF5.  Each dataset consists of an XML text header and a set of acquisitions or images.  Matlab has very good built-in support for reading HDF5, this makes reading ISMRMRD files into Matlab very straightforward.
+
 XML Header Interface
 --------------------
 The two methods, readxml and writexml, read and write a XML header
@@ -44,9 +46,10 @@ Compiling the JAVA bindings to the XML Header
 --------------------------------------------- 
 Assuming the ismrmrd library was installed in ${ISMRMRD_HOME}, the JAVA interface to the XML header can be created from the XML schema using the JAXB bindings in the following way: 
   cd ${ISMRMRD_HOME}/matlab/+ismrmrd
-  xjc -p org.ismrm.ismrmrd.xmlhdr ${ISMRMRD_HOME}/schema/ismrmrd.xsd
+  xjc -p org.ismrm.ismrmrd.xmlhdr ../schema/ismrmrd.xsd
   javac org/ismrm/ismrmrd/xmlhdr/*.java
-  jar -cvf xmlhdr.jar org/ismrm/ismrmrd/xmlhdr/*.class 
+  jar -cvf xmlhdr.jar org/ismrm/ismrmrd/xmlhdr/*.class
+  javadoc -d xmlhdr.javadoc org/ismrm/ismrmrd/xmlhdr/*.java
   rm -rf org
 
 
