@@ -27,6 +27,7 @@ Developers/Contributors
 * Nick Zwart, Barrow Neurological Institute, Phoenix, Arizona
 * Souheil Inati, National Institutes of Health, USA
 * Joe Naegele, National Institutes of Health, USA
+* Kaveh Vahedipour, Juelich Research Centre, Juelich, Germany
 
 Obtaining and Installing
 -------------------------
@@ -89,7 +90,7 @@ Mac OSX Installation
 
 There are numerous different package management systems for Mac. In this example, we have used MacPorts (http://www.macports.org/). First install the dependencies available in MacPorts::
 
-   sudo port install wget hdf5-18 h5utils boost xercesc3 git cmake doxygen
+   sudo port install wget hdf5-18 h5utils boost xercesc3 git-core git-extras cmake doxygen
 
 Next install CodeSynthesis XSD (http://www.codesynthesis.com/products/xsd/)::
 
@@ -229,15 +230,15 @@ Each raw data acquisition is preceded by the following fixed layout structure:
 
 .. include:: ../ismrmrd.h
    :literal:
-   :start-line: 123
-   :end-line: 148
+   :start-line: 125
+   :end-line: 150
 
 Where EncodingCounters are defined as:
 
 .. include:: ../ismrmrd.h
    :literal:
-   :start-line: 107
-   :end-line: 119
+   :start-line: 109
+   :end-line: 121
 
 The interpretation of some of these fields may vary from sequence to sequence, i.e. for a Cartesian sequence, ``kspace_encode_step_1`` would be the phase encoding step, for a spiral sequence where phase encoding direction does not make sense, it would be the spiral interleave number. The ``encoding_space_ref`` enables the user to tie an acquisition to a specific encoding space (see above) in case there are multiple, e.g. in situations where a calibration scan may be integrated in the acquisition.
 
@@ -270,8 +271,8 @@ As mentioned above, the ISMRMRD format also suggests a way to store reconstructe
 
 .. include:: ../ismrmrd.h
    :literal:
-   :start-line: 279
-   :end-line: 305
+   :start-line: 293
+   :end-line: 319
 
 In a similar fashion to the raw data acquisition data, the intention is to store a header followed by the image data. Since image data can be in several different format (e.g. float, complex, etc.), the memory layout is less well defined but can be described as::
 
@@ -430,13 +431,13 @@ C++ Example Applications
 
 The distribution includes two example applications, one that creates a simple 2D single-channel dataset from scratch and one that reconstructs this dataset (you need FFTW installed to compile these test applications). The data generation application looks like this (``test_create_dataset.cpp``):
 
-.. include:: ../test_create_dataset.cpp
+.. include:: ../examples/c++/test_create_dataset.cpp
    :literal:
    :start-after: /* MAIN APPLICATION */
 
 To reconstruct this synthetic dataset, you can use the test reconstruction application (``test_recon_dataset.cpp``):
 
-.. include:: ../test_recon_dataset.cpp
+.. include:: ../examples/c++/test_recon_dataset.cpp
    :literal:
    :start-after: /* MAIN APPLICATION */
 

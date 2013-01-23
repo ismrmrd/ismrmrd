@@ -9,6 +9,7 @@
     <systemModel>Avanto</systemModel>
     <systemFieldStrength_T>1.494</systemFieldStrength_T>
     <receiverChannels>32</receiverChannels>
+    <relativeReceiverNoiseBandwidth>0.79</relativeReceiverNoiseBandwidth>
   </acquisitionSystemInformation>
   <experimentalConditions>
     <H1resonanceFrequency_Hz>63642459</H1resonanceFrequency_Hz>
@@ -55,12 +56,24 @@
         <maximum>0</maximum>
         <center>0</center>
       </slice>
+      <set>
+        <minimum>0</minimum>
+        <maximum>0</maximum>
+        <center>0</center>
+      </set>
     </encodingLimits>
   </encoding>
-  <sequenceTiming>
+  <parallelImaging>
+    <accelerationFactor>
+      <kspace_encoding_step_1>1</kspace_encoding_step_1>
+      <kspace_encoding_step_2>1</kspace_encoding_step_2>
+    </accelerationFactor>
+    <calibrationMode>other</calibrationMode>
+  </parallelImaging>
+  <sequenceParameters>
     <TR>4.6</TR>
     <TE>2.35</TE>
     <TI>300</TI>
-  </sequenceTiming>
+  </sequenceParameters>
 </ismrmrdHeader>
 
