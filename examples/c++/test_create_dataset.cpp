@@ -110,11 +110,11 @@ int main(int argc, char** argv)
 	//Let's append the data to the file
 	ISMRMRD::Acquisition acq;
 
-	acq.data_ = new float[readout*2];
-	if (!acq.data_) {
+	acq.data_.resize(readout*2);
+/*	if (!acq.data_) {
 		std::cout << "Error allocating memory for the acquisition" << std::endl;
 	}
-
+*/
 	for (unsigned int i = 0; i < phase_encoding_lines; i++) {
 		acq.head_.flags = 0;
 		//Set some flags
@@ -130,7 +130,7 @@ int main(int argc, char** argv)
 		acq.head_.number_of_samples = readout;
 		acq.head_.center_sample = (readout>>1);
 		acq.head_.sample_time_us = 5.0;
-		memcpy(acq.data_,&img_test->data_[i*readout],sizeof(float)*readout*2);
+		memcpy(&acq.data_[0],&img_test->data_[i*readout],sizeof(float)*readout*2);
 		d.appendAcquisition(&acq);
 	}
 

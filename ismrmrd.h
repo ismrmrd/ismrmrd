@@ -149,113 +149,6 @@ struct AcquisitionHeader
 	float              user_float[8];                  /**< Free user parameters */
 };
 
-#ifdef __cplusplus
-class Acquisition
-{
-
-public:
-	Acquisition()
-	: traj_(0)
-	, data_(0)
-	{
-		memset(&head_,0,sizeof(AcquisitionHeader));
-		head_.version = ISMRMRD_VERSION;
-	}
-
-	~Acquisition() {
-		deleteData();
-	}
-
-	bool isFlagSet(const FlagBit& f) const {
-		return f.isSet(head_.flags);
-	}
-
-	void setFlag(const FlagBit& f) {
-		head_.flags |= f.bitmask_;
-	}
-
-	Acquisition(const Acquisition& a) {   // copy constructor
-		
-		if (this != &a) {
-
-			head_ = a.head_;
-			if (head_.trajectory_dimensions > 0) {
-				size_t trajectory_elements = head_.number_of_samples*head_.trajectory_dimensions;
-				try {
-					traj_ = new float[trajectory_elements];
-				} catch (std::exception& e) {
-					std::cerr << "Unable to allocate trajectory in ISMRMRD::Acquisition: " << e.what() << std::endl;
-				}
-				memcpy(traj_,a.traj_,sizeof(float)*trajectory_elements);
-			} else {
-				traj_ = 0;
-			}
-			
-			size_t data_elements = head_.number_of_samples*head_.active_channels;
-			if (data_elements > 0) {
-				try {
-					data_ = new float[data_elements*2]; //*2 for complex
-				} catch (std::exception& e) {
-					std::cerr << "Unable to allocate trajectory in ISMRMRD::Acquisition: " << e.what() << std::endl;
-				}
-				memcpy(data_,a.data_,sizeof(float)*2*data_elements);
-			} else {
-				data_ = 0;
-			}
-
-		}
-
-	}
-
-	Acquisition& operator=(const Acquisition& a) {
-
-		if (this != &a) {
-
-			head_ = a.head_;
-			deleteData(); // IMHO: Check if we can't use the old data and just overwrite. Way cheaper.
-			if (head_.trajectory_dimensions > 0) {
-				size_t trajectory_elements = head_.number_of_samples*head_.trajectory_dimensions;
-				try {
-					traj_ = new float[trajectory_elements];
-				} catch (std::exception& e) {
-					std::cerr << "Unable to allocate trajectory in ISMRMRD::Acquisition: " << e.what() << std::endl;
-				}
-				memcpy(traj_,a.traj_,sizeof(float)*trajectory_elements);
-			}
-			
-			size_t data_elements = head_.number_of_samples*head_.active_channels;
-			if (data_elements > 0) {
-				try {
-					data_ = new float[data_elements*2]; //*2 for complex
-				} catch (std::exception& e) {
-					std::cerr << "Unable to allocate trajectory in ISMRMRD::Acquisition: " << e.what() << std::endl;
-				}
-				memcpy(data_,a.data_,sizeof(float)*2*data_elements);
-			}
-
-		}
-		
-		return *this;
-	}
-	
-	AcquisitionHeader head_; /**< Header, see above */
-
-	float* traj_;            /**< Trajectory, elements = head_.trajectory_dimensions*head_.number_of_samples
-							       [kx,ky,kx,ky.....]        (for head_.trajectory_dimensions = 2)
-							       [kx,ky,kz,kx,ky,kz,.....] (for head_.trajectory_dimensions = 3)           */
-
-	float* data_;            /**< Actual data, elements = head_.number_of_samples*head_.active_channels*2
-	                               [re,im,re,im,.....,re,im,re,im,.....,re,im,re,im,.....]
-	                                 ---channel 1-------channel 2---------channel 3-----                     */
-
-protected:
-	void deleteData() {
-		if (traj_) {delete [] traj_; traj_ = 0;}
-		if (data_) {delete [] data_; data_ = 0;}
-	}
-};
-#endif //__cplusplus
-
 enum ImageDataType
 {
 	DATA_FLOAT = 1,
@@ -318,109 +211,30 @@ struct ImageHeader
 	float              	user_float[8];                  /**< Free user parameters */
 };
 
-#ifdef __cplusplus
-/**
- *   Container for an image (header and data)
- */
-template <typename T> class Image {
-
-public:
-	Image()
-	: data_(0)
-	{
-		memset(&head_,0,sizeof(ImageHeader));
-		head_.version = ISMRMRD_VERSION;
-	}
-
-	~Image()
-	{
-		deleteData();
-	}
-
-	bool isFlagSet(FlagBit& f) const {
-		return f.isSet(head_.flags);
-	}
-
-	void setFlag(FlagBit& f) {
-		head_.flags |= f.bitmask_;
-	}
-
-	Image(const Image& a) {   // copy constructor
-
-		if (this &= &a) {
-
-		head_ = a.head_;
-
-		size_t elements = getNumberOfElements();
-		if (elements > 0) {
-			try {
-				data_ = new T[elements];
-			} catch (std::exception& e) {
-				std::cerr << "Unable to allocate data in ISMRMRD::Image: " << e.what() << std::endl;
-			}
-			memcpy(data_,a.data_,sizeof(T)*elements);
-		} else {
-			data_ = 0;
-		}
-
-		}
-
-	}
-
-	Image& operator=(const Image& a) {
-
-		if (this &= &a) {
-		head_ = a.head_;
-
-		deleteData();
-		size_t elements = getNumberOfElements();
-		if (elements > 0) {
-			try {
-				data_ = new float[elements];
-			} catch (std::exception& e) {
-				std::cerr << "Unable to allocate data in ISMRMRD::Image: " << e.what() << std::endl;
-			}
-			memcpy(data_,a.data_,sizeof(T)*elements);
-		}
-
-		}
-
-		return *this;
-	}
-
-	size_t getNumberOfElements() const {
-		return head_.matrix_size[0]*
-				head_.matrix_size[1]*
-				head_.matrix_size[2]*
-				head_.channels;
-	}
-
-	ImageHeader head_;     /**< ImageHeader as defined above */
-	T* data_;              /**< Data, array of size (matrix_size[0]*matrix_size[1]*matrix_size[2]*channels),
-	                            first spatial dimension is fastest changing array index, channels outer most (slowest changing). */
-
-protected:
-	void deleteData() {
-		if (data_) {
-			delete [] data_;
-			data_ = 0;
-		}
-	}
-
-};
-
 /**
  *  Container for generic array. This structure is used through the HDF5 file interaction.
  */
-template <typename T> class NDArrayContainer
-{
+template <typename T> class NDArrayContainer {
+    
 public:
 	NDArrayContainer() {}
 
+    /**
+     * @brief Construct with dimensions and data
+     */
 	NDArrayContainer(const std::vector<unsigned int>& dimensions, T* d) {
 		dimensions_ = dimensions;
 		data_.resize(elements());
 		memcpy(&data_[0],d,sizeof(T)*elements());
+	}
+
+    /**
+     * @brief Construct with dimensions and preset value
+     */
+	NDArrayContainer(const std::vector<unsigned int>& dimensions, T t = T(0)) {
+		dimensions_ = dimensions;
+		data_.resize(elements());
+        data_ = t;
 	}
 
 	virtual ~NDArrayContainer() {}
@@ -440,6 +254,14 @@ public:
 		return elements;
 	}
 
+    T& operator[] (const size_t& p) {
+        return data_[p];
+    }
+    
+    T operator[] (const size_t& p) const {
+        return data_[p];
+    }
+    
 	bool is_consistent() const {
 		return (elements() == data_.size());
 	}
@@ -453,6 +275,102 @@ public:
 
 };
 
+#ifdef __cplusplus
+/**
+ *   Container for an image (header and data)
+ */
+template <typename T>
+class Image : public NDArrayContainer<T> {
+
+public:
+	Image() {
+		memset(&head_,0,sizeof(ImageHeader));
+		head_.version = ISMRMRD_VERSION;
+	}
+    
+	~Image() {}
+    
+	bool isFlagSet(FlagBit& f) const {
+		return f.isSet(head_.flags);
+	}
+    
+	void setFlag(FlagBit& f) {
+		head_.flags |= f.bitmask_;
+	}
+    
+    Image(const Image& a) {   // copy constructor
+		if (this != &a) {
+            head_ = a.head_;
+            this->data_ = a.data_;
+		}
+	}
+
+	Image& operator=(const Image& a) {
+		if (this != &a) {
+            head_ = a.head_;
+            this->data_ = a.data_;
+		}
+		return *this;
+	}
+
+	size_t getNumberOfElements() const {
+		return head_.matrix_size[0]*
+            head_.matrix_size[1]*
+            head_.matrix_size[2]*
+            head_.channels;
+	}
+
+	ImageHeader head_;     /**< ImageHeader as defined above */
+
+};
+
+/**
+ * @brief Single acquisition
+ */
+class Acquisition : public NDArrayContainer<float> {
+    
+public:
+    
+	Acquisition()
+        : traj_(), data_() {
+		memset(&head_,0,sizeof(AcquisitionHeader));
+		head_.version = ISMRMRD_VERSION;
+	}
+    
+	~Acquisition() {}
+    
+	bool isFlagSet(const FlagBit& f) const {
+		return f.isSet(head_.flags);
+	}
+    
+	void setFlag(const FlagBit& f) {
+		head_.flags |= f.bitmask_;
+	}
+    
+	Acquisition (const Acquisition& a) {   // copy constructor
+		if (this != &a) {
+			head_ = a.head_;
+            traj_ = a.traj_;
+            data_ = a.data_;
+            /* TODO: Consistency checks*/
+		}
+	}
+    
+	Acquisition& operator=(const Acquisition& a) {
+		if (this != &a) {
+            head_ = a.head_;
+            traj_ = a.traj_;
+            data_ = a.data_;
+		}
+		return *this;
+	}
+	
+	AcquisitionHeader head_; /**< Header, see above */
+    
+    std::valarray<float> traj_;
+    std::valarray<float> data_;
+    
+};
 #endif //__cplusplus
 
 

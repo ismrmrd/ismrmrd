@@ -318,10 +318,10 @@ int IsmrmrdDataset::appendAcquisition(Acquisition* a)
 		AcquisitionHeader_with_data tmp;
 		tmp.head = a->head_;
 		tmp.traj.len = tmp.head.trajectory_dimensions*tmp.head.number_of_samples;
-		tmp.traj.p = static_cast<void*>(a->traj_);
+		tmp.traj.p = static_cast<void*>(&a->traj_[0]);
 
 		tmp.data.len = tmp.head.active_channels*tmp.head.number_of_samples*2;
-		tmp.data.p = static_cast<void*>(a->data_);
+		tmp.data.p = static_cast<void*>(&a->data_[0]);
 
 		DataSpace mspace1 = dataset_->getSpace();
 		rank = mspace1.getSimpleExtentNdims();
@@ -446,8 +446,12 @@ boost::shared_ptr< Acquisition > IsmrmrdDataset::readAcquisition(unsigned long i
 
 		ret = boost::shared_ptr<Acquisition>(new Acquisition());
 		ret->head_ = tmp.head;
-		ret->traj_ = reinterpret_cast<float*>(tmp.traj.p);
-		ret->data_ = reinterpret_cast<float*>(tmp.data.p);
+        size_t tl = tmp.traj.len;
+        size_t dl = tmp.data.len;
+        ret->traj_.resize(tl);
+		memcpy(&ret->traj_[0], tmp.traj.p, sizeof(float)*tl);
+        ret->data_.resize(dl);
+		memcpy(&ret->data_[0], tmp.data.p, sizeof(float)*dl);
 
 	} catch (...) {
 		std::cout << "Error caught while attempting to read HDF5 file" << std::endl;
@@ -514,7 +518,7 @@ template <typename T> int IsmrmrdDataset::appendImage(Image<T>& m, const char* v
 	ImageHeader_with_data<T> tmp;
 	tmp.head = m.head_;
 	tmp.data.len = m.getNumberOfElements();
-	tmp.data.p = m.data_;
+	tmp.data.p = &m.data_[0];
 	std::vector<unsigned int> dims(1,1);
 	NDArrayContainer<ImageHeader_with_data<T> > cont(dims, &tmp);
 	return appendArray<ImageHeader_with_data<T> >(cont, varname);
@@ -534,7 +538,10 @@ template <typename T> boost::shared_ptr< Image<T> > IsmrmrdDataset::readImage(co
 	memcpy(&ret->head_, &(tmp->data_[0].head), sizeof(ImageHeader));
 
 	//Here we grab the data, which is part of the hvl_t member of ImageHeader_with_data, which does NOT get deallocated automatically.
-	ret->data_ = reinterpret_cast<T*>(tmp->data_[0].data.p);
+
+    size_t dlen = tmp->data_[0].data.len;
+    ret->data_.resize(dlen);
+	memcpy (&ret->data_, tmp->data_[0].data.p, dlen*sizeof(T));
 	return ret;
 }
 
