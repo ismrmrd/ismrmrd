@@ -308,15 +308,18 @@ public:
     
 	Image (const std::vector<unsigned int>& dimensions, T* d) :
         NDArrayContainer<T> (dimensions, d) {
-        head_.matrix_size[0] = dimensions_[0];
-        head_.matrix_size[1] = dimensions_[1];
-        head_.matrix_size[2] = dimensions_[2];
-        head_.channels = dimensions_[3];
+        head_.matrix_size[0] = dimensions[0];
+        head_.matrix_size[1] = dimensions[1];
+        head_.matrix_size[2] = dimensions[2];
+        head_.channels       = dimensions[3];
 	}
     
 	Image (const std::vector<unsigned int>& dimensions, T t = T(0)) :
         NDArrayContainer<T> (dimensions, t) {
-        //allocate();
+        head_.matrix_size[0] = dimensions[0];
+        head_.matrix_size[1] = dimensions[1];
+        head_.matrix_size[2] = dimensions[2];
+        head_.channels       = dimensions[3];
 	}
     
     Image(const Image& a) {   // copy constructor
