@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 project(ISMRMRD)
 
+enable_testing()
+
 if (WIN32)
 ADD_DEFINITIONS(-DWIN32 -D_WIN32 -D_WINDOWS)
 ADD_DEFINITIONS(-DUNICODE -D_UNICODE)
@@ -66,3 +68,4 @@ INSTALL(FILES ${MatlabMFiles} DESTINATION matlab/+ismrmrd)
 
 add_subdirectory(doc)
 add_subdirectory(examples/c++)
+add_subdirectory(tests/c++)

@@ -32,6 +32,7 @@ typedef unsigned __int64 uint64_t;
 #include <iostream>
 #include <vector>
 #include <valarray>
+#include <assert.h>
 #endif
 
 #pragma pack(push, 2) //Use 2 byte alignment
@@ -211,6 +212,7 @@ struct ImageHeader
 	float              	user_float[8];                  /**< Free user parameters */
 };
 
+#ifdef __cplusplus
 /**
  *  Container for generic array. This structure is used through the HDF5 file interaction.
  */
@@ -222,7 +224,15 @@ public:
     /**
      * @brief Construct with dimensions and data
      */
-	NDArrayContainer(const std::vector<unsigned int>& dimensions, T* d) {
+	NDArrayContainer(const std::vector<unsigned int>& dimensions) {
+		dimensions_ = dimensions;
+		data_.resize(elements());
+	}
+
+    /**
+     * @brief Construct with dimensions and data
+     */
+	NDArrayContainer(const std::vector<unsigned int>& dimensions, const T* d) {
 		dimensions_ = dimensions;
 		data_.resize(elements());
 		memcpy(&data_[0],d,sizeof(T)*elements());
@@ -231,7 +241,7 @@ public:
     /**
      * @brief Construct with dimensions and preset value
      */
-	NDArrayContainer(const std::vector<unsigned int>& dimensions, T t = T(0)) {
+	NDArrayContainer(const std::vector<unsigned int>& dimensions, const T& t) {
 		dimensions_ = dimensions;
 		data_.resize(elements());
         data_ = t;
@@ -261,6 +271,14 @@ public:
     T operator[] (const size_t& p) const {
         return data_[p];
     }
+
+    void resize (const size_t& s) {
+        data_.resize(s);
+    }
+    
+    void resize (const size_t& s, const T& t) {
+        data_.resize(s,t);
+    }
     
 	bool is_consistent() const {
 		return (elements() == data_.size());
@@ -275,27 +293,30 @@ public:
 
 };
 
-#ifdef __cplusplus
 /**
  *   Container for an image (header and data)
  */
 template <typename T>
 class Image : public NDArrayContainer<T> {
-
+    
 public:
-	Image() {
+	Image() :
+        NDArrayContainer<T>() {
 		memset(&head_,0,sizeof(ImageHeader));
 		head_.version = ISMRMRD_VERSION;
 	}
     
-	~Image() {}
-    
-	bool isFlagSet(FlagBit& f) const {
-		return f.isSet(head_.flags);
+	Image (const std::vector<unsigned int>& dimensions, T* d) :
+        NDArrayContainer<T> (dimensions, d) {
+        head_.matrix_size[0] = dimensions_[0];
+        head_.matrix_size[1] = dimensions_[1];
+        head_.matrix_size[2] = dimensions_[2];
+        head_.channels = dimensions_[3];
 	}
     
-	void setFlag(FlagBit& f) {
-		head_.flags |= f.bitmask_;
+	Image (const std::vector<unsigned int>& dimensions, T t = T(0)) :
+        NDArrayContainer<T> (dimensions, t) {
+        //allocate();
 	}
     
     Image(const Image& a) {   // copy constructor
@@ -313,6 +334,16 @@ public:
 		return *this;
 	}
 
+	~Image() {}
+
+	bool isFlagSet(FlagBit& f) const {
+		return f.isSet(head_.flags);
+	}
+    
+	void setFlag(FlagBit& f) {
+		head_.flags |= f.bitmask_;
+	}
+    
 	size_t getNumberOfElements() const {
 		return head_.matrix_size[0]*
             head_.matrix_size[1]*
@@ -321,6 +352,7 @@ public:
 	}
 
 	ImageHeader head_;     /**< ImageHeader as defined above */
+    static const unsigned short MAX_IMAGE_DIMS;
 
 };
 

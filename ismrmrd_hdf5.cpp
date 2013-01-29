@@ -171,7 +171,8 @@ template <typename T> int IsmrmrdDataset::appendArray(NDArrayContainer<T>& a, co
 			for (unsigned int i = 1; i < ddims.size(); i++) {
 				if (a.dimensions_[ddims.size()-1-i] != ddims[i]) {
 					std::cerr << "Error trying to write array to existing HDF5 file. Variable has wrong size." << std::endl;
-					std::cerr << a.dimensions_[ddims.size()-1-i] << ", " << ddims[i] << std::endl;
+					std::cerr << a.dimensions_[ddims.size()-1-i] << ", " << ddims[i];
+					std::cerr << std::endl;
 					return -1;
 				}
 				dims.push_back(ddims[i]);
@@ -531,7 +532,9 @@ template <typename T> boost::shared_ptr< Image<T> > IsmrmrdDataset::readImage(co
 	boost::shared_ptr<NDArrayContainer<ImageHeader_with_data<T> > > tmp = readArray<ImageHeader_with_data<T> >(varname, index);
 
 	if (tmp->elements() != 1) {
-		std::cerr << "IsmrmrdDataset::readImage(..): readArray returned an unexpected number of elements (" << tmp->elements() << "). Should be 1." << std::endl;
+		std::cerr << "IsmrmrdDataset::readImage(..): readArray returned an unexpected number of elements (";
+		std::cerr << tmp->elements() << "). Should be 1.";
+		std::cerr << std::endl;
 		return ret;
 	}
 	//We will copy the header

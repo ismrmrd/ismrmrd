@@ -92,7 +92,7 @@ int main(int argc, char** argv)
 	ISMRMRD::NDArrayContainer< std::complex<float> > buffer;
 	buffer.dimensions_.push_back(e_space.matrixSize().x());
 	buffer.dimensions_.push_back(e_space.matrixSize().y());
-	buffer.data_.resize(e_space.matrixSize().x()*e_space.matrixSize().y(), std::complex<float>(0.0,0.0));
+	buffer.resize(e_space.matrixSize().x()*e_space.matrixSize().y(), std::complex<float>(0.0,0.0));
 
     
 	//Now loop through and copy data
@@ -104,7 +104,7 @@ int main(int argc, char** argv)
 		//Copy data, we should probably be more careful here and do more tests....
 		//We are not considering multiple channels here.
 		unsigned int offset = acq->head_.idx.kspace_encode_step_1*buffer.dimensions_[0];
-		memcpy(&buffer.data_[offset],&acq->data_[0],sizeof(float)*2*buffer.dimensions_[0]);
+		memcpy(&buffer[offset],&acq->data_[0],sizeof(float)*2*buffer.dimensions_[0]);
 	}
 
 	//Let's FFT the k-space to image
