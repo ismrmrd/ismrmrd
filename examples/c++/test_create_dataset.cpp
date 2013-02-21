@@ -110,13 +110,10 @@ int main(int argc, char** argv)
 	//Let's append the data to the file
 	ISMRMRD::Acquisition acq;
 
-	acq.data_.resize(readout*2);
-/*	if (!acq.data_) {
-		std::cout << "Error allocating memory for the acquisition" << std::endl;
-	}
-*/
 	for (unsigned int i = 0; i < phase_encoding_lines; i++) {
-		acq.head_.flags = 0;
+		acq.setFlags(0);
+		//acq.head_.flags = 0;
+
 		//Set some flags
 		if (i == 0) {
 			acq.setFlag(ISMRMRD::FlagBit(ISMRMRD::ACQ_FIRST_IN_SLICE));
@@ -124,13 +121,13 @@ int main(int argc, char** argv)
 		if (i == (phase_encoding_lines-1)) {
 			acq.setFlag(ISMRMRD::FlagBit(ISMRMRD::ACQ_LAST_IN_SLICE));
 		}
-		acq.head_.idx.kspace_encode_step_1 = i;
-		acq.head_.active_channels = 1;
-		acq.head_.available_channels = 1;
-		acq.head_.number_of_samples = readout;
-		acq.head_.center_sample = (readout>>1);
-		acq.head_.sample_time_us = 5.0;
-		memcpy(&acq.data_[0],&img_test->data_[i*readout],sizeof(float)*readout*2);
+		acq.getIdx().kspace_encode_step_1 = i;
+		acq.setActiveChannels(1);
+		acq.setAvailableChannels(1);
+		acq.setNumberOfSamples(readout);
+		acq.setCenterSample(readout>>1);
+		acq.setSampleTimeUs(5.0);
+		memcpy(&acq[0],&img_test->data_[i*readout],sizeof(float)*readout*2);
 		d.appendAcquisition(&acq);
 	}
 

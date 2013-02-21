@@ -103,8 +103,8 @@ int main(int argc, char** argv)
 
 		//Copy data, we should probably be more careful here and do more tests....
 		//We are not considering multiple channels here.
-		unsigned int offset = acq->head_.idx.kspace_encode_step_1*buffer.dimensions_[0];
-		memcpy(&buffer[offset],&acq->data_[0],sizeof(float)*2*buffer.dimensions_[0]);
+		unsigned int offset = acq->getIdx().kspace_encode_step_1*buffer.dimensions_[0];
+		memcpy(&buffer[offset],&acq->getData()[0],sizeof(float)*2*buffer.dimensions_[0]);
 	}
 
 	//Let's FFT the k-space to image
