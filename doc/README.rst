@@ -230,15 +230,15 @@ Each raw data acquisition is preceded by the following fixed layout structure:
 
 .. include:: ../ismrmrd.h
    :literal:
-   :start-line: 125
-   :end-line: 150
+   :start-line: 133
+   :end-line: 160
 
 Where EncodingCounters are defined as:
 
 .. include:: ../ismrmrd.h
    :literal:
-   :start-line: 109
-   :end-line: 121
+   :start-line: 117
+   :end-line: 129
 
 The interpretation of some of these fields may vary from sequence to sequence, i.e. for a Cartesian sequence, ``kspace_encode_step_1`` would be the phase encoding step, for a spiral sequence where phase encoding direction does not make sense, it would be the spiral interleave number. The ``encoding_space_ref`` enables the user to tie an acquisition to a specific encoding space (see above) in case there are multiple, e.g. in situations where a calibration scan may be integrated in the acquisition.
 
@@ -271,8 +271,8 @@ As mentioned above, the ISMRMRD format also suggests a way to store reconstructe
 
 .. include:: ../ismrmrd.h
    :literal:
-   :start-line: 293
-   :end-line: 319
+   :start-line: 196
+   :end-line: 224
 
 In a similar fashion to the raw data acquisition data, the intention is to store a header followed by the image data. Since image data can be in several different format (e.g. float, complex, etc.), the memory layout is less well defined but can be described as::
 
@@ -322,7 +322,9 @@ The ISMRM Raw Data format is stored in HDF5 format. Details on this format can b
      trajectory_dimensions: [1x1281 uint16]
             sample_time_us: [1x1281 single]
                   position: [3x1281 single]
-                quaternion: [4x1281 single]
+           readout_cosines: [3x1281 single]
+             phase_cosines: [3x1281 single]
+             slice_cosines: [3x1281 single]
     patient_table_position: [3x1281 single]
                        idx: [1x1 struct]
                   user_int: [8x1281 int32]

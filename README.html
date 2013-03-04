@@ -3,13 +3,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.9.1: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.10: http://docutils.sourceforge.net/" />
 <title>ISMRM Raw Data Format (ISMRMRD)</title>
 <style type="text/css">
 
 /*
 :Author: David Goodger (goodger@python.org)
-:Id: $Id: html4css1.css 7434 2012-05-11 21:06:27Z milde $
+:Id: $Id: html4css1.css 7514 2012-09-14 14:27:12Z milde $
 :Copyright: This stylesheet has been placed in the public domain.
 
 Default cascading style sheet for the HTML output of Docutils.
@@ -77,7 +77,7 @@ div.tip p.admonition-title {
 
 div.attention p.admonition-title, div.caution p.admonition-title,
 div.danger p.admonition-title, div.error p.admonition-title,
-div.warning p.admonition-title {
+div.warning p.admonition-title, .code .error {
   color: red ;
   font-weight: bold ;
   font-family: sans-serif }
@@ -253,13 +253,14 @@ pre.literal-block, pre.doctest-block, pre.math, pre.code {
   margin-left: 2em ;
   margin-right: 2em }
 
-pre.code .ln { /* line numbers */
-  color: grey;
-}
-
-.code {
-  background-color: #eeeeee
-}
+pre.code .ln { color: grey; } /* line numbers */
+pre.code, code { background-color: #eeeeee }
+pre.code .comment, code .comment { color: #5C6576 }
+pre.code .keyword, code .keyword { color: #3B0D06; font-weight: bold }
+pre.code .literal.string, code .literal.string { color: #0C5404 }
+pre.code .name.builtin, code .name.builtin { color: #352B84 }
+pre.code .deleted, code .deleted { background-color: #DEB0A1}
+pre.code .inserted, code .inserted { background-color: #A3D289}
 
 span.classifier {
   font-family: sans-serif ;
@@ -634,44 +635,46 @@ msbuild .\ISMRMRD.sln /p:Configuration=Release
 <pre class="literal-block">
 struct AcquisitionHeader
 {
-        uint16_t           version;                        /**&lt; First unsigned int indicates the version */
-        uint64_t           flags;                          /**&lt; bit field with flags */
-        uint32_t           measurement_uid;                /**&lt; Unique ID for the measurement */
-        uint32_t           scan_counter;                   /**&lt; Current acquisition number in the measurement */
-        uint32_t           acquisition_time_stamp;         /**&lt; Acquisition clock */
-        uint32_t           physiology_time_stamp[3];       /**&lt; Physiology time stamps, e.g. ecg, breating, etc. */
-        uint16_t           number_of_samples;              /**&lt; Number of samples acquired */
-        uint16_t           available_channels;             /**&lt; Available coils */
-        uint16_t           active_channels;                /**&lt; Active coils on current acquisiton */
-        uint64_t           channel_mask[16];               /**&lt; Mask to indicate which channels are active. Support for 1024 channels */
-        uint16_t           discard_pre;                    /**&lt; Samples to be discarded at the beginning of acquisition */
-        uint16_t           discard_post;                   /**&lt; Samples to be discarded at the end of acquisition */
-        uint16_t           center_sample;                  /**&lt; Sample at the center of k-space */
-        uint16_t           encoding_space_ref;             /**&lt; Reference to an encoding space, typically only one per acquisition */
-        uint16_t           trajectory_dimensions;          /**&lt; Indicates the dimensionality of the trajectory vector (0 means no trajectory) */
-        float              sample_time_us;                 /**&lt; Time between samples in micro seconds, sampling BW */
-        float              position[3];                    /**&lt; Three-dimensional spatial offsets from isocenter */
-        float              quaternion[4];                  /**&lt; Angulation of acquisition */
-        float              patient_table_position[3];      /**&lt; Patient table off-center */
-        EncodingCounters   idx;                            /**&lt; Encoding loop counters, see above */
-        int32_t            user_int[8];                    /**&lt; Free user parameters */
-        float              user_float[8];                  /**&lt; Free user parameters */
+        uint16_t           version;                                          /**&lt; First unsigned int indicates the version */
+        uint64_t           flags;                                            /**&lt; bit field with flags */
+        uint32_t           measurement_uid;                                  /**&lt; Unique ID for the measurement */
+        uint32_t           scan_counter;                                     /**&lt; Current acquisition number in the measurement */
+        uint32_t           acquisition_time_stamp;                           /**&lt; Acquisition clock */
+        uint32_t           physiology_time_stamp[ISMRMRD_PHYS_STAMPS];       /**&lt; Physiology time stamps, e.g. ecg, breating, etc. */
+        uint16_t           number_of_samples;                                /**&lt; Number of samples acquired */
+        uint16_t           available_channels;                               /**&lt; Available coils */
+        uint16_t           active_channels;                                  /**&lt; Active coils on current acquisiton */
+        uint64_t           channel_mask[ISMRMRD_CHANNEL_MASKS];              /**&lt; Mask to indicate which channels are active. Support for 1024 channels */
+        uint16_t           discard_pre;                                      /**&lt; Samples to be discarded at the beginning of acquisition */
+        uint16_t           discard_post;                                     /**&lt; Samples to be discarded at the end of acquisition */
+        uint16_t           center_sample;                                    /**&lt; Sample at the center of k-space */
+        uint16_t           encoding_space_ref;                               /**&lt; Reference to an encoding space, typically only one per acquisition */
+        uint16_t           trajectory_dimensions;                            /**&lt; Indicates the dimensionality of the trajectory vector (0 means no trajectory) */
+        float              sample_time_us;                                   /**&lt; Time between samples in micro seconds, sampling BW */
+        float              position[ISMRMRD_POSITION_LENGTH];                /**&lt; Three-dimensional spatial offsets from isocenter */
+        float              readout_cosines[ISMRMRD_DIRCOSINES_LENGTH];       /**&lt; Directional cosines of the readout/frequency encoding */
+        float              phase_cosines[ISMRMRD_DIRCOSINES_LENGTH];         /**&lt; Directional cosines of the phase */
+        float              slice_cosines[ISMRMRD_DIRCOSINES_LENGTH];         /**&lt; Directional cosines of the slice direction */
+        float              patient_table_position[ISMRMRD_POSITION_LENGTH];  /**&lt; Patient table off-center */
+        EncodingCounters   idx;                                              /**&lt; Encoding loop counters, see above */
+        int32_t            user_int[ISMRMRD_USER_INTS];                      /**&lt; Free user parameters */
+        float              user_float[ISMRMRD_USER_FLOATS];                  /**&lt; Free user parameters */
 };
 
 </pre>
 <p>Where EncodingCounters are defined as:</p>
 <pre class="literal-block">
 struct EncodingCounters {
-        uint16_t kspace_encode_step_1; /**&lt; e.g. phase encoding line number */
-        uint16_t kspace_encode_step_2; /**&lt; e.g. partition encodning number */
-        uint16_t average;              /**&lt; e.g. signal average number */
-        uint16_t slice;                /**&lt; e.g. imaging slice number */
-        uint16_t contrast;             /**&lt; e.g. echo number in multi-echo */
-        uint16_t phase;                /**&lt; e.g. cardiac phase number */
-        uint16_t repetition;           /**&lt; e.g. dynamic number for dynamic scanning */
-        uint16_t set;                  /**&lt; e.g. flow encodning set */
-        uint16_t segment;              /**&lt; e.g. segment number for segmented acquisition */
-        uint16_t user[8];              /**&lt; Free user parameters */
+        uint16_t kspace_encode_step_1;     /**&lt; e.g. phase encoding line number */
+        uint16_t kspace_encode_step_2;     /**&lt; e.g. partition encodning number */
+        uint16_t average;                  /**&lt; e.g. signal average number */
+        uint16_t slice;                    /**&lt; e.g. imaging slice number */
+        uint16_t contrast;                 /**&lt; e.g. echo number in multi-echo */
+        uint16_t phase;                    /**&lt; e.g. cardiac phase number */
+        uint16_t repetition;               /**&lt; e.g. dynamic number for dynamic scanning */
+        uint16_t set;                      /**&lt; e.g. flow encodning set */
+        uint16_t segment;                  /**&lt; e.g. segment number for segmented acquisition */
+        uint16_t user[ISMRMRD_USER_INTS];  /**&lt; Free user parameters */
 };
 
 </pre>
@@ -701,29 +704,31 @@ float* data_;            //Actual data, elements = head_.number_of_samples*head_
 <pre class="literal-block">
 struct ImageHeader
 {
-        uint16_t                version;                        /**&lt; First unsigned int indicates the version */
-        uint64_t                flags;                          /**&lt; bit field with flags */
-        uint32_t                measurement_uid;                /**&lt; Unique ID for the measurement  */
-        uint16_t                matrix_size[3];                 /**&lt; Pixels in the 3 spatial dimensions */
-        float                   field_of_view[3];               /**&lt; Size (in mm) of the 3 spatial dimensions */
-        uint16_t                channels;                       /**&lt; Number of receive channels */
-        float                   position[3];                    /**&lt; Three-dimensional spatial offsets from isocenter */
-        float                   quaternion[4];                  /**&lt; Angulation of acquisition */
-        float                   patient_table_position[3];      /**&lt; Patient table off-center */
-        uint16_t                average;                        /**&lt; e.g. signal average number */
-        uint16_t                slice;                          /**&lt; e.g. imaging slice number */
-        uint16_t                contrast;                       /**&lt; e.g. echo number in multi-echo */
-        uint16_t                phase;                          /**&lt; e.g. cardiac phase number */
-        uint16_t                repetition;                     /**&lt; e.g. dynamic number for dynamic scanning */
-        uint16_t                set;                            /**&lt; e.g. flow encodning set */
-        uint32_t                acquisition_time_stamp;         /**&lt; Acquisition clock */
-        uint32_t                physiology_time_stamp[3];       /**&lt; Physiology time stamps, e.g. ecg, breating, etc. */
-        uint16_t                image_data_type;                /**&lt; e.g. unsigned short, float, complex float, etc. */
-        uint16_t                image_type;                     /**&lt; e.g. magnitude, phase, complex, real, imag, etc. */
-        uint16_t                image_index;                                    /**&lt; e.g. image number in series of images  */
-        uint16_t                        image_series_index;             /**&lt; e.g. series number */
-        int32_t                 user_int[8];                    /**&lt; Free user parameters */
-        float                   user_float[8];                  /**&lt; Free user parameters */
+        uint16_t                version;                                         /**&lt; First unsigned int indicates the version */
+        uint64_t                flags;                                           /**&lt; bit field with flags */
+        uint32_t                measurement_uid;                                 /**&lt; Unique ID for the measurement  */
+        uint16_t                matrix_size[3];                                  /**&lt; Pixels in the 3 spatial dimensions */
+        float                   field_of_view[3];                                /**&lt; Size (in mm) of the 3 spatial dimensions */
+        uint16_t                channels;                                        /**&lt; Number of receive channels */
+        float                   position[ISMRMRD_POSITION_LENGTH];               /**&lt; Three-dimensional spatial offsets from isocenter */
+        float                   readout_cosines[ISMRMRD_DIRCOSINES_LENGTH];      /**&lt; Directional cosines of the readout/frequency encoding */
+        float                   phase_cosines[ISMRMRD_DIRCOSINES_LENGTH];        /**&lt; Directional cosines of the phase */
+        float                   slice_cosines[ISMRMRD_DIRCOSINES_LENGTH];        /**&lt; Directional cosines of the slice direction */
+        float                   patient_table_position[ISMRMRD_POSITION_LENGTH]; /**&lt; Patient table off-center */
+        uint16_t                average;                                         /**&lt; e.g. signal average number */
+        uint16_t                slice;                                           /**&lt; e.g. imaging slice number */
+        uint16_t                contrast;                                        /**&lt; e.g. echo number in multi-echo */
+        uint16_t                phase;                                           /**&lt; e.g. cardiac phase number */
+        uint16_t                repetition;                                      /**&lt; e.g. dynamic number for dynamic scanning */
+        uint16_t                set;                                             /**&lt; e.g. flow encodning set */
+        uint32_t                acquisition_time_stamp;                          /**&lt; Acquisition clock */
+        uint32_t                physiology_time_stamp[ISMRMRD_PHYS_STAMPS];      /**&lt; Physiology time stamps, e.g. ecg, breating, etc. */
+        uint16_t                image_data_type;                                 /**&lt; e.g. unsigned short, float, complex float, etc. */
+        uint16_t                image_type;                                      /**&lt; e.g. magnitude, phase, complex, real, imag, etc. */
+        uint16_t                image_index;                                                     /**&lt; e.g. image number in series of images  */
+        uint16_t                        image_series_index;                              /**&lt; e.g. series number */
+        int32_t                 user_int[ISMRMRD_USER_INTS];                     /**&lt; Free user parameters */
+        float                   user_float[ISMRMRD_USER_FLOATS];                 /**&lt; Free user parameters */
 };
 
 </pre>
@@ -772,7 +777,9 @@ data: {1x1281 cell}
   trajectory_dimensions: [1x1281 uint16]
          sample_time_us: [1x1281 single]
                position: [3x1281 single]
-             quaternion: [4x1281 single]
+        readout_cosines: [3x1281 single]
+          phase_cosines: [3x1281 single]
+          slice_cosines: [3x1281 single]
  patient_table_position: [3x1281 single]
                     idx: [1x1 struct]
                user_int: [8x1281 int32]
@@ -929,13 +936,10 @@ int main(int argc, char** argv)
         //Let's append the data to the file
         ISMRMRD::Acquisition acq;
 
-        acq.data_ = new float[readout*2];
-        if (!acq.data_) {
-                std::cout &lt;&lt; &quot;Error allocating memory for the acquisition&quot; &lt;&lt; std::endl;
-        }
-
         for (unsigned int i = 0; i &lt; phase_encoding_lines; i++) {
-                acq.head_.flags = 0;
+                acq.setFlags(0);
+                //acq.head_.flags = 0;
+
                 //Set some flags
                 if (i == 0) {
                         acq.setFlag(ISMRMRD::FlagBit(ISMRMRD::ACQ_FIRST_IN_SLICE));
@@ -943,13 +947,13 @@ int main(int argc, char** argv)
                 if (i == (phase_encoding_lines-1)) {
                         acq.setFlag(ISMRMRD::FlagBit(ISMRMRD::ACQ_LAST_IN_SLICE));
                 }
-                acq.head_.idx.kspace_encode_step_1 = i;
-                acq.head_.active_channels = 1;
-                acq.head_.available_channels = 1;
-                acq.head_.number_of_samples = readout;
-                acq.head_.center_sample = (readout&gt;&gt;1);
-                acq.head_.sample_time_us = 5.0;
-                memcpy(acq.data_,&amp;img_test-&gt;data_[i*readout],sizeof(float)*readout*2);
+                acq.getIdx().kspace_encode_step_1 = i;
+                acq.setActiveChannels(1);
+                acq.setAvailableChannels(1);
+                acq.setNumberOfSamples(readout);
+                acq.setCenterSample(readout&gt;&gt;1);
+                acq.setSampleTimeUs(5.0);
+                memcpy(&amp;acq[0],&amp;img_test-&gt;data_[i*readout],sizeof(float)*readout*2);
                 d.appendAcquisition(&amp;acq);
         }
 
@@ -1046,12 +1050,14 @@ int main(int argc, char** argv)
                 return -1;
         }
 
+    
         //Allocate a buffer for the data
         ISMRMRD::NDArrayContainer&lt; std::complex&lt;float&gt; &gt; buffer;
         buffer.dimensions_.push_back(e_space.matrixSize().x());
         buffer.dimensions_.push_back(e_space.matrixSize().y());
-        buffer.data_.resize(e_space.matrixSize().x()*e_space.matrixSize().y(), std::complex&lt;float&gt;(0.0,0.0));
+        buffer.resize(e_space.matrixSize().x()*e_space.matrixSize().y(), std::complex&lt;float&gt;(0.0,0.0));
 
+    
         //Now loop through and copy data
         unsigned int number_of_acquisitions = d.getNumberOfAcquisitions();
         for (unsigned int i = 0; i &lt; number_of_acquisitions; i++) {
@@ -1060,8 +1066,8 @@ int main(int argc, char** argv)
 
                 //Copy data, we should probably be more careful here and do more tests....
                 //We are not considering multiple channels here.
-                unsigned int offset = acq-&gt;head_.idx.kspace_encode_step_1*buffer.dimensions_[0];
-                memcpy(&amp;buffer.data_[offset],acq-&gt;data_,sizeof(float)*2*buffer.dimensions_[0]);
+                unsigned int offset = acq-&gt;getIdx().kspace_encode_step_1*buffer.dimensions_[0];
+                memcpy(&amp;buffer[offset],&amp;acq-&gt;getData()[0],sizeof(float)*2*buffer.dimensions_[0]);
         }
 
         //Let's FFT the k-space to image

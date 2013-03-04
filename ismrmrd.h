@@ -40,7 +40,7 @@ typedef unsigned __int64 uint64_t;
 
 #define ISMRMRD_VERSION 1
 #define ISMRMRD_POSITION_LENGTH   3
-#define ISMRMRD_QUATERNION_LENGTH 4
+#define ISMRMRD_DIRCOSINES_LENGTH 3
 #define ISMRMRD_USER_INTS         8
 #define ISMRMRD_USER_FLOATS       8
 #define ISMRMRD_PHYS_STAMPS       8
@@ -150,13 +150,13 @@ struct AcquisitionHeader
 	uint16_t           trajectory_dimensions;                            /**< Indicates the dimensionality of the trajectory vector (0 means no trajectory) */
 	float              sample_time_us;                                   /**< Time between samples in micro seconds, sampling BW */
 	float              position[ISMRMRD_POSITION_LENGTH];                /**< Three-dimensional spatial offsets from isocenter */
-	float              quaternion[ISMRMRD_QUATERNION_LENGTH];            /**< Angulation of acquisition */
+        float              readout_cosines[ISMRMRD_DIRCOSINES_LENGTH];       /**< Directional cosines of the readout/frequency encoding */
+        float              phase_cosines[ISMRMRD_DIRCOSINES_LENGTH];         /**< Directional cosines of the phase */
+        float              slice_cosines[ISMRMRD_DIRCOSINES_LENGTH];         /**< Directional cosines of the slice direction */
 	float              patient_table_position[ISMRMRD_POSITION_LENGTH];  /**< Patient table off-center */
 	EncodingCounters   idx;                                              /**< Encoding loop counters, see above */
 	int32_t            user_int[ISMRMRD_USER_INTS];                      /**< Free user parameters */
 	float              user_float[ISMRMRD_USER_FLOATS];                  /**< Free user parameters */
-
-
 };
 
 enum ImageDataType
@@ -203,7 +203,9 @@ struct ImageHeader
 	float              	field_of_view[3];                                /**< Size (in mm) of the 3 spatial dimensions */
 	uint16_t           	channels;                                        /**< Number of receive channels */
 	float              	position[ISMRMRD_POSITION_LENGTH];               /**< Three-dimensional spatial offsets from isocenter */
-	float              	quaternion[ISMRMRD_QUATERNION_LENGTH];           /**< Angulation of acquisition */
+        float                   readout_cosines[ISMRMRD_DIRCOSINES_LENGTH];      /**< Directional cosines of the readout/frequency encoding */
+        float                   phase_cosines[ISMRMRD_DIRCOSINES_LENGTH];        /**< Directional cosines of the phase */
+        float                   slice_cosines[ISMRMRD_DIRCOSINES_LENGTH];        /**< Directional cosines of the slice direction */
 	float              	patient_table_position[ISMRMRD_POSITION_LENGTH]; /**< Patient table off-center */
 	uint16_t           	average;                                         /**< e.g. signal average number */
 	uint16_t           	slice;                                           /**< e.g. imaging slice number */
@@ -531,19 +533,44 @@ public:
 		}
 	}
 
+        const float getReadoutCosine(unsigned int index) const {
+                if (index < ISMRMRD_DIRCOSINES_LENGTH) {
+                        return head_.readout_cosines[index];
+                }
+                return 0;
+        }
 
-	const float getQuaternion(unsigned int index) const {
-		if (index < ISMRMRD_QUATERNION_LENGTH) {
-			return head_.quaternion[index];
-		}
-		return 0;
-	}
+        void setReadoutCosine(unsigned int index, float value) {
+                if (index < ISMRMRD_DIRCOSINES_LENGTH) {
+                        head_.readout_cosines[index] = value;
+                }
+        }
 
-	void setQuaternion(unsigned int index, float value) {
-		if (index < ISMRMRD_QUATERNION_LENGTH) {
-			head_.quaternion[index] = value;
-		}
-	}
+        const float getPhaseCosine(unsigned int index) const {
+                if (index < ISMRMRD_DIRCOSINES_LENGTH) {
+                        return head_.phase_cosines[index];
+                }
+                return 0;
+        }
+
+        void setPhaseCosine(unsigned int index, float value) {
+                if (index < ISMRMRD_DIRCOSINES_LENGTH) {
+                        head_.phase_cosines[index] = value;
+                }
+        }
+
+        const float getSliceCosine(unsigned int index) const {
+                if (index < ISMRMRD_DIRCOSINES_LENGTH) {
+                        return head_.slice_cosines[index];
+                }
+                return 0;
+        }
+
+        void setSliceCosine(unsigned int index, float value) {
+                if (index < ISMRMRD_DIRCOSINES_LENGTH) {
+                        head_.slice_cosines[index] = value;
+                }
+        }
 
 	uint16_t getPhase() const {
 		return head_.phase;
@@ -891,19 +918,44 @@ public:
 		}
 	}
 
+        const float getReadoutCosine(unsigned int index) const {
+                if (index < ISMRMRD_DIRCOSINES_LENGTH) {
+                        return head_.readout_cosines[index];
+                }
+                return 0;
+        }
 
-	const float getQuaternion(unsigned int index) const {
-		if (index < ISMRMRD_QUATERNION_LENGTH) {
-			return head_.quaternion[index];
-		}
-		return 0;
-	}
+        void setReadoutCosine(unsigned int index, float value) {
+                if (index < ISMRMRD_DIRCOSINES_LENGTH) {
+                        head_.readout_cosines[index] = value;
+                }
+        }
 
-	void setQuaternion(unsigned int index, float value) {
-		if (index < ISMRMRD_QUATERNION_LENGTH) {
-			head_.quaternion[index] = value;
-		}
-	}
+        const float getPhaseCosine(unsigned int index) const {
+                if (index < ISMRMRD_DIRCOSINES_LENGTH) {
+                        return head_.phase_cosines[index];
+                }
+                return 0;
+        }
+
+        void setPhaseCosine(unsigned int index, float value) {
+                if (index < ISMRMRD_DIRCOSINES_LENGTH) {
+                        head_.phase_cosines[index] = value;
+                }
+        }
+
+        const float getSliceCosine(unsigned int index) const {
+                if (index < ISMRMRD_DIRCOSINES_LENGTH) {
+                        return head_.slice_cosines[index];
+                }
+                return 0;
+        }
+
+        void setSliceCosine(unsigned int index, float value) {
+                if (index < ISMRMRD_DIRCOSINES_LENGTH) {
+                        head_.slice_cosines[index] = value;
+                }
+        }
 
 	float getSampleTimeUs() const {
 		return head_.sample_time_us;
