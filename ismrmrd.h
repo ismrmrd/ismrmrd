@@ -40,7 +40,7 @@ typedef unsigned __int64 uint64_t;
 
 #define ISMRMRD_VERSION 1
 #define ISMRMRD_POSITION_LENGTH   3
-#define ISMRMRD_DIRCOSINES_LENGTH 3
+#define ISMRMRD_DIRECTION_LENGTH 3
 #define ISMRMRD_USER_INTS         8
 #define ISMRMRD_USER_FLOATS       8
 #define ISMRMRD_PHYS_STAMPS       8
@@ -129,7 +129,7 @@ struct EncodingCounters {
 };
 
 /**
-     Header for each MR acquisition. 
+     Header for each MR acquisition.
  */
 struct AcquisitionHeader
 {
@@ -150,9 +150,9 @@ struct AcquisitionHeader
 	uint16_t           trajectory_dimensions;                            /**< Indicates the dimensionality of the trajectory vector (0 means no trajectory) */
 	float              sample_time_us;                                   /**< Time between samples in micro seconds, sampling BW */
 	float              position[ISMRMRD_POSITION_LENGTH];                /**< Three-dimensional spatial offsets from isocenter */
-        float              readout_cosines[ISMRMRD_DIRCOSINES_LENGTH];       /**< Directional cosines of the readout/frequency encoding */
-        float              phase_cosines[ISMRMRD_DIRCOSINES_LENGTH];         /**< Directional cosines of the phase */
-        float              slice_cosines[ISMRMRD_DIRCOSINES_LENGTH];         /**< Directional cosines of the slice direction */
+        float              read_dir[ISMRMRD_DIRECTION_LENGTH];               /**< Directional cosines of the readout/frequency encoding */
+        float              phase_dir[ISMRMRD_DIRECTION_LENGTH];              /**< Directional cosines of the phase */
+        float              slice_dir[ISMRMRD_DIRECTION_LENGTH];              /**< Directional cosines of the slice direction */
 	float              patient_table_position[ISMRMRD_POSITION_LENGTH];  /**< Patient table off-center */
 	EncodingCounters   idx;                                              /**< Encoding loop counters, see above */
 	int32_t            user_int[ISMRMRD_USER_INTS];                      /**< Free user parameters */
@@ -203,9 +203,9 @@ struct ImageHeader
 	float              	field_of_view[3];                                /**< Size (in mm) of the 3 spatial dimensions */
 	uint16_t           	channels;                                        /**< Number of receive channels */
 	float              	position[ISMRMRD_POSITION_LENGTH];               /**< Three-dimensional spatial offsets from isocenter */
-        float                   readout_cosines[ISMRMRD_DIRCOSINES_LENGTH];      /**< Directional cosines of the readout/frequency encoding */
-        float                   phase_cosines[ISMRMRD_DIRCOSINES_LENGTH];        /**< Directional cosines of the phase */
-        float                   slice_cosines[ISMRMRD_DIRCOSINES_LENGTH];        /**< Directional cosines of the slice direction */
+        float                   read_dir[ISMRMRD_DIRECTION_LENGTH];              /**< Directional cosines of the readout/frequency encoding */
+        float                   phase_dir[ISMRMRD_DIRECTION_LENGTH];             /**< Directional cosines of the phase */
+        float                   slice_dir[ISMRMRD_DIRECTION_LENGTH];             /**< Directional cosines of the slice direction */
 	float              	patient_table_position[ISMRMRD_POSITION_LENGTH]; /**< Patient table off-center */
 	uint16_t           	average;                                         /**< e.g. signal average number */
 	uint16_t           	slice;                                           /**< e.g. imaging slice number */
@@ -533,42 +533,42 @@ public:
 		}
 	}
 
-        const float getReadoutCosine(unsigned int index) const {
-                if (index < ISMRMRD_DIRCOSINES_LENGTH) {
-                        return head_.readout_cosines[index];
+        const float getReadoutDirection(unsigned int index) const {
+                if (index < ISMRMRD_DIRECTION_LENGTH) {
+                        return head_.read_dir[index];
                 }
                 return 0;
         }
 
-        void setReadoutCosine(unsigned int index, float value) {
-                if (index < ISMRMRD_DIRCOSINES_LENGTH) {
-                        head_.readout_cosines[index] = value;
+        void setReadoutDirection(unsigned int index, float value) {
+                if (index < ISMRMRD_DIRECTION_LENGTH) {
+                        head_.read_dir[index] = value;
                 }
         }
 
-        const float getPhaseCosine(unsigned int index) const {
-                if (index < ISMRMRD_DIRCOSINES_LENGTH) {
-                        return head_.phase_cosines[index];
-                }
-                return 0;
-        }
-
-        void setPhaseCosine(unsigned int index, float value) {
-                if (index < ISMRMRD_DIRCOSINES_LENGTH) {
-                        head_.phase_cosines[index] = value;
-                }
-        }
-
-        const float getSliceCosine(unsigned int index) const {
-                if (index < ISMRMRD_DIRCOSINES_LENGTH) {
-                        return head_.slice_cosines[index];
+        const float getPhaseDirection(unsigned int index) const {
+                if (index < ISMRMRD_DIRECTION_LENGTH) {
+                        return head_.phase_dir[index];
                 }
                 return 0;
         }
 
-        void setSliceCosine(unsigned int index, float value) {
-                if (index < ISMRMRD_DIRCOSINES_LENGTH) {
-                        head_.slice_cosines[index] = value;
+        void setPhaseDirection(unsigned int index, float value) {
+                if (index < ISMRMRD_DIRECTION_LENGTH) {
+                        head_.phase_dir[index] = value;
+                }
+        }
+
+        const float getSliceDirection(unsigned int index) const {
+                if (index < ISMRMRD_DIRECTION_LENGTH) {
+                        return head_.slice_dir[index];
+                }
+                return 0;
+        }
+
+        void setSliceDirection(unsigned int index, float value) {
+                if (index < ISMRMRD_DIRECTION_LENGTH) {
+                        head_.slice_dir[index] = value;
                 }
         }
 
@@ -714,14 +714,14 @@ template <> inline void Image< unsigned short >::setSpecificDataType() {
  *    - Test, test, test.
  */
 class Acquisition {
-    
+
 public:
 	Acquisition()
         : traj_(), data_() {
 		memset(&head_,0,sizeof(AcquisitionHeader));
 		head_.version = ISMRMRD_VERSION;
 	}
-    
+
 	~Acquisition() {}
 
 	Acquisition (const Acquisition& a) {   // copy constructor
@@ -733,7 +733,7 @@ public:
 			memcpy(&traj_[0],&a.traj_[0],sizeof(float)*a.traj_.size());
 		}
 	}
-    
+
 	Acquisition& operator=(const Acquisition& a) {
 		if (this != &a) {
             head_ = a.head_;
@@ -744,7 +744,7 @@ public:
 		}
 		return *this;
 	}
-	
+
 	const AcquisitionHeader& getHead() {
 		return head_;
 	}
@@ -918,42 +918,54 @@ public:
 		}
 	}
 
-        const float getReadoutCosine(unsigned int index) const {
-                if (index < ISMRMRD_DIRCOSINES_LENGTH) {
-                        return head_.readout_cosines[index];
+        /*
+	const float* getPosition() const {
+                return head_.position;
+	}
+
+	void setPosition(float values[ISMRMRD_POSITION_LENGTH]){
+                for (int i=0; i < ISMRMRD_POSITION_LENGTH; i++) {
+			head_.position[i] = values[i];
+		}
+	}
+        */
+
+        const float getReadoutDirection(unsigned int index) const {
+                if (index < ISMRMRD_DIRECTION_LENGTH) {
+                        return head_.read_dir[index];
                 }
                 return 0;
         }
 
-        void setReadoutCosine(unsigned int index, float value) {
-                if (index < ISMRMRD_DIRCOSINES_LENGTH) {
-                        head_.readout_cosines[index] = value;
+        void setReadoutDirection(unsigned int index, float value) {
+                if (index < ISMRMRD_DIRECTION_LENGTH) {
+                        head_.read_dir[index] = value;
                 }
         }
 
-        const float getPhaseCosine(unsigned int index) const {
-                if (index < ISMRMRD_DIRCOSINES_LENGTH) {
-                        return head_.phase_cosines[index];
-                }
-                return 0;
-        }
-
-        void setPhaseCosine(unsigned int index, float value) {
-                if (index < ISMRMRD_DIRCOSINES_LENGTH) {
-                        head_.phase_cosines[index] = value;
-                }
-        }
-
-        const float getSliceCosine(unsigned int index) const {
-                if (index < ISMRMRD_DIRCOSINES_LENGTH) {
-                        return head_.slice_cosines[index];
+        const float getPhaseDirection(unsigned int index) const {
+                if (index < ISMRMRD_DIRECTION_LENGTH) {
+                        return head_.phase_dir[index];
                 }
                 return 0;
         }
 
-        void setSliceCosine(unsigned int index, float value) {
-                if (index < ISMRMRD_DIRCOSINES_LENGTH) {
-                        head_.slice_cosines[index] = value;
+        void setPhaseDirection(unsigned int index, float value) {
+                if (index < ISMRMRD_DIRECTION_LENGTH) {
+                        head_.phase_dir[index] = value;
+                }
+        }
+
+        const float getSliceDirection(unsigned int index) const {
+                if (index < ISMRMRD_DIRECTION_LENGTH) {
+                        return head_.slice_dir[index];
+                }
+                return 0;
+        }
+
+        void setSliceDirection(unsigned int index, float value) {
+                if (index < ISMRMRD_DIRECTION_LENGTH) {
+                        head_.slice_dir[index] = value;
                 }
         }
 
@@ -1064,10 +1076,17 @@ protected:
 	AcquisitionHeader head_; /**< Header, see above */
     std::valarray<float> traj_;
     std::valarray<float> data_;
-    
+
 };
+
 #endif //__cplusplus
 
+/* defined in ismrmrd.c */
+int sign_of_directions(float read_dir[3], float phase_dir[3], float slice_dir[3]);
+void directions_to_quaternion(float read_dir[3], float phase_dir[3],
+        float slice_dir[3], float quat[4]);
+void quaternion_to_directions(float quat[4], float read_dir[3],
+        float phase_dir[3], float slice_dir[3]);
 
 #ifdef __cplusplus
 } //End of ISMRMRD namespace

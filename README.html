@@ -652,9 +652,9 @@ struct AcquisitionHeader
         uint16_t           trajectory_dimensions;                            /**&lt; Indicates the dimensionality of the trajectory vector (0 means no trajectory) */
         float              sample_time_us;                                   /**&lt; Time between samples in micro seconds, sampling BW */
         float              position[ISMRMRD_POSITION_LENGTH];                /**&lt; Three-dimensional spatial offsets from isocenter */
-        float              readout_cosines[ISMRMRD_DIRCOSINES_LENGTH];       /**&lt; Directional cosines of the readout/frequency encoding */
-        float              phase_cosines[ISMRMRD_DIRCOSINES_LENGTH];         /**&lt; Directional cosines of the phase */
-        float              slice_cosines[ISMRMRD_DIRCOSINES_LENGTH];         /**&lt; Directional cosines of the slice direction */
+        float              read_dir[ISMRMRD_DIRECTION_LENGTH];               /**&lt; Directional cosines of the readout/frequency encoding */
+        float              phase_dir[ISMRMRD_DIRECTION_LENGTH];              /**&lt; Directional cosines of the phase */
+        float              slice_dir[ISMRMRD_DIRECTION_LENGTH];              /**&lt; Directional cosines of the slice direction */
         float              patient_table_position[ISMRMRD_POSITION_LENGTH];  /**&lt; Patient table off-center */
         EncodingCounters   idx;                                              /**&lt; Encoding loop counters, see above */
         int32_t            user_int[ISMRMRD_USER_INTS];                      /**&lt; Free user parameters */
@@ -711,9 +711,9 @@ struct ImageHeader
         float                   field_of_view[3];                                /**&lt; Size (in mm) of the 3 spatial dimensions */
         uint16_t                channels;                                        /**&lt; Number of receive channels */
         float                   position[ISMRMRD_POSITION_LENGTH];               /**&lt; Three-dimensional spatial offsets from isocenter */
-        float                   readout_cosines[ISMRMRD_DIRCOSINES_LENGTH];      /**&lt; Directional cosines of the readout/frequency encoding */
-        float                   phase_cosines[ISMRMRD_DIRCOSINES_LENGTH];        /**&lt; Directional cosines of the phase */
-        float                   slice_cosines[ISMRMRD_DIRCOSINES_LENGTH];        /**&lt; Directional cosines of the slice direction */
+        float                   read_dir[ISMRMRD_DIRECTION_LENGTH];              /**&lt; Directional cosines of the readout/frequency encoding */
+        float                   phase_dir[ISMRMRD_DIRECTION_LENGTH];             /**&lt; Directional cosines of the phase */
+        float                   slice_dir[ISMRMRD_DIRECTION_LENGTH];             /**&lt; Directional cosines of the slice direction */
         float                   patient_table_position[ISMRMRD_POSITION_LENGTH]; /**&lt; Patient table off-center */
         uint16_t                average;                                         /**&lt; e.g. signal average number */
         uint16_t                slice;                                           /**&lt; e.g. imaging slice number */
@@ -777,9 +777,9 @@ data: {1x1281 cell}
   trajectory_dimensions: [1x1281 uint16]
          sample_time_us: [1x1281 single]
                position: [3x1281 single]
-        readout_cosines: [3x1281 single]
-          phase_cosines: [3x1281 single]
-          slice_cosines: [3x1281 single]
+               read_dir: [3x1281 single]
+              phase_dir: [3x1281 single]
+              slice_dir: [3x1281 single]
  patient_table_position: [3x1281 single]
                     idx: [1x1 struct]
                user_int: [8x1281 int32]

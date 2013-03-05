@@ -89,9 +89,9 @@ classdef hdf5_datatypes
             typesize = typesize + H5T.get_size('H5T_NATIVE_UINT16'); % trajectory_dimension
             typesize = typesize + H5T.get_size('H5T_NATIVE_FLOAT');  % sample_time_us 
             typesize = typesize + 3*H5T.get_size('H5T_NATIVE_FLOAT'); % position
-            typesize = typesize + 3*H5T.get_size('H5T_NATIVE_FLOAT'); % readout_cosines
-            typesize = typesize + 3*H5T.get_size('H5T_NATIVE_FLOAT'); % phase_cosines
-            typesize = typesize + 3*H5T.get_size('H5T_NATIVE_FLOAT'); % slice_cosines
+            typesize = typesize + 3*H5T.get_size('H5T_NATIVE_FLOAT'); % read_dir
+            typesize = typesize + 3*H5T.get_size('H5T_NATIVE_FLOAT'); % phase_dir
+            typesize = typesize + 3*H5T.get_size('H5T_NATIVE_FLOAT'); % slice_dir
             typesize = typesize + 3*H5T.get_size('H5T_NATIVE_FLOAT'); % patient_table_position
             typesize = typesize + H5T.get_size(ismrmrd.hdf5_datatypes.getType_EncodingCounters()); % idx
             typesize = typesize + 8*H5T.get_size('H5T_NATIVE_INT32'); % user_int
@@ -151,13 +151,13 @@ classdef hdf5_datatypes
             H5T.insert(b, 'position', offset, H5T.array_create('H5T_NATIVE_FLOAT',[3]));
             offset = offset + 3*H5T.get_size('H5T_NATIVE_FLOAT');
 
-            H5T.insert(b, 'readout_cosines', offset, H5T.array_create('H5T_NATIVE_FLOAT',[3]));
+            H5T.insert(b, 'read_dir', offset, H5T.array_create('H5T_NATIVE_FLOAT',[3]));
             offset = offset + 3*H5T.get_size('H5T_NATIVE_FLOAT');
 
-            H5T.insert(b, 'phase_cosines', offset, H5T.array_create('H5T_NATIVE_FLOAT',[3]));
+            H5T.insert(b, 'phase_dir', offset, H5T.array_create('H5T_NATIVE_FLOAT',[3]));
             offset = offset + 3*H5T.get_size('H5T_NATIVE_FLOAT');
 
-            H5T.insert(b, 'slice_cosines', offset, H5T.array_create('H5T_NATIVE_FLOAT',[3]));
+            H5T.insert(b, 'slice_dir', offset, H5T.array_create('H5T_NATIVE_FLOAT',[3]));
             offset = offset + 3*H5T.get_size('H5T_NATIVE_FLOAT');
             
             H5T.insert(b, 'patient_table_position', offset, H5T.array_create('H5T_NATIVE_FLOAT',[3]));
@@ -236,12 +236,12 @@ end
 % 	ret->insertMember( "position", 					HOFFSET(ImageHeader, position), 				*position_array_type);
 % 
 %	dims[0] = 3;
-%	boost::shared_ptr<DataType> phase_cosines_array_type(new ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]));
-%	ret->insertMember( "phase_cosines", 				HOFFSET(ImageHeader, phase_cosines), 			*phase_cosines_array_type);
+%	boost::shared_ptr<DataType> phase_dir_array_type(new ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]));
+%	ret->insertMember( "phase_dir", 				HOFFSET(ImageHeader, phase_dir), 			*phase_dir_array_type);
 %
 %	dims[0] = 3;
-%	boost::shared_ptr<DataType> slice_cosines_array_type(new ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]));
-%	ret->insertMember( "slice_cosines", 				HOFFSET(ImageHeader, slice_cosines), 			*slice_cosines_array_type);
+%	boost::shared_ptr<DataType> slice_dir_array_type(new ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]));
+%	ret->insertMember( "slice_dir", 				HOFFSET(ImageHeader, slice_dir), 			*slice_dir_array_type);
 %
 %	dims[0] = 3;
 %	boost::shared_ptr<DataType> table_array_type(new ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]));

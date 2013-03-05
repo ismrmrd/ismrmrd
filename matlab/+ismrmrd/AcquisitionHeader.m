@@ -18,9 +18,9 @@ classdef AcquisitionHeader
         trajectory_dimensions = uint16(0);             % Indicates the dimensionality of the trajectory vector (0 means no trajectory) %
         sample_time_us = single(0);                    % Time between samples in micro seconds, sampling BW %
         position = zeros(3,1,'single');                % Three-dimensional spatial offsets from isocenter %
-        readout_cosines = zeros(3,1,'single');         % Directional cosines of the readout/frequency encoding %
-        phase_cosines = zeros(3,1,'single');           % Directional cosines of the phase encoding %
-        slice_cosines = zeros(3,1,'single');         % Directional cosines of the slice %
+        read_dir = zeros(3,1,'single');         % Directional cosines of the readout/frequency encoding %
+        phase_dir = zeros(3,1,'single');           % Directional cosines of the phase encoding %
+        slice_dir = zeros(3,1,'single');         % Directional cosines of the slice %
         patient_table_position = zeros(3,1, 'single'); % Patient table off-center %
         idx = ismrmrd.EncodingCounters;                % Encoding loop counters, see above %
         user_int = zeros(8,1,'int32');                 % Free user parameters %
@@ -106,25 +106,25 @@ classdef AcquisitionHeader
             obj.position = single(v);
         end
         
-        function obj = set.readout_cosines(obj,v)
+        function obj = set.read_dir(obj,v)
             if (length(v)~=3)
-                error('AcquisitionHeader.readout_cosines must have 3 elements')
+                error('AcquisitionHeader.read_dir must have 3 elements')
             end            
-            obj.readout_cosines = single(v);
+            obj.read_dir = single(v);
         end
         
-        function obj = set.phase_cosines(obj,v)
+        function obj = set.phase_dir(obj,v)
             if (length(v)~=3)
-                error('AcquisitionHeader.phase_cosines must have 3 elements')
+                error('AcquisitionHeader.phase_dir must have 3 elements')
             end            
-            obj.phase_cosines = single(v);
+            obj.phase_dir = single(v);
         end
         
-        function obj = set.slice_cosines(obj,v)
+        function obj = set.slice_dir(obj,v)
             if (length(v)~=3)
-                error('AcquisitionHeader.slice_cosines must have 3 elements')
+                error('AcquisitionHeader.slice_dir must have 3 elements')
             end            
-            obj.slice_cosines = single(v);
+            obj.slice_dir = single(v);
         end
         
         function obj = set.patient_table_position(obj,v)

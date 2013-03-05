@@ -119,16 +119,16 @@ template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<AcquisitionHea
 	ret->insertMember( "position", 					HOFFSET(AcquisitionHeader, position), 				*position_array_type);
 
 	dims[0] = 3;
-	boost::shared_ptr<DataType> readout_cosines_array_type(new ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]));
-	ret->insertMember( "readout_cosines", 				HOFFSET(AcquisitionHeader, readout_cosines), 			*readout_cosines_array_type);
+	boost::shared_ptr<DataType> read_dir_array_type(new ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]));
+	ret->insertMember( "read_dir", 				HOFFSET(AcquisitionHeader, read_dir), 			*read_dir_array_type);
 
 	dims[0] = 3;
-	boost::shared_ptr<DataType> phase_cosines_array_type(new ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]));
-	ret->insertMember( "phase_cosines", 				HOFFSET(AcquisitionHeader, phase_cosines), 			*phase_cosines_array_type);
+	boost::shared_ptr<DataType> phase_dir_array_type(new ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]));
+	ret->insertMember( "phase_dir", 				HOFFSET(AcquisitionHeader, phase_dir), 			*phase_dir_array_type);
 
 	dims[0] = 3;
-	boost::shared_ptr<DataType> slice_cosines_array_type(new ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]));
-	ret->insertMember( "slice_cosines", 				HOFFSET(AcquisitionHeader, slice_cosines), 			*slice_cosines_array_type);
+	boost::shared_ptr<DataType> slice_dir_array_type(new ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]));
+	ret->insertMember( "slice_dir", 				HOFFSET(AcquisitionHeader, slice_dir), 			*slice_dir_array_type);
 
 	dims[0] = 3;
 	boost::shared_ptr<DataType> table_array_type(new ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]));
@@ -220,16 +220,16 @@ template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader>()
 	ret->insertMember( "position", 					HOFFSET(ImageHeader, position), 				*position_array_type);
 
 	dims[0] = 3;
-	boost::shared_ptr<DataType> readout_cosines_array_type(new ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]));
-	ret->insertMember( "readout_cosines", 				HOFFSET(ImageHeader, readout_cosines), 			*readout_cosines_array_type);
+	boost::shared_ptr<DataType> read_dir_array_type(new ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]));
+	ret->insertMember( "read_dir", 				HOFFSET(ImageHeader, read_dir), 			*read_dir_array_type);
 
 	dims[0] = 3;
-	boost::shared_ptr<DataType> phase_cosines_array_type(new ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]));
-	ret->insertMember( "phase_cosines", 				HOFFSET(ImageHeader, phase_cosines), 			*phase_cosines_array_type);
+	boost::shared_ptr<DataType> phase_dir_array_type(new ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]));
+	ret->insertMember( "phase_dir", 				HOFFSET(ImageHeader, phase_dir), 			*phase_dir_array_type);
 
 	dims[0] = 3;
-	boost::shared_ptr<DataType> slice_cosines_array_type(new ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]));
-	ret->insertMember( "slice_cosines", 				HOFFSET(ImageHeader, slice_cosines), 			*slice_cosines_array_type);
+	boost::shared_ptr<DataType> slice_dir_array_type(new ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]));
+	ret->insertMember( "slice_dir", 				HOFFSET(ImageHeader, slice_dir), 			*slice_dir_array_type);
 
 	dims[0] = 3;
 	boost::shared_ptr<DataType> table_array_type(new ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]));

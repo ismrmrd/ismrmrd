@@ -28,7 +28,7 @@ WRAP_XSD(XSDS_SOURCES XSD_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/schema ${XSDS} OP
 INCLUDE_DIRECTORIES(${XSD_INCLUDES} ${XSD_INCLUDE_DIR} ${XERCESC_INCLUDE_DIR} ${Boost_INCLUDE_DIR} ${HDF5_INCLUDE_DIR} ${HDF5_INCLUDE_DIR}/cpp)
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
-add_library(ismrmrd SHARED ismrmrd_hdf5.cpp)
+add_library(ismrmrd SHARED ismrmrd.cpp ismrmrd_hdf5.cpp)
 add_library(ismrmrd_xsd SHARED ${XSDS_SOURCES})
 
 # Process the MATLAB files
