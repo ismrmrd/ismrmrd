@@ -186,6 +186,7 @@
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
+      <xs:element minOccurs="0" name="initialSeriesNumber" type="xs:long"/>
       <xs:element minOccurs="0" name="protocolName" type="xs:string"/>
       <xs:element minOccurs="0" name="seriesDescription" type="xs:string"/>
     </xs:all>
