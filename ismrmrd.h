@@ -533,14 +533,14 @@ public:
 		}
 	}
 
-        const float getReadoutDirection(unsigned int index) const {
+        const float getReadDirection(unsigned int index) const {
                 if (index < ISMRMRD_DIRECTION_LENGTH) {
                         return head_.read_dir[index];
                 }
                 return 0;
         }
 
-        void setReadoutDirection(unsigned int index, float value) {
+        void setReadDirection(unsigned int index, float value) {
                 if (index < ISMRMRD_DIRECTION_LENGTH) {
                         head_.read_dir[index] = value;
                 }
@@ -799,7 +799,7 @@ public:
 		if (channel_id < 64*ISMRMRD_CHANNEL_MASKS) {
 			unsigned int mask_idx = channel_id>>6;
 			unsigned int mask_bit = channel_id-mask_idx*64;
-			return (head_.channel_mask[mask_idx] & (1 << mask_bit) > 0);
+			return ((head_.channel_mask[mask_idx] & (1 << mask_bit)) > 0);
 		}
 		return false;
 	}
@@ -930,14 +930,14 @@ public:
 	}
         */
 
-        const float getReadoutDirection(unsigned int index) const {
+        const float getReadDirection(unsigned int index) const {
                 if (index < ISMRMRD_DIRECTION_LENGTH) {
                         return head_.read_dir[index];
                 }
                 return 0;
         }
 
-        void setReadoutDirection(unsigned int index, float value) {
+        void setReadDirection(unsigned int index, float value) {
                 if (index < ISMRMRD_DIRECTION_LENGTH) {
                         head_.read_dir[index] = value;
                 }
