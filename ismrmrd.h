@@ -22,6 +22,7 @@ typedef __int64 int64_t;
 typedef unsigned __int64 uint64_t;
 #else
 #include <stdint.h>
+#include <math.h>
 #endif
 #endif
 
@@ -115,7 +116,7 @@ enum AcquisitionFlags {
      Struct used for keeping track of typical loop counters in MR experiment.
 
  */
-struct EncodingCounters {
+typedef struct EncodingCounters {
 	uint16_t kspace_encode_step_1;     /**< e.g. phase encoding line number */
 	uint16_t kspace_encode_step_2;     /**< e.g. partition encodning number */
 	uint16_t average;                  /**< e.g. signal average number */
@@ -126,12 +127,12 @@ struct EncodingCounters {
 	uint16_t set;                      /**< e.g. flow encodning set */
 	uint16_t segment;                  /**< e.g. segment number for segmented acquisition */
 	uint16_t user[ISMRMRD_USER_INTS];  /**< Free user parameters */
-};
+} EncodingCounters;
 
 /**
      Header for each MR acquisition.
  */
-struct AcquisitionHeader
+typedef struct AcquisitionHeader
 {
 	uint16_t           version;                                          /**< First unsigned int indicates the version */
 	uint64_t           flags;                                            /**< bit field with flags */
@@ -157,7 +158,7 @@ struct AcquisitionHeader
 	EncodingCounters   idx;                                              /**< Encoding loop counters, see above */
 	int32_t            user_int[ISMRMRD_USER_INTS];                      /**< Free user parameters */
 	float              user_float[ISMRMRD_USER_FLOATS];                  /**< Free user parameters */
-};
+} AcquisitionHeader;
 
 enum ImageDataType
 {
@@ -194,7 +195,7 @@ enum ImageFlags {
 /**
  *  Definition of ISMRM Raw Data Image structure
  */
-struct ImageHeader
+typedef struct ImageHeader
 {
 	uint16_t           	version;                                         /**< First unsigned int indicates the version */
 	uint64_t           	flags;                                           /**< bit field with flags */
@@ -221,7 +222,7 @@ struct ImageHeader
 	uint16_t			image_series_index;                              /**< e.g. series number */
 	int32_t            	user_int[ISMRMRD_USER_INTS];                     /**< Free user parameters */
 	float              	user_float[ISMRMRD_USER_FLOATS];                 /**< Free user parameters */
-};
+} ImageHeader;
 
 #ifdef __cplusplus
 /**
@@ -1081,10 +1082,13 @@ protected:
 
 #endif //__cplusplus
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /**
  * Calculates the determinant of the matrix and return the sign
  */
-inline int sign_of_directions(float read_dir[3], float phase_dir[3], float slice_dir[3])
+static inline int sign_of_directions(float read_dir[3], float phase_dir[3], float slice_dir[3])
 {
     float r11 = read_dir[0], r12 = phase_dir[0], r13 = slice_dir[0];
     float r21 = read_dir[1], r22 = phase_dir[1], r23 = slice_dir[1];
@@ -1104,7 +1108,7 @@ inline int sign_of_directions(float read_dir[3], float phase_dir[3], float slice
 /**
  * Creates a normalized quaternion from a 3x3 rotation matrix
  */
-inline void directions_to_quaternion(float read_dir[3], float phase_dir[3],
+static inline void directions_to_quaternion(float read_dir[3], float phase_dir[3],
         float slice_dir[3], float quat[4])
 {
     float r11 = read_dir[0], r12 = phase_dir[0], r13 = slice_dir[0];
@@ -1181,7 +1185,7 @@ inline void directions_to_quaternion(float read_dir[3], float phase_dir[3],
  *
  * http://www.cs.princeton.edu/~gewang/projects/darth/stuff/quat_faq.html#Q54
  */
-inline void quaternion_to_directions(float quat[4], float read_dir[3],
+static inline void quaternion_to_directions(float quat[4], float read_dir[3],
         float phase_dir[3], float slice_dir[3])
 {
     float a = quat[0], b = quat[1], c = quat[2], d = quat[3];
@@ -1198,6 +1202,10 @@ inline void quaternion_to_directions(float quat[4], float read_dir[3],
     phase_dir[2] = 2.0 * ( b*c + a*d );
     slice_dir[2] = 1.0 - 2.0 * ( a*a + b*b );
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #ifdef __cplusplus
 } //End of ISMRMRD namespace
