@@ -6,3 +6,4 @@ add_test(t_cstructs ${CMAKE_CURRENT_BINARY_DIR}/t_cstructs)
 
 add_executable(t_cquaternions ../../ismrmrd.h t_cquaternions.c)
 add_test(t_cquaternions ${CMAKE_CURRENT_BINARY_DIR}/t_cquaternions)
+target_link_libraries(t_cquaternions m)

@@ -61,7 +61,7 @@ target_link_libraries(ismrmrd_xsd ${XERCESC_LIBRARIES})
 
 INSTALL(FILES ismrmrd.h ${XSDS_SOURCES} ismrmrd_hdf5.h ismrmrd_hdf5_datatypes.h ismrmrd_export.h DESTINATION include)
 INSTALL(FILES schema/ismrmrd.xsd DESTINATION schema)
-INSTALL(FILES cmake/FindIsmrmrd.cmake DESTINATION cmake)
+INSTALL(FILES cmake/FindIsmrmrd.cmake cmake/FindFFTW3.cmake cmake/FindXSD.cmake cmake/FindXercesC.cmake DESTINATION cmake)
 INSTALL(TARGETS ismrmrd DESTINATION lib)
 INSTALL(TARGETS ismrmrd_xsd DESTINATION lib)
 INSTALL(FILES ${MatlabMFiles} DESTINATION matlab/+ismrmrd)
