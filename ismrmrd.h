@@ -151,9 +151,9 @@ typedef struct AcquisitionHeader
 	uint16_t           trajectory_dimensions;                            /**< Indicates the dimensionality of the trajectory vector (0 means no trajectory) */
 	float              sample_time_us;                                   /**< Time between samples in micro seconds, sampling BW */
 	float              position[ISMRMRD_POSITION_LENGTH];                /**< Three-dimensional spatial offsets from isocenter */
-        float              read_dir[ISMRMRD_DIRECTION_LENGTH];               /**< Directional cosines of the readout/frequency encoding */
-        float              phase_dir[ISMRMRD_DIRECTION_LENGTH];              /**< Directional cosines of the phase */
-        float              slice_dir[ISMRMRD_DIRECTION_LENGTH];              /**< Directional cosines of the slice direction */
+    float              read_dir[ISMRMRD_DIRECTION_LENGTH];               /**< Directional cosines of the readout/frequency encoding */
+    float              phase_dir[ISMRMRD_DIRECTION_LENGTH];              /**< Directional cosines of the phase */
+    float              slice_dir[ISMRMRD_DIRECTION_LENGTH];              /**< Directional cosines of the slice direction */
 	float              patient_table_position[ISMRMRD_POSITION_LENGTH];  /**< Patient table off-center */
 	EncodingCounters   idx;                                              /**< Encoding loop counters, see above */
 	int32_t            user_int[ISMRMRD_USER_INTS];                      /**< Free user parameters */
@@ -197,31 +197,31 @@ enum ImageFlags {
  */
 typedef struct ImageHeader
 {
-	uint16_t           	version;                                         /**< First unsigned int indicates the version */
-	uint64_t           	flags;                                           /**< bit field with flags */
-	uint32_t           	measurement_uid;                                 /**< Unique ID for the measurement  */
-	uint16_t           	matrix_size[3];                                  /**< Pixels in the 3 spatial dimensions */
-	float              	field_of_view[3];                                /**< Size (in mm) of the 3 spatial dimensions */
-	uint16_t           	channels;                                        /**< Number of receive channels */
-	float              	position[ISMRMRD_POSITION_LENGTH];               /**< Three-dimensional spatial offsets from isocenter */
-        float                   read_dir[ISMRMRD_DIRECTION_LENGTH];              /**< Directional cosines of the readout/frequency encoding */
-        float                   phase_dir[ISMRMRD_DIRECTION_LENGTH];             /**< Directional cosines of the phase */
-        float                   slice_dir[ISMRMRD_DIRECTION_LENGTH];             /**< Directional cosines of the slice direction */
-	float              	patient_table_position[ISMRMRD_POSITION_LENGTH]; /**< Patient table off-center */
-	uint16_t           	average;                                         /**< e.g. signal average number */
-	uint16_t           	slice;                                           /**< e.g. imaging slice number */
-	uint16_t           	contrast;                                        /**< e.g. echo number in multi-echo */
-	uint16_t           	phase;                                           /**< e.g. cardiac phase number */
-	uint16_t           	repetition;                                      /**< e.g. dynamic number for dynamic scanning */
-	uint16_t           	set;                                             /**< e.g. flow encodning set */
-	uint32_t           	acquisition_time_stamp;                          /**< Acquisition clock */
-	uint32_t           	physiology_time_stamp[ISMRMRD_PHYS_STAMPS];      /**< Physiology time stamps, e.g. ecg, breating, etc. */
-	uint16_t           	image_data_type;                                 /**< e.g. unsigned short, float, complex float, etc. */
-	uint16_t           	image_type;                                      /**< e.g. magnitude, phase, complex, real, imag, etc. */
-	uint16_t           	image_index;					                 /**< e.g. image number in series of images  */
-	uint16_t			image_series_index;                              /**< e.g. series number */
-	int32_t            	user_int[ISMRMRD_USER_INTS];                     /**< Free user parameters */
-	float              	user_float[ISMRMRD_USER_FLOATS];                 /**< Free user parameters */
+	uint16_t            version;                                         /**< First unsigned int indicates the version */
+	uint64_t            flags;                                           /**< bit field with flags */
+	uint32_t            measurement_uid;                                 /**< Unique ID for the measurement  */
+	uint16_t            matrix_size[3];                                  /**< Pixels in the 3 spatial dimensions */
+	float               field_of_view[3];                                /**< Size (in mm) of the 3 spatial dimensions */
+	uint16_t            channels;                                        /**< Number of receive channels */
+	float               position[ISMRMRD_POSITION_LENGTH];               /**< Three-dimensional spatial offsets from isocenter */
+    float               read_dir[ISMRMRD_DIRECTION_LENGTH];              /**< Directional cosines of the readout/frequency encoding */
+    float               phase_dir[ISMRMRD_DIRECTION_LENGTH];             /**< Directional cosines of the phase */
+    float               slice_dir[ISMRMRD_DIRECTION_LENGTH];             /**< Directional cosines of the slice direction */
+	float               patient_table_position[ISMRMRD_POSITION_LENGTH]; /**< Patient table off-center */
+	uint16_t            average;                                         /**< e.g. signal average number */
+	uint16_t            slice;                                           /**< e.g. imaging slice number */
+	uint16_t            contrast;                                        /**< e.g. echo number in multi-echo */
+	uint16_t            phase;                                           /**< e.g. cardiac phase number */
+	uint16_t            repetition;                                      /**< e.g. dynamic number for dynamic scanning */
+	uint16_t            set;                                             /**< e.g. flow encodning set */
+	uint32_t            acquisition_time_stamp;                          /**< Acquisition clock */
+	uint32_t            physiology_time_stamp[ISMRMRD_PHYS_STAMPS];      /**< Physiology time stamps, e.g. ecg, breating, etc. */
+	uint16_t            image_data_type;                                 /**< e.g. unsigned short, float, complex float, etc. */
+	uint16_t            image_type;                                      /**< e.g. magnitude, phase, complex, real, imag, etc. */
+	uint16_t            image_index;					                 /**< e.g. image number in series of images  */
+	uint16_t            image_series_index;                              /**< e.g. series number */
+	int32_t             user_int[ISMRMRD_USER_INTS];                     /**< Free user parameters */
+	float               user_float[ISMRMRD_USER_FLOATS];                 /**< Free user parameters */
 } ImageHeader;
 
 #ifdef __cplusplus
@@ -1088,7 +1088,7 @@ extern "C" {
 /**
  * Calculates the determinant of the matrix and return the sign
  */
-static inline int sign_of_directions(float read_dir[3], float phase_dir[3], float slice_dir[3])
+static int sign_of_directions(float read_dir[3], float phase_dir[3], float slice_dir[3])
 {
     float r11 = read_dir[0], r12 = phase_dir[0], r13 = slice_dir[0];
     float r21 = read_dir[1], r22 = phase_dir[1], r23 = slice_dir[1];
@@ -1108,7 +1108,7 @@ static inline int sign_of_directions(float read_dir[3], float phase_dir[3], floa
 /**
  * Creates a normalized quaternion from a 3x3 rotation matrix
  */
-static inline void directions_to_quaternion(float read_dir[3], float phase_dir[3],
+static void directions_to_quaternion(float read_dir[3], float phase_dir[3],
         float slice_dir[3], float quat[4])
 {
     float r11 = read_dir[0], r12 = phase_dir[0], r13 = slice_dir[0];
@@ -1185,7 +1185,7 @@ static inline void directions_to_quaternion(float read_dir[3], float phase_dir[3
  *
  * http://www.cs.princeton.edu/~gewang/projects/darth/stuff/quat_faq.html#Q54
  */
-static inline void quaternion_to_directions(float quat[4], float read_dir[3],
+static void quaternion_to_directions(float quat[4], float read_dir[3],
         float phase_dir[3], float slice_dir[3])
 {
     float a = quat[0], b = quat[1], c = quat[2], d = quat[3];

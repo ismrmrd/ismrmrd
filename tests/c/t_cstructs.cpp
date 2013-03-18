@@ -3,12 +3,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-
 int main(void)
 {
     int i;
 
-    EncodingCounters idx;
+    ISMRMRD::EncodingCounters idx;
 
     idx.kspace_encode_step_1 = 1;
     idx.kspace_encode_step_2 = 2;
@@ -23,7 +22,7 @@ int main(void)
         idx.user[i] = i * 42;
     }
 
-    AcquisitionHeader acq_head;
+    ISMRMRD::AcquisitionHeader acq_head;
     acq_head.version = 1;
     acq_head.flags = -1;
     acq_head.measurement_uid = 12345;
@@ -74,7 +73,7 @@ int main(void)
     }
 
 
-    ImageHeader img_head;
+    ISMRMRD::ImageHeader img_head;
     img_head.version = 1;
     img_head.flags = -1;
     img_head.measurement_uid = 12345;
@@ -122,8 +121,8 @@ int main(void)
         img_head.physiology_time_stamp[i] = 1363106388;
     }
 
-    img_head.image_data_type = DATA_FLOAT;
-    img_head.image_type = TYPE_MAGNITUDE;
+    img_head.image_data_type = ISMRMRD::DATA_FLOAT;
+    img_head.image_type = ISMRMRD::TYPE_MAGNITUDE;
     img_head.image_index = 42;
     img_head.image_series_index = 3;
 

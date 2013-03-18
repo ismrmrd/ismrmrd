@@ -12,14 +12,14 @@ int main(void)
     float quaternion[4];
 
     /* convert the direction vectors to a quaternion and verify */
-    directions_to_quaternion(read_dir, phase_dir, slice_dir, quaternion);
+    ISMRMRD::directions_to_quaternion(read_dir, phase_dir, slice_dir, quaternion);
 
     if (!((quaternion[0] == 0.0) && (quaternion[1] == 0.0) && (quaternion[2] == 0.0) && (quaternion[3] == 1.0))) {
         return EXIT_FAILURE;
     }
 
     /* convert the quaternion back to direction cosines and verify */
-    quaternion_to_directions(quaternion, read_dir, phase_dir, slice_dir);
+    ISMRMRD::quaternion_to_directions(quaternion, read_dir, phase_dir, slice_dir);
     int rd = ((read_dir[0] == 1.0) && (read_dir[1] == 0.0) && (read_dir[2] == 0.0));
     int pd = ((phase_dir[0] == 0.0) && (phase_dir[1] == 1.0) && (phase_dir[2] == 0.0));
     int sd = ((slice_dir[0] == 0.0) && (slice_dir[1] == 0.0) && (slice_dir[2] == 1.0));
@@ -29,7 +29,7 @@ int main(void)
     }
 
     /* check that determinant is > 0 */
-    if (sign_of_directions(read_dir, phase_dir, slice_dir) < 0) {
+    if (ISMRMRD::sign_of_directions(read_dir, phase_dir, slice_dir) < 0) {
         return EXIT_FAILURE;
     }
 
@@ -37,7 +37,7 @@ int main(void)
     slice_dir[0] = -slice_dir[0];
     slice_dir[1] = -slice_dir[1];
     slice_dir[2] = -slice_dir[2];
-    if (sign_of_directions(read_dir, phase_dir, slice_dir) > 0) {
+    if (ISMRMRD::sign_of_directions(read_dir, phase_dir, slice_dir) > 0) {
         return EXIT_FAILURE;
     }
 
