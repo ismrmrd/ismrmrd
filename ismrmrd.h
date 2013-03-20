@@ -992,6 +992,7 @@ public:
 
 	void setTrajectoryDimensions(uint16_t trajectoryDimensions) {
 		head_.trajectory_dimensions = trajectoryDimensions;
+		makeConsistent();
 	}
 
 	const float getUserFloat(unsigned int index) const {
