@@ -55,7 +55,6 @@ namespace ISMRMRD
 
 class FlagBit
 {
-
 public:
 	FlagBit(unsigned short b)
 	: bitmask_(0)
