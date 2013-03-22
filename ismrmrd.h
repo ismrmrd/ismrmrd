@@ -1,5 +1,5 @@
 /* ISMRMRD MR Raw Data Strutures                           */
-/* DRAFT - July 2012                                       */
+
 
 /* Authors:                                                */
 /*    Michael S. Hansen (michael.hansen@nih.gov)           */
