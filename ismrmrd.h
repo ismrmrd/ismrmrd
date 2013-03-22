@@ -6,6 +6,9 @@
 /*    Brian Hargreaves  (bah@stanford.edu)                 */
 /*    Sebastian Kozerke (kozerke@biomed.ee.ethz.ch)        */
 /*    Kaveh Vahedipour  (k.vahedipour@fz-juelich.de)       */
+/*    Hui Xue           (hui.xue@nih.gov)                  */
+/*    Souheil Inati     (souheil.inati@nih.gov)            */
+/*    Joeseph Naegele   (joseph.naegele@gmail.com)         */
 
 #pragma once
 #ifndef ISMRMRD_H
