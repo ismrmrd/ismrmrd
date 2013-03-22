@@ -800,7 +800,7 @@ public:
 		if (channel_id < 64*ISMRMRD_CHANNEL_MASKS) {
 			unsigned int mask_idx = channel_id>>6;
 			unsigned int mask_bit = channel_id-mask_idx*64;
-			return ((head_.channel_mask[mask_idx] & (1 << mask_bit)) > 0);
+			return ((head_.channel_mask[mask_idx] & ( (uint64_t)1 << mask_bit)) > 0);
 		}
 		return false;
 	}
@@ -809,7 +809,7 @@ public:
 		if (channel_id < 64*ISMRMRD_CHANNEL_MASKS) {
 			unsigned int mask_idx = channel_id>>6;
 			unsigned int mask_bit = channel_id-mask_idx*64;
-			head_.channel_mask[mask_idx] |= (1 << mask_bit);
+			head_.channel_mask[mask_idx] |= ( (uint64_t)1 << mask_bit);
 		}
 	}
 
