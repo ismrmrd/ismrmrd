@@ -41,9 +41,9 @@ typedef unsigned __int64 uint64_t;
 
 #pragma pack(push, 2) //Use 2 byte alignment
 
-#define ISMRMRD_VERSION 1
+#define ISMRMRD_VERSION           1
 #define ISMRMRD_POSITION_LENGTH   3
-#define ISMRMRD_DIRECTION_LENGTH 3
+#define ISMRMRD_DIRECTION_LENGTH  3
 #define ISMRMRD_USER_INTS         8
 #define ISMRMRD_USER_FLOATS       8
 #define ISMRMRD_PHYS_STAMPS       8
