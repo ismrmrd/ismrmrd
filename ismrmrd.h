@@ -112,7 +112,6 @@ enum AcquisitionFlags {
 	ACQ_USER8                   				= 64
 };
 
-
 /**
      Struct used for keeping track of typical loop counters in MR experiment.
 
