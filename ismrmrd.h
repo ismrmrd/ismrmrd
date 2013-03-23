@@ -77,7 +77,7 @@ public:
 /** ACQUISITION FLAGS */
 enum AcquisitionFlags {
 	/* Looping indicators */
-	ACQ_FIRST_IN_ENCODE_STEP1                	= 1,
+        ACQ_FIRST_IN_ENCODE_STEP1                        	= 1,
 	ACQ_LAST_IN_ENCODE_STEP1    				= 2,
 	ACQ_FIRST_IN_ENCODE_STEP2   				= 3,
 	ACQ_LAST_IN_ENCODE_STEP2    				= 4,
