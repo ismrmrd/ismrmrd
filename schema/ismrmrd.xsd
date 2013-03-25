@@ -28,6 +28,7 @@
 	    <xs:sequence>
 	      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterLong" type="userParameterLongType"/>
 	      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterDouble" type="userParameterDoubleType"/>
+	      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterBase64" type="userParameterBase64Type"/>
 	    </xs:sequence>
 	  </xs:complexType>
 	</xs:element>
@@ -165,6 +166,13 @@
     <xs:all>
       <xs:element name="name" type="xs:string"/>
       <xs:element name="value" type="xs:double"/>
+    </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="userParameterBase64Type">
+    <xs:all>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="value" type="xs:base64Binary"/>
     </xs:all>
   </xs:complexType>
 
