@@ -56,21 +56,21 @@ namespace ISMRMRD
 class FlagBit
 {
 public:
-	FlagBit(unsigned short b)
-	: bitmask_(0)
-	{
-		if (b > 0) {
-			bitmask_ = 1;
-			bitmask_ = (bitmask_ << (b-1));
-		}
-	}
-
-	bool isSet(const uint64_t& m) const {
-		return ((m & bitmask_)>0);
-	}
-
-	uint64_t bitmask_;
-
+ FlagBit(unsigned short b)
+   : bitmask_(0)
+    {
+      if (b > 0) {
+	bitmask_ = 1;
+	bitmask_ = (bitmask_ << (b-1));
+      }
+    }
+  
+  bool isSet(const uint64_t& m) const {
+    return ((m & bitmask_)>0);
+  }
+  
+  uint64_t bitmask_;
+  
 };
 #endif //__cplusplus
 
