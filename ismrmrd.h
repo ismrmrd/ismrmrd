@@ -96,7 +96,7 @@ enum AcquisitionFlags {
 	ACQ_FIRST_IN_SEGMENT        				= 17,
 	ACQ_LAST_IN_SEGMENT         				= 18,
 
-	ACQ_IS_NOISE_MEASUREMENT                	= 19,
+	ACQ_IS_NOISE_MEASUREMENT                  	        = 19,
 	ACQ_IS_PARALLEL_CALIBRATION             	= 20,
 	ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING 	= 21,
 	ACQ_IS_REVERSE              				= 22,
