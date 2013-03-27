@@ -6,20 +6,26 @@
 
 %include "stdint.i"
 
-//%include "carrays.i"
-//%array_class(float, floatArray);
+%extend ISMRMRD::Acquisition {
+    PyObject* getData() {
+        PyObject *list = PyList_New(0);
+
+        std::valarray<float> data = $self->getData();
+
+        int i;
+        for (i = 0; i < data.size(); i++) {
+            PyObject *o = PyFloat_FromDouble((double)data[i]);
+            PyList_Append(list, o);
+            Py_DECREF(o);
+        }
+        return list;
+    }
+
+}
 
 %ignore ISMRMRD::Acquisition::getData;
 
 %include "ismrmrd.h"
-
-%extend ISMRMRD::Acquisition {
-
-    float* getData() {
-        return (float*)(&($self->getData()[0]));
-    }
-    
-}
 
 namespace ISMRMRD {
     %template(Image_ushort) Image<unsigned short int>;
