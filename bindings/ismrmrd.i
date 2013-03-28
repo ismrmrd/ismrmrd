@@ -1,50 +1,16 @@
 %module ismrmrd
 
-%{
-
-#include "ismrmrd_hdf5.h"
-
-%}
+//%{
+//#include "ismrmrd_hdf5.h"
+//%}
 
 %include "stdint.i"
 %include "std_string.i"
-%include "std_vector.i"
-
-#ifdef SWIGPYTHON
-%extend ISMRMRD::Acquisition {
-    PyObject* getData()
-    {
-        PyObject *list = PyList_New(0);
-
-        std::valarray<float> data = $self->getData();
-
-        int i;
-        for (i = 0; i < data.size(); i++) {
-            PyObject *o = PyFloat_FromDouble((double)data[i]);
-            PyList_Append(list, o);
-            Py_DECREF(o);
-        }
-        return list;
-    }
-
-}
-#endif
-
-#ifdef SWIGJAVA
-%extend ISMRMRD::Acquisition {
-    std::vector<float> getData()
-    {
-        std::vector<float> datavec($self->getData().size());
-        memcpy(&(datavec[0]), &($self->getData()[0]), sizeof(float) * $self->getData().size());
-        return datavec;
-    }
-}
-#endif
 
 %ignore ISMRMRD::Acquisition::getData;
 
 /* ISMRMRD::IsmrmrdDataset */
-%newobject ISMRMRD::readAcquisition;
+%newobject ISMRMRD::IsmrmrdDataset::readAcquisition;
 
 %extend ISMRMRD::IsmrmrdDataset {
     std::string readHeader() {

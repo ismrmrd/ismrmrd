@@ -1,3 +1,4 @@
-set(ISMRMRD_SWIG_INTERFACE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/ismrmrd.i)
+set_source_files_properties(ismrmrd.i PROPERTIES CPLUSPLUS ON)
+
 add_subdirectory(python)
 add_subdirectory(java)
