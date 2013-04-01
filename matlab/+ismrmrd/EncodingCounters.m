@@ -14,6 +14,24 @@ classdef EncodingCounters
     end
     
     methods
+
+        % Constructor
+        function obj = EncodingCounters(s)
+            if (nargin == 1)
+                obj.kspace_encode_step_1 = s.kspace_encode_step_1;
+                obj.kspace_encode_step_2 = s.kspace_encode_step_2; 
+                obj.average = s.average;
+                obj.slice = s.slice;
+                obj.contrast = s.contrast;
+                obj.phase = s.phase;
+                obj.repetition = s.repetition;
+                obj.set = s.set;
+                obj.segment = s.segment;
+                obj.user = s.user;
+            end
+        end
+
+        % Set methods
         function obj = set.kspace_encode_step_1(obj,v)
             obj.kspace_encode_step_1 = uint16(v);
         end
