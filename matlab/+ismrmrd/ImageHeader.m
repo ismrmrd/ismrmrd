@@ -2,7 +2,7 @@ classdef ImageHeader
 
     properties
         version = uint16(0);                          % First unsigned int indicates the version %
-        flag = uint64(0);                             % bit field with flags %
+        flags = uint64(0);                             % bit field with flags %
         measurement_uid = uint32(0);                  % Unique ID for the measurement %
         matrix_size = zeros(3,1,'uint16');            % Pixels in the 3 spatial dimensions
         field_of_view = zeros(3,1,'single');          % Size (in mm) of the 3 spatial dimensions %
@@ -30,12 +30,44 @@ classdef ImageHeader
     
     methods
         
+        % Constructor
+        function obj = ImageHeader(s)
+            if (nargin == 1)
+                obj.version = s.version;
+                obj.flags = s.flags;
+                obj.measurement_uid = s.measurement_uid;
+                obj.matrix_size = s.matrix_size;
+                obj.field_of_view = s.field_of_view;
+                obj.channels = s.channels;
+                obj.position = s.position;
+                obj.read_dir = s.read_dir;
+                obj.phase_dir = s.phase_dir;
+                obj_slice_dir = s.slice_dir;
+                obj.patient_table_position = s.patient_table_position;
+                obj.average = s.average;
+                obj.slice = s.slice;
+                obj.contrast = s.contrast;
+                obj.phase = s.phase;
+                obj.repetition = s.repetition;
+                obj.set = s.set;
+                obj.acquisition_time_stamp = s.acquisition_time_stamp;
+                obj.physiology_time_stamp = s.physiology_time_stamp;
+                obj.image_data_type = s.image_data_type;
+                obj.image_type = s.image_type;
+                obj.image_index = s.image_index;
+                obj.image_series_index = s.image_series_index;
+                obj.user_int = s.user_int;
+                obj.user_float = s.user_float;
+            end
+        end
+
+        % Set methods 
         function obj = set.version(obj,v)
             obj.version = uint16(v);
         end
 
-        function obj = set.flag(obj,v)
-            obj.flag = uint64(v);
+        function obj = set.flags(obj,v)
+            obj.flags = uint64(v);
         end
         
         function obj = set.measurement_uid(obj,v)

@@ -6,7 +6,7 @@ classdef AcquisitionHeader
         measurement_uid = uint32(0);                   % Unique ID for the measurement %
         scan_counter = uint32(0);                      % Current acquisition number in the measurement %
         acquisition_time_stamp = uint32(0);            % Acquisition clock %
-        physiology_time_stamp = zeros(3,1,'uint32');   % Physiology time stamps, e.g. ecg, breating, etc. %
+        physiology_time_stamp = zeros(8,1,'uint32');   % Physiology time stamps, e.g. ecg, breating, etc. %
         number_of_samples = uint16(0);                 % Number of samples acquired %
         available_channels = uint16(0);                % Available coils %
         active_channels = uint16(0);                   % Active coils on current acquisiton %
@@ -28,7 +28,38 @@ classdef AcquisitionHeader
     end
     
     methods
-        
+       
+        % Constructor
+        function obj = AcquisitionHeader(s)
+            if (nargin == 1)
+                obj.version = s.version;
+                obj.flags = s.flags;
+                obj.measurement_uid = s.measurement_uid;
+                obj.scan_counter = s.scan_counter;
+                obj.acquisition_time_stamp = s.acquisition_time_stamp;
+                obj.physiology_time_stamp = s.physiology_time_stamp;
+                obj.number_of_samples = s.number_of_samples;
+                obj.available_channels = s.available_channels;
+                obj.active_channels = s.active_channels;
+                obj.channel_mask = s.channel_mask;
+                obj.discard_pre = s.discard_pre;
+                obj.discard_post = s.discard_post;
+                obj.center_sample = s.center_sample;
+                obj.encoding_space_ref = s.encoding_space_ref;
+                obj.trajectory_dimensions = s.trajectory_dimensions;
+                obj.sample_time_us = s.sample_time_us;
+                obj.position = s.position;
+                obj.read_dir = s.read_dir;
+                obj.phase_dir = s.phase_dir;
+                obj_slice_dir = s.slice_dir;
+                obj.patient_table_position = s.patient_table_position;
+                obj.idx = ismrmrd.EncodingCounters(s.idx);
+                obj.user_int = s.user_int;
+                obj.user_float = s.user_float;
+          end
+      end
+
+        % Set methods 
         function obj = set.version(obj,v)
             obj.version = uint16(v);
         end
@@ -50,7 +81,7 @@ classdef AcquisitionHeader
         end
         
         function obj = set.physiology_time_stamp(obj,v)
-            if (length(v)~=3)
+            if (length(v)~=8)
                 error('AcquisitionHeader.physiology_time_stamp must have 3 elements')
             end
             obj.physiology_time_stamp = uint32(v);
