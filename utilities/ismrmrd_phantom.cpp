@@ -102,13 +102,19 @@ boost::shared_ptr<NDArrayContainer< std::complex<float> > > generate_birdcage_se
 	return out;
 }
 
+
+boost::mt19937& get_noise_seed()
+{
+	static boost::mt19937 rng;
+	return rng;
+}
+
 int add_noise(NDArrayContainer< std::complex<float> >& a, float sd)
 {
 
-	static boost::mt19937 rng;
 	boost::normal_distribution<float> nd(0.0, sd);
 	boost::variate_generator<boost::mt19937&,
-	                           boost::normal_distribution<float> > var_nor(rng, nd);
+	                           boost::normal_distribution<float> > var_nor(get_noise_seed(), nd);
 
 	for (size_t i = 0; i < a.data_.size(); i++) {
 		a.data_[i] += std::complex<float>(var_nor(),var_nor());
@@ -117,6 +123,19 @@ int add_noise(NDArrayContainer< std::complex<float> >& a, float sd)
 	return 0;
 }
 
+int add_noise(ISMRMRD::Acquisition& a, float sd)
+{
+
+	boost::normal_distribution<float> nd(0.0, sd);
+	boost::variate_generator<boost::mt19937&,
+	                           boost::normal_distribution<float> > var_nor(get_noise_seed(), nd);
+
+	for (size_t i = 0; i < a.getData().size(); i++) {
+		a[i] += var_nor();
+	}
+
+	return 0;
+}
 };
 
 

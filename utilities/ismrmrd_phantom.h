@@ -66,7 +66,7 @@ namespace ISMRMRD {
 	EXPORTISMRMRDUTILITIES boost::shared_ptr<NDArrayContainer< std::complex<float> > > generate_birdcage_sensititivies(unsigned int matrix_size, unsigned int ncoils, float relative_radius);
 
 	EXPORTISMRMRDUTILITIES int add_noise(NDArrayContainer< std::complex<float> >& a, float sd);
-
+	EXPORTISMRMRDUTILITIES int add_noise(ISMRMRD::Acquisition& a, float sd);
 
 };
 
