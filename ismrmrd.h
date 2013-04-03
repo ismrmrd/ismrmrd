@@ -1,11 +1,13 @@
 /* ISMRMRD MR Raw Data Strutures                           */
-/* DRAFT - July 2012                                       */
-
+/* DRAFT                                                   */
 /* Authors:                                                */
 /*    Michael S. Hansen (michael.hansen@nih.gov)           */
 /*    Brian Hargreaves  (bah@stanford.edu)                 */
 /*    Sebastian Kozerke (kozerke@biomed.ee.ethz.ch)        */
 /*    Kaveh Vahedipour  (k.vahedipour@fz-juelich.de)       */
+/*    Hui Xue           (hui.xue@nih.gov)                  */
+/*    Souheil Inati     (souheil.inati@nih.gov)            */
+/*    Joeseph Naegele   (joseph.naegele@gmail.com)         */
 
 #pragma once
 #ifndef ISMRMRD_H
@@ -39,9 +41,9 @@ typedef unsigned __int64 uint64_t;
 
 #pragma pack(push, 2) //Use 2 byte alignment
 
-#define ISMRMRD_VERSION 1
+#define ISMRMRD_VERSION           1
 #define ISMRMRD_POSITION_LENGTH   3
-#define ISMRMRD_DIRECTION_LENGTH 3
+#define ISMRMRD_DIRECTION_LENGTH  3
 #define ISMRMRD_USER_INTS         8
 #define ISMRMRD_USER_FLOATS       8
 #define ISMRMRD_PHYS_STAMPS       8
@@ -53,30 +55,29 @@ namespace ISMRMRD
 
 class FlagBit
 {
-
 public:
-	FlagBit(unsigned short b)
-	: bitmask_(0)
-	{
-		if (b > 0) {
-			bitmask_ = 1;
-			bitmask_ = (bitmask_ << (b-1));
-		}
-	}
-
-	bool isSet(const uint64_t& m) const {
-		return ((m & bitmask_)>0);
-	}
-
-	uint64_t bitmask_;
-
+ FlagBit(unsigned short b)
+   : bitmask_(0)
+    {
+      if (b > 0) {
+	bitmask_ = 1;
+	bitmask_ = (bitmask_ << (b-1));
+      }
+    }
+  
+  bool isSet(const uint64_t& m) const {
+    return ((m & bitmask_)>0);
+  }
+  
+  uint64_t bitmask_;
+  
 };
 #endif //__cplusplus
 
 /** ACQUISITION FLAGS */
 enum AcquisitionFlags {
 	/* Looping indicators */
-	ACQ_FIRST_IN_ENCODE_STEP1                	= 1,
+        ACQ_FIRST_IN_ENCODE_STEP1                        	= 1,
 	ACQ_LAST_IN_ENCODE_STEP1    				= 2,
 	ACQ_FIRST_IN_ENCODE_STEP2   				= 3,
 	ACQ_LAST_IN_ENCODE_STEP2    				= 4,
@@ -95,7 +96,7 @@ enum AcquisitionFlags {
 	ACQ_FIRST_IN_SEGMENT        				= 17,
 	ACQ_LAST_IN_SEGMENT         				= 18,
 
-	ACQ_IS_NOISE_MEASUREMENT                	= 19,
+	ACQ_IS_NOISE_MEASUREMENT                  	        = 19,
 	ACQ_IS_PARALLEL_CALIBRATION             	= 20,
 	ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING 	= 21,
 	ACQ_IS_REVERSE              				= 22,
@@ -110,7 +111,6 @@ enum AcquisitionFlags {
 	ACQ_USER7                   				= 63,
 	ACQ_USER8                   				= 64
 };
-
 
 /**
      Struct used for keeping track of typical loop counters in MR experiment.
@@ -800,7 +800,7 @@ public:
 		if (channel_id < 64*ISMRMRD_CHANNEL_MASKS) {
 			unsigned int mask_idx = channel_id>>6;
 			unsigned int mask_bit = channel_id-mask_idx*64;
-			return ((head_.channel_mask[mask_idx] & (1 << mask_bit)) > 0);
+			return ((head_.channel_mask[mask_idx] & ( (uint64_t)1 << mask_bit)) > 0);
 		}
 		return false;
 	}
@@ -809,7 +809,7 @@ public:
 		if (channel_id < 64*ISMRMRD_CHANNEL_MASKS) {
 			unsigned int mask_idx = channel_id>>6;
 			unsigned int mask_bit = channel_id-mask_idx*64;
-			head_.channel_mask[mask_idx] |= (1 << mask_bit);
+			head_.channel_mask[mask_idx] |= ( (uint64_t)1 << mask_bit);
 		}
 	}
 
@@ -980,6 +980,7 @@ public:
 
 	void setTrajectoryDimensions(uint16_t trajectoryDimensions) {
 		head_.trajectory_dimensions = trajectoryDimensions;
+		makeConsistent();
 	}
 
 	const float getUserFloat(unsigned int index) const {
