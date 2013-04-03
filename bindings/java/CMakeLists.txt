@@ -20,3 +20,6 @@ add_custom_command(
     COMMENT "Generating java class files and ismrmrd.jar" VERBATIM
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+install(TARGETS jismrmrd DESTINATION lib)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ismrmrd.jar DESTINATION lib)
