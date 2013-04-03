@@ -151,9 +151,9 @@ typedef struct AcquisitionHeader
 	uint16_t           trajectory_dimensions;                            /**< Indicates the dimensionality of the trajectory vector (0 means no trajectory) */
 	float              sample_time_us;                                   /**< Time between samples in micro seconds, sampling BW */
 	float              position[ISMRMRD_POSITION_LENGTH];                /**< Three-dimensional spatial offsets from isocenter */
-    float              read_dir[ISMRMRD_DIRECTION_LENGTH];               /**< Directional cosines of the readout/frequency encoding */
-    float              phase_dir[ISMRMRD_DIRECTION_LENGTH];              /**< Directional cosines of the phase */
-    float              slice_dir[ISMRMRD_DIRECTION_LENGTH];              /**< Directional cosines of the slice direction */
+	float              read_dir[ISMRMRD_DIRECTION_LENGTH];               /**< Directional cosines of the readout/frequency encoding */
+	float              phase_dir[ISMRMRD_DIRECTION_LENGTH];              /**< Directional cosines of the phase */
+	float              slice_dir[ISMRMRD_DIRECTION_LENGTH];              /**< Directional cosines of the slice direction */
 	float              patient_table_position[ISMRMRD_POSITION_LENGTH];  /**< Patient table off-center */
 	EncodingCounters   idx;                                              /**< Encoding loop counters, see above */
 	int32_t            user_int[ISMRMRD_USER_INTS];                      /**< Free user parameters */
@@ -204,9 +204,9 @@ typedef struct ImageHeader
 	float               field_of_view[3];                                /**< Size (in mm) of the 3 spatial dimensions */
 	uint16_t            channels;                                        /**< Number of receive channels */
 	float               position[ISMRMRD_POSITION_LENGTH];               /**< Three-dimensional spatial offsets from isocenter */
-    float               read_dir[ISMRMRD_DIRECTION_LENGTH];              /**< Directional cosines of the readout/frequency encoding */
-    float               phase_dir[ISMRMRD_DIRECTION_LENGTH];             /**< Directional cosines of the phase */
-    float               slice_dir[ISMRMRD_DIRECTION_LENGTH];             /**< Directional cosines of the slice direction */
+	float               read_dir[ISMRMRD_DIRECTION_LENGTH];              /**< Directional cosines of the readout/frequency encoding */
+	float               phase_dir[ISMRMRD_DIRECTION_LENGTH];             /**< Directional cosines of the phase */
+	float               slice_dir[ISMRMRD_DIRECTION_LENGTH];             /**< Directional cosines of the slice direction */
 	float               patient_table_position[ISMRMRD_POSITION_LENGTH]; /**< Patient table off-center */
 	uint16_t            average;                                         /**< e.g. signal average number */
 	uint16_t            slice;                                           /**< e.g. imaging slice number */
@@ -253,10 +253,10 @@ public:
     /**
      * @brief Construct with dimensions and preset value
      */
-	NDArrayContainer(const std::vector<unsigned int>& dimensions, const T& t) {
+	NDArrayContainer(const std::vector<unsigned int>& dimensions, const std::valarray<T>& t) {
 		dimensions_ = dimensions;
 		data_.resize(elements());
-        data_ = t;
+		data_ = t;
 	}
 
 	virtual ~NDArrayContainer() {}
@@ -918,18 +918,6 @@ public:
 			head_.position[axis] = value;
 		}
 	}
-
-        /*
-	const float* getPosition() const {
-                return head_.position;
-	}
-
-	void setPosition(float values[ISMRMRD_POSITION_LENGTH]){
-                for (int i=0; i < ISMRMRD_POSITION_LENGTH; i++) {
-			head_.position[i] = values[i];
-		}
-	}
-        */
 
         const float getReadDirection(unsigned int index) const {
                 if (index < ISMRMRD_DIRECTION_LENGTH) {
