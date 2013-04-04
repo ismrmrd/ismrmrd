@@ -10,4 +10,4 @@ javac org/ismrm/ismrmrd/xmlhdr/*.java
 jar -cvf ismrmrd.jar org/ismrm/ismrmrd/*.class org/ismrm/ismrmrd/xmlhdr/*.class
 
 # Build the java docs
-javadoc -d ismrmrd.javadoc -subpackages org.ismrm.ismrmrd
+javadoc -quiet -d ismrmrd.javadoc -subpackages org.ismrm.ismrmrd

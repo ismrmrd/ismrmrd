@@ -24,6 +24,8 @@ add_custom_command(
     COMMENT "Compiling java files and creating jar" VERBATIM
     COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/JNILibLoader.java	
                ${CMAKE_CURRENT_BINARY_DIR}/org/ismrm/ismrmrd
+               COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/XMLString.java	
+               ${CMAKE_CURRENT_BINARY_DIR}/org/ismrm/ismrmrd/xmlhdr
     COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/make_jar.sh
 )
 
