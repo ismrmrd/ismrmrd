@@ -306,13 +306,10 @@ typedef std::complex<double> cxdouble;
 	jsize len  = env->GetArrayLength(arr)/2;
         float *ptr = env->GetFloatArrayElements(arr, NULL);
         // TODO: make sure that the user has set the proper size.
-        std::valarray <cxfloat> data;
-        data.resize(len);
         for (jint i = 0; i < len; i++) {
-            data[i] = cxfloat(ptr[2*i],ptr[2*i+1]);
+            (*$self)[i] = cxfloat(ptr[2*i],ptr[2*i+1]);
         }
         env->ReleaseFloatArrayElements(arr, ptr, JNI_COMMIT);
-	$self->setData(data);
     }
 
 }
@@ -339,19 +336,16 @@ typedef std::complex<double> cxdouble;
     }
 
     void setData(jdoubleArray arr) {
-        // Get the environment
+        // Get the environment	   
         JNIEnv *env = JNU_GetEnv();
         // Get the size of the input array and a pointer to it
 	jsize len  = env->GetArrayLength(arr)/2;
         double *ptr = env->GetDoubleArrayElements(arr, NULL);
         // TODO: make sure that the user has set the proper size.
-        std::valarray <cxdouble> data;
-        data.resize(len);
         for (jint i = 0; i < len; i++) {
-            data[i] = cxdouble(ptr[2*i],ptr[2*i+1]);
+            (*$self)[i] = cxdouble(ptr[2*i],ptr[2*i+1]);
         }
         env->ReleaseDoubleArrayElements(arr, ptr, JNI_COMMIT);
-	$self->setData(data);
     }
 
 }
@@ -376,22 +370,19 @@ typedef std::complex<double> cxdouble;
         return arr;
     }
 
-/*    void setData(jcharArray arr) {
+    void setData(jcharArray arr) {
         // Get the environment
         JNIEnv *env = JNU_GetEnv();
         // Get the size of the input array and a pointer to it
 	jsize len  = env->GetArrayLength(arr);
         unsigned short int *ptr = env->GetCharArrayElements(arr, NULL);
         // TODO: make sure that the user has set the proper size.
-        std::valarray <unsigned short int> data;
-        data.resize(len);
         for (jint i = 0; i < len; i++) {
-            data[i] = ptr[i];
+            (*self)[i] = ptr[i];
         }
         env->ReleaseCharArrayElements(arr, ptr, JNI_COMMIT);
-	$self->setData(data);
     }
-*/
+
 }
 %ignore ISMRMRD::NDArrayContainer<unsigned short int>::getData;
 %ignore ISMRMRD::NDArrayContainer<unsigned short int>::setData;
@@ -414,22 +405,19 @@ typedef std::complex<double> cxdouble;
         return arr;
     }
 
-/*    void setData(jfloatArray arr) {
+    void setData(jfloatArray arr) {
         // Get the environment
         JNIEnv *env = JNU_GetEnv();
         // Get the size of the input array and a pointer to it
 	jsize len  = env->GetArrayLength(arr);
         float *ptr = env->GetFloatArrayElements(arr, NULL);
         // TODO: make sure that the user has set the proper size.
-        std::valarray <float> data;
-        data.resize(len);
         for (jint i = 0; i < len; i++) {
-            data[i] = ptr[i];
+            (*$self)[i] = ptr[i];
         }
         env->ReleaseFloatArrayElements(arr, ptr, JNI_COMMIT);
-	$self->setData(data);
     }
-*/
+
 }
 %ignore ISMRMRD::NDArrayContainer<float>::getData;
 %ignore ISMRMRD::NDArrayContainer<float>::setData;
@@ -452,22 +440,19 @@ typedef std::complex<double> cxdouble;
         return arr;
     }
 
-/*    void setData(jdoubleArray arr) {
+    void setData(jdoubleArray arr) {
         // Get the environment
         JNIEnv *env = JNU_GetEnv();
         // Get the size of the input array and a pointer to it
 	jsize len  = env->GetArrayLength(arr);
         double *ptr = env->GetDoubleArrayElements(arr, NULL);
         // TODO: make sure that the user has set the proper size.
-        std::valarray <double> data;
-        data.resize(len);
         for (jint i = 0; i < len; i++) {
-            data[i] = ptr[i];
+            (*self)[i] = ptr[i];
         }
         env->ReleaseDoubleArrayElements(arr, ptr, JNI_COMMIT);
-	$self->setData(data);
     }
-*/
+
 }
 %ignore ISMRMRD::NDArrayContainer<double>::getData;
 %ignore ISMRMRD::NDArrayContainer<double>::setData;
@@ -491,22 +476,19 @@ typedef std::complex<double> cxdouble;
         return arr;
     }
 
-/*    void setData(jfloatArray arr) {
+    void setData(jfloatArray arr) {
         // Get the environment
         JNIEnv *env = JNU_GetEnv();
         // Get the size of the input array and a pointer to it
 	jsize len  = env->GetArrayLength(arr)/2;
         float *ptr = env->GetFloatArrayElements(arr, NULL);
         // TODO: make sure that the user has set the proper size.
-        std::valarray <cxfloat> data;
-        data.resize(len);
         for (jint i = 0; i < len; i++) {
-            data[i] = cxfloat(ptr[2*i],ptr[2*i+1]);
+            (*$self)[i] = cxfloat(ptr[2*i],ptr[2*i+1]);
         }
         env->ReleaseFloatArrayElements(arr, ptr, JNI_COMMIT);
-	$self->setData(data);
     }
-*/
+
 }
 %ignore ISMRMRD::NDArrayContainer<cxfloat>::getData;
 %ignore ISMRMRD::NDArrayContainer<cxfloat>::setData;
@@ -530,22 +512,19 @@ typedef std::complex<double> cxdouble;
         return arr;
     }
 
-/*    void setData(jdoubleArray arr) {
+    void setData(jdoubleArray arr) {
         // Get the environment
         JNIEnv *env = JNU_GetEnv();
         // Get the size of the input array and a pointer to it
 	jsize len  = env->GetArrayLength(arr)/2;
         double *ptr = env->GetDoubleArrayElements(arr, NULL);
         // TODO: make sure that the user has set the proper size.
-        std::valarray <cxdouble> data;
-        data.resize(len);
         for (jint i = 0; i < len; i++) {
-            data[i] = cxdouble(ptr[2*i],ptr[2*i+1]);
+            (*$self)[i] = cxdouble(ptr[2*i],ptr[2*i+1]);
         }
         env->ReleaseDoubleArrayElements(arr, ptr, JNI_COMMIT);
-	$self->setData(data);
     }
-*/
+
 }
 %ignore ISMRMRD::NDArrayContainer<cxdouble>::getData;
 %ignore ISMRMRD::NDArrayContainer<cxdouble>::setData;
@@ -564,6 +543,17 @@ typedef std::complex<double> cxdouble;
 %rename(readArray_double)   readArray<double>;
 %rename(readArray_cxfloat)  readArray<cxfloat>;
 %rename(readArray_cxdouble) readArray<cxdouble>;
+
+//%rename(appendImage_float)    appendImage<float>;
+//%rename(appendImage_double)   appendImage<double>;
+//%rename(appendImage_cxfloat)  appendImage<cxfloat>;
+//%rename(appendImage_cxdouble) appendImage<cxdouble>;
+
+//%rename(appendArray_ushort)   appendArray<unsigned short int>;
+//%rename(appendArray_float)    appendArray<float>;
+//%rename(appendArray_double)   appendArray<double>;
+//%rename(appendArray_cxfloat)  appendArray<cxfloat>;
+//%rename(appendArray_cxdouble) appendArray<cxdouble>;
 
 %extend ISMRMRD::IsmrmrdDataset {
     std::string readHeader() {
@@ -592,12 +582,12 @@ typedef std::complex<double> cxdouble;
         return img;
     }
 
-    ISMRMRD::Image<unsigned short>* readImage<unsigned short>(const char* varname, unsigned long index = 0) {
+    ISMRMRD::Image<unsigned short int>* readImage<unsigned short>(const char* varname, unsigned long index = 0) {
         ISMRMRD::Image<unsigned short>* img = new ISMRMRD::Image<unsigned short>(*$self->readImage<unsigned short>(varname,index).get());
         return img;
     }
 
-    ISMRMRD::Image< cxfloat >* readImage<cxfloat>(const char* varname, unsigned long index = 0) {
+    ISMRMRD::Image<cxfloat>* readImage<cxfloat>(const char* varname, unsigned long index = 0) {
         ISMRMRD::Image< cxfloat >* img = new ISMRMRD::Image< cxfloat >(*$self->readImage< cxfloat >(varname,index).get());
         return img;
     }
@@ -660,18 +650,34 @@ namespace H5 {
 %include "ismrmrd_hdf5.h"
 %include "ismrmrd_hdf5_datatypes.h"
 
-// Instantiate the Image and ArrayContainer types
+// Instantiate some of the overloaded objects and methods
 namespace ISMRMRD {
+    // The Image and ArrayContainer types
     %template(Image_ushort)   Image<unsigned short int>;
     %template(Image_float)    Image<float>;
     %template(Image_double)   Image<double>;
     %template(Image_cxfloat)  Image<cxfloat>;
     %template(Image_cxdouble) Image<cxdouble>;
+
     %template(Array_ushort)   NDArrayContainer<unsigned short int>;
     %template(Array_float)    NDArrayContainer<float>;
     %template(Array_double)   NDArrayContainer<double>;
     %template(Array_cxfloat)  NDArrayContainer<cxfloat>;
     %template(Array_cxdouble) NDArrayContainer<cxdouble>;
+
+    // The Image and ArrayContainer Append methods
+    %template(appendImage_ushort)   IsmrmrdDataset::appendImage<unsigned short int>;
+    %template(appendImage_float)    IsmrmrdDataset::appendImage<float>;
+    %template(appendImage_double)   IsmrmrdDataset::appendImage<double>;
+    %template(appendImage_cxfloat)  IsmrmrdDataset::appendImage<cxfloat>;
+    %template(appendImage_cxdouble) IsmrmrdDataset::appendImage<cxdouble>;
+
+    %template(appendArray_ushort)   IsmrmrdDataset::appendArray<unsigned short int>;
+    %template(appendArray_float)    IsmrmrdDataset::appendArray<float>;
+    %template(appendArray_double)   IsmrmrdDataset::appendArray<double>;
+    %template(appendArray_cxfloat)  IsmrmrdDataset::appendArray<cxfloat>;
+    %template(appendArray_cxdouble) IsmrmrdDataset::appendArray<cxdouble>;
+
 }
 
 
