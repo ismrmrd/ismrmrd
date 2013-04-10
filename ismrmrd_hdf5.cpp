@@ -468,7 +468,7 @@ boost::shared_ptr< Acquisition > IsmrmrdDataset::readAcquisition(unsigned long i
 
 }
 
-int IsmrmrdDataset::writeHeader(std::string& xml) {
+int IsmrmrdDataset::writeHeader(const std::string& xml) {
 	std::vector<hsize_t> dims(1,1);
 	std::vector<hsize_t> max_dims(1,1);
 
