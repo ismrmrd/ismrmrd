@@ -70,3 +70,5 @@ add_subdirectory(bindings)
 add_subdirectory(doc)
 add_subdirectory(examples/c++)
 add_subdirectory(tests)
+add_subdirectory(utilities)
+
