@@ -1,13 +1,9 @@
-% XMLHeader
 classdef XMLHeader
-
-    properties
-        factory = []
-    end
 
     methods
 
-        function obj = XMLHeader()
+        function obj = XMLHeader(xmlstr)
+
             obj.factory = org.ismrm.ismrmrd.xmlhdr.ObjectFactory(); 
         end
 

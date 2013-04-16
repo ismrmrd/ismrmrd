@@ -110,7 +110,7 @@ public:
 	 *  @warning There is no check of whether the string is a valid XML document at this point.
 	 *
 	 */
-	int writeHeader(std::string& xml);
+	int writeHeader(const std::string& xml);
 
 	/**
 	 *  Reads the XML configuration header from the data set.
