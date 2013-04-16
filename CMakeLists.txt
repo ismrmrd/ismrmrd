@@ -66,9 +66,8 @@ INSTALL(TARGETS ismrmrd DESTINATION lib)
 INSTALL(TARGETS ismrmrd_xsd DESTINATION lib)
 INSTALL(FILES ${MatlabMFiles} DESTINATION matlab/+ismrmrd)
 
-add_subdirectory(bindings)
 add_subdirectory(doc)
 add_subdirectory(examples/c++)
 add_subdirectory(tests)
 add_subdirectory(utilities)
-
+add_subdirectory(bindings)
