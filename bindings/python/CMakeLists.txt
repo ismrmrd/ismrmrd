@@ -8,6 +8,7 @@ swig_add_module(ismrmrd python ismrmrd_python.i ../../ismrmrd_hdf5.cpp)
 swig_link_libraries(ismrmrd ${HDF5_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 
 install(TARGETS ${SWIG_MODULE_ismrmrd_REAL_NAME} DESTINATION lib)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ismrmrd.py DESTINATION lib)
 
 find_program(PYXBGEN pyxbgen
     HINTS ${PYTHON_HOME} ${PYTHON_LIBRARY}/..
