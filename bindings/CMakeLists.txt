@@ -1,5 +1,3 @@
-set_source_files_properties(ismrmrd.i PROPERTIES CPLUSPLUS ON)
-
 find_package(SWIG)
 
 if(SWIG_FOUND)
