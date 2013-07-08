@@ -418,7 +418,7 @@ wget https://sourceforge.net/projects/ismrmrd/files/src/ismrmrd_latest.zip
 <h2><a class="toc-backref" href="#id5">Linux installation</a></h2>
 <p>The dependencies mentioned above should be included in most linux distributions. On Ubuntu you can install all required dependencies with:</p>
 <pre class="literal-block">
-sudo apt-get install libhdf5-serial-dev h5utils cmake cmake-curses-gui libboost-dev libboost-thread-dev libboost-system-dev libxerces-c-dev xsdcxx doxygen git
+sudo apt-get install libhdf5-serial-dev h5utils cmake cmake-curses-gui libboost-all-dev libxerces-c-dev xsdcxx doxygen git
 </pre>
 <p>After installation of dependencies, the library can be installed with:</p>
 <pre class="literal-block">
@@ -633,7 +633,7 @@ msbuild .\ISMRMRD.sln /p:Configuration=Release
 <h2><a class="toc-backref" href="#id10">Fixed Data structures</a></h2>
 <p>Each raw data acquisition is preceded by the following fixed layout structure:</p>
 <pre class="literal-block">
-struct AcquisitionHeader
+typedef struct AcquisitionHeader
 {
         uint16_t           version;                                          /**&lt; First unsigned int indicates the version */
         uint64_t           flags;                                            /**&lt; bit field with flags */
@@ -659,12 +659,12 @@ struct AcquisitionHeader
         EncodingCounters   idx;                                              /**&lt; Encoding loop counters, see above */
         int32_t            user_int[ISMRMRD_USER_INTS];                      /**&lt; Free user parameters */
         float              user_float[ISMRMRD_USER_FLOATS];                  /**&lt; Free user parameters */
-};
+} AcquisitionHeader;
 
 </pre>
 <p>Where EncodingCounters are defined as:</p>
 <pre class="literal-block">
-struct EncodingCounters {
+typedef struct EncodingCounters {
         uint16_t kspace_encode_step_1;     /**&lt; e.g. phase encoding line number */
         uint16_t kspace_encode_step_2;     /**&lt; e.g. partition encodning number */
         uint16_t average;                  /**&lt; e.g. signal average number */
@@ -675,7 +675,7 @@ struct EncodingCounters {
         uint16_t set;                      /**&lt; e.g. flow encodning set */
         uint16_t segment;                  /**&lt; e.g. segment number for segmented acquisition */
         uint16_t user[ISMRMRD_USER_INTS];  /**&lt; Free user parameters */
-};
+} EncodingCounters;
 
 </pre>
 <p>The interpretation of some of these fields may vary from sequence to sequence, i.e. for a Cartesian sequence, <tt class="docutils literal">kspace_encode_step_1</tt> would be the phase encoding step, for a spiral sequence where phase encoding direction does not make sense, it would be the spiral interleave number. The <tt class="docutils literal">encoding_space_ref</tt> enables the user to tie an acquisition to a specific encoding space (see above) in case there are multiple, e.g. in situations where a calibration scan may be integrated in the acquisition.</p>
@@ -702,34 +702,34 @@ float* data_;            //Actual data, elements = head_.number_of_samples*head_
 <p>This suggested memory layout is only a suggestion. The HDF5 interface (see below) can be used to read the data into many different data structures. In fact, the user can choose to read only part of the header or not read the data, etc.</p>
 <p>As mentioned above, the ISMRMRD format also suggests a way to store reconstructed images (or maybe image data used for calibration). An <tt class="docutils literal">ImageHeader</tt> structure is defined in <tt class="docutils literal">ismrmrd.h</tt>:</p>
 <pre class="literal-block">
-struct ImageHeader
+typedef struct ImageHeader
 {
-        uint16_t                version;                                         /**&lt; First unsigned int indicates the version */
-        uint64_t                flags;                                           /**&lt; bit field with flags */
-        uint32_t                measurement_uid;                                 /**&lt; Unique ID for the measurement  */
-        uint16_t                matrix_size[3];                                  /**&lt; Pixels in the 3 spatial dimensions */
-        float                   field_of_view[3];                                /**&lt; Size (in mm) of the 3 spatial dimensions */
-        uint16_t                channels;                                        /**&lt; Number of receive channels */
-        float                   position[ISMRMRD_POSITION_LENGTH];               /**&lt; Three-dimensional spatial offsets from isocenter */
-        float                   read_dir[ISMRMRD_DIRECTION_LENGTH];              /**&lt; Directional cosines of the readout/frequency encoding */
-        float                   phase_dir[ISMRMRD_DIRECTION_LENGTH];             /**&lt; Directional cosines of the phase */
-        float                   slice_dir[ISMRMRD_DIRECTION_LENGTH];             /**&lt; Directional cosines of the slice direction */
-        float                   patient_table_position[ISMRMRD_POSITION_LENGTH]; /**&lt; Patient table off-center */
-        uint16_t                average;                                         /**&lt; e.g. signal average number */
-        uint16_t                slice;                                           /**&lt; e.g. imaging slice number */
-        uint16_t                contrast;                                        /**&lt; e.g. echo number in multi-echo */
-        uint16_t                phase;                                           /**&lt; e.g. cardiac phase number */
-        uint16_t                repetition;                                      /**&lt; e.g. dynamic number for dynamic scanning */
-        uint16_t                set;                                             /**&lt; e.g. flow encodning set */
-        uint32_t                acquisition_time_stamp;                          /**&lt; Acquisition clock */
-        uint32_t                physiology_time_stamp[ISMRMRD_PHYS_STAMPS];      /**&lt; Physiology time stamps, e.g. ecg, breating, etc. */
-        uint16_t                image_data_type;                                 /**&lt; e.g. unsigned short, float, complex float, etc. */
-        uint16_t                image_type;                                      /**&lt; e.g. magnitude, phase, complex, real, imag, etc. */
-        uint16_t                image_index;                                                     /**&lt; e.g. image number in series of images  */
-        uint16_t                        image_series_index;                              /**&lt; e.g. series number */
-        int32_t                 user_int[ISMRMRD_USER_INTS];                     /**&lt; Free user parameters */
-        float                   user_float[ISMRMRD_USER_FLOATS];                 /**&lt; Free user parameters */
-};
+        uint16_t            version;                                         /**&lt; First unsigned int indicates the version */
+        uint64_t            flags;                                           /**&lt; bit field with flags */
+        uint32_t            measurement_uid;                                 /**&lt; Unique ID for the measurement  */
+        uint16_t            matrix_size[3];                                  /**&lt; Pixels in the 3 spatial dimensions */
+        float               field_of_view[3];                                /**&lt; Size (in mm) of the 3 spatial dimensions */
+        uint16_t            channels;                                        /**&lt; Number of receive channels */
+        float               position[ISMRMRD_POSITION_LENGTH];               /**&lt; Three-dimensional spatial offsets from isocenter */
+        float               read_dir[ISMRMRD_DIRECTION_LENGTH];              /**&lt; Directional cosines of the readout/frequency encoding */
+        float               phase_dir[ISMRMRD_DIRECTION_LENGTH];             /**&lt; Directional cosines of the phase */
+        float               slice_dir[ISMRMRD_DIRECTION_LENGTH];             /**&lt; Directional cosines of the slice direction */
+        float               patient_table_position[ISMRMRD_POSITION_LENGTH]; /**&lt; Patient table off-center */
+        uint16_t            average;                                         /**&lt; e.g. signal average number */
+        uint16_t            slice;                                           /**&lt; e.g. imaging slice number */
+        uint16_t            contrast;                                        /**&lt; e.g. echo number in multi-echo */
+        uint16_t            phase;                                           /**&lt; e.g. cardiac phase number */
+        uint16_t            repetition;                                      /**&lt; e.g. dynamic number for dynamic scanning */
+        uint16_t            set;                                             /**&lt; e.g. flow encodning set */
+        uint32_t            acquisition_time_stamp;                          /**&lt; Acquisition clock */
+        uint32_t            physiology_time_stamp[ISMRMRD_PHYS_STAMPS];      /**&lt; Physiology time stamps, e.g. ecg, breating, etc. */
+        uint16_t            image_data_type;                                 /**&lt; e.g. unsigned short, float, complex float, etc. */
+        uint16_t            image_type;                                      /**&lt; e.g. magnitude, phase, complex, real, imag, etc. */
+        uint16_t            image_index;                                                         /**&lt; e.g. image number in series of images  */
+        uint16_t            image_series_index;                              /**&lt; e.g. series number */
+        int32_t             user_int[ISMRMRD_USER_INTS];                     /**&lt; Free user parameters */
+        float               user_float[ISMRMRD_USER_FLOATS];                 /**&lt; Free user parameters */
+} ImageHeader;
 
 </pre>
 <p>In a similar fashion to the raw data acquisition data, the intention is to store a header followed by the image data. Since image data can be in several different format (e.g. float, complex, etc.), the memory layout is less well defined but can be described as:</p>
@@ -1224,6 +1224,7 @@ std::streambuf::setg (b, b, e);
             &lt;xs:sequence&gt;
               &lt;xs:element maxOccurs=&quot;unbounded&quot; minOccurs=&quot;0&quot; name=&quot;userParameterLong&quot; type=&quot;userParameterLongType&quot;/&gt;
               &lt;xs:element maxOccurs=&quot;unbounded&quot; minOccurs=&quot;0&quot; name=&quot;userParameterDouble&quot; type=&quot;userParameterDoubleType&quot;/&gt;
+              &lt;xs:element maxOccurs=&quot;unbounded&quot; minOccurs=&quot;0&quot; name=&quot;userParameterBase64&quot; type=&quot;userParameterBase64Type&quot;/&gt;
             &lt;/xs:sequence&gt;
           &lt;/xs:complexType&gt;
         &lt;/xs:element&gt;
@@ -1364,6 +1365,13 @@ std::streambuf::setg (b, b, e);
     &lt;/xs:all&gt;
   &lt;/xs:complexType&gt;
 
+  &lt;xs:complexType name=&quot;userParameterBase64Type&quot;&gt;
+    &lt;xs:all&gt;
+      &lt;xs:element name=&quot;name&quot; type=&quot;xs:string&quot;/&gt;
+      &lt;xs:element name=&quot;value&quot; type=&quot;xs:base64Binary&quot;/&gt;
+    &lt;/xs:all&gt;
+  &lt;/xs:complexType&gt;
+
   &lt;xs:complexType name=&quot;measurementInformationType&quot;&gt;
     &lt;xs:all&gt;
       &lt;xs:element minOccurs=&quot;1&quot; name=&quot;seriesDate&quot; type=&quot;xs:date&quot;/&gt;
@@ -1382,6 +1390,7 @@ std::streambuf::setg (b, b, e);
           &lt;/xs:restriction&gt;
         &lt;/xs:simpleType&gt;
       &lt;/xs:element&gt;
+      &lt;xs:element minOccurs=&quot;0&quot; name=&quot;initialSeriesNumber&quot; type=&quot;xs:long&quot;/&gt;
       &lt;xs:element minOccurs=&quot;0&quot; name=&quot;protocolName&quot; type=&quot;xs:string&quot;/&gt;
       &lt;xs:element minOccurs=&quot;0&quot; name=&quot;seriesDescription&quot; type=&quot;xs:string&quot;/&gt;
     &lt;/xs:all&gt;
