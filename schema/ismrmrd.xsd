@@ -1,40 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <xs:schema xmlns="http://www.ismrm.org/ISMRMRD" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.ismrm.org/ISMRMRD">
 
-  <xs:element name="ismrmrdHeader">
-    <xs:complexType>
+    <xs:element name="ismrmrdHeader" type="ismrmrdHeader"/>
+
+    <xs:complexType name="ismrmrdHeader">
       <xs:sequence>
 	<xs:element maxOccurs="1" minOccurs="0" name="subjectInformation" type="subjectInformationType"/>
 	<xs:element maxOccurs="1" minOccurs="0" name="studyInformation" type="studyInformationType"/>
 	<xs:element maxOccurs="1" minOccurs="0" name="measurementInformation" type="measurementInformationType"/>
 	<xs:element maxOccurs="1" minOccurs="0" name="acquisitionSystemInformation" type="acquisitionSystemInformationType"/>
 	<xs:element maxOccurs="1" minOccurs="1" name="experimentalConditions" type="experimentalConditionsType"/>
-	<xs:element maxOccurs="unbounded" minOccurs="1" name="encoding">
-	  <xs:complexType>
-	    <xs:all>
-	      <xs:element maxOccurs="1" minOccurs="1" name="encodedSpace" type="encodingSpaceType"/>
-	      <xs:element maxOccurs="1" minOccurs="1" name="reconSpace" type="encodingSpaceType"/>
-	      <xs:element maxOccurs="1" minOccurs="1" name="encodingLimits" type="encodingLimitsType"/>
-	      <xs:element maxOccurs="1" minOccurs="1" name="trajectory" type="trajectoryType"/>
-	      <xs:element maxOccurs="1" minOccurs="0" name="trajectoryDescription" type="trajectoryDescriptionType"/>
-	    </xs:all>
-	  </xs:complexType>
-	</xs:element>
+        <xs:element maxOccurs="unbounded" minOccurs="1" name="encoding" type="encoding"/>
 	<xs:element maxOccurs="1" minOccurs="0" name="parallelImaging" type="parallelImagingType"/>
 	<xs:element maxOccurs="1" minOccurs="0" name="sequenceParameters" type="sequenceParametersType"/>
         <xs:element maxOccurs="1" minOccurs="0" name="dicomParameters" type="dicomParametersType"/>
-	<xs:element maxOccurs="1" minOccurs="0" name="userParameters">
-	  <xs:complexType>
-	    <xs:sequence>
-	      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterLong" type="userParameterLongType"/>
-	      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterDouble" type="userParameterDoubleType"/>
-	      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterBase64" type="userParameterBase64Type"/>
-	    </xs:sequence>
-	  </xs:complexType>
-	</xs:element>
+        <xs:element maxOccurs="1" minOccurs="0" name="userParameters" type="userParameters"/>
       </xs:sequence>
     </xs:complexType>
-  </xs:element>
 
   <xs:complexType name="subjectInformationType">
     <xs:all>
@@ -63,9 +45,27 @@
     </xs:all>
   </xs:complexType>
 
-  <xs:complexType name="experimentalConditionsType">
+  <xs:complexType name="measurementInformationType">
     <xs:all>
-      <xs:element name="H1resonanceFrequency_Hz" type="xs:long"/>
+      <xs:element minOccurs="1" name="seriesDate" type="xs:date"/>
+      <xs:element minOccurs="1" name="seriesTime" type="xs:time"/>
+      <xs:element minOccurs="1" name="patientPosition">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="HFP"/>
+            <xs:enumeration value="HFS"/>
+            <xs:enumeration value="HFDR"/>
+            <xs:enumeration value="HFDL"/>
+            <xs:enumeration value="FFP"/>
+            <xs:enumeration value="FFS"/>
+            <xs:enumeration value="FFDR"/>
+            <xs:enumeration value="FFDL"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element minOccurs="0" name="initialSeriesNumber" type="xs:long"/>
+      <xs:element minOccurs="0" name="protocolName" type="xs:string"/>
+      <xs:element minOccurs="0" name="seriesDescription" type="xs:string"/>
     </xs:all>
   </xs:complexType>
 
@@ -78,6 +78,22 @@
       <xs:element minOccurs="0" name="receiverChannels" type="xs:unsignedShort"/>
       <xs:element minOccurs="0" name="institutionName" type="xs:string"/>
       <xs:element minOccurs="0" name="stationName" type="xs:string"/>
+    </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="experimentalConditionsType">
+    <xs:all>
+      <xs:element name="H1resonanceFrequency_Hz" type="xs:long"/>
+    </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="encoding">
+    <xs:all>
+      <xs:element maxOccurs="1" minOccurs="1" name="encodedSpace" type="encodingSpaceType"/>
+      <xs:element maxOccurs="1" minOccurs="1" name="reconSpace" type="encodingSpaceType"/>
+      <xs:element maxOccurs="1" minOccurs="1" name="encodingLimits" type="encodingLimitsType"/>
+      <xs:element maxOccurs="1" minOccurs="1" name="trajectory" type="trajectoryType"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="trajectoryDescription" type="trajectoryDescriptionType"/>
     </xs:all>
   </xs:complexType>
 
@@ -176,30 +192,6 @@
     </xs:all>
   </xs:complexType>
 
-  <xs:complexType name="measurementInformationType">
-    <xs:all>
-      <xs:element minOccurs="1" name="seriesDate" type="xs:date"/>
-      <xs:element minOccurs="1" name="seriesTime" type="xs:time"/>
-      <xs:element minOccurs="1" name="patientPosition">
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:enumeration value="HFP"/>
-            <xs:enumeration value="HFS"/>
-            <xs:enumeration value="HFDR"/>
-            <xs:enumeration value="HFDL"/>
-            <xs:enumeration value="FFP"/>
-            <xs:enumeration value="FFS"/>
-            <xs:enumeration value="FFDR"/>
-            <xs:enumeration value="FFDL"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:element>
-      <xs:element minOccurs="0" name="initialSeriesNumber" type="xs:long"/>
-      <xs:element minOccurs="0" name="protocolName" type="xs:string"/>
-      <xs:element minOccurs="0" name="seriesDescription" type="xs:string"/>
-    </xs:all>
-  </xs:complexType>
-
   <xs:complexType name="dicomParametersType">
     <xs:all>
       <xs:element minOccurs="1" name="studyInstanceUID" type="xs:string"/>
@@ -238,6 +230,14 @@
       </xs:element>
 
     </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="userParameters">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterLong" type="userParameterLongType"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterDouble" type="userParameterDoubleType"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterBase64" type="userParameterBase64Type"/>
+    </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="accelerationFactorType">
