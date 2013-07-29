@@ -377,8 +377,13 @@ import_array();
 {
     PyObject* getData()
     {
-        npy_intp dims[] = { $self->elements() };
-        PyObject *array = PyArray_SimpleNew(1, dims, NPY_USHORT);
+        int ndim = $self->dimensions_.size();
+	npy_intp* dims = new npy_intp[ndim];
+	for (int d=0; d<ndim; d++){
+            dims[d] = $self->dimensions_[d];
+        }
+	PyObject *array = PyArray_New(&PyArray_Type, ndim, dims, NPY_USHORT, NULL, NULL, 0, NPY_ARRAY_FARRAY, NULL);
+	delete[] dims;
 
         char *raw = PyArray_BYTES(array);
         int data_size = PyArray_ITEMSIZE(array);
@@ -423,8 +428,13 @@ import_array();
 {
     PyObject* getData()
     {
-        npy_intp dims[] = { $self->elements() };
-        PyObject *array = PyArray_SimpleNew(1, dims, NPY_FLOAT);
+        int ndim = $self->dimensions_.size();
+	npy_intp* dims = new npy_intp[ndim];
+	for (int d=0; d<ndim; d++){
+            dims[d] = $self->dimensions_[d];
+        }
+	PyObject *array = PyArray_New(&PyArray_Type, ndim, dims, NPY_FLOAT, NULL, NULL, 0, NPY_ARRAY_FARRAY, NULL);
+	delete[] dims;
 
         char *raw = PyArray_BYTES(array);
         int data_size = PyArray_ITEMSIZE(array);
@@ -469,8 +479,13 @@ import_array();
 {
     PyObject* getData()
     {
-        npy_intp dims[] = { $self->elements() };
-        PyObject *array = PyArray_SimpleNew(1, dims, NPY_DOUBLE);
+        int ndim = $self->dimensions_.size();
+	npy_intp* dims = new npy_intp[ndim];
+	for (int d=0; d<ndim; d++){
+            dims[d] = $self->dimensions_[d];
+        }
+	PyObject *array = PyArray_New(&PyArray_Type, ndim, dims, NPY_DOUBLE, NULL, NULL, 0, NPY_ARRAY_FARRAY, NULL);
+	delete[] dims;
 
         char *raw = PyArray_BYTES(array);
         int data_size = PyArray_ITEMSIZE(array);
@@ -515,8 +530,13 @@ import_array();
 {
     PyObject* getData()
     {
-        npy_intp dims[] = { $self->elements() };
-        PyObject *array = PyArray_SimpleNew(1, dims, NPY_CFLOAT);
+        int ndim = $self->dimensions_.size();
+        npy_intp* dims = new npy_intp[ndim];
+        for (int d=0; d<ndim; d++){
+            dims[d] = $self->dimensions_[d];
+        }
+	PyObject *array = PyArray_New(&PyArray_Type, ndim, dims, NPY_CFLOAT, NULL, NULL, 0, NPY_ARRAY_FARRAY, NULL);
+        delete[] dims;
 
         char *raw = PyArray_BYTES(array);
         int data_size = PyArray_ITEMSIZE(array);
@@ -539,6 +559,13 @@ import_array();
             return;
         } 
 
+        //if (PyArray_ISFORTRAN((PyArrayObject*)array)) {
+        //    std::cout << "Fortran" << std::endl;
+        //}
+        //else {
+        //    std::cout << "C" << std::endl;
+        //}
+	
         int ndim = PyArray_NDIM(array);
         npy_intp *dims = PyArray_DIMS(array);
         char *raw = PyArray_BYTES(array);
@@ -562,8 +589,13 @@ import_array();
 {
     PyObject* getData()
     {
-        npy_intp dims[] = { $self->elements() };
-        PyObject *array = PyArray_SimpleNew(1, dims, NPY_CDOUBLE);
+        int ndim = $self->dimensions_.size();
+	npy_intp* dims = new npy_intp[ndim];
+	for (int d=0; d<ndim; d++){
+            dims[d] = $self->dimensions_[d];
+        }
+	PyObject *array = PyArray_New(&PyArray_Type, ndim, dims, NPY_CDOUBLE, NULL, NULL, 0, NPY_ARRAY_FARRAY, NULL);
+	delete[] dims;
 
         char *raw = PyArray_BYTES(array);
         int data_size = PyArray_ITEMSIZE(array);
