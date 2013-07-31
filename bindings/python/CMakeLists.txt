@@ -4,7 +4,7 @@ include_directories(${HDF5_INCLUDE_DIR} ${HDF5_INCLUDE_DIR}/cpp ${Boost_INCLUDE_
 
 set_source_files_properties(ismrmrd_python.i PROPERTIES CPLUSPLUS ON)
 
-swig_add_module(ismrmrd python ismrmrd_python.i ../../ismrmrd_hdf5.cpp)
+swig_add_module(ismrmrd python ismrmrd_python.i ${CMAKE_SOURCE_DIR}/ismrmrd_hdf5.cpp)
 swig_link_libraries(ismrmrd ${HDF5_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 
 install(TARGETS ${SWIG_MODULE_ismrmrd_REAL_NAME} DESTINATION lib)
