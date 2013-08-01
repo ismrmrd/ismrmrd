@@ -2,6 +2,10 @@ include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${PYTHON_INCLUDE_PATH} ${PYTHON_NUMPY_INCLUDE_DIR})
 include_directories(${HDF5_INCLUDE_DIR} ${HDF5_INCLUDE_DIR}/cpp ${Boost_INCLUDE_DIR})
 
+if ( WIN32 )
+    add_definitions(-Dismrmrd_EXPORTS)
+endif ( WIN32 )
+
 set_source_files_properties(ismrmrd_python.i PROPERTIES CPLUSPLUS ON)
 
 swig_add_module(ismrmrd python ismrmrd_python.i ../../ismrmrd_hdf5.cpp)
