@@ -58,6 +58,9 @@ typedef std::complex<double> cxdouble;
 %apply int16_t[]  {int16_t *};
 %apply uint32_t[] {uint32_t *};
 
+%ignore *::operator=;
+%ignore *::operator[];
+
 //
 // Define some extra methods for serializing and deserializing the header structures
 //
