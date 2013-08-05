@@ -57,7 +57,8 @@ ENDIF(WIN32)
 
 INSTALL(FILES ismrmrd.h ismrmrd_hdf5.h ismrmrd_hdf5_datatypes.h ismrmrd_export.h DESTINATION include)
 INSTALL(FILES schema/ismrmrd.xsd ${XSDS_SOURCES} DESTINATION schema)
-INSTALL(FILES cmake/FindIsmrmrd.cmake cmake/FindFFTW3.cmake cmake/FindXSD.cmake cmake/FindXercesC.cmake DESTINATION cmake)
+INSTALL(FILES cmake/FindIsmrmrd.cmake cmake/FindFFTW3.cmake cmake/FindXSD.cmake
+        cmake/FindXercesC.cmake cmake/FindNumPy.cmake DESTINATION cmake)
 INSTALL(TARGETS ismrmrd DESTINATION lib)
 INSTALL(FILES ${MatlabMFiles} DESTINATION matlab/+ismrmrd)
 

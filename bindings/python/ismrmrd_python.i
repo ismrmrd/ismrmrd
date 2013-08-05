@@ -102,7 +102,8 @@
     PyObject* getData()
     {
         npy_intp dims[] = { $self->getData().size() };
-        PyObject *array = PyArray_SimpleNew(1, dims, NPY_FLOAT);
+	PyObject *array = PyArray_New(&PyArray_Type, 1, dims, NPY_FLOAT,
+                NULL, NULL, 0, NPY_ARRAY_FARRAY, NULL);
 
         char *raw = PyArray_BYTES(array);
         int data_size = PyArray_ITEMSIZE(array);
@@ -114,17 +115,25 @@
         return array;
     }
 
-    void setData(PyObject *array)
+    void setData(PyObject *in_array)
     {
-        if (!PyArray_Check(array) || !PyArray_ISFLOAT(array)) {
+        if (!PyArray_Check(in_array) || !PyArray_ISFLOAT(in_array)) {
             set_err("Argument to setData is not a numpy float array\n");
             return;
-        } else if (!PyArray_ISBEHAVED_RO(array)) {
+        } else if (!PyArray_ISBEHAVED_RO(in_array)) {
             set_err("Argument to setData must be aligned\n");
             return;
-        } else if (!PyArray_ISONESEGMENT(array)) {
+        } else if (!PyArray_ISONESEGMENT(in_array)) {
             set_err("Data is not one segment\n");
             return;
+        }
+
+        PyObject *array = NULL;
+        /* if array is C-style contiguous, make a Fortran-style contiguous copy */
+        if (PyArray_ISCONTIGUOUS(in_array)) {
+            array = PyArray_NewCopy((PyArrayObject*)in_array, NPY_FORTRANORDER);
+        } else {
+            array = in_array;
         }
 
         int ndim = PyArray_NDIM(array);
@@ -202,14 +211,22 @@
         return array;
     }
 
-    int appendArray(PyObject *array, const char* varname)
+    int appendArray(PyObject *in_array, const char* varname)
     {
-        if (!PyArray_Check(array)) {
-            set_err("Array arg to appendArray is not a numpy array\n");
+        if (!PyArray_Check(in_array)) {
+            set_err("array arg to appendArray is not a numpy array\n");
             return -1;
-        } else if (!PyArray_ISBEHAVED_RO(array)) {
-            set_err("Array arg to appendArray must be aligned and in machine byte-order\n");
+        } else if (!PyArray_ISBEHAVED_RO(in_array)) {
+            set_err("array arg to appendArray must be aligned and in machine byte-order\n");
             return -1;
+        }
+
+        PyObject *array = NULL;
+        /* if in_array is C-style contiguous, make it a Fortran-style contiguous copy */
+        if (PyArray_ISCONTIGUOUS(in_array)) {
+            array = PyArray_NewCopy((PyArrayObject*)in_array, NPY_FORTRANORDER);
+        } else {
+            array = in_array;
         }
 
         int ndim = PyArray_NDIM(array);
