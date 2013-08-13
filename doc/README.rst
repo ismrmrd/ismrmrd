@@ -71,7 +71,7 @@ Linux installation
 
 The dependencies mentioned above should be included in most linux distributions. On Ubuntu you can install all required dependencies with::
 
-  sudo apt-get install libhdf5-serial-dev h5utils cmake cmake-curses-gui libboost-dev libboost-thread-dev libboost-system-dev libxerces-c-dev xsdcxx doxygen git
+  sudo apt-get install libhdf5-serial-dev h5utils cmake cmake-curses-gui libboost-all-dev libxerces-c-dev xsdcxx doxygen git
 
 After installation of dependencies, the library can be installed with::
 
@@ -230,15 +230,15 @@ Each raw data acquisition is preceded by the following fixed layout structure:
 
 .. include:: ../ismrmrd.h
    :literal:
-   :start-line: 133
-   :end-line: 160
+   :start-line: 134
+   :end-line: 161
 
 Where EncodingCounters are defined as:
 
 .. include:: ../ismrmrd.h
    :literal:
-   :start-line: 117
-   :end-line: 129
+   :start-line: 118
+   :end-line: 130
 
 The interpretation of some of these fields may vary from sequence to sequence, i.e. for a Cartesian sequence, ``kspace_encode_step_1`` would be the phase encoding step, for a spiral sequence where phase encoding direction does not make sense, it would be the spiral interleave number. The ``encoding_space_ref`` enables the user to tie an acquisition to a specific encoding space (see above) in case there are multiple, e.g. in situations where a calibration scan may be integrated in the acquisition.
 
@@ -271,8 +271,8 @@ As mentioned above, the ISMRMRD format also suggests a way to store reconstructe
 
 .. include:: ../ismrmrd.h
    :literal:
-   :start-line: 196
-   :end-line: 224
+   :start-line: 197
+   :end-line: 225
 
 In a similar fashion to the raw data acquisition data, the intention is to store a header followed by the image data. Since image data can be in several different format (e.g. float, complex, etc.), the memory layout is less well defined but can be described as::
 

@@ -58,6 +58,9 @@ typedef std::complex<double> cxdouble;
 %apply int16_t[]  {int16_t *};
 %apply uint32_t[] {uint32_t *};
 
+%ignore *::operator=;
+%ignore *::operator[];
+
 //
 // Define some extra methods for serializing and deserializing the header structures
 //
@@ -145,9 +148,37 @@ typedef std::complex<double> cxdouble;
         env->ReleaseFloatArrayElements(arr, ptr, JNI_COMMIT);
     }
 
+    jfloatArray getTraj() {
+        JNIEnv *env = JNU_GetEnv();
+        uint32_t nelem = $self->getTrajectoryDimensions()*$self->getNumberOfSamples();
+        jfloatArray arr = env->NewFloatArray(nelem);
+        if (arr != NULL) {
+            float *ptr = env->GetFloatArrayElements(arr, NULL);
+            jint i;
+            for (i = 0; i < nelem; i++) {
+                ptr[i] = $self->getTraj()[i];
+            }
+            env->ReleaseFloatArrayElements(arr, ptr, JNI_COMMIT);
+        }
+        return arr;
+    }
+
+    void setTraj(jfloatArray arr) {
+        // Get the environment
+        JNIEnv *env = JNU_GetEnv();
+        // Get the size of the input array and a pointer to it
+	jsize len  = env->GetArrayLength(arr);
+        float *ptr = env->GetFloatArrayElements(arr, NULL);
+	std::valarray<float> tmp(ptr,len);
+        // TODO: make sure that the user has set the proper size.
+	$self->setTraj(tmp);
+        env->ReleaseFloatArrayElements(arr, ptr, JNI_COMMIT);
+    }
 }
 %ignore ISMRMRD::Acquisition::getData;
 %ignore ISMRMRD::Acquisition::setData;
+%ignore ISMRMRD::Acquisition::getTraj;
+%ignore ISMRMRD::Acquisition::setTraj;
 
 //
 // The Image and NDContainerArray classes are overloaded

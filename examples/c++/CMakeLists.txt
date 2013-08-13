@@ -14,6 +14,10 @@ IF(FFTW3_FOUND)
        target_link_libraries(ismrmrd_recon_dataset ${XERCESC_LIBRARIES} ismrmrd ${FFTW3_LIBRARIES})
        INSTALL(TARGETS ismrmrd_recon_dataset DESTINATION bin)
 
+       add_executable(ismrmrd_publication_recon publication_recon_dataset.cpp ${XSDS_SOURCES})
+       target_link_libraries(ismrmrd_publication_recon ${XERCESC_LIBRARIES} ismrmrd ${FFTW3_LIBRARIES})
+       INSTALL(TARGETS ismrmrd_publication_recon DESTINATION bin)
+
        add_executable(read_timing_test read_timing_test.cpp ${XSDS_SOURCES})
        target_link_libraries(read_timing_test ${XERCESC_LIBRARIES} ismrmrd ${FFTW3_LIBRARIES})
        INSTALL(TARGETS read_timing_test DESTINATION bin)
