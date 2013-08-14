@@ -104,6 +104,9 @@ enum AcquisitionFlags {
     ACQ_IS_REVERSE                              = 22,
     ACQ_IS_NAVIGATION_DATA                      = 23,
     ACQ_IS_PHASECORR_DATA                       = 24,
+    ACQ_IS_RTFEEDBACK_DATA                      = 25,
+    ACQ_IS_HPFEEDBACK_DATA                      = 26,
+    ACQ_IS_DUMMYSCAN_DATA                       = 27,
 
     ACQ_USER1                                   = 57,
     ACQ_USER2                                   = 58,
