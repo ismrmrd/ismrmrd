@@ -21,14 +21,14 @@ add_custom_command(
     POST_BUILD
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Compiling java files and creating jar" VERBATIM
-    COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/JNILibLoader.java	
+    COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/JNILibLoader.java
                ${CMAKE_CURRENT_BINARY_DIR}/org/ismrm/ismrmrd/
     COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/org/ismrm/ismrmrd/xmlhdr
-    COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/XMLString.java	
+    COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/XMLString.java
                ${CMAKE_CURRENT_BINARY_DIR}/org/ismrm/ismrmrd/xmlhdr/
     COMMAND sh make_jar.sh
     VERBATIM
 )
 
-install(TARGETS jismrmrd DESTINATION lib)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ismrmrd.jar DESTINATION lib)
+install(TARGETS jismrmrd DESTINATION java)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ismrmrd.jar DESTINATION java)
