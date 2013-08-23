@@ -1,6 +1,8 @@
 package org.ismrm.ismrmrd.xmlhdr;
 
 import javax.xml.bind.*;
+import javax.xml.namespace.QName;
+import javax.xml.transform.stream.*;
 import java.io.StringReader;
 import java.io.StringWriter;
 
@@ -8,21 +10,33 @@ import java.io.StringWriter;
 public class XMLString {
     public static IsmrmrdHeader StringToIsmrmrdHeader(String xmlstring) throws javax.xml.bind.JAXBException
     {
-        JAXBContext jc = JAXBContext.newInstance(IsmrmrdHeader.class);
-        Unmarshaller u  = jc.createUnmarshaller();
+        JAXBContext jaxbContext = JAXBContext.newInstance(IsmrmrdHeader.class);
+
+        Unmarshaller unmarshaller  = jaxbContext.createUnmarshaller();
+
         StringReader reader = new StringReader(xmlstring);
-        IsmrmrdHeader hdr = (IsmrmrdHeader) u.unmarshal(reader);
-        return hdr;
+
+        JAXBElement<IsmrmrdHeader> root = unmarshaller.unmarshal(new StreamSource(reader), IsmrmrdHeader.class);
+
+        return root.getValue();
     }
 
     public static String IsmrmrdHeaderToString(IsmrmrdHeader header) throws javax.xml.bind.JAXBException
     {
-        JAXBContext jc = JAXBContext.newInstance(IsmrmrdHeader.class);
-        Marshaller m = jc.createMarshaller();
-        m.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "http://www.ismrm.org/ISMRMRD ismrmrd.xsd");
-        m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+        JAXBContext jaxbContext = JAXBContext.newInstance(IsmrmrdHeader.class);
+
+        Marshaller marshaller = jaxbContext.createMarshaller();
+
+        marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "http://www.ismrm.org/ISMRMRD ismrmrd.xsd");
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+
         StringWriter writer = new StringWriter();
-        m.marshal(header, writer);
+
+        QName qname = new QName("http://www.ismrm.org/ISMRMRD", "ismrmrdHeader");
+        JAXBElement<IsmrmrdHeader> root = new JAXBElement(qname, IsmrmrdHeader.class, header);
+
+        marshaller.marshal(root, writer);
+
         return writer.toString();
     }
 }
