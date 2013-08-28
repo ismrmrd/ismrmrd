@@ -1,5 +1,5 @@
 classdef AcquisitionHeader
-    
+
     properties
         version = uint16(0);                           % First unsigned int indicates the version %
         flags = uint64(0);                             % bit field with flags %
@@ -28,9 +28,9 @@ classdef AcquisitionHeader
         user_int = zeros(8,1,'int32');                 % Free user parameters %
         user_float = zeros(8,1,'single');              % Free user parameters %
     end
-    
+
     methods
-        
+
         % Constructor
         function obj = AcquisitionHeader(bytes)
             if (nargin == 1)
@@ -63,7 +63,7 @@ classdef AcquisitionHeader
                 obj.user_float             = typecast(bytes(off:off+31), 'single');
             end
         end
-        
+
         % Convert to Bytes
         function bytes = toBytes(obj)
             % TODO: physiology_time_stamp should be 3.
@@ -97,39 +97,39 @@ classdef AcquisitionHeader
             bytes(off:off+31)  = typecast(obj.user_int              ,'int8'); off=off+32;
             bytes(off:off+31)  = typecast(obj.user_float            ,'int8');
         end
-        
+
         % The flag methods
         function val = isFlagSet(obj,flagstring)
             flagbit = ismrmrd.FlagBit(getfield(ismrmrd.AcquisitionFlags,flagstring));
             val = flagbit.isSet(obj.flags);
         end
-        
+
         function obj = setFlag(obj,flagstring)
             flagbit = ismrmrd.FlagBit(getfield(ismrmrd.AcquisitionFlags,flagstring));
             obj.flags = bitor(obj.flags, flagbit.bitmask);
         end
-        
+
         % Set methods
         function obj = set.version(obj,v)
             obj.version = uint16(v);
         end
-        
+
         function obj = set.flags(obj,v)
             obj.flags = uint64(v);
         end
-        
+
         function obj = set.measurement_uid(obj,v)
             obj.measurement_uid = uint32(v);
         end
-        
+
         function obj = set.scan_counter(obj,v)
             obj.scan_counter = uint32(v);
         end
-        
+
         function obj = set.acquisition_time_stamp(obj,v)
             obj.acquisition_time_stamp = uint32(v);
         end
-        
+
         function obj = set.physiology_time_stamp(obj,v)
             % TODO: physiology_time_stamp should be 3.
             %if (length(v)~=3)
@@ -139,85 +139,85 @@ classdef AcquisitionHeader
             obj.physiology_time_stamp(1:3) = uint32(v(1:3));
             obj.physiology_time_stamp(4:8) = uint32(0);
         end
-        
+
         function obj = set.number_of_samples(obj,v)
             obj.number_of_samples = uint16(v);
         end
-        
+
         function obj = set.available_channels(obj,v)
             obj.available_channels = uint16(v);
         end
-        
+
         function obj = set.active_channels(obj,v)
             obj.active_channels = uint16(v);
         end
-        
+
         function obj = set.channel_mask(obj,v)
             if (length(v)~=16)
                 error('AcquisitionHeader.channel_mask must have 16 elements')
             end
             obj.channel_mask = uint64(v);
         end
-        
+
         function obj = set.discard_pre(obj,v)
             obj.discard_pre = uint16(v);
         end
-        
+
         function obj = set.discard_post(obj,v)
             obj.discard_post = uint16(v);
         end
-        
+
         function obj = set.center_sample(obj,v)
             obj.center_sample = uint16(v);
         end
-        
+
         function obj = set.encoding_space_ref(obj,v)
             obj.encoding_space_ref = uint16(v);
         end
-        
+
         function obj = set.trajectory_dimensions(obj,v)
             obj.trajectory_dimensions = uint16(v);
         end
-        
+
         function obj = set.sample_time_us(obj,v)
             obj.sample_time_us = single(v);
         end
-        
+
         function obj = set.position(obj,v)
             if (length(v)~=3)
                 error('AcquisitionHeader.position must have 3 elements')
             end
             obj.position = single(v);
         end
-        
+
         function obj = set.read_dir(obj,v)
             if (length(v)~=3)
                 error('AcquisitionHeader.read_dir must have 3 elements')
             end
             obj.read_dir = single(v);
         end
-        
+
         function obj = set.phase_dir(obj,v)
             if (length(v)~=3)
                 error('AcquisitionHeader.phase_dir must have 3 elements')
             end
             obj.phase_dir = single(v);
         end
-        
+
         function obj = set.slice_dir(obj,v)
             if (length(v)~=3)
                 error('AcquisitionHeader.slice_dir must have 3 elements')
             end
             obj.slice_dir = single(v);
         end
-        
+
         function obj = set.patient_table_position(obj,v)
             if (length(v)~=3)
                 error('AcquisitionHeader.patient_table_position must have 3 elements')
             end
             obj.patient_table_position = single(v);
         end
-        
+
         function obj = set.idx(obj,v)
             if isa(v,'ismrmrd.EncodingCounters')
                 obj.idx = v;
@@ -230,21 +230,21 @@ classdef AcquisitionHeader
                 end
             end
         end
-        
+
         function obj = set.user_int(obj,v)
             if (length(v)~=8)
                 error('AcquisitionHeader.user_int must have 8 elements')
             end
             obj.user_int = int32(v);
         end
-        
+
         function obj = set.user_float(obj,v)
             if (length(v)~=8)
                 error('AcquisitionHeader.user_float must have 8 elements')
             end
             obj.user_float = single(v);
         end
-        
+
     end
-    
+
 end
