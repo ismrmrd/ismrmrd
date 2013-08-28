@@ -11,6 +11,8 @@ classdef IsmrmrdDataset
     methods
 
         function obj = IsmrmrdDataset(filename,groupname)
+            % add the ismrmrd jar to the javaclasspath
+            ismrmrd.includejar();
 
             % If the file exists, open it for read/write
             % otherwise, create it
@@ -43,12 +45,12 @@ classdef IsmrmrdDataset
                 H5G.close(group_id);
                 % create a default xml header object
                 %obj.xmlhdr = ismrmrd.XMLHeader();
-                obj.xmlhdr = org.ismrm.ismrmrd.xmlhdr.IsmrmrdHeader();
+                obj.xmlhdr = org.ismrm.ismrmrd.IsmrmrdHeader();
             else
                 % group exists, read the xml header
                 % and create a new convert it to an xml header object
                 %obj.xmlhdr = ismrmrd.XMLHeader().stringToHeader(obj.readxml());
-                obj.xmlhdr = org.ismrm.ismrmrd.xmlhdr.XMLString.StringToIsmrmrdHeader(obj.readxml());
+                obj.xmlhdr = org.ismrm.ismrmrd.XMLString.StringToIsmrmrdHeader(obj.readxml());
             end
             H5P.close(lapl_id);
 
@@ -57,7 +59,7 @@ classdef IsmrmrdDataset
         function obj = close(obj)
             % synchronize the xml header
             %xmlstring = ismrmrd.XMLHeader.headerToString(obj.xmlhdr);
-            xmlstring = org.ismrm.ismrmrd.xmlhdr.XMLString.IsmrmrdHeaderToString(obj.xmlhdr);
+            xmlstring = org.ismrm.ismrmrd.XMLString.IsmrmrdHeaderToString(obj.xmlhdr);
             obj.writexml(xmlstring);
             % close the file
             H5F.close(obj.fid);

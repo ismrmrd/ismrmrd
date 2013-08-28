@@ -17,10 +17,10 @@ ah.position = [3.14, 3.14, 3.14]
 
 a = ismrmrd.Acquisition();
 a.head = ah;
-a.data = (1:512)
+a.data = (1:512);
 a.traj = (1:3);
 
-i.appendAcquisition(a)
+i.appendAcquisition(a);
 
 % Write the dataset
 i.close();
@@ -29,7 +29,7 @@ i.close();
 i = ismrmrd.IsmrmrdDataset(filename, 'dataset')
 
 % Read the dataset
-nacq = i.getNumberOfAcquisitions()
+nacq = i.getNumberOfAcquisitions();
 a = i.readAcquisition(1);
 
 h = a.head;
