@@ -6,7 +6,7 @@ classdef AcquisitionHeader
         measurement_uid = uint32(0);                   % Unique ID for the measurement %
         scan_counter = uint32(0);                      % Current acquisition number in the measurement %
         acquisition_time_stamp = uint32(0);            % Acquisition clock %
-        physiology_time_stamp = zeros(8,1,'uint32');   % Physiology time stamps, e.g. ecg, breating, etc. %
+        physiology_time_stamp = zeros(3,1,'uint32');   % Physiology time stamps, e.g. ecg, breating, etc. %
         number_of_samples = uint16(0);                 % Number of samples acquired %
         available_channels = uint16(0);                % Available coils %
         active_channels = uint16(0);                   % Active coils on current acquisiton %
@@ -38,7 +38,7 @@ classdef AcquisitionHeader
                 obj.measurement_uid        = typecast(bytes(off:off+3),  'uint32'); off=off+4;
                 obj.scan_counter           = typecast(bytes(off:off+3),  'uint32'); off=off+4;
                 obj.acquisition_time_stamp = typecast(bytes(off:off+3),  'uint32'); off=off+4;
-                obj.physiology_time_stamp  = typecast(bytes(off:off+31), 'uint32'); off=off+32;
+                obj.physiology_time_stamp  = typecast(bytes(off:off+11), 'uint32'); off=off+12;
                 obj.number_of_samples      = typecast(bytes(off:off+1),  'uint16'); off=off+2;
                 obj.available_channels     = typecast(bytes(off:off+1),  'uint16'); off=off+2;
                 obj.active_channels        = typecast(bytes(off:off+1),  'uint16'); off=off+2;
@@ -69,7 +69,7 @@ classdef AcquisitionHeader
             bytes(off:off+3)   = typecast(obj.measurement_uid       ,'int8'); off=off+4;
             bytes(off:off+3)   = typecast(obj.scan_counter          ,'int8'); off=off+4;
             bytes(off:off+3)   = typecast(obj.acquisition_time_stamp,'int8'); off=off+4;
-            bytes(off:off+31)  = typecast(obj.physiology_time_stamp ,'int8'); off=off+32;
+            bytes(off:off+11)  = typecast(obj.physiology_time_stamp ,'int8'); off=off+12;
             bytes(off:off+1)   = typecast(obj.number_of_samples     ,'int8'); off=off+2;
             bytes(off:off+1)   = typecast(obj.available_channels    ,'int8'); off=off+2;
             bytes(off:off+1)   = typecast(obj.active_channels       ,'int8'); off=off+2;
@@ -123,8 +123,8 @@ classdef AcquisitionHeader
         end
         
         function obj = set.physiology_time_stamp(obj,v)
-            if (length(v)~=8)
-                error('AcquisitionHeader.physiology_time_stamp must have 8 elements')
+            if (length(v)~=3)
+                error('AcquisitionHeader.physiology_time_stamp must have 3 elements')
             end
             obj.physiology_time_stamp = uint32(v);
         end

@@ -46,7 +46,7 @@ typedef unsigned __int64 uint64_t;
 #define ISMRMRD_DIRECTION_LENGTH  3
 #define ISMRMRD_USER_INTS         8
 #define ISMRMRD_USER_FLOATS       8
-#define ISMRMRD_PHYS_STAMPS       8
+#define ISMRMRD_PHYS_STAMPS       3
 #define ISMRMRD_CHANNEL_MASKS     16
 
 #ifdef __cplusplus
