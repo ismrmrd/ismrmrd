@@ -6,12 +6,16 @@ classdef IsmrmrdDataset
         datapath = '';
         xmlpath = '';
         xmlhdr = [];
+        htypes = [];
     end
 
     methods
 
         function obj = IsmrmrdDataset(filename,groupname)
 
+            % Set the hdf types
+            obj.htypes = ismrmrd.hdf5_datatypes;
+            
             % If the file exists, open it for read/write
             % otherwise, create it
             if exist(filename,'file')
@@ -164,7 +168,7 @@ classdef IsmrmrdDataset
             % Read the desired acquisition
             offset = [nacq-1 0];
             H5S.select_hyperslab(file_space_id,'H5S_SELECT_SET',offset,[1 1],[1 1],[1 1]);
-            d = H5D.read(dset_id, ismrmrd.hdf5_datatypes.getType_Acquisition, ...
+            d = H5D.read(dset_id, obj.htypes.T_Acquisition, ...
                             mem_space_id, file_space_id, 'H5P_DEFAULT');
 
             % Set the structure bits
@@ -199,7 +203,7 @@ classdef IsmrmrdDataset
                 chunk = [1 1];
                 H5P.set_chunk (dcpl, chunk);
                 data_id = H5D.create(obj.fid, obj.datapath, ...
-                                     ismrmrd.hdf5_datatypes.getType_Acquisition, ...
+                                     obj.htypes.T_Acquisition, ...
                                      file_space_id, dcpl);
                 H5P.close(dcpl);
                 H5S.close(file_space_id);
@@ -245,7 +249,7 @@ classdef IsmrmrdDataset
             d.data{1} = t;
 
             % Write
-            H5D.write(data_id, ismrmrd.hdf5_datatypes.getType_Acquisition(), ...
+            H5D.write(data_id, obj.htypes.T_Acquisition, ...
                       mem_space_id, file_space_id, 'H5P_DEFAULT', d);
 
             % Clean up

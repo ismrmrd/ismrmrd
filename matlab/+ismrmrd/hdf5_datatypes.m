@@ -1,5 +1,34 @@
 classdef hdf5_datatypes
-
+% This convenience class defines the HDF5 types used in the
+% ISMRMRD HDF5 file
+    properties
+        T_float;
+        T_double;
+        T_char;
+        T_complexfloat;
+        T_complexdouble;
+        T_ushort;
+        T_EncodingCounters;
+        T_AcquisitionHeader;
+        T_Acquisition;
+    end
+    
+    methods
+        
+        function obj = hdf5_datatypes()
+            obj.T_float = obj.getType_float();
+            obj.T_double = obj.getType_double();
+            obj.T_char = obj.getType_char();
+            obj.T_complexfloat = obj.getType_complexfloat();
+            obj.T_complexdouble = obj.getType_complexdouble();
+            obj.T_ushort = obj.getType_ushort();
+            obj.T_EncodingCounters = obj.getType_EncodingCounters();
+            obj.T_AcquisitionHeader = obj.getType_AcquisitionHeader();
+            obj.T_Acquisition = obj.getType_Acquisition();
+        end
+        
+    end
+   
     methods (Static)
 
         function b = getType_float()
@@ -77,7 +106,7 @@ classdef hdf5_datatypes
             typesize = typesize + H5T.get_size('H5T_NATIVE_UINT32'); % measurement_uid
             typesize = typesize + H5T.get_size('H5T_NATIVE_UINT32'); % scan_counter
             typesize = typesize + H5T.get_size('H5T_NATIVE_UINT32'); % acquisition_time_stamp
-            typesize = typesize + 8*H5T.get_size('H5T_NATIVE_UINT32'); % physio_time_stamps
+            typesize = typesize + 3*H5T.get_size('H5T_NATIVE_UINT32'); % physio_time_stamps
             typesize = typesize + H5T.get_size('H5T_NATIVE_UINT16'); % number_of_samples
             typesize = typesize + H5T.get_size('H5T_NATIVE_UINT16'); % available_channels
             typesize = typesize + H5T.get_size('H5T_NATIVE_UINT16'); % active_channels
@@ -115,8 +144,8 @@ classdef hdf5_datatypes
             H5T.insert(b, 'acquisition_time_stamp', offset, 'H5T_NATIVE_UINT32');
             offset = offset + H5T.get_size('H5T_NATIVE_UINT32');
 
-            H5T.insert(b, 'physiology_time_stamp', offset, H5T.array_create('H5T_NATIVE_UINT32',[8]));
-            offset = offset + 8*H5T.get_size('H5T_NATIVE_UINT32');
+            H5T.insert(b, 'physiology_time_stamp', offset, H5T.array_create('H5T_NATIVE_UINT32',[3]));
+            offset = offset + 3*H5T.get_size('H5T_NATIVE_UINT32');
 
             H5T.insert(b, 'number_of_samples', offset, 'H5T_NATIVE_UINT16');
             offset = offset + H5T.get_size('H5T_NATIVE_UINT16');
