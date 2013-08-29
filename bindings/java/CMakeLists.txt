@@ -27,11 +27,9 @@ add_custom_command(
     COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/XMLString.java
                ${CMAKE_CURRENT_BINARY_DIR}/org/ismrm/ismrmrd/xmlhdr/
     COMMAND sh make_jar.sh
-    #TODO: split into two jars, one for the headers and one for the xml, or just make two.
-    COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/ismrmrd.jar ${CMAKE_CURRENT_BINARY_DIR}/ismrmrdxmlhdr.jar
     VERBATIM
 )
 
 install(TARGETS jismrmrd DESTINATION java)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ismrmrd.jar DESTINATION java)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ismrmrdxmlhdr.jar DESTINATION matlab/+ismrmrd)
+
