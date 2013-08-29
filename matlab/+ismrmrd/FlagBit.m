@@ -9,7 +9,7 @@ classdef FlagBit
             if ~(b>0)
                 error('b must be positive');
             else
-                obj.bitmask = bitshift(uint16(1),(b-1));
+                obj.bitmask = bitshift(uint64(1),(b-1));
             end
         end % FlagBit
     end
