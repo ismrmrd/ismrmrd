@@ -16,6 +16,15 @@ classdef IsmrmrdDataset
             % Set the hdf types
             obj.htypes = ismrmrd.hdf5_datatypes;
             
+            % Set the javaclasspath to be able to load the xml header bits
+            % Check to see if the jar is already on our path
+            [loc,~,~] = fileparts(which(sprintf('ismrmrd.%s',mfilename)));
+            jarpath = fullfile(loc,'ismrmrdxmlhdr.jar');
+            jpath = javaclasspath('-all');
+            if ~any(strcmp(jarpath,jpath))
+                javaaddpath(jarpath);
+            end
+            
             % If the file exists, open it for read/write
             % otherwise, create it
             if exist(filename,'file')
@@ -42,16 +51,15 @@ classdef IsmrmrdDataset
             % Check if the group exists
             lapl_id=H5P.create('H5P_LINK_ACCESS');
             if (H5L.exists(obj.fid,grouppath,lapl_id) == 0)
-                % group does not exist, create it and set a default header
+                % group does not exist, create it
                 group_id = H5G.create(obj.fid, grouppath, 0);
                 H5G.close(group_id);
-                % create a default xml header object
-                %obj.xmlhdr = ismrmrd.XMLHeader();
+                % initialize the xmlhdr object
                 obj.xmlhdr = org.ismrm.ismrmrd.xmlhdr.IsmrmrdHeader();
+                obj.writexml(obj.xmlstring());
             else
                 % group exists, read the xml header
                 % and create a new convert it to an xml header object
-                %obj.xmlhdr = ismrmrd.XMLHeader().stringToHeader(obj.readxml());
                 obj.xmlhdr = org.ismrm.ismrmrd.xmlhdr.XMLString.StringToIsmrmrdHeader(obj.readxml());
             end
             H5P.close(lapl_id);
@@ -60,15 +68,17 @@ classdef IsmrmrdDataset
 
         function obj = close(obj)
             % synchronize the xml header
-            %xmlstring = ismrmrd.XMLHeader.headerToString(obj.xmlhdr);
-            xmlstring = org.ismrm.ismrmrd.xmlhdr.XMLString.IsmrmrdHeaderToString(obj.xmlhdr);
-            obj.writexml(xmlstring);
+            obj.writexml(obj.xmlstring());
             % close the file
             H5F.close(obj.fid);
         end
 
+        function xmlstring = xmlstring(obj)
+            % convert xmlhdr to a string
+            xmlstring = org.ismrm.ismrmrd.xmlhdr.XMLString.IsmrmrdHeaderToString(obj.xmlhdr);
+        end
+        
         function xmlstring = readxml(obj)
-
             % Check if the XML header exists
             % TODO: set it's value to the default
             lapl_id=H5P.create('H5P_LINK_ACCESS');
@@ -100,8 +110,9 @@ classdef IsmrmrdDataset
 
         function writexml(obj,xmlstring)
             % No validation is performed.  You're on your own.
-
-            xmlstring = char(xmlstring)
+            % make sure it's a char
+            xmlstring = char(xmlstring);
+            
             % TODO: add error checking on the write and return a status
             % TODO: if the matlab variable length string bug is resolved
             % then we should change this logic to just modify the length
@@ -135,11 +146,15 @@ classdef IsmrmrdDataset
 
             % Close the XML
             H5D.close(xml_id);
-
         end
 
         function nacq = getNumberOfAcquisitions(obj)
 
+            % Check if the Data exists
+            lapl_id=H5P.create('H5P_LINK_ACCESS');
+            if (H5L.exists(obj.fid, obj.datapath, lapl_id) == 0)
+                error([obj.datapath ' does not exist in the HDF5 dataset.']);
+            end
             dset = H5D.open(obj.fid, obj.datapath);
             space = H5D.get_space(dset);
             H5S.get_simple_extent_dims(space);
@@ -151,6 +166,12 @@ classdef IsmrmrdDataset
         end
 
         function acq = readAcquisition(obj, nacq)
+
+            % Check if the Data exists
+            lapl_id=H5P.create('H5P_LINK_ACCESS');
+            if (H5L.exists(obj.fid, obj.datapath, lapl_id) == 0)
+                error([obj.datapath ' does not exist in the HDF5 dataset.']);
+            end
 
             % Open the data
             dset_id = H5D.open(obj.fid, obj.datapath);
