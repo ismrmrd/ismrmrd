@@ -190,7 +190,9 @@ classdef IsmrmrdDataset
             acq.head = d.head(1);
             acq.traj = d.traj{1};
             t = d.data{1};
-            acq.data = t(1:2:end) + 1j*t(2:2:end);
+            acq.data = reshape( t(1:2:end) + 1j*t(2:2:end) , ...
+                                [acq.head.number_of_samples, ...
+                                 acq.head.active_channels] );
 
             % Clean up
             H5S.close(mem_space_id);
@@ -258,9 +260,9 @@ classdef IsmrmrdDataset
             d.head(1).idx = struct(acq.head.idx);
             warning(swarn.state, 'MATLAB:structOnObject')
             d.traj{1} = acq.traj;
-            t = zeros(2*length(acq.data),1,'single');
-            t(1:2:end) = real(acq.data);
-            t(2:2:end) = imag(acq.data);
+            t = zeros(2*length(acq.data(:)),1,'single');
+            t(1:2:end) = real(acq.data(:));
+            t(2:2:end) = imag(acq.data(:));
             d.data{1} = t;
 
             % Write
