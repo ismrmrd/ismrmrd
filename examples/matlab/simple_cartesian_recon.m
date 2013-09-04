@@ -1,82 +1,129 @@
-function [images] = simple_cartesian_recon(ismrmrdfile)
+function [images] = simple_cartesian_recon(ismrmrdfile, dataset)
 %
-%   [images] = simple_cartesian_recon(ismrmrdfile)
+%   [images] = simple_cartesian_recon(ismrmrdfile, dataset)
 %
 %   Simple example of how to reconstruct a 2D/3D cartesian dataset stored
 %   in ISMRMRD dataformat. Reconstruction handles partial fourier,
 %   oversampling, etc. 
 %
 %   Michael S. Hansen (michael.hansen@nih.gov), 2012
+%   Souheil J. Inati  (souheil.inati@nih.gov),  2013
+%
+%   Usage notes:
+%     ismrmrdfile: string, required.
+%     dataset:     string, optional, default='dataset'
 %
 
+switch nargin
+    case 1
+        dset = 'dataset';
+    case 2
+        dset = dataset;
+    otherwise
+        error('Wrong number of input arguments.')
+end
 
-%read the header
-header = ismrmrd_header2struct(h5read(ismrmrdfile,'/dataset/xml'));
+% Open the dataset
+f = ismrmrd.IsmrmrdDataset(ismrmrdfile, dset);
 
-
-%Is this a cartesian acquisition
-if (~strcmp(header.ismrmrdHeader.encoding.trajectory.Text,'cartesian')),
+% Is this a cartesian acquisition
+traj = f.xmlhdr.getEncoding.get(0).getTrajectory();
+if (~traj.equals(traj.CARTESIAN))
    error('This is not a cartesian dataset'); 
 end
 
-%if (str2num(header.ismrmrdHeader.encoding.encodedSpace.matrixSize.z.Text) <= 1),
-%    error('This is not a 3D dataset'); 
-%end
-    
-%Let's get the matrix size
-matrix_size = [str2num(header.ismrmrdHeader.encoding.encodedSpace.matrixSize.x.Text), ...
-               str2num(header.ismrmrdHeader.encoding.encodedSpace.matrixSize.y.Text), ...
-               str2num(header.ismrmrdHeader.encoding.encodedSpace.matrixSize.z.Text)];
+% Get the matrix sizes and the number of slices and channels
+matrix_size = [f.xmlhdr.getEncoding.get(0).getEncodedSpace.getMatrixSize.getX, ...
+               f.xmlhdr.getEncoding.get(0).getEncodedSpace.getMatrixSize.getY, ...
+               f.xmlhdr.getEncoding.get(0).getEncodedSpace.getMatrixSize.getZ];
 
-           
-recon_size = [str2num(header.ismrmrdHeader.encoding.reconSpace.matrixSize.x.Text), ...
-              str2num(header.ismrmrdHeader.encoding.reconSpace.matrixSize.y.Text), ...
-              str2num(header.ismrmrdHeader.encoding.reconSpace.matrixSize.z.Text)];
+recon_size = [f.xmlhdr.getEncoding.get(0).getReconSpace.getMatrixSize.getX, ...
+              f.xmlhdr.getEncoding.get(0).getReconSpace.getMatrixSize.getY, ...
+              f.xmlhdr.getEncoding.get(0).getReconSpace.getMatrixSize.getZ];
 
-
-%Let's load the data
-raw_data = h5read(ismrmrdfile,'/dataset/data');
-
-channels = max(raw_data.head.active_channels);
-samples = max(raw_data.head.number_of_samples);
-center_line = str2num(header.ismrmrdHeader.encoding.encodingLimits.kspace_encoding_step_1.center.Text);
-center_partition = str2num(header.ismrmrdHeader.encoding.encodingLimits.kspace_encoding_step_2.center.Text);
-
-if (samples ~= matrix_size(1)),
-    error('Mismatch between number of samples and matrix size');
+if ~isempty(f.xmlhdr.getEncoding.get(0).getEncodingLimits.getSlice)
+    slices = f.xmlhdr.getEncoding.get(0).getEncodingLimits.getSlice;
+else
+    slices = 1;
 end
 
-buffer = zeros(matrix_size(1),matrix_size(2),matrix_size(3),channels);           
+channels = f.xmlhdr.getAcquisitionSystemInformation.getReceiverChannels.doubleValue;
+
+
+% Get the encoding centers
+center_line = f.xmlhdr.getEncoding.get(0).getEncodingLimits.getKspaceEncodingStep1.getCenter;
+if (matrix_size(3) > 1)
+    % 3D
+    center_partition = f.xmlhdr.getEncoding.get(0).getEncodingLimits.getKspaceEncodingStep2.getCenter;
+else
+    % 2D
+    center_partition = 0;
+end
+
+acqFlags = ismrmrd.AcquisitionFlags;
+
+% Allocate a buffer for storing 1 repetition's worth of data
+buffer = zeros([matrix_size(1),matrix_size(2),matrix_size(3),slices,channels],'single');
+
+% Initalize the output
+images = [];
+
+% read all the acquisitions
+acq = f.readAcquisition();
+
+% Loop over all the acquisitions
 counter = 0;
-for p=1:length(raw_data.head.flags),
-   if (bitget(uint64(raw_data.head.flags(p)),19)), %if this is noise, we will skip it
-      continue; 
-   end
-   line_number      = (int32(raw_data.head.idx.kspace_encode_step_1(p))-center_line)+bitshift(matrix_size(2),-1);  
-   partition_number = (int32(raw_data.head.idx.kspace_encode_step_2(p))-center_partition)+bitshift(matrix_size(3),-1);  
-   buffer(:,line_number+1,partition_number+1,:) = reshape(complex(raw_data.data{p}(1:2:end), raw_data.data{p}(2:2:end)), samples, 1, 1, channels);
-   
-   if (bitget(uint64(raw_data.head.flags(p)),8)), %Is this the last in slice? We should make an image
-      fprintf('Reconstructing image %d....', counter+1); 
+for p = 1:f.getNumberOfAcquisitions
+    
+    % ignore the noise scans
+    if acqFlags.isSet(acq.head.flags(p),'ACQ_IS_NOISE_MEASUREMENT')
+        continue
+    end
 
-      img = fftshift(ifft(ifftshift(buffer),[],1)) ./ sqrt(size(buffer,1));
-      img = fftshift(ifft(ifftshift(img),[],2)) ./ sqrt(size(img,2));
-      if (matrix_size(3) > 1), 
-          img = fftshift(ifft(ifftshift(img),[],3)) ./ sqrt(size(img,3));
-      end
-      
-      img = img((1:recon_size(1))+bitshift(matrix_size(1)-recon_size(1),-1), ...
-                (1:recon_size(2))+bitshift(matrix_size(2)-recon_size(2),-1), ...
-                (1:recon_size(3))+bitshift(matrix_size(3)-recon_size(3),-1), :);
-      
-      images(:,:,:,counter+1) = sqrt(sum(abs(img).^2,4)); %RMS coil combination
-      counter = counter + 1;
-      fprintf('done\n'); 
-      buffer = zeros(matrix_size(1),matrix_size(2),matrix_size(3), channels);           
-   end  
+    % stuff the data in the buffer
+    line_number      = int32(acq.head.idx.kspace_encode_step_1(p)) - center_line + matrix_size(2)/2 + 1;
+    if matrix_size(3) > 1
+        partition_number = int32(acq.head.idx.kspace_encode_step_2(p)) - center_partition + matrix_size(3)/2 + 1;
+    else
+        partition_number = 1;
+    end
+    slice_number     = acq.head.idx.slice(p) + 1;
+    buffer(:,line_number,partition_number,slice_number,:) = acq.data{p};
+    
+    % Is this the last in slice? We should make an image
+    if (acqFlags.isSet(acq.head.flags(p),'ACQ_LAST_IN_SLICE'))
+        counter = counter + 1;
+        fprintf('Reconstructing image %d\n', counter); 
+        fprintf('   slice: %d\n', slice_number); 
+        fprintf('   rep:   %d\n', acq.head.idx.repetition(p)+1); 
+
+        % FFT
+        img = fftshift(ifft(ifftshift(buffer(:,:,:,slice_number,:)),[],1)) ./ sqrt(size(buffer,1));
+        img = fftshift(ifft(ifftshift(img),[],2)) ./ sqrt(size(img,2));
+        if (matrix_size(3) > 1), 
+            img = fftshift(ifft(ifftshift(img),[],3)) ./ sqrt(size(img,3));
+        end
+
+        % Handle over-sampling
+        if matrix_size(3) > 1
+            img = img((1:recon_size(1)) + (matrix_size(1)-recon_size(1))/2, ...
+                      (1:recon_size(2)) + (matrix_size(2)-recon_size(2))/2, ...
+                      (1:recon_size(3)) + (matrix_size(3)-recon_size(3))/2, :);
+        else
+            img = img((1:recon_size(1)) + (matrix_size(1)-recon_size(1))/2, ...
+                      (1:recon_size(2)) + (matrix_size(2)-recon_size(2))/2, ...
+                      1, :);
+        end
+
+        % RMS coil combination
+        img = sqrt(sum(abs(img).^2,4));
+        
+        % Append to the output buffer
+        images(:,:,:,counter) = img;
+    end
+
 end
+fprintf('done\n'); 
 
-%Let's just show the middle slice image
-imagesc(images(:,:,bitshift(size(images,3),-1)+1, 1));colormap(gray);axis image;
-
-
+% Display the middle slice image
+% imagesc(images(:,:,bitshift(size(images,3),-1)+1, 1));colormap(gray);axis image;
