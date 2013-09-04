@@ -1,5 +1,5 @@
-% IMAGE FLAGS %
-classdef ImageFlags
+classdef ImageFlags < ismrmrd.Flags
+% IMAGE FLAGS
     properties(Constant)
         IMAGE_IS_NAVIGATION_DATA      				= 23,
         IMAGE_USER1                   				= 57,

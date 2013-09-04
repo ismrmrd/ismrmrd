@@ -1,4 +1,4 @@
-classdef AcquisitionFlags
+classdef AcquisitionFlags < ismrmrd.Flags
     properties(Constant)
         % Looping indicators %
         ACQ_FIRST_IN_ENCODE_STEP1                	= 1,
@@ -35,4 +35,5 @@ classdef AcquisitionFlags
         ACQ_USER7                   				= 63,
         ACQ_USER8                   				= 64
     end
+    
 end

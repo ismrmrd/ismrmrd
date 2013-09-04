@@ -159,60 +159,77 @@ classdef IsmrmrdDataset
 
         end
 
-        function acq = readAcquisition(obj, nacq)
+        function block = readAcquisition(obj, start, stop)
+            if nargin == 1
+                % Read all the acquisitions
+                start = 1;
+                stop = -1;
+            elseif nargin == 2
+                % Read a single acquisition
+                stop = start;
+            end
 
             % Check if the Data exists
-            lapl_id=H5P.create('H5P_LINK_ACCESS');
-            if (H5L.exists(obj.fid, obj.datapath, lapl_id) == 0)
+            lapl=H5P.create('H5P_LINK_ACCESS');
+            if (H5L.exists(obj.fid, obj.datapath, lapl) == 0)
                 error([obj.datapath ' does not exist in the HDF5 dataset.']);
             end
 
             % Open the data
-            dset_id = H5D.open(obj.fid, obj.datapath);
+            dset = H5D.open(obj.fid, obj.datapath);
 
             % Open the data space
-            file_space_id = H5D.get_space(dset_id);
-
-            % Initialize the return object
-            acq = ismrmrd.Acquisition;
+            space = H5D.get_space(dset);
+            
+            % Get the size
+            H5S.get_simple_extent_dims(space);
+            [~,dims,~] = H5S.get_simple_extent_dims(space);
+            nacq = dims(1);
 
             % Create a mem_space for reading
-            dims = [1 1];
-            mem_space_id = H5S.create_simple(2,dims,[]);
+            if (stop >= start)
+                offset = [start-1 0];
+                dims = [stop-start+1 1];
+                mem_space = H5S.create_simple(2,dims,[]);
+            else
+                offset = [0 0];
+                dims = [nacq 1];
+                mem_space = H5S.create_simple(2,dims,[]);
+            end
 
-            % Read the desired acquisition
-            offset = [nacq-1 0];
-            H5S.select_hyperslab(file_space_id,'H5S_SELECT_SET',offset,[1 1],[1 1],[1 1]);
-            d = H5D.read(dset_id, obj.htypes.T_Acquisition, ...
-                            mem_space_id, file_space_id, 'H5P_DEFAULT');
-
-            % Set the structure bits
-            acq.head = d.head(1);
-            acq.traj = d.traj{1};
-            t = d.data{1};
-            acq.data = reshape( t(1:2:end) + 1j*t(2:2:end) , ...
-                                [acq.head.number_of_samples, ...
-                                 acq.head.active_channels] );
+            % Read the desired acquisitions            
+            H5S.select_hyperslab(space,'H5S_SELECT_SET',offset,[1 1],[1 1],dims);
+            d = H5D.read(dset, obj.htypes.T_Acquisition, ...
+                         mem_space, space, 'H5P_DEFAULT');
+                     
+            % Pack'em
+            block = ismrmrd.Acquisition(d.head, d.traj, d.data);
+            %block.head = d.head;
+            %block.traj = d.traj;
+            %block.dataFromFloat(d.data);
 
             % Clean up
-            H5S.close(mem_space_id);
-            H5S.close(file_space_id);
-            H5D.close(dset_id);
+            H5S.close(mem_space);
+            H5S.close(space);
+            H5D.close(dset);
         end
 
         function appendAcquisition(obj, acq)
             % Append an acquisition
 
             % TODO: Check the type of the input
-
+            
+            % The number of acquisitions that we are going to append
+            N = acq.getNumberOfAcquisitions();
+            
             % Check if the Data exists
             %   if it does not exist, create it
-            %   if it does exist increase it's size by one
+            %   if it does exist increase it's size
             lapl_id=H5P.create('H5P_LINK_ACCESS');
             if (H5L.exists(obj.fid, obj.datapath, lapl_id) == 0)
                 % Data does not exist
                 %   create with rank 2, unlimited, and set the chunk size
-                dims    = [1 1];
+                dims    = [N 1];
                 maxdims = [H5ML.get_constant_value('H5S_UNLIMITED') 1];
                 file_space_id = H5S.create_simple(2, dims, maxdims);
 
@@ -232,39 +249,33 @@ classdef IsmrmrdDataset
                 % Open the data space
                 file_space_id = H5D.get_space(data_id);
 
-                % Get the size, increment by one
+                % Get the size, increment by N
                 H5S.get_simple_extent_dims(file_space_id);
                 [~,dims,~] = H5S.get_simple_extent_dims(file_space_id);
-                dims = [dims(1)+1, 1];
+                dims = [dims(1)+N, 1];
                 H5D.set_extent (data_id, dims);
                 H5S.close(file_space_id);
 
             end
             H5P.close(lapl_id);
 
-            % Get the file space (room for one more acq)
+            % Get the file space
             file_space_id = H5D.get_space(data_id);
             [~,dims,~] = H5S.get_simple_extent_dims(file_space_id);
 
-            % Select the last block
-            offset = [dims(1)-1 0];
-            H5S.select_hyperslab(file_space_id,'H5S_SELECT_SET',offset,[],[],[]);
+            % Select the last N block
+            offset = [dims(1)-N 0];
+            H5S.select_hyperslab(file_space_id,'H5S_SELECT_SET',offset,[1 1],[1 1],[N 1]);
 
             % Mem space
-            mem_space_id = H5S.create_simple(2,[1 1],[]);
+            mem_space_id = H5S.create_simple(2,[N 1],[]);
 
             % Pack the acquisition into the correct struct for writing
-            swarn = warning('query','MATLAB:structOnObject');
-            warning('off', 'MATLAB:structOnObject')
-            d.head(1) = struct(acq.head);
-            d.head(1).idx = struct(acq.head.idx);
-            warning(swarn.state, 'MATLAB:structOnObject')
-            d.traj{1} = acq.traj;
-            t = zeros(2*length(acq.data(:)),1,'single');
-            t(1:2:end) = real(acq.data(:));
-            t(2:2:end) = imag(acq.data(:));
-            d.data{1} = t;
-
+            d = struct();
+            d.head = acq.head;
+            d.traj = acq.traj;
+            d.data = acq.dataToFloat();
+            
             % Write
             H5D.write(data_id, obj.htypes.T_Acquisition, ...
                       mem_space_id, file_space_id, 'H5P_DEFAULT', d);

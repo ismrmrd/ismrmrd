@@ -1,9 +1,9 @@
 classdef ImageType
     properties(Constant)
-        TYPE_MAGNITUDE = 1,
-        TYPE_PHASE = 2,
-        TYPE_REAL = 3,
-        TYPE_IMAG = 4,
-        TYPE_COMPLEX = 5
+        TYPE_MAGNITUDE = uint16(1);
+        TYPE_PHASE     = uint16(2);
+        TYPE_REAL      = uint16(3);
+        TYPE_IMAG      = uint16(4);
+        TYPE_COMPLEX   = uint16(5);
     end
 end
