@@ -13,10 +13,10 @@ classdef IsmrmrdDataset
 
         function obj = IsmrmrdDataset(filename,groupname)
             % add the ismrmrd jar to the javaclasspath
-            ismrmrd.includejar();
+            ismrmrd.util.includejar();
 
             % Set the hdf types
-            obj.htypes = ismrmrd.utils.hdf5_datatypes;
+            obj.htypes = ismrmrd.util.hdf5_datatypes;
                       
             % If the file exists, open it for read/write
             % otherwise, create it
@@ -204,9 +204,6 @@ classdef IsmrmrdDataset
                      
             % Pack'em
             block = ismrmrd.Acquisition(d.head, d.traj, d.data);
-            %block.head = d.head;
-            %block.traj = d.traj;
-            %block.dataFromFloat(d.data);
 
             % Clean up
             H5S.close(mem_space);

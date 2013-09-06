@@ -60,8 +60,6 @@ else
     center_partition = 0;
 end
 
-acqFlags = ismrmrd.AcquisitionFlags;
-
 % Allocate a buffer for storing 1 repetition's worth of data
 buffer = zeros([matrix_size(1),matrix_size(2),matrix_size(3),slices,channels],'single');
 
@@ -73,10 +71,10 @@ acq = f.readAcquisition();
 
 % Loop over all the acquisitions
 counter = 0;
-for p = 1:f.getNumberOfAcquisitions
+for p = 1:acq.getNumber()
     
     % ignore the noise scans
-    if acqFlags.isSet(acq.head.flags(p),'ACQ_IS_NOISE_MEASUREMENT')
+    if acq.head.flagIsSet(acq.head.FLAGS.ACQ_IS_NOISE_MEASUREMENT,p)
         continue
     end
 
@@ -91,7 +89,7 @@ for p = 1:f.getNumberOfAcquisitions
     buffer(:,line_number,partition_number,slice_number,:) = acq.data{p};
     
     % Is this the last in slice? We should make an image
-    if (acqFlags.isSet(acq.head.flags(p),'ACQ_LAST_IN_SLICE'))
+    if acq.head.flagIsSet(acq.head.FLAGS.ACQ_LAST_IN_SLICE,p)
         counter = counter + 1;
         fprintf('Reconstructing image %d\n', counter); 
         fprintf('   slice: %d\n', slice_number); 

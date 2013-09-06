@@ -16,15 +16,15 @@ classdef hdf5_datatypes
     methods
         
         function obj = hdf5_datatypes()
-            obj.T_float = obj.getType_float();
-            obj.T_double = obj.getType_double();
-            obj.T_char = obj.getType_char();
-            obj.T_complexfloat = obj.getType_complexfloat();
-            obj.T_complexdouble = obj.getType_complexdouble();
-            obj.T_ushort = obj.getType_ushort();
-            obj.T_EncodingCounters = obj.getType_EncodingCounters();
-            obj.T_AcquisitionHeader = obj.getType_AcquisitionHeader();
-            obj.T_Acquisition = obj.getType_Acquisition();
+            obj.T_float = ismrmrd.util.hdf5_datatypes.getType_float();
+            obj.T_double = ismrmrd.util.hdf5_datatypes.getType_double();
+            obj.T_char = ismrmrd.util.hdf5_datatypes.getType_char();
+            obj.T_complexfloat = ismrmrd.util.hdf5_datatypes.getType_complexfloat();
+            obj.T_complexdouble = ismrmrd.util.hdf5_datatypes.getType_complexdouble();
+            obj.T_ushort = ismrmrd.util.hdf5_datatypes.getType_ushort();
+            obj.T_EncodingCounters = ismrmrd.util.hdf5_datatypes.getType_EncodingCounters();
+            obj.T_AcquisitionHeader = ismrmrd.util.hdf5_datatypes.getType_AcquisitionHeader();
+            obj.T_Acquisition = ismrmrd.util.hdf5_datatypes.getType_Acquisition();
         end
         
     end
@@ -122,7 +122,7 @@ classdef hdf5_datatypes
             typesize = typesize + 3*H5T.get_size('H5T_NATIVE_FLOAT'); % phase_dir
             typesize = typesize + 3*H5T.get_size('H5T_NATIVE_FLOAT'); % slice_dir
             typesize = typesize + 3*H5T.get_size('H5T_NATIVE_FLOAT'); % patient_table_position
-            typesize = typesize + H5T.get_size(ismrmrd.hdf5_datatypes.getType_EncodingCounters()); % idx
+            typesize = typesize + H5T.get_size(ismrmrd.util.hdf5_datatypes.getType_EncodingCounters()); % idx
             typesize = typesize + 8*H5T.get_size('H5T_NATIVE_INT32'); % user_int
             typesize = typesize + 8*H5T.get_size('H5T_NATIVE_FLOAT'); % user_float
 
@@ -192,8 +192,8 @@ classdef hdf5_datatypes
             H5T.insert(b, 'patient_table_position', offset, H5T.array_create('H5T_NATIVE_FLOAT',[3]));
             offset = offset + 3*H5T.get_size('H5T_NATIVE_FLOAT');
 
-            H5T.insert(b, 'idx', offset, ismrmrd.hdf5_datatypes.getType_EncodingCounters);
-            offset = offset + H5T.get_size(ismrmrd.hdf5_datatypes.getType_EncodingCounters);
+            H5T.insert(b, 'idx', offset, ismrmrd.util.hdf5_datatypes.getType_EncodingCounters);
+            offset = offset + H5T.get_size(ismrmrd.util.hdf5_datatypes.getType_EncodingCounters);
 
             H5T.insert(b, 'user_int', offset, H5T.array_create('H5T_NATIVE_INT32',[8]));
             offset = offset + 8*H5T.get_size('H5T_NATIVE_INT32');
@@ -205,9 +205,9 @@ classdef hdf5_datatypes
 
         function b = getType_Acquisition()
 
-            head = H5T.copy(ismrmrd.hdf5_datatypes.getType_AcquisitionHeader);
-            traj = H5T.vlen_create(ismrmrd.hdf5_datatypes.getType_float());
-            data = H5T.vlen_create(ismrmrd.hdf5_datatypes.getType_float());
+            head = H5T.copy(ismrmrd.util.hdf5_datatypes.getType_AcquisitionHeader());
+            traj = H5T.vlen_create(ismrmrd.util.hdf5_datatypes.getType_float());
+            data = H5T.vlen_create(ismrmrd.util.hdf5_datatypes.getType_float());
 
             typesize = H5T.get_size(head) + H5T.get_size(traj) + H5T.get_size(data);
 
