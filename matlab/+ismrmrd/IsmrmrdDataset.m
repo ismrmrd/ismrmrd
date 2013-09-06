@@ -16,7 +16,7 @@ classdef IsmrmrdDataset
             ismrmrd.includejar();
 
             % Set the hdf types
-            obj.htypes = ismrmrd.hdf5_datatypes;
+            obj.htypes = ismrmrd.utils.hdf5_datatypes;
                       
             % If the file exists, open it for read/write
             % otherwise, create it
