@@ -5,7 +5,7 @@ classdef ImageHeader < handle
         version = uint16([]);                % First unsigned int indicates the version %
         flags = uint64([]);                  % bit field with flags %
         measurement_uid = uint32([]);        % Unique ID for the measurement %
-        matrix_size = single([]);            % Pixels in the 3 spatial dimensions
+        matrix_size = uint16([]);            % Pixels in the 3 spatial dimensions
         field_of_view = single([]);          % Size (in mm) of the 3 spatial dimensions %
         channels = uint16([]);               % Number of receive channels %
         position = single([]);               % Three-dimensional spatial offsets from isocenter %
@@ -22,7 +22,7 @@ classdef ImageHeader < handle
         acquisition_time_stamp = uint32([]); % Acquisition clock %
         physiology_time_stamp = uint32([]);  % Physiology time stamps, e.g. ecg, breating, etc. %
         image_data_type = uint16([]);        % e.g. unsigned short, float, complex float, etc. %
-        image_type = uint16(imtype);         % e.g. magnitude, phase, complex, real, imag, etc. %
+        image_type = uint16([]);             % e.g. magnitude, phase, complex, real, imag, etc. %
         image_index = uint16([]);			 % e.g. image number in series of images  %
         image_series_index = uint16([]);     % e.g. series number %
         user_int = int32([]);                % Free user parameters %
@@ -112,12 +112,12 @@ classdef ImageHeader < handle
             hdr.phase_dir = obj.phase_dir(:,range);
             hdr.slice_dir = obj.slice_dir(:,range);
             hdr.patient_table_position = obj.patient_table_position(:,range);
-            hdr.average = obj.idx.average(range);
-            hdr.slice = obj.idx.slice(range);
-            hdr.contrast = obj.idx.contrast(range);
-            hdr.phase = obj.idx.phase(range);
-            hdr.repetition = obj.idx.repetition(range);
-            hdr.set = obj.idx.set(range);
+            hdr.average = obj.average(range);
+            hdr.slice = obj.slice(range);
+            hdr.contrast = obj.contrast(range);
+            hdr.phase = obj.phase(range);
+            hdr.repetition = obj.repetition(range);
+            hdr.set = obj.set(range);
             hdr.acquisition_time_stamp = obj.acquisition_time_stamp(range);
             hdr.physiology_time_stamp = obj.physiology_time_stamp(:,range);
             hdr.image_data_type = obj.image_data_type(range);
@@ -156,8 +156,8 @@ classdef ImageHeader < handle
             obj.image_type(1,range)               = zeros(1,N,'uint16');
             obj.image_index(1,range)              = zeros(1,N,'uint16');
             obj.image_series_index(1,range)       = zeros(1,N,'uint16');
-            obj.user_int(1:3,range)               = zeros(8,1,'int32');
-            obj.user_float(1:3,range)             = zeros(8,1,'single');
+            obj.user_int(1:8,range)               = zeros(8,N,'int32');
+            obj.user_float(1:8,range)             = zeros(8,N,'single');
         end
         
         function append(obj, head)
