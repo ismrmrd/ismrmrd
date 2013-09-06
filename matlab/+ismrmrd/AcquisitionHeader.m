@@ -266,6 +266,44 @@ classdef AcquisitionHeader < handle
             obj.user_int = hdr.user_int;
             obj.user_float = hdr.user_float;            
         end
+
+        function hdr = toStruct(obj)
+            %warning! no error checking
+            hdr = struct();
+            hdr.version = obj.version;
+            hdr.flags = obj.flags;
+            hdr.measurement_uid = obj.measurement_uid;
+            hdr.scan_counter = obj.scan_counter;
+            hdr.acquisition_time_stamp = obj.acquisition_time_stamp;
+            hdr.physiology_time_stamp = obj.physiology_time_stamp;
+            hdr.number_of_samples = obj.number_of_samples;
+            hdr.available_channels = obj.available_channels;
+            hdr.active_channels = obj.active_channels;
+            hdr.channel_mask = obj.channel_mask;
+            hdr.discard_pre = obj.discard_pre;
+            hdr.discard_post = obj.discard_post;
+            hdr.center_sample = obj.center_sample;
+            hdr.encoding_space_ref = obj.encoding_space_ref;
+            hdr.trajectory_dimensions = obj.trajectory_dimensions;
+            hdr.sample_time_us = obj.sample_time_us;
+            hdr.position = obj.position;
+            hdr.read_dir = obj.read_dir;
+            hdr.phase_dir = obj.phase_dir;
+            hdr.slice_dir = obj.slice_dir;
+            hdr.patient_table_position = obj.patient_table_position;
+            hdr.idx.kspace_encode_step_1 = obj.idx.kspace_encode_step_1;
+            hdr.idx.kspace_encode_step_2 = obj.idx.kspace_encode_step_2;
+            hdr.idx.average = obj.idx.average;
+            hdr.idx.slice = obj.idx.slice;
+            hdr.idx.contrast = obj.idx.contrast;
+            hdr.idx.phase = obj.idx.phase;
+            hdr.idx.repetition = obj.idx.repetition;
+            hdr.idx.set = obj.idx.set;
+            hdr.idx.segment = obj.idx.segment;
+            hdr.idx.user = obj.idx.user;
+            hdr.user_int = obj.user_int;
+            hdr.user_float = obj.user_float;            
+        end
         
         function fromBytes(obj, bytearray)
 

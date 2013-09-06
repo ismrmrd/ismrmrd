@@ -217,7 +217,7 @@ classdef IsmrmrdDataset
             % TODO: Check the type of the input
             
             % The number of acquisitions that we are going to append
-            N = acq.getNumberOfAcquisitions();
+            N = acq.getNumber();
             
             % Check if the Data exists
             %   if it does not exist, create it
@@ -269,7 +269,7 @@ classdef IsmrmrdDataset
 
             % Pack the acquisition into the correct struct for writing
             d = struct();
-            d.head = acq.head;
+            d.head = acq.head.toStruct();
             d.traj = acq.traj;
             d.data = acq.dataToFloat();
             
