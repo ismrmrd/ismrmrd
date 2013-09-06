@@ -114,7 +114,7 @@ classdef AcquisitionHeader < handle
             
             % create an empty acquisition header
             M = length(range);
-            hdr = ismrmrd.Acquisition(M);
+            hdr = ismrmrd.AcquisitionHeader(M);
             
             % Fill
             hdr.version = obj.version(range);
