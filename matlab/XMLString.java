@@ -1,4 +1,4 @@
-package org.ismrm.ismrmrd.xmlhdr;
+package org.ismrm.ismrmrd;
 
 import javax.xml.bind.*;
 import javax.xml.namespace.QName;

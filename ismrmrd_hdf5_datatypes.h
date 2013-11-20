@@ -96,6 +96,8 @@ template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<AcquisitionHea
 	ret->insertMember( "scan_counter", 				HOFFSET(AcquisitionHeader, scan_counter), 			PredType::NATIVE_UINT32);
 	ret->insertMember( "acquisition_time_stamp", 	HOFFSET(AcquisitionHeader, acquisition_time_stamp), PredType::NATIVE_UINT32);
 
+        // TODO: change ISMRMRD_PHYS_STAMPS to 3 (Major change)
+        // we should use the size defines and not hard coded numbers.
 	std::vector<hsize_t> dims(1,3);
 	boost::shared_ptr<DataType> array_type(new ArrayType(PredType::NATIVE_UINT32, 1, &dims[0]));
 	ret->insertMember( "physiology_time_stamp", HOFFSET(AcquisitionHeader, physiology_time_stamp), 		*array_type);
@@ -244,6 +246,8 @@ template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader>()
 	ret->insertMember( "set",   					HOFFSET(ImageHeader, set), 						PredType::NATIVE_UINT16);
 	ret->insertMember( "acquisition_time_stamp", 	HOFFSET(ImageHeader, acquisition_time_stamp),   PredType::NATIVE_UINT32);
 
+        // TODO: ISMRMRD_PHYS_STAMPS should be 3 (Major change)
+        // we should use the size defines and not hard coded numbers.
 	dims[0] = 3;
 	boost::shared_ptr<DataType> array_type(new ArrayType(PredType::NATIVE_UINT32, 1, &dims[0]));
 	ret->insertMember( "physiology_time_stamp", HOFFSET(ImageHeader, physiology_time_stamp), 		*array_type);
