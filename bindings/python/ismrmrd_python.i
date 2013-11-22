@@ -1,6 +1,9 @@
 %module ismrmrd
 
 %{
+
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+
 #include "ismrmrd_hdf5.h"
 #include "numpy/arrayobject.h"
 
@@ -53,8 +56,8 @@
         boost::shared_ptr< ISMRMRD::NDArrayContainer<T> > container = dset->readArray<T>(varname,index);
         PyObject *array = make_image_array<T>(container, numpy_type);
 
-        T *raw = (T*)PyArray_DATA(array);
-        npy_intp raw_size = PyArray_NBYTES(array);
+        T *raw = (T*)PyArray_DATA((PyArrayObject*)array);
+        npy_intp raw_size = PyArray_NBYTES((PyArrayObject*)array);
 
         memcpy(raw, &container->data_[0], raw_size);
 
@@ -105,9 +108,9 @@
 	PyObject *array = PyArray_New(&PyArray_Type, 1, dims, NPY_FLOAT,
                 NULL, NULL, 0, NPY_ARRAY_FARRAY, NULL);
 
-        char *raw = PyArray_BYTES(array);
-        int data_size = PyArray_ITEMSIZE(array);
-        npy_intp raw_size = PyArray_NBYTES(array);
+        char *raw = PyArray_BYTES((PyArrayObject*)array);
+        int data_size = PyArray_ITEMSIZE((PyArrayObject*)array);
+        npy_intp raw_size = PyArray_NBYTES((PyArrayObject*)array);
 
         std::valarray<float> data = $self->getData();
         memcpy(raw, &data[0], dims[0] * data_size);
@@ -117,32 +120,32 @@
 
     void setData(PyObject *in_array)
     {
-        if (!PyArray_Check(in_array) || !PyArray_ISFLOAT(in_array)) {
+        if (!PyArray_Check((PyArrayObject*)in_array) || !PyArray_ISFLOAT((PyArrayObject*)in_array)) {
             set_err("Argument to setData is not a numpy float array\n");
             return;
-        } else if (!PyArray_ISBEHAVED_RO(in_array)) {
+        } else if (!PyArray_ISBEHAVED_RO((PyArrayObject*)in_array)) {
             set_err("Argument to setData must be aligned\n");
             return;
-        } else if (!PyArray_ISONESEGMENT(in_array)) {
+        } else if (!PyArray_ISONESEGMENT((PyArrayObject*)in_array)) {
             set_err("Data is not one segment\n");
             return;
         }
 
         PyObject *array = NULL;
         /* if array is C-style contiguous, make a Fortran-style contiguous copy */
-        if (PyArray_ISCONTIGUOUS(in_array)) {
+        if (PyArray_ISCONTIGUOUS((PyArrayObject*)in_array)) {
             array = PyArray_NewCopy((PyArrayObject*)in_array, NPY_FORTRANORDER);
         } else {
             array = in_array;
         }
 
-        int ndim = PyArray_NDIM(array);
-        int itemsize = PyArray_ITEMSIZE(array);
-        npy_intp nbytes = PyArray_NBYTES(array);
-        npy_intp nelements = PyArray_SIZE(array);
-        npy_intp* dims = PyArray_DIMS(array);
-        npy_intp* strides = PyArray_STRIDES(array);
-        void *raw = PyArray_DATA(array);
+        int ndim = PyArray_NDIM((PyArrayObject*)array);
+        int itemsize = PyArray_ITEMSIZE((PyArrayObject*)array);
+        npy_intp nbytes = PyArray_NBYTES((PyArrayObject*)array);
+        npy_intp nelements = PyArray_SIZE((PyArrayObject*)array);
+        npy_intp* dims = PyArray_DIMS((PyArrayObject*)array);
+        npy_intp* strides = PyArray_STRIDES((PyArrayObject*)array);
+        void *raw = PyArray_DATA((PyArrayObject*)array);
 
         std::valarray<float> data(0.0, nelements);
         memcpy(&(data[0]), raw, nbytes);
@@ -213,24 +216,24 @@
 
     int appendArray(PyObject *in_array, const char* varname)
     {
-        if (!PyArray_Check(in_array)) {
+        if (!PyArray_Check((PyArrayObject*)in_array)) {
             set_err("array arg to appendArray is not a numpy array\n");
             return -1;
-        } else if (!PyArray_ISBEHAVED_RO(in_array)) {
+        } else if (!PyArray_ISBEHAVED_RO((PyArrayObject*)in_array)) {
             set_err("array arg to appendArray must be aligned and in machine byte-order\n");
             return -1;
         }
 
         PyObject *array = NULL;
         /* if in_array is C-style contiguous, make it a Fortran-style contiguous copy */
-        if (PyArray_ISCONTIGUOUS(in_array)) {
+        if (PyArray_ISCONTIGUOUS((PyArrayObject*)in_array)) {
             array = PyArray_NewCopy((PyArrayObject*)in_array, NPY_FORTRANORDER);
         } else {
             array = in_array;
         }
 
-        int ndim = PyArray_NDIM(array);
-        npy_intp* dims = PyArray_DIMS(array);
+        int ndim = PyArray_NDIM((PyArrayObject*)array);
+        npy_intp* dims = PyArray_DIMS((PyArrayObject*)array);
 
         std::vector<unsigned int> dimensions;
         for (int d = 0; d < ndim; d++) {
@@ -238,29 +241,29 @@
         }
 
         int ret = 0;
-        switch (PyArray_TYPE(array)) {
+        switch (PyArray_TYPE((PyArrayObject*)array)) {
             case NPY_USHORT: {
-                npy_ushort *raw = (npy_ushort*)PyArray_DATA(array);
+                npy_ushort *raw = (npy_ushort*)PyArray_DATA((PyArrayObject*)array);
                 ret = $self->appendArray(dimensions, raw, varname);
                 break;
             }
             case NPY_FLOAT: {
-                npy_float *raw = (npy_float*)PyArray_DATA(array);
+                npy_float *raw = (npy_float*)PyArray_DATA((PyArrayObject*)array);
                 ret = $self->appendArray(dimensions, raw, varname);
                 break;
             }
             case NPY_DOUBLE: {
-                npy_double *raw = (npy_double*)PyArray_DATA(array);
+                npy_double *raw = (npy_double*)PyArray_DATA((PyArrayObject*)array);
                 ret = $self->appendArray(dimensions, raw, varname);
                 break;
             }
             case NPY_CFLOAT: {
-                npy_cfloat *raw = (npy_cfloat*)PyArray_DATA(array);
+                npy_cfloat *raw = (npy_cfloat*)PyArray_DATA((PyArrayObject*)array);
                 ret = $self->appendArray(dimensions, (std::complex<float>*)raw, varname);
                 break;
             }
             case NPY_CDOUBLE: {
-                npy_cdouble *raw = (npy_cdouble*)PyArray_DATA(array);
+                npy_cdouble *raw = (npy_cdouble*)PyArray_DATA((PyArrayObject*)array);
                 ret = $self->appendArray(dimensions, (std::complex<float>*)raw, varname);
                 break;
             }
