@@ -13,26 +13,31 @@ set_source_files_properties(${SWIG_SOURCES} PROPERTIES CPLUSPLUS ON)
 swig_add_module(jismrmrd java ${SWIG_SOURCES})
 swig_link_libraries(jismrmrd ${HDF5_LIBRARIES} ${Boost_LIBRARIES})
 
-## TODO: not use a shell script
+#### ISMRMRD XML Header Java library ####
 configure_file(make_jar.sh.in make_jar.sh @ONLY)
-set_source_files_properties(ismrmrd.jar PROPERTIES GENERATED true)
+
+set(JAVADOC_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/doc")
+set(JAVA_OUTPUTS "${CMAKE_CURRENT_BINARY_DIR}/ismrmrd.jar" ${JAVADOC_OUTPTU})
+
+## TODO: not use a shell script... it breaks 'make'
 add_custom_command(
-    TARGET jismrmrd
-    POST_BUILD
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    COMMENT "Compiling java files and creating jar" VERBATIM
+    OUTPUT ${JAVA_OUTPUTS}
+    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/make_jar.sh"
+    VERBATIM
+    COMMENT "Compiling java files, building jar, generating API docs"
     COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/JNILibLoader.java
                ${CMAKE_CURRENT_BINARY_DIR}/org/ismrm/ismrmrd/
     COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/org/ismrm/ismrmrd/xmlhdr
     COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/XMLString.java
                ${CMAKE_CURRENT_BINARY_DIR}/org/ismrm/ismrmrd/xmlhdr/
     COMMAND sh make_jar.sh
-    VERBATIM
+    COMMAND javadoc -quiet -d ${JAVADOC_OUTPUT} -subpackages org.ismrm.ismrmrd.xmlhdr
 )
+add_custom_target(ismrmrdjar ALL DEPENDS ${JAVA_OUTPUTS})
 
 install(TARGETS jismrmrd DESTINATION java)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ismrmrd.jar DESTINATION java)
 
 # Note: the API documentation is only for the XML header, and is installed
 # in ${INSTALL_PREFIX}/matlab/doc
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc DESTINATION matlab)
+install(DIRECTORY ${JAVADOC_OUTPUT} DESTINATION matlab)

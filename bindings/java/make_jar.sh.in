@@ -8,6 +8,3 @@ javac org/ismrm/ismrmrd/xmlhdr/*.java
 
 # Build a big jar
 jar -cvf ismrmrd.jar org/ismrm/ismrmrd/*.class org/ismrm/ismrmrd/xmlhdr/*.class
-
-# Build the java docs only for the XML header API
-javadoc -quiet -d doc -subpackages org.ismrm.ismrmrd.xmlhdr
