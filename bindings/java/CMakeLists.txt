@@ -13,7 +13,7 @@ set_source_files_properties(${SWIG_SOURCES} PROPERTIES CPLUSPLUS ON)
 swig_add_module(jismrmrd java ${SWIG_SOURCES})
 swig_link_libraries(jismrmrd ${HDF5_LIBRARIES} ${Boost_LIBRARIES})
 
-## TODO: not use a unix shell script
+## TODO: not use a shell script
 configure_file(make_jar.sh.in make_jar.sh @ONLY)
 set_source_files_properties(ismrmrd.jar PROPERTIES GENERATED true)
 add_custom_command(
@@ -33,3 +33,6 @@ add_custom_command(
 install(TARGETS jismrmrd DESTINATION java)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ismrmrd.jar DESTINATION java)
 
+# Note: the API documentation is only for the XML header, and is installed
+# in ${INSTALL_PREFIX}/matlab/doc
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc DESTINATION matlab)
