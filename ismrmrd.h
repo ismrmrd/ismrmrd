@@ -60,8 +60,8 @@ public:
    : bitmask_(0)
     {
       if (b > 0) {
-	bitmask_ = 1;
-	bitmask_ = (bitmask_ << (b-1));
+    bitmask_ = 1;
+    bitmask_ = (bitmask_ << (b-1));
       }
     }
   
@@ -76,40 +76,46 @@ public:
 
 /** ACQUISITION FLAGS */
 enum AcquisitionFlags {
-	/* Looping indicators */
-        ACQ_FIRST_IN_ENCODE_STEP1                        	= 1,
-	ACQ_LAST_IN_ENCODE_STEP1    				= 2,
-	ACQ_FIRST_IN_ENCODE_STEP2   				= 3,
-	ACQ_LAST_IN_ENCODE_STEP2    				= 4,
-	ACQ_FIRST_IN_AVERAGE        				= 5,
-	ACQ_LAST_IN_AVERAGE         				= 6,
-	ACQ_FIRST_IN_SLICE          				= 7,
-	ACQ_LAST_IN_SLICE           				= 8,
-	ACQ_FIRST_IN_CONTRAST       				= 9,
-	ACQ_LAST_IN_CONTRAST        				= 10,
-	ACQ_FIRST_IN_PHASE          				= 11,
-	ACQ_LAST_IN_PHASE           				= 12,
-	ACQ_FIRST_IN_REPETITION     				= 13,
-	ACQ_LAST_IN_REPETITION      				= 14,
-	ACQ_FIRST_IN_SET            				= 15,
-	ACQ_LAST_IN_SET             				= 16,
-	ACQ_FIRST_IN_SEGMENT        				= 17,
-	ACQ_LAST_IN_SEGMENT         				= 18,
+    /* Looping indicators */
+    ACQ_FIRST_IN_ENCODE_STEP1                   = 1,
+    ACQ_LAST_IN_ENCODE_STEP1                    = 2,
+    ACQ_FIRST_IN_ENCODE_STEP2                   = 3,
+    ACQ_LAST_IN_ENCODE_STEP2                    = 4,
+    ACQ_FIRST_IN_AVERAGE                        = 5,
+    ACQ_LAST_IN_AVERAGE                         = 6,
+    ACQ_FIRST_IN_SLICE                          = 7,
+    ACQ_LAST_IN_SLICE                           = 8,
+    ACQ_FIRST_IN_CONTRAST                       = 9,
+    ACQ_LAST_IN_CONTRAST                        = 10,
+    ACQ_FIRST_IN_PHASE                          = 11,
+    ACQ_LAST_IN_PHASE                           = 12,
+    ACQ_FIRST_IN_REPETITION                     = 13,
+    ACQ_LAST_IN_REPETITION                      = 14,
+    ACQ_FIRST_IN_SET                            = 15,
+    ACQ_LAST_IN_SET                             = 16,
+    ACQ_FIRST_IN_SEGMENT                        = 17,
+    ACQ_LAST_IN_SEGMENT                         = 18,
 
-	ACQ_IS_NOISE_MEASUREMENT                  	        = 19,
-	ACQ_IS_PARALLEL_CALIBRATION             	= 20,
-	ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING 	= 21,
-	ACQ_IS_REVERSE              				= 22,
-	ACQ_IS_NAVIGATION_DATA      				= 23,
+    ACQ_LAST_IN_MEASUREMENT                     = 25,
 
-	ACQ_USER1                   				= 57,
-	ACQ_USER2                   				= 58,
-	ACQ_USER3                   				= 59,
-	ACQ_USER4                   				= 60,
-	ACQ_USER5                   				= 61,
-	ACQ_USER6                   				= 62,
-	ACQ_USER7                   				= 63,
-	ACQ_USER8                   				= 64
+    ACQ_IS_NOISE_MEASUREMENT                    = 19,
+    ACQ_IS_PARALLEL_CALIBRATION                 = 20,
+    ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING     = 21,
+    ACQ_IS_REVERSE                              = 22,
+    ACQ_IS_NAVIGATION_DATA                      = 23,
+    ACQ_IS_PHASECORR_DATA                       = 24,
+    ACQ_IS_RTFEEDBACK_DATA                      = 25,
+    ACQ_IS_HPFEEDBACK_DATA                      = 26,
+    ACQ_IS_DUMMYSCAN_DATA                       = 27,
+
+    ACQ_USER1                                   = 57,
+    ACQ_USER2                                   = 58,
+    ACQ_USER3                                   = 59,
+    ACQ_USER4                                   = 60,
+    ACQ_USER5                                   = 61,
+    ACQ_USER6                                   = 62,
+    ACQ_USER7                                   = 63,
+    ACQ_USER8                                   = 64
 };
 
 /**
@@ -117,16 +123,16 @@ enum AcquisitionFlags {
 
  */
 typedef struct EncodingCounters {
-	uint16_t kspace_encode_step_1;     /**< e.g. phase encoding line number */
-	uint16_t kspace_encode_step_2;     /**< e.g. partition encodning number */
-	uint16_t average;                  /**< e.g. signal average number */
-	uint16_t slice;                    /**< e.g. imaging slice number */
-	uint16_t contrast;                 /**< e.g. echo number in multi-echo */
-	uint16_t phase;                    /**< e.g. cardiac phase number */
-	uint16_t repetition;               /**< e.g. dynamic number for dynamic scanning */
-	uint16_t set;                      /**< e.g. flow encodning set */
-	uint16_t segment;                  /**< e.g. segment number for segmented acquisition */
-	uint16_t user[ISMRMRD_USER_INTS];  /**< Free user parameters */
+    uint16_t kspace_encode_step_1;     /**< e.g. phase encoding line number */
+    uint16_t kspace_encode_step_2;     /**< e.g. partition encodning number */
+    uint16_t average;                  /**< e.g. signal average number */
+    uint16_t slice;                    /**< e.g. imaging slice number */
+    uint16_t contrast;                 /**< e.g. echo number in multi-echo */
+    uint16_t phase;                    /**< e.g. cardiac phase number */
+    uint16_t repetition;               /**< e.g. dynamic number for dynamic scanning */
+    uint16_t set;                      /**< e.g. flow encodning set */
+    uint16_t segment;                  /**< e.g. segment number for segmented acquisition */
+    uint16_t user[ISMRMRD_USER_INTS];  /**< Free user parameters */
 } EncodingCounters;
 
 /**
@@ -134,62 +140,62 @@ typedef struct EncodingCounters {
  */
 typedef struct AcquisitionHeader
 {
-	uint16_t           version;                                          /**< First unsigned int indicates the version */
-	uint64_t           flags;                                            /**< bit field with flags */
-	uint32_t           measurement_uid;                                  /**< Unique ID for the measurement */
-	uint32_t           scan_counter;                                     /**< Current acquisition number in the measurement */
-	uint32_t           acquisition_time_stamp;                           /**< Acquisition clock */
-	uint32_t           physiology_time_stamp[ISMRMRD_PHYS_STAMPS];       /**< Physiology time stamps, e.g. ecg, breating, etc. */
-	uint16_t           number_of_samples;                                /**< Number of samples acquired */
-	uint16_t           available_channels;                               /**< Available coils */
-	uint16_t           active_channels;                                  /**< Active coils on current acquisiton */
-	uint64_t           channel_mask[ISMRMRD_CHANNEL_MASKS];              /**< Mask to indicate which channels are active. Support for 1024 channels */
-	uint16_t           discard_pre;                                      /**< Samples to be discarded at the beginning of acquisition */
-	uint16_t           discard_post;                                     /**< Samples to be discarded at the end of acquisition */
-	uint16_t           center_sample;                                    /**< Sample at the center of k-space */
-	uint16_t           encoding_space_ref;                               /**< Reference to an encoding space, typically only one per acquisition */
-	uint16_t           trajectory_dimensions;                            /**< Indicates the dimensionality of the trajectory vector (0 means no trajectory) */
-	float              sample_time_us;                                   /**< Time between samples in micro seconds, sampling BW */
-	float              position[ISMRMRD_POSITION_LENGTH];                /**< Three-dimensional spatial offsets from isocenter */
-	float              read_dir[ISMRMRD_DIRECTION_LENGTH];               /**< Directional cosines of the readout/frequency encoding */
-	float              phase_dir[ISMRMRD_DIRECTION_LENGTH];              /**< Directional cosines of the phase */
-	float              slice_dir[ISMRMRD_DIRECTION_LENGTH];              /**< Directional cosines of the slice direction */
-	float              patient_table_position[ISMRMRD_POSITION_LENGTH];  /**< Patient table off-center */
-	EncodingCounters   idx;                                              /**< Encoding loop counters, see above */
-	int32_t            user_int[ISMRMRD_USER_INTS];                      /**< Free user parameters */
-	float              user_float[ISMRMRD_USER_FLOATS];                  /**< Free user parameters */
+    uint16_t           version;                                          /**< First unsigned int indicates the version */
+    uint64_t           flags;                                            /**< bit field with flags */
+    uint32_t           measurement_uid;                                  /**< Unique ID for the measurement */
+    uint32_t           scan_counter;                                     /**< Current acquisition number in the measurement */
+    uint32_t           acquisition_time_stamp;                           /**< Acquisition clock */
+    uint32_t           physiology_time_stamp[ISMRMRD_PHYS_STAMPS];       /**< Physiology time stamps, e.g. ecg, breating, etc. */
+    uint16_t           number_of_samples;                                /**< Number of samples acquired */
+    uint16_t           available_channels;                               /**< Available coils */
+    uint16_t           active_channels;                                  /**< Active coils on current acquisiton */
+    uint64_t           channel_mask[ISMRMRD_CHANNEL_MASKS];              /**< Mask to indicate which channels are active. Support for 1024 channels */
+    uint16_t           discard_pre;                                      /**< Samples to be discarded at the beginning of acquisition */
+    uint16_t           discard_post;                                     /**< Samples to be discarded at the end of acquisition */
+    uint16_t           center_sample;                                    /**< Sample at the center of k-space */
+    uint16_t           encoding_space_ref;                               /**< Reference to an encoding space, typically only one per acquisition */
+    uint16_t           trajectory_dimensions;                            /**< Indicates the dimensionality of the trajectory vector (0 means no trajectory) */
+    float              sample_time_us;                                   /**< Time between samples in micro seconds, sampling BW */
+    float              position[ISMRMRD_POSITION_LENGTH];                /**< Three-dimensional spatial offsets from isocenter */
+    float              read_dir[ISMRMRD_DIRECTION_LENGTH];               /**< Directional cosines of the readout/frequency encoding */
+    float              phase_dir[ISMRMRD_DIRECTION_LENGTH];              /**< Directional cosines of the phase */
+    float              slice_dir[ISMRMRD_DIRECTION_LENGTH];              /**< Directional cosines of the slice direction */
+    float              patient_table_position[ISMRMRD_POSITION_LENGTH];  /**< Patient table off-center */
+    EncodingCounters   idx;                                              /**< Encoding loop counters, see above */
+    int32_t            user_int[ISMRMRD_USER_INTS];                      /**< Free user parameters */
+    float              user_float[ISMRMRD_USER_FLOATS];                  /**< Free user parameters */
 } AcquisitionHeader;
 
 enum ImageDataType
 {
-	DATA_FLOAT = 1,
-	DATA_DOUBLE,
-	DATA_COMPLEX_FLOAT,
-	DATA_COMPLEX_DOUBLE,
-	DATA_UNSIGNED_SHORT
+    DATA_FLOAT = 1,
+    DATA_DOUBLE,
+    DATA_COMPLEX_FLOAT,
+    DATA_COMPLEX_DOUBLE,
+    DATA_UNSIGNED_SHORT
 };
 
 enum ImageType
 {
-	TYPE_MAGNITUDE = 1,
-	TYPE_PHASE,
-	TYPE_REAL,
-	TYPE_IMAG,
-	TYPE_COMPLEX
+    TYPE_MAGNITUDE = 1,
+    TYPE_PHASE,
+    TYPE_REAL,
+    TYPE_IMAG,
+    TYPE_COMPLEX
 };
 
 /** IMAGE FLAGS */
 enum ImageFlags {
-	IMAGE_IS_NAVIGATION_DATA      				= 23,
+    IMAGE_IS_NAVIGATION_DATA                      = 23,
 
-	IMAGE_USER1                   				= 57,
-	IMAGE_USER2                   				= 58,
-	IMAGE_USER3                   				= 59,
-	IMAGE_USER4                   				= 60,
-	IMAGE_USER5                   				= 61,
-	IMAGE_USER6                   				= 62,
-	IMAGE_USER7                   				= 63,
-	IMAGE_USER8                   				= 64
+    IMAGE_USER1                                   = 57,
+    IMAGE_USER2                                   = 58,
+    IMAGE_USER3                                   = 59,
+    IMAGE_USER4                                   = 60,
+    IMAGE_USER5                                   = 61,
+    IMAGE_USER6                                   = 62,
+    IMAGE_USER7                                   = 63,
+    IMAGE_USER8                                   = 64
 };
 
 /**
@@ -197,31 +203,31 @@ enum ImageFlags {
  */
 typedef struct ImageHeader
 {
-	uint16_t            version;                                         /**< First unsigned int indicates the version */
-	uint64_t            flags;                                           /**< bit field with flags */
-	uint32_t            measurement_uid;                                 /**< Unique ID for the measurement  */
-	uint16_t            matrix_size[3];                                  /**< Pixels in the 3 spatial dimensions */
-	float               field_of_view[3];                                /**< Size (in mm) of the 3 spatial dimensions */
-	uint16_t            channels;                                        /**< Number of receive channels */
-	float               position[ISMRMRD_POSITION_LENGTH];               /**< Three-dimensional spatial offsets from isocenter */
-	float               read_dir[ISMRMRD_DIRECTION_LENGTH];              /**< Directional cosines of the readout/frequency encoding */
-	float               phase_dir[ISMRMRD_DIRECTION_LENGTH];             /**< Directional cosines of the phase */
-	float               slice_dir[ISMRMRD_DIRECTION_LENGTH];             /**< Directional cosines of the slice direction */
-	float               patient_table_position[ISMRMRD_POSITION_LENGTH]; /**< Patient table off-center */
-	uint16_t            average;                                         /**< e.g. signal average number */
-	uint16_t            slice;                                           /**< e.g. imaging slice number */
-	uint16_t            contrast;                                        /**< e.g. echo number in multi-echo */
-	uint16_t            phase;                                           /**< e.g. cardiac phase number */
-	uint16_t            repetition;                                      /**< e.g. dynamic number for dynamic scanning */
-	uint16_t            set;                                             /**< e.g. flow encodning set */
-	uint32_t            acquisition_time_stamp;                          /**< Acquisition clock */
-	uint32_t            physiology_time_stamp[ISMRMRD_PHYS_STAMPS];      /**< Physiology time stamps, e.g. ecg, breating, etc. */
-	uint16_t            image_data_type;                                 /**< e.g. unsigned short, float, complex float, etc. */
-	uint16_t            image_type;                                      /**< e.g. magnitude, phase, complex, real, imag, etc. */
-	uint16_t            image_index;					                 /**< e.g. image number in series of images  */
-	uint16_t            image_series_index;                              /**< e.g. series number */
-	int32_t             user_int[ISMRMRD_USER_INTS];                     /**< Free user parameters */
-	float               user_float[ISMRMRD_USER_FLOATS];                 /**< Free user parameters */
+    uint16_t            version;                                         /**< First unsigned int indicates the version */
+    uint64_t            flags;                                           /**< bit field with flags */
+    uint32_t            measurement_uid;                                 /**< Unique ID for the measurement  */
+    uint16_t            matrix_size[3];                                  /**< Pixels in the 3 spatial dimensions */
+    float               field_of_view[3];                                /**< Size (in mm) of the 3 spatial dimensions */
+    uint16_t            channels;                                        /**< Number of receive channels */
+    float               position[ISMRMRD_POSITION_LENGTH];               /**< Three-dimensional spatial offsets from isocenter */
+    float               read_dir[ISMRMRD_DIRECTION_LENGTH];              /**< Directional cosines of the readout/frequency encoding */
+    float               phase_dir[ISMRMRD_DIRECTION_LENGTH];             /**< Directional cosines of the phase */
+    float               slice_dir[ISMRMRD_DIRECTION_LENGTH];             /**< Directional cosines of the slice direction */
+    float               patient_table_position[ISMRMRD_POSITION_LENGTH]; /**< Patient table off-center */
+    uint16_t            average;                                         /**< e.g. signal average number */
+    uint16_t            slice;                                           /**< e.g. imaging slice number */
+    uint16_t            contrast;                                        /**< e.g. echo number in multi-echo */
+    uint16_t            phase;                                           /**< e.g. cardiac phase number */
+    uint16_t            repetition;                                      /**< e.g. dynamic number for dynamic scanning */
+    uint16_t            set;                                             /**< e.g. flow encodning set */
+    uint32_t            acquisition_time_stamp;                          /**< Acquisition clock */
+    uint32_t            physiology_time_stamp[ISMRMRD_PHYS_STAMPS];      /**< Physiology time stamps, e.g. ecg, breating, etc. */
+    uint16_t            image_data_type;                                 /**< e.g. unsigned short, float, complex float, etc. */
+    uint16_t            image_type;                                      /**< e.g. magnitude, phase, complex, real, imag, etc. */
+    uint16_t            image_index;                                     /**< e.g. image number in series of images  */
+    uint16_t            image_series_index;                              /**< e.g. series number */
+    int32_t             user_int[ISMRMRD_USER_INTS];                     /**< Free user parameters */
+    float               user_float[ISMRMRD_USER_FLOATS];                 /**< Free user parameters */
 } ImageHeader;
 
 #ifdef __cplusplus
@@ -231,50 +237,50 @@ typedef struct ImageHeader
 template <typename T> class NDArrayContainer {
 
 public:
-	NDArrayContainer() {}
+    NDArrayContainer() {}
 
     /**
      * @brief Construct with dimensions and data
      */
-	NDArrayContainer(const std::vector<unsigned int>& dimensions) {
-		dimensions_ = dimensions;
-		data_.resize(elements());
-	}
+    NDArrayContainer(const std::vector<unsigned int>& dimensions) {
+        dimensions_ = dimensions;
+        data_.resize(elements());
+    }
 
     /**
      * @brief Construct with dimensions and data
      */
-	NDArrayContainer(const std::vector<unsigned int>& dimensions, const T* d) {
-		dimensions_ = dimensions;
-		data_.resize(elements());
-		memcpy(&data_[0],d,sizeof(T)*elements());
-	}
+    NDArrayContainer(const std::vector<unsigned int>& dimensions, const T* d) {
+        dimensions_ = dimensions;
+        data_.resize(elements());
+        memcpy(&data_[0],d,sizeof(T)*elements());
+    }
 
     /**
      * @brief Construct with dimensions and preset value
      */
-	NDArrayContainer(const std::vector<unsigned int>& dimensions, const std::valarray<T>& t) {
-		dimensions_ = dimensions;
-		data_.resize(elements());
-		data_ = t;
-	}
+    NDArrayContainer(const std::vector<unsigned int>& dimensions, const std::valarray<T>& t) {
+        dimensions_ = dimensions;
+        data_.resize(elements());
+        data_ = t;
+    }
 
-	virtual ~NDArrayContainer() {}
+    virtual ~NDArrayContainer() {}
 
-	std::vector<unsigned int> dimensions_; /**< Array with dimensions of the array. First dimension is fastest moving in the array */
-	std::valarray<T> data_;               /**< The data itself. A vector is used here for easy memory management                  */
+    std::vector<unsigned int> dimensions_; /**< Array with dimensions of the array. First dimension is fastest moving in the array */
+    std::valarray<T> data_;               /**< The data itself. A vector is used here for easy memory management                  */
 
-	size_t elements() const {
-		if (dimensions_.size() == 0) {
-			return 0;
-		}
-		size_t elements = 1;
-		std::vector<unsigned int>::const_iterator it = dimensions_.begin();
-		while (it != dimensions_.end()) {
-			elements *= *(it++);
-		}
-		return elements;
-	}
+    size_t elements() const {
+        if (dimensions_.size() == 0) {
+            return 0;
+        }
+        size_t elements = 1;
+        std::vector<unsigned int>::const_iterator it = dimensions_.begin();
+        while (it != dimensions_.end()) {
+            elements *= *(it++);
+        }
+        return elements;
+    }
 
     T& operator[] (const size_t& p) {
         return data_[p];
@@ -292,16 +298,16 @@ public:
         data_.resize(s,t);
     }
 
-	bool is_consistent() const {
-		return (elements() == data_.size());
-	}
+    bool is_consistent() const {
+        return (elements() == data_.size());
+    }
 
-	size_t ndims() const {
-		size_t i = 1, n_dimensions = 1;
-		for (; i < dimensions_.size(); i++)
-			n_dimensions += (size_t) (dimensions_[i] > 1);
-		return n_dimensions;
-	}
+    size_t ndims() const {
+        size_t i = 1, n_dimensions = 1;
+        for (; i < dimensions_.size(); i++)
+            n_dimensions += (size_t) (dimensions_[i] > 1);
+        return n_dimensions;
+    }
 
 };
 
@@ -312,227 +318,227 @@ template <typename T>
 class Image {
 
 public:
-	Image(unsigned int matrix_size_x = 0,
-		  unsigned int matrix_size_y = 1,
-		  unsigned int matrix_size_z = 1,
-		  unsigned int channels      = 1)
+    Image(unsigned int matrix_size_x = 0,
+          unsigned int matrix_size_y = 1,
+          unsigned int matrix_size_z = 1,
+          unsigned int channels      = 1)
     {
-		memset(&head_,0,sizeof(ImageHeader));
-		head_.version = ISMRMRD_VERSION;
+        memset(&head_,0,sizeof(ImageHeader));
+        head_.version = ISMRMRD_VERSION;
         head_.matrix_size[0] = matrix_size_x;
         head_.matrix_size[1] = matrix_size_y;
         head_.matrix_size[2] = matrix_size_z;
         head_.channels       = channels;
         setSpecificDataType();
         makeConsistent();
-	}
+    }
 
 
     Image(const Image& a) {   // copy constructor
-		if (this != &a) {
+        if (this != &a) {
             head_ = a.head_;
             this->data_ = a.data_;
             makeConsistent();
-		}
-	}
+        }
+    }
 
-	Image& operator=(const Image& a) {
-		if (this != &a) {
+    Image& operator=(const Image& a) {
+        if (this != &a) {
             head_ = a.head_;
             this->data_ = a.data_;
             makeConsistent();
-		}
-		return *this;
-	}
+        }
+        return *this;
+    }
 
-	~Image() {}
+    ~Image() {}
 
-	bool isFlagSet(FlagBit& f) const {
-		return f.isSet(head_.flags);
-	}
+    bool isFlagSet(FlagBit& f) const {
+        return f.isSet(head_.flags);
+    }
 
-	void setFlag(FlagBit& f) {
-		head_.flags |= f.bitmask_;
-	}
+    void setFlag(FlagBit& f) {
+        head_.flags |= f.bitmask_;
+    }
 
-	size_t getNumberOfElements() const {
-		return head_.matrix_size[0]*
+    size_t getNumberOfElements() const {
+        return head_.matrix_size[0]*
             head_.matrix_size[1]*
             head_.matrix_size[2]*
             head_.channels;
-	}
+    }
 
 
-	uint32_t getAcquisitionTimeStamp() const {
-		return head_.acquisition_time_stamp;
-	}
+    uint32_t getAcquisitionTimeStamp() const {
+        return head_.acquisition_time_stamp;
+    }
 
-	void setAcquisitionTimeStamp(uint32_t acquisitionTimeStamp) {
-		head_.acquisition_time_stamp = acquisitionTimeStamp;
-	}
+    void setAcquisitionTimeStamp(uint32_t acquisitionTimeStamp) {
+        head_.acquisition_time_stamp = acquisitionTimeStamp;
+    }
 
-	uint16_t getAverage() const {
-		return head_.average;
-	}
+    uint16_t getAverage() const {
+        return head_.average;
+    }
 
-	void setAverage(uint16_t average) {
-		this->head_.average = average;
-	}
+    void setAverage(uint16_t average) {
+        this->head_.average = average;
+    }
 
-	uint16_t getChannels() const {
-		return head_.channels;
-	}
+    uint16_t getChannels() const {
+        return head_.channels;
+    }
 
-	void setChannels(uint16_t channels) {
-		this->head_.channels = channels;
-	}
+    void setChannels(uint16_t channels) {
+        this->head_.channels = channels;
+    }
 
-	uint16_t getContrast() const {
-		return head_.contrast;
-	}
+    uint16_t getContrast() const {
+        return head_.contrast;
+    }
 
-	void setContrast(uint16_t contrast) {
-		this->head_.contrast = contrast;
-	}
+    void setContrast(uint16_t contrast) {
+        this->head_.contrast = contrast;
+    }
 
-	float getFieldOfViewX() const {
-		return head_.field_of_view[0];
-	}
+    float getFieldOfViewX() const {
+        return head_.field_of_view[0];
+    }
 
-	void setFieldOfViewX(float f) {
-		head_.field_of_view[0] = f;
-	}
+    void setFieldOfViewX(float f) {
+        head_.field_of_view[0] = f;
+    }
 
-	float getFieldOfViewY() const {
-		return head_.field_of_view[1];
-	}
+    float getFieldOfViewY() const {
+        return head_.field_of_view[1];
+    }
 
-	void setFieldOfViewY(float f) {
-		head_.field_of_view[1] = f;
-	}
+    void setFieldOfViewY(float f) {
+        head_.field_of_view[1] = f;
+    }
 
-	float getFieldOfViewZ() const {
-		return head_.field_of_view[2];
-	}
+    float getFieldOfViewZ() const {
+        return head_.field_of_view[2];
+    }
 
-	void setFieldOfViewZ(float f) {
-		head_.field_of_view[2] = f;
-	}
+    void setFieldOfViewZ(float f) {
+        head_.field_of_view[2] = f;
+    }
 
-	uint64_t getFlags() const {
-		return head_.flags;
-	}
+    uint64_t getFlags() const {
+        return head_.flags;
+    }
 
-	void setFlags(uint64_t flags) {
-		this->head_.flags = flags;
-	}
+    void setFlags(uint64_t flags) {
+        this->head_.flags = flags;
+    }
 
-	uint16_t getImageDataType() const {
-		return head_.image_data_type;
-	}
+    uint16_t getImageDataType() const {
+        return head_.image_data_type;
+    }
 
-	void setImageDataType(uint16_t imageDataType) {
-		head_.image_data_type = imageDataType;
-	}
+    void setImageDataType(uint16_t imageDataType) {
+        head_.image_data_type = imageDataType;
+    }
 
-	uint16_t getImageIndex() const {
-		return head_.image_index;
-	}
+    uint16_t getImageIndex() const {
+        return head_.image_index;
+    }
 
-	void setImageIndex(uint16_t imageIndex) {
-		head_.image_index = imageIndex;
-	}
+    void setImageIndex(uint16_t imageIndex) {
+        head_.image_index = imageIndex;
+    }
 
-	uint16_t getImageSeriesIndex() const {
-		return head_.image_series_index;
-	}
+    uint16_t getImageSeriesIndex() const {
+        return head_.image_series_index;
+    }
 
-	void setImageSeriesIndex(uint16_t imageSeriesIndex) {
-		head_.image_series_index = imageSeriesIndex;
-	}
+    void setImageSeriesIndex(uint16_t imageSeriesIndex) {
+        head_.image_series_index = imageSeriesIndex;
+    }
 
-	uint16_t getImageType() const {
-		return head_.image_type;
-	}
+    uint16_t getImageType() const {
+        return head_.image_type;
+    }
 
-	void setImageType(uint16_t imageType) {
-		head_.image_type = imageType;
-	}
+    void setImageType(uint16_t imageType) {
+        head_.image_type = imageType;
+    }
 
-	uint16_t getMatrixSizeX() const {
-		return head_.matrix_size[0];
-	}
+    uint16_t getMatrixSizeX() const {
+        return head_.matrix_size[0];
+    }
 
-	void setMatrixSizeX(uint16_t s) {
-		head_.matrix_size[0] = s;
-		makeConsistent();
-	}
+    void setMatrixSizeX(uint16_t s) {
+        head_.matrix_size[0] = s;
+        makeConsistent();
+    }
 
-	uint16_t getMatrixSizeY() const {
-		return head_.matrix_size[1];
-	}
+    uint16_t getMatrixSizeY() const {
+        return head_.matrix_size[1];
+    }
 
-	void setMatrixSizeY(uint16_t s) {
-		head_.matrix_size[1] = s;
-		makeConsistent();
-	}
+    void setMatrixSizeY(uint16_t s) {
+        head_.matrix_size[1] = s;
+        makeConsistent();
+    }
 
-	uint16_t getMatrixSizeZ() const {
-		return head_.matrix_size[2];
-	}
+    uint16_t getMatrixSizeZ() const {
+        return head_.matrix_size[2];
+    }
 
-	void setMatrixSizeZ(uint16_t s) {
-		head_.matrix_size[2] = s;
-		makeConsistent();
-	}
+    void setMatrixSizeZ(uint16_t s) {
+        head_.matrix_size[2] = s;
+        makeConsistent();
+    }
 
 
-	uint32_t getMeasurementUid() const {
-		return head_.measurement_uid;
-	}
+    uint32_t getMeasurementUid() const {
+        return head_.measurement_uid;
+    }
 
-	void setMeasurementUid(uint32_t measurementUid) {
-		head_.measurement_uid = measurementUid;
-	}
+    void setMeasurementUid(uint32_t measurementUid) {
+        head_.measurement_uid = measurementUid;
+    }
 
-	const float getPatientTablePosition(unsigned int axis) const {
-		if (axis < ISMRMRD_POSITION_LENGTH) {
-			return head_.patient_table_position[axis];
-		}
-		return 0;
-	}
+    const float getPatientTablePosition(unsigned int axis) const {
+        if (axis < ISMRMRD_POSITION_LENGTH) {
+            return head_.patient_table_position[axis];
+        }
+        return 0;
+    }
 
-	void setPatientTablePosition(unsigned int axis, float value) {
-		if (axis < ISMRMRD_POSITION_LENGTH) {
-			head_.patient_table_position[axis] = value;
-		}
-	}
+    void setPatientTablePosition(unsigned int axis, float value) {
+        if (axis < ISMRMRD_POSITION_LENGTH) {
+            head_.patient_table_position[axis] = value;
+        }
+    }
 
-	const uint32_t getPhysiologyTimeStamp(unsigned int stamp_id) const {
-		if (stamp_id < ISMRMRD_PHYS_STAMPS) {
-			return head_.physiology_time_stamp[stamp_id];
-		}
-		return 0;
-	}
+    const uint32_t getPhysiologyTimeStamp(unsigned int stamp_id) const {
+        if (stamp_id < ISMRMRD_PHYS_STAMPS) {
+            return head_.physiology_time_stamp[stamp_id];
+        }
+        return 0;
+    }
 
-	void setPhysiologyTimeStamp(unsigned int stamp_id, uint32_t value){
-		if (stamp_id < ISMRMRD_PHYS_STAMPS) {
-			head_.physiology_time_stamp[stamp_id] = value;
-		}
-	}
+    void setPhysiologyTimeStamp(unsigned int stamp_id, uint32_t value){
+        if (stamp_id < ISMRMRD_PHYS_STAMPS) {
+            head_.physiology_time_stamp[stamp_id] = value;
+        }
+    }
 
-	const float getPosition(unsigned int axis) const {
-		if (axis < ISMRMRD_POSITION_LENGTH) {
-			return head_.position[axis];
-		}
-		return 0;
-	}
+    const float getPosition(unsigned int axis) const {
+        if (axis < ISMRMRD_POSITION_LENGTH) {
+            return head_.position[axis];
+        }
+        return 0;
+    }
 
-	void setPosition(unsigned int axis, float value){
-		if (axis < ISMRMRD_POSITION_LENGTH) {
-			head_.position[axis] = value;
-		}
-	}
+    void setPosition(unsigned int axis, float value){
+        if (axis < ISMRMRD_POSITION_LENGTH) {
+            head_.position[axis] = value;
+        }
+    }
 
         const float getReadDirection(unsigned int index) const {
                 if (index < ISMRMRD_DIRECTION_LENGTH) {
@@ -573,89 +579,89 @@ public:
                 }
         }
 
-	uint16_t getPhase() const {
-		return head_.phase;
-	}
+    uint16_t getPhase() const {
+        return head_.phase;
+    }
 
-	void setPhase(uint16_t phase) {
-		this->head_.phase = phase;
-	}
+    void setPhase(uint16_t phase) {
+        this->head_.phase = phase;
+    }
 
 
-	uint16_t getRepetition() const {
-		return head_.repetition;
-	}
+    uint16_t getRepetition() const {
+        return head_.repetition;
+    }
 
-	void setRepetition(uint16_t repetition) {
-		this->head_.repetition = repetition;
-	}
+    void setRepetition(uint16_t repetition) {
+        this->head_.repetition = repetition;
+    }
 
-	uint16_t getSet() const {
-		return head_.set;
-	}
+    uint16_t getSet() const {
+        return head_.set;
+    }
 
-	void setSet(uint16_t set) {
-		this->head_.set = set;
-	}
+    void setSet(uint16_t set) {
+        this->head_.set = set;
+    }
 
-	uint16_t getSlice() const {
-		return head_.slice;
-	}
+    uint16_t getSlice() const {
+        return head_.slice;
+    }
 
-	void setSlice(uint16_t slice) {
-		this->head_.slice = slice;
-	}
+    void setSlice(uint16_t slice) {
+        this->head_.slice = slice;
+    }
 
-	const float getUserFloat(unsigned int index) const {
-		if (index < ISMRMRD_USER_FLOATS) {
-			return head_.user_float[index];
-		}
-		return 0.0f;
-	}
+    const float getUserFloat(unsigned int index) const {
+        if (index < ISMRMRD_USER_FLOATS) {
+            return head_.user_float[index];
+        }
+        return 0.0f;
+    }
 
-	void setUserFloat(unsigned int index, float value) {
-		if (index < ISMRMRD_USER_FLOATS) {
-			head_.user_float[index] = value;
-		}
-	}
+    void setUserFloat(unsigned int index, float value) {
+        if (index < ISMRMRD_USER_FLOATS) {
+            head_.user_float[index] = value;
+        }
+    }
 
-	const int32_t getUserInt(unsigned int index) const {
-		if (index < ISMRMRD_USER_INTS) {
-			return head_.user_int[index];
-		}
-		return 0;
-	}
+    const int32_t getUserInt(unsigned int index) const {
+        if (index < ISMRMRD_USER_INTS) {
+            return head_.user_int[index];
+        }
+        return 0;
+    }
 
-	void setUserInt(unsigned int index, int32_t value) {
-		if (index < ISMRMRD_USER_INTS) {
-			head_.user_int[index] = value;
-		}
-	}
+    void setUserInt(unsigned int index, int32_t value) {
+        if (index < ISMRMRD_USER_INTS) {
+            head_.user_int[index] = value;
+        }
+    }
 
-	uint16_t getVersion() const {
-		return head_.version;
-	}
+    uint16_t getVersion() const {
+        return head_.version;
+    }
 
-	void setVersion(uint16_t version) {
-		this->head_.version = version;
-	}
+    void setVersion(uint16_t version) {
+        this->head_.version = version;
+    }
 
-	const std::valarray<T>& getData() const {
-		return data_;
-	}
+    const std::valarray<T>& getData() const {
+        return data_;
+    }
 
-	void setData(const std::valarray<T>& data) {
-		data_ = data;
-	}
+    void setData(const std::valarray<T>& data) {
+        data_ = data;
+    }
 
-	const ImageHeader& getHead() const {
-		return head_;
-	}
+    const ImageHeader& getHead() const {
+        return head_;
+    }
 
-	void setHead(const ImageHeader& head) {
-		head_ = head;
-		makeConsistent();
-	}
+    void setHead(const ImageHeader& head) {
+        head_ = head;
+        makeConsistent();
+    }
 
     T& operator[] (const size_t& p) {
         return data_[p];
@@ -667,36 +673,36 @@ public:
 
 
 protected:
-	ImageHeader head_;     /**< ImageHeader as defined above */
-	std::valarray<T> data_;
-	void makeConsistent() {
-		if (getNumberOfElements() != data_.size()) {
-			data_.resize(getNumberOfElements());
-		}
-	}
+    ImageHeader head_;     /**< ImageHeader as defined above */
+    std::valarray<T> data_;
+    void makeConsistent() {
+        if (getNumberOfElements() != data_.size()) {
+            data_.resize(getNumberOfElements());
+        }
+    }
 
-	void setSpecificDataType();
+    void setSpecificDataType();
 
 };
 
 template <> inline void Image<float>::setSpecificDataType() {
-	head_.image_data_type = DATA_FLOAT;
+    head_.image_data_type = DATA_FLOAT;
 }
 
 template <> inline void Image<double>::setSpecificDataType() {
-	head_.image_data_type = DATA_DOUBLE;
+    head_.image_data_type = DATA_DOUBLE;
 }
 
 template <> inline void Image< std::complex<float> >::setSpecificDataType() {
-	head_.image_data_type = DATA_COMPLEX_FLOAT;
+    head_.image_data_type = DATA_COMPLEX_FLOAT;
 }
 
 template <> inline void Image< std::complex<double> >::setSpecificDataType() {
-	head_.image_data_type = DATA_COMPLEX_DOUBLE;
+    head_.image_data_type = DATA_COMPLEX_DOUBLE;
 }
 
 template <> inline void Image< unsigned short >::setSpecificDataType() {
-	head_.image_data_type = DATA_UNSIGNED_SHORT;
+    head_.image_data_type = DATA_UNSIGNED_SHORT;
 }
 
 
@@ -717,207 +723,207 @@ template <> inline void Image< unsigned short >::setSpecificDataType() {
 class Acquisition {
 
 public:
-	Acquisition()
+    Acquisition()
         : traj_(), data_() {
-		memset(&head_,0,sizeof(AcquisitionHeader));
-		head_.version = ISMRMRD_VERSION;
-	}
+        memset(&head_,0,sizeof(AcquisitionHeader));
+        head_.version = ISMRMRD_VERSION;
+    }
 
-	~Acquisition() {}
+    ~Acquisition() {}
 
-	Acquisition (const Acquisition& a) {   // copy constructor
-		if (this != &a) {
-			head_ = a.head_;
-			data_.resize(a.data_.size());
-			memcpy(&data_[0],&a.data_[0],sizeof(float)*a.data_.size());
-			traj_.resize(a.traj_.size());
-			memcpy(&traj_[0],&a.traj_[0],sizeof(float)*a.traj_.size());
-		}
-	}
-
-	Acquisition& operator=(const Acquisition& a) {
-		if (this != &a) {
+    Acquisition (const Acquisition& a) {   // copy constructor
+        if (this != &a) {
             head_ = a.head_;
-			data_.resize(a.data_.size());
-			memcpy(&data_[0],&a.data_[0],sizeof(float)*a.data_.size());
-			traj_.resize(a.traj_.size());
-			memcpy(&traj_[0],&a.traj_[0],sizeof(float)*a.traj_.size());
-		}
-		return *this;
-	}
+            data_.resize(a.data_.size());
+            memcpy(&data_[0],&a.data_[0],sizeof(float)*a.data_.size());
+            traj_.resize(a.traj_.size());
+            memcpy(&traj_[0],&a.traj_[0],sizeof(float)*a.traj_.size());
+        }
+    }
 
-	const AcquisitionHeader& getHead() {
-		return head_;
-	}
+    Acquisition& operator=(const Acquisition& a) {
+        if (this != &a) {
+            head_ = a.head_;
+            data_.resize(a.data_.size());
+            memcpy(&data_[0],&a.data_[0],sizeof(float)*a.data_.size());
+            traj_.resize(a.traj_.size());
+            memcpy(&traj_[0],&a.traj_[0],sizeof(float)*a.traj_.size());
+        }
+        return *this;
+    }
 
-	void setHead(const AcquisitionHeader& h) {
-		head_ = h;
-		makeConsistent();
-	}
+    const AcquisitionHeader& getHead() {
+        return head_;
+    }
 
-	bool isFlagSet(const FlagBit& f) const {
-		return f.isSet(head_.flags);
-	}
+    void setHead(const AcquisitionHeader& h) {
+        head_ = h;
+        makeConsistent();
+    }
 
-	void setFlag(const FlagBit& f) {
-		head_.flags |= f.bitmask_;
-	}
+    bool isFlagSet(const FlagBit& f) const {
+        return f.isSet(head_.flags);
+    }
 
-	uint32_t getAcquisitionTimeStamp() const {
-		return head_.acquisition_time_stamp;
-	}
+    void setFlag(const FlagBit& f) {
+        head_.flags |= f.bitmask_;
+    }
 
-	void setAcquisitionTimeStamp(uint32_t acquisitionTimeStamp) {
-		head_.acquisition_time_stamp = acquisitionTimeStamp;
-	}
+    uint32_t getAcquisitionTimeStamp() const {
+        return head_.acquisition_time_stamp;
+    }
 
-	uint16_t getActiveChannels() const {
-		return head_.active_channels;
-	}
+    void setAcquisitionTimeStamp(uint32_t acquisitionTimeStamp) {
+        head_.acquisition_time_stamp = acquisitionTimeStamp;
+    }
 
-	void setActiveChannels(uint16_t activeChannels) {
-		head_.active_channels = activeChannels;
-		makeConsistent();
-	}
+    uint16_t getActiveChannels() const {
+        return head_.active_channels;
+    }
 
-	uint16_t getAvailableChannels() const {
-		return head_.available_channels;
-	}
+    void setActiveChannels(uint16_t activeChannels) {
+        head_.active_channels = activeChannels;
+        makeConsistent();
+    }
 
-	void setAvailableChannels(uint16_t availableChannels) {
-		head_.available_channels = availableChannels;
-	}
+    uint16_t getAvailableChannels() const {
+        return head_.available_channels;
+    }
 
-	uint16_t getCenterSample() const {
-		return head_.center_sample;
-	}
+    void setAvailableChannels(uint16_t availableChannels) {
+        head_.available_channels = availableChannels;
+    }
 
-	void setCenterSample(uint16_t centerSample) {
-		head_.center_sample = centerSample;
-	}
+    uint16_t getCenterSample() const {
+        return head_.center_sample;
+    }
 
-	bool isChannelActive(unsigned int channel_id) {
-		if (channel_id < 64*ISMRMRD_CHANNEL_MASKS) {
-			unsigned int mask_idx = channel_id>>6;
-			unsigned int mask_bit = channel_id-mask_idx*64;
-			return ((head_.channel_mask[mask_idx] & ( (uint64_t)1 << mask_bit)) > 0);
-		}
-		return false;
-	}
+    void setCenterSample(uint16_t centerSample) {
+        head_.center_sample = centerSample;
+    }
 
-	void setChannelActive(unsigned int channel_id) {
-		if (channel_id < 64*ISMRMRD_CHANNEL_MASKS) {
-			unsigned int mask_idx = channel_id>>6;
-			unsigned int mask_bit = channel_id-mask_idx*64;
-			head_.channel_mask[mask_idx] |= ( (uint64_t)1 << mask_bit);
-		}
-	}
+    bool isChannelActive(unsigned int channel_id) {
+        if (channel_id < 64*ISMRMRD_CHANNEL_MASKS) {
+            unsigned int mask_idx = channel_id>>6;
+            unsigned int mask_bit = channel_id-mask_idx*64;
+            return ((head_.channel_mask[mask_idx] & ( (uint64_t)1 << mask_bit)) > 0);
+        }
+        return false;
+    }
 
-	unsigned int getActiveChannelBits() {
-		unsigned int bits = 0;
-		for (unsigned int i = 0; i < ISMRMRD_CHANNEL_MASKS*64; i++) {
-			if (isChannelActive(i)) {
-				bits++;
-			}
-		}
-		return bits;
-	}
+    void setChannelActive(unsigned int channel_id) {
+        if (channel_id < 64*ISMRMRD_CHANNEL_MASKS) {
+            unsigned int mask_idx = channel_id>>6;
+            unsigned int mask_bit = channel_id-mask_idx*64;
+            head_.channel_mask[mask_idx] |= ( (uint64_t)1 << mask_bit);
+        }
+    }
 
-	uint16_t getDiscardPost() const {
-		return head_.discard_post;
-	}
+    unsigned int getActiveChannelBits() {
+        unsigned int bits = 0;
+        for (unsigned int i = 0; i < ISMRMRD_CHANNEL_MASKS*64; i++) {
+            if (isChannelActive(i)) {
+                bits++;
+            }
+        }
+        return bits;
+    }
 
-	void setDiscardPost(uint16_t discardPost) {
-		head_.discard_post = discardPost;
-	}
+    uint16_t getDiscardPost() const {
+        return head_.discard_post;
+    }
 
-	uint16_t getDiscardPre() const {
-		return head_.discard_pre;
-	}
+    void setDiscardPost(uint16_t discardPost) {
+        head_.discard_post = discardPost;
+    }
 
-	void setDiscardPre(uint16_t discardPre) {
-		head_.discard_pre = discardPre;
-	}
+    uint16_t getDiscardPre() const {
+        return head_.discard_pre;
+    }
 
-	uint16_t getEncodingSpaceRef() const {
-		return head_.encoding_space_ref;
-	}
+    void setDiscardPre(uint16_t discardPre) {
+        head_.discard_pre = discardPre;
+    }
 
-	void setEncodingSpaceRef(uint16_t encodingSpaceRef) {
-		head_.encoding_space_ref = encodingSpaceRef;
-	}
+    uint16_t getEncodingSpaceRef() const {
+        return head_.encoding_space_ref;
+    }
 
-	uint64_t getFlags() const {
-		return head_.flags;
-	}
+    void setEncodingSpaceRef(uint16_t encodingSpaceRef) {
+        head_.encoding_space_ref = encodingSpaceRef;
+    }
 
-	void setFlags(uint64_t flags) {
-		this->head_.flags = flags;
-	}
+    uint64_t getFlags() const {
+        return head_.flags;
+    }
 
-	EncodingCounters& getIdx() {
-		return head_.idx;
-	}
+    void setFlags(uint64_t flags) {
+        this->head_.flags = flags;
+    }
 
-	void setIdx(const EncodingCounters& idx) {
-		this->head_.idx = idx;
-	}
+    EncodingCounters& getIdx() {
+        return head_.idx;
+    }
 
-	uint32_t getMeasurementUid() const {
-		return head_.measurement_uid;
-	}
+    void setIdx(const EncodingCounters& idx) {
+        this->head_.idx = idx;
+    }
 
-	void setMeasurementUid(uint32_t measurementUid) {
-		head_.measurement_uid = measurementUid;
-	}
+    uint32_t getMeasurementUid() const {
+        return head_.measurement_uid;
+    }
 
-	uint16_t getNumberOfSamples() const {
-		return head_.number_of_samples;
-	}
+    void setMeasurementUid(uint32_t measurementUid) {
+        head_.measurement_uid = measurementUid;
+    }
 
-	void setNumberOfSamples(uint16_t numberOfSamples) {
-		head_.number_of_samples = numberOfSamples;
-		makeConsistent();
-	}
+    uint16_t getNumberOfSamples() const {
+        return head_.number_of_samples;
+    }
 
-	const float getPatientTablePosition(unsigned int axis) const {
-		if (axis < ISMRMRD_POSITION_LENGTH) {
-			return head_.patient_table_position[axis];
-		}
-		return 0;
-	}
+    void setNumberOfSamples(uint16_t numberOfSamples) {
+        head_.number_of_samples = numberOfSamples;
+        makeConsistent();
+    }
 
-	void setPatientTablePosition(unsigned int axis, float value) {
-		if (axis < ISMRMRD_POSITION_LENGTH) {
-			head_.patient_table_position[axis] = value;
-		}
-	}
+    const float getPatientTablePosition(unsigned int axis) const {
+        if (axis < ISMRMRD_POSITION_LENGTH) {
+            return head_.patient_table_position[axis];
+        }
+        return 0;
+    }
 
-	const uint32_t getPhysiologyTimeStamp(unsigned int stamp_id) const {
-		if (stamp_id < ISMRMRD_PHYS_STAMPS) {
-			return head_.physiology_time_stamp[stamp_id];
-		}
-		return 0;
-	}
+    void setPatientTablePosition(unsigned int axis, float value) {
+        if (axis < ISMRMRD_POSITION_LENGTH) {
+            head_.patient_table_position[axis] = value;
+        }
+    }
 
-	void setPhysiologyTimeStamp(unsigned int stamp_id, uint32_t value){
-		if (stamp_id < ISMRMRD_PHYS_STAMPS) {
-			head_.physiology_time_stamp[stamp_id] = value;
-		}
-	}
+    const uint32_t getPhysiologyTimeStamp(unsigned int stamp_id) const {
+        if (stamp_id < ISMRMRD_PHYS_STAMPS) {
+            return head_.physiology_time_stamp[stamp_id];
+        }
+        return 0;
+    }
 
-	const float getPosition(unsigned int axis) const {
-		if (axis < ISMRMRD_POSITION_LENGTH) {
-			return head_.position[axis];
-		}
-		return 0;
-	}
+    void setPhysiologyTimeStamp(unsigned int stamp_id, uint32_t value){
+        if (stamp_id < ISMRMRD_PHYS_STAMPS) {
+            head_.physiology_time_stamp[stamp_id] = value;
+        }
+    }
 
-	void setPosition(unsigned int axis, float value){
-		if (axis < ISMRMRD_POSITION_LENGTH) {
-			head_.position[axis] = value;
-		}
-	}
+    const float getPosition(unsigned int axis) const {
+        if (axis < ISMRMRD_POSITION_LENGTH) {
+            return head_.position[axis];
+        }
+        return 0;
+    }
+
+    void setPosition(unsigned int axis, float value){
+        if (axis < ISMRMRD_POSITION_LENGTH) {
+            head_.position[axis] = value;
+        }
+    }
 
         const float getReadDirection(unsigned int index) const {
                 if (index < ISMRMRD_DIRECTION_LENGTH) {
@@ -958,80 +964,80 @@ public:
                 }
         }
 
-	float getSampleTimeUs() const {
-		return head_.sample_time_us;
-	}
+    float getSampleTimeUs() const {
+        return head_.sample_time_us;
+    }
 
-	void setSampleTimeUs(float sampleTimeUs) {
-		head_.sample_time_us = sampleTimeUs;
-	}
+    void setSampleTimeUs(float sampleTimeUs) {
+        head_.sample_time_us = sampleTimeUs;
+    }
 
-	uint32_t getScanCounter() const {
-		return head_.scan_counter;
-	}
+    uint32_t getScanCounter() const {
+        return head_.scan_counter;
+    }
 
-	void setScanCounter(uint32_t scanCounter) {
-		head_.scan_counter = scanCounter;
-	}
+    void setScanCounter(uint32_t scanCounter) {
+        head_.scan_counter = scanCounter;
+    }
 
-	uint16_t getTrajectoryDimensions() const {
-		return head_.trajectory_dimensions;
-	}
+    uint16_t getTrajectoryDimensions() const {
+        return head_.trajectory_dimensions;
+    }
 
-	void setTrajectoryDimensions(uint16_t trajectoryDimensions) {
-		head_.trajectory_dimensions = trajectoryDimensions;
-		makeConsistent();
-	}
+    void setTrajectoryDimensions(uint16_t trajectoryDimensions) {
+        head_.trajectory_dimensions = trajectoryDimensions;
+        makeConsistent();
+    }
 
-	const float getUserFloat(unsigned int index) const {
-		if (index < ISMRMRD_USER_FLOATS) {
-			return head_.user_float[index];
-		}
-		return 0.0f;
-	}
+    const float getUserFloat(unsigned int index) const {
+        if (index < ISMRMRD_USER_FLOATS) {
+            return head_.user_float[index];
+        }
+        return 0.0f;
+    }
 
-	void setUserFloat(unsigned int index, float value) {
-		if (index < ISMRMRD_USER_FLOATS) {
-			head_.user_float[index] = value;
-		}
-	}
+    void setUserFloat(unsigned int index, float value) {
+        if (index < ISMRMRD_USER_FLOATS) {
+            head_.user_float[index] = value;
+        }
+    }
 
-	const int32_t getUserInt(unsigned int index) const {
-		if (index < ISMRMRD_USER_INTS) {
-			return head_.user_int[index];
-		}
-		return 0;
-	}
+    const int32_t getUserInt(unsigned int index) const {
+        if (index < ISMRMRD_USER_INTS) {
+            return head_.user_int[index];
+        }
+        return 0;
+    }
 
-	void setUserInt(unsigned int index, int32_t value) {
-		if (index < ISMRMRD_USER_INTS) {
-			head_.user_int[index] = value;
-		}
-	}
+    void setUserInt(unsigned int index, int32_t value) {
+        if (index < ISMRMRD_USER_INTS) {
+            head_.user_int[index] = value;
+        }
+    }
 
-	uint16_t getVersion() const {
-		return head_.version;
-	}
+    uint16_t getVersion() const {
+        return head_.version;
+    }
 
-	void setVersion(uint16_t version) {
-		this->head_.version = version;
-	}
+    void setVersion(uint16_t version) {
+        this->head_.version = version;
+    }
 
-	const std::valarray<float>& getData() const {
-		return data_;
-	}
+    const std::valarray<float>& getData() const {
+        return data_;
+    }
 
-	void setData(const std::valarray<float>& data) {
-		data_ = data;
-	}
+    void setData(const std::valarray<float>& data) {
+        data_ = data;
+    }
 
-	const std::valarray<float>& getTraj() const {
-		return traj_;
-	}
+    const std::valarray<float>& getTraj() const {
+        return traj_;
+    }
 
-	void setTraj(const std::valarray<float>& traj) {
-		traj_ = traj;
-	}
+    void setTraj(const std::valarray<float>& traj) {
+        traj_ = traj;
+    }
 
     float& operator[] (const size_t& p) {
         return data_[p];
@@ -1042,28 +1048,28 @@ public:
     }
 
 protected:
-	size_t calcTrajLength() {
-		return head_.trajectory_dimensions*head_.number_of_samples;
-	}
+    size_t calcTrajLength() {
+        return head_.trajectory_dimensions*head_.number_of_samples;
+    }
 
-	size_t calcDataLength() {
-		return head_.active_channels*head_.number_of_samples*2;
-	}
+    size_t calcDataLength() {
+        return head_.active_channels*head_.number_of_samples*2;
+    }
 
 
-	void makeConsistent() {
-		if (head_.active_channels > head_.available_channels) {
-			head_.available_channels = head_.active_channels;
-		}
-		if (calcTrajLength() != traj_.size()) {
-			traj_.resize(calcTrajLength());
-		}
-		if (calcDataLength() != data_.size()) {
-			data_.resize(calcDataLength());
-		}
-	}
+    void makeConsistent() {
+        if (head_.active_channels > head_.available_channels) {
+            head_.available_channels = head_.active_channels;
+        }
+        if (calcTrajLength() != traj_.size()) {
+            traj_.resize(calcTrajLength());
+        }
+        if (calcDataLength() != data_.size()) {
+            data_.resize(calcDataLength());
+        }
+    }
 
-	AcquisitionHeader head_; /**< Header, see above */
+    AcquisitionHeader head_; /**< Header, see above */
     std::valarray<float> traj_;
     std::valarray<float> data_;
 
