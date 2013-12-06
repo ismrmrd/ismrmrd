@@ -17,15 +17,16 @@ swig_link_libraries(jismrmrd ${HDF5_LIBRARIES} ${Boost_LIBRARIES})
 configure_file(make_jar.sh.in make_jar.sh @ONLY)
 
 set(JAVADOC_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/doc")
-set(JAVA_OUTPUTS "${CMAKE_CURRENT_BINARY_DIR}/ismrmrd.jar" ${JAVADOC_OUTPTU})
+set(JAVA_OUTPUTS "${CMAKE_CURRENT_BINARY_DIR}/ismrmrd.jar" ${JAVADOC_OUTPUT})
 
 ## TODO: not use a shell script... it breaks 'make'
 add_custom_command(
     OUTPUT ${JAVA_OUTPUTS}
-    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/make_jar.sh"
+    DEPENDS jismrmrd "${CMAKE_CURRENT_BINARY_DIR}/make_jar.sh"
     VERBATIM
     COMMENT "Compiling java files, building jar, generating API docs"
-    COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/JNILibLoader.java
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/JNILibLoader.java
                ${CMAKE_CURRENT_BINARY_DIR}/org/ismrm/ismrmrd/
     COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/org/ismrm/ismrmrd/xmlhdr
     COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/XMLString.java
