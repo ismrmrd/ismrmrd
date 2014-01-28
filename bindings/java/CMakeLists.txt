@@ -1,9 +1,6 @@
 include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${HDF5_INCLUDE_DIR} ${HDF5_INCLUDE_DIR}/cpp ${Boost_INCLUDE_DIR})
-include_directories(${JAVA_INCLUDE_PATH})
-if (UNIX)
-    include_directories(${JAVA_INCLUDE_PATH}/linux)
-endif (UNIX)
+include_directories(${JNI_INCLUDE_DIRS})
 
 set(CMAKE_SWIG_FLAGS -package org.ismrm.ismrmrd)
 set(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR}/org/ismrm/ismrmrd)

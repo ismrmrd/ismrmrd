@@ -22,10 +22,9 @@ if(SWIG_FOUND)
 
     find_package(JNI)
     if(JNI_FOUND)
-        message(STATUS "JAVA Include Path: ${JAVA_INCLUDE_PATH}")
         add_subdirectory(java)
-    else()
-        message("JNI not found. Not building Java bindings")
-    endif()
+    else(JNI_FOUND)
+        message("Java Native Interface not found. Not building Java bindings")
+    endif(JNI_FOUND)
 
 endif(SWIG_FOUND)
