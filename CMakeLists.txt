@@ -26,7 +26,7 @@ SET(XSDS schema/ismrmrd.xsd)
 SET(XSD_ARGS cxx-tree --generate-serialization)
 #SET(XSD_ARGS cxx-tree --generate-serialization --export-symbol EXPORTISMRMRDXSD --hxx-prologue-file ${CMAKE_SOURCE_DIR}/ismrmrd_xsd_export.h)
 WRAP_XSD(XSDS_SOURCES XSD_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/schema ${XSDS} OPTIONS ${XSD_ARGS})
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/src/xsd ${XSD_INCLUDE_DIR} ${XERCESC_INCLUDE_DIR} ${Boost_INCLUDE_DIR} ${HDF5_INCLUDE_DIR} ${HDF5_INCLUDE_DIR}/cpp)
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/src/xsd ${XSD_INCLUDE_DIR} ${XERCESC_INCLUDE_DIR} ${Boost_INCLUDE_DIR} ${HDF5_CXX_INCLUDE_DIR} ${HDF5_C_INCLUDE_DIR})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
 # This dummy is required to trigger autogeneration of ${XSDS_SOURCES}
@@ -38,18 +38,12 @@ add_library(ismrmrd SHARED ismrmrd_hdf5.cpp)
 
 #The findHDF5.cmake does not work very well on Windows, let's help it out
 IF(WIN32)
-	SET(HDF5_LIB_DIR ${HDF5_INCLUDE_DIR}/../lib)
-	target_link_libraries(ismrmrd optimized ${HDF5_LIB_DIR}/hdf5dll.lib)
-	target_link_libraries(ismrmrd optimized ${HDF5_LIB_DIR}/hdf5_cppdll.lib)
-	target_link_libraries(ismrmrd optimized ${HDF5_LIB_DIR}/hdf5_hldll.lib)
+    target_link_libraries(ismrmrd optimized ${HDF5_hdf5_LIBRARY_RELEASE} ${HDF5_hdf5_cpp_LIBRARY_RELEASE})
+    target_link_libraries(ismrmrd debug ${HDF5_hdf5_LIBRARY_DEBUG} ${HDF5_hdf5_cpp_LIBRARY_DEBUG})
 
-	target_link_libraries(ismrmrd debug ${HDF5_LIB_DIR}/hdf5ddll.lib)
-	target_link_libraries(ismrmrd debug ${HDF5_LIB_DIR}/hdf5_cppddll.lib)
-	target_link_libraries(ismrmrd debug ${HDF5_LIB_DIR}/hdf5_hlddll.lib)
-
-	target_link_libraries(ismrmrd ${Boost_LIBRARIES})
+    target_link_libraries(ismrmrd ${Boost_LIBRARIES})
 ELSE (WIN32)
-	target_link_libraries(ismrmrd ${HDF5_LIBRARIES} ${Boost_LIBRARIES})
+    target_link_libraries(ismrmrd ${HDF5_LIBRARIES} ${Boost_LIBRARIES})
 ENDIF(WIN32)
 
 INSTALL(FILES ismrmrd.h ismrmrd_hdf5.h ismrmrd_hdf5_datatypes.h ismrmrd_export.h DESTINATION include)
