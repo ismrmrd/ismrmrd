@@ -461,8 +461,13 @@ classdef AcquisitionHeader < handle
                     obj.flags(range(p)) = obj.flags(range(p)) - bitmask;
                 end
             end
-                
-            
+        end
+        
+        function flagClearAll(obj, range)
+            if nargin < 2
+                range = 1:obj.getNumber;
+            end
+            obj.flags(range) = zeros(1,length(range),'uint64');
         end
         
     end

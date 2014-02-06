@@ -87,8 +87,13 @@ classdef Acquisition < handle
         
         function extend(obj,N)
             % Extend with blank head and empty traj and data.
-            M = N+obj.getNumber();
-            obj.head.extend(N);
+            if isempty(obj.head)
+                M = N;
+                obj.head = ismrmrd.AcquisitionHeader(N);
+            else
+                M = N+obj.getNumber();
+                obj.head.extend(N);
+            end
             obj.traj{M} = [];
             obj.data{M} = []; 
         end
@@ -117,6 +122,13 @@ classdef Acquisition < handle
             end
         end
         
+        function v = trajToFloat(obj)
+            v = cell(1,length(obj.traj));
+            for p = 1:length(obj.traj)
+                v{p} = single(obj.traj{p});
+            end
+        end
+
     end
 
 end

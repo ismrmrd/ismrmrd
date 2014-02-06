@@ -28,7 +28,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 % Loading an existing file %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-filename = 'shepp-logan.h5';
+filename = 'testdata.h5';
 if exist(filename, 'file')
     dset = ismrmrd.IsmrmrdDataset(filename, 'dataset');
 else
@@ -62,23 +62,33 @@ rec_FOVz = dset.xmlhdr.getEncoding.get(0).getReconSpace.getFieldOfViewMm.getZ;
 if isempty(dset.xmlhdr.getEncoding.get(0).getEncodingLimits.getSlice)
     nSlices = 1;
 else
-    nSlices = dset.xmlhdr.getEncoding.get(0).getEncodingLimits.getSlice.getMaximum;
+  nSlices = dset.xmlhdr.getEncoding.get(0).getEncodingLimits.getSlice.getMaximum;
+  if nSlices == 0;
+    nSlices = 1;
+  end
 end
 
-% Number of coils, in the system information
-nCoils = double(dset.xmlhdr.getAcquisitionSystemInformation.getReceiverChannels);
+% Number of coils, repetitions, contrasts etc.
+% We have to wrap this in a try/catch because a valid xml header may
+% not have an entry for the the parameter in question
+% Encoding limit values in the XML header are zero based
+% Java return values needed to be converte to matlab types for math.
+try 
+    nCoils = double(dset.xmlhdr.getAcquisitionSystemInformation.getReceiverChannels);
+catch
+    nCoils = 1;
+end
 
-% Repetitions, contrasts etc.
-if isempty(dset.xmlhdr.getEncoding.get(0).getEncodingLimits.getRepetition)
+try
+    nReps = double(dset.xmlhdr.getEncoding.get(0).getEncodingLimits.getRepetition.getMaximum) + 1;
+catch
     nReps = 1;
-else
-    nReps = double(dset.xmlhdr.getEncoding.get(0).getEncodingLimits.getRepetition.getMaximum);
 end
 
-if isempty(dset.xmlhdr.getEncoding.get(0).getEncodingLimits.getContrast)
+try
+    nContrasts = double(dset.xmlhdr.getEncoding.get(0).getEncodingLimits.getContrast.getMaximum) + 1;
+catch
     nContrasts = 1;
-else
-    nContrasts = double(dset.xmlhdr.getEncoding.get(0).getEncodingLimits.getContrast.getMaximum);
 end
 
 % TODO add the other possibilites
