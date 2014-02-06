@@ -319,7 +319,7 @@ classdef AcquisitionHeader < handle
                 obj.measurement_uid(p) =          typecast(bytearray( 11: 14,p), 'uint32'); ... % Unique ID for the measurement %
                 obj.scan_counter(p) =             typecast(bytearray( 15: 18,p), 'uint32'); ... % Current acquisition number in the measurement %
                 obj.acquisition_time_stamp(p) =   typecast(bytearray( 19: 22,p), 'uint32'); ... % Acquisition clock %
-                obj.physiology_time_stamp(:,p) =  typecast(bytearray( 23: 30,p), 'uint32'); ... % Physiology time stamps, e.g. ecg, breating, etc. %
+                obj.physiology_time_stamp(:,p) =  typecast(bytearray( 23: 34,p), 'uint32'); ... % Physiology time stamps, e.g. ecg, breating, etc. %
                                                                                             ... % C-Struct padding
                 obj.number_of_samples(p) =        typecast(bytearray( 55: 56,p), 'uint16'); ... % Number of samples acquired %
                 obj.available_channels(p) =       typecast(bytearray( 57: 58,p), 'uint16'); ... % Available coils %

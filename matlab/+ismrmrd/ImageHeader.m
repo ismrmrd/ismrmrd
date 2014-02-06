@@ -279,7 +279,7 @@ classdef ImageHeader < handle
                 obj.set(p)                      = typecast(bytes(105:106,p), 'uint16');
                 obj.acquisition_time_stamp(p)   = typecast(bytes(107:110,p), 'uint32');
                 obj.physiology_time_stamp(:,p)  = typecast(bytes(111:122,p), 'uint32');
-                                    ... %   TODO: the C header has a bug.  3 is correct                
+                                                           ... %   C-struct has padding
                 obj.image_data_type(p)          = typecast(bytes(143:144,p), 'uint16');
                 obj.image_type(p)               = typecast(bytes(145:146,p), 'uint16');
                 obj.image_index(p)              = typecast(bytes(147:148,p), 'uint16');
