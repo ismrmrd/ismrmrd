@@ -91,7 +91,7 @@ classdef AcquisitionHeader < handle
                     elseif (length(arg)==1 && ismrmrd.util.isInt(arg)) == 1
                         % number
                         extend(obj,arg);
-                    elseif isa(arg,'int8')
+                    elseif isa(arg,'uint8')
                         % Byte array
                         fromBytes(obj,arg);
                     else
@@ -306,9 +306,9 @@ classdef AcquisitionHeader < handle
         end
         
         function fromBytes(obj, bytearray)
+            % Convert from a byte array to an ISMRMRD AcquisitionHeader
+	    % This conforms to the memory layout of the C-struct
 
-            % TODO: physiology_time_stamp should be 3. So size will change
-            % from 360 to 340;
             if size(bytearray,1) ~= 360
                 error('Wrong number of bytes for AcquisitionHeader.')
             end
@@ -320,7 +320,7 @@ classdef AcquisitionHeader < handle
                 obj.scan_counter(p) =             typecast(bytearray( 15: 18,p), 'uint32'); ... % Current acquisition number in the measurement %
                 obj.acquisition_time_stamp(p) =   typecast(bytearray( 19: 22,p), 'uint32'); ... % Acquisition clock %
                 obj.physiology_time_stamp(:,p) =  typecast(bytearray( 23: 30,p), 'uint32'); ... % Physiology time stamps, e.g. ecg, breating, etc. %
-                                                                                            ... %   TODO: the C header has a bug.  3 is correct
+                                                                                            ... % C-Struct padding
                 obj.number_of_samples(p) =        typecast(bytearray( 55: 56,p), 'uint16'); ... % Number of samples acquired %
                 obj.available_channels(p) =       typecast(bytearray( 57: 58,p), 'uint16'); ... % Available coils %
                 obj.active_channels(p) =          typecast(bytearray( 59: 60,p), 'uint16'); ... % Active coils on current acquisiton %
@@ -352,53 +352,48 @@ classdef AcquisitionHeader < handle
         end
         
         function bytes = toBytes(obj)
-            % Convert to an ISMRMRD AcquisitionHeader struct to a byte array.
+            % Convert to an ISMRMRD AcquisitionHeader to a byte array
+	    % This conforms to the memory layout of the C-struct
 
             N = obj.getNumber;
-            
-            % TODO: physiology_time_stamp should be 3.
-            %bytes = zeros(340,N,'int8');
-            bytes = zeros(360,N,'int8');
+            bytes = zeros(360,N,'uint8');
             for p = 1:N
                 off = 1;
-                bytes(off:off+1,p)   = typecast(obj.version(p)               ,'int8'); off=off+2;
-                bytes(off:off+7,p)   = typecast(obj.flags(p)                 ,'int8'); off=off+8;
-                bytes(off:off+3,p)   = typecast(obj.measurement_uid(p)       ,'int8'); off=off+4;
-                bytes(off:off+3,p)   = typecast(obj.scan_counter(p)          ,'int8'); off=off+4;
-                bytes(off:off+3,p)   = typecast(obj.acquisition_time_stamp(p),'int8'); off=off+4;
-
-                % TODO: physiology_time_stamp should be 3.
-                % but the C struct has a bug, so convert to padding.
-                bytes(off:off+11,p)  = typecast(obj.physiology_time_stamp(:,p) ,'int8'); off=off+12;
+                bytes(off:off+1,p)   = typecast(obj.version(p)               ,'uint8'); off=off+2;
+                bytes(off:off+7,p)   = typecast(obj.flags(p)                 ,'uint8'); off=off+8;
+                bytes(off:off+3,p)   = typecast(obj.measurement_uid(p)       ,'uint8'); off=off+4;
+                bytes(off:off+3,p)   = typecast(obj.scan_counter(p)          ,'uint8'); off=off+4;
+                bytes(off:off+3,p)   = typecast(obj.acquisition_time_stamp(p),'uint8'); off=off+4;
+                % The C struct has padding because of the 5 unused physio time stamps
+                bytes(off:off+11,p)  = typecast(obj.physiology_time_stamp(:,p) ,'uint8'); off=off+12;
                 off = off+20; % Discard 5*uint32;
-
-                bytes(off:off+1,p)   = typecast(obj.number_of_samples(p)     ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.available_channels(p)    ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.active_channels(p)       ,'int8'); off=off+2;
-                bytes(off:off+127,p) = typecast(obj.channel_mask(:,p)        ,'int8'); off=off+128;
-                bytes(off:off+1,p)   = typecast(obj.discard_pre(p)           ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.discard_post(p)          ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.center_sample(p)         ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.encoding_space_ref(p)    ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.trajectory_dimensions(p) ,'int8'); off=off+2;
-                bytes(off:off+3,p)   = typecast(obj.sample_time_us(p)        ,'int8'); off=off+4;
-                bytes(off:off+11,p)  = typecast(obj.position(:,p)            ,'int8'); off=off+12;
-                bytes(off:off+11,p)  = typecast(obj.read_dir(:,p)            ,'int8'); off=off+12;
-                bytes(off:off+11,p)  = typecast(obj.phase_dir(:,p)           ,'int8'); off=off+12;
-                bytes(off:off+11,p)  = typecast(obj.slice_dir(:,p)           ,'int8'); off=off+12;
-                bytes(off:off+11,p)  = typecast(obj.patient_table_position(:,p),'int8'); off=off+12;
-                bytes(off:off+1,p)   = typecast(obj.idx.kspace_encode_step_1(p),'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.idx.kspace_encode_step_2(p),'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.idx.average(p)           ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.idx.slice(p)             ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.idx.contrast(p)          ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.idx.phase(p)             ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.idx.repetition(p)        ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.idx.set(p)               ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.idx.segment(p)           ,'int8'); off=off+2;
-                bytes(off:off+15,p)  = typecast(obj.idx.user(:,p)            ,'int8'); off=off+16;
-                bytes(off:off+31,p)  = typecast(obj.user_int(:,p)            ,'int8'); off=off+32;
-                bytes(off:off+31,p)  = typecast(obj.user_float(:,p)          ,'int8');
+                bytes(off:off+1,p)   = typecast(obj.number_of_samples(p)     ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.available_channels(p)    ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.active_channels(p)       ,'uint8'); off=off+2;
+                bytes(off:off+127,p) = typecast(obj.channel_mask(:,p)        ,'uint8'); off=off+128;
+                bytes(off:off+1,p)   = typecast(obj.discard_pre(p)           ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.discard_post(p)          ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.center_sample(p)         ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.encoding_space_ref(p)    ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.trajectory_dimensions(p) ,'uint8'); off=off+2;
+                bytes(off:off+3,p)   = typecast(obj.sample_time_us(p)        ,'uint8'); off=off+4;
+                bytes(off:off+11,p)  = typecast(obj.position(:,p)            ,'uint8'); off=off+12;
+                bytes(off:off+11,p)  = typecast(obj.read_dir(:,p)            ,'uint8'); off=off+12;
+                bytes(off:off+11,p)  = typecast(obj.phase_dir(:,p)           ,'uint8'); off=off+12;
+                bytes(off:off+11,p)  = typecast(obj.slice_dir(:,p)           ,'uint8'); off=off+12;
+                bytes(off:off+11,p)  = typecast(obj.patient_table_position(:,p),'uint8'); off=off+12;
+                bytes(off:off+1,p)   = typecast(obj.idx.kspace_encode_step_1(p),'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.idx.kspace_encode_step_2(p),'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.idx.average(p)           ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.idx.slice(p)             ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.idx.contrast(p)          ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.idx.phase(p)             ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.idx.repetition(p)        ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.idx.set(p)               ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.idx.segment(p)           ,'uint8'); off=off+2;
+                bytes(off:off+15,p)  = typecast(obj.idx.user(:,p)            ,'uint8'); off=off+16;
+                bytes(off:off+31,p)  = typecast(obj.user_int(:,p)            ,'uint8'); off=off+32;
+                bytes(off:off+31,p)  = typecast(obj.user_float(:,p)          ,'uint8');
             end
         end
         

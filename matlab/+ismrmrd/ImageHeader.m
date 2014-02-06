@@ -75,7 +75,7 @@ classdef ImageHeader < handle
                     elseif (length(arg)==1 && ismrmrd.util.isInt(arg)) == 1
                         % number
                         extend(obj,arg);
-                    elseif isa(arg,'int8')
+                    elseif isa(arg,'uint8')
                         % Byte array
                         fromBytes(obj,arg);
                     else
@@ -252,9 +252,9 @@ classdef ImageHeader < handle
         end
         
         function fromBytes(obj, bytearray)
+            % Convert from a byte array to an ISMRMRD ImageHeader
+	    % This conforms to the memory layout of the C-struct
 
-            % TODO: physiology_time_stamp should be 3. So size will change
-            % from 214 to 194;
             if size(bytearray,1) ~= 214
                 error('Wrong number of bytes for AcquisitionHeader.')
             end
@@ -290,43 +290,40 @@ classdef ImageHeader < handle
         end
         
         function bytes = toBytes(obj)
-            % Convert to an ISMRMRD AcquisitionHeader struct to a byte array.
+            % Convert an ISMRMRD AcquisitionHeader to a byte array
+	    % This conforms to the memory layout of the C-struct
 
             N = obj.getNumber;
-            
-            % TODO: physiology_time_stamp should be 3.
-            %bytes = zeros(194,N,'int8');
-            bytes = zeros(214,N,'int8');
+            bytes = zeros(214,N,'uint8');
             for p = 1:N
                 off = 1;
-                bytes(off:off+1,p)   = typecast(obj.version(p)                 ,'int8'); off=off+2;
-                bytes(off:off+7,p)   = typecast(obj.flags(p)                   ,'int8'); off=off+8;
-                bytes(off:off+3,p)   = typecast(obj.measurement_uid(p)         ,'int8'); off=off+4;
-                bytes(off:off+5,p)   = typecast(obj.matrix_size(:,p)           ,'int8'); off=off+6;
-                bytes(off:off+11,p)  = typecast(obj.field_of_view(:,p)         ,'int8'); off=off+12;
-                bytes(off:off+1,p)   = typecast(obj.channels(p)                ,'int8'); off=off+2;
-                bytes(off:off+11,p)  = typecast(obj.position(:,p)              ,'int8'); off=off+12;
-                bytes(off:off+11,p)  = typecast(obj.read_dir(:,p)              ,'int8'); off=off+12;
-                bytes(off:off+11,p)  = typecast(obj.phase_dir(:,p)             ,'int8'); off=off+12;
-                bytes(off:off+11,p)  = typecast(obj.slice_dir(:,p)             ,'int8'); off=off+12;
-                bytes(off:off+11,p)  = typecast(obj.patient_table_position(:,p),'int8'); off=off+12;
-                bytes(off:off+1,p)   = typecast(obj.average(p)                 ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.slice(p)                   ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.contrast(p)                ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.phase(p)                   ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.repetition(p)              ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.set(p)                     ,'int8'); off=off+2;
-                bytes(off:off+3,p)   = typecast(obj.acquisition_time_stamp(p)  ,'int8'); off=off+4;
-                % TODO: physiology_time_stamp should be 3.
-                % but the C struct has a bug, so convert to padding.
-                bytes(off:off+11,p)  = typecast(obj.physiology_time_stamp(:,p) ,'int8'); off=off+12;
+                bytes(off:off+1,p)   = typecast(obj.version(p)                 ,'uint8'); off=off+2;
+                bytes(off:off+7,p)   = typecast(obj.flags(p)                   ,'uint8'); off=off+8;
+                bytes(off:off+3,p)   = typecast(obj.measurement_uid(p)         ,'uint8'); off=off+4;
+                bytes(off:off+5,p)   = typecast(obj.matrix_size(:,p)           ,'uint8'); off=off+6;
+                bytes(off:off+11,p)  = typecast(obj.field_of_view(:,p)         ,'uint8'); off=off+12;
+                bytes(off:off+1,p)   = typecast(obj.channels(p)                ,'uint8'); off=off+2;
+                bytes(off:off+11,p)  = typecast(obj.position(:,p)              ,'uint8'); off=off+12;
+                bytes(off:off+11,p)  = typecast(obj.read_dir(:,p)              ,'uint8'); off=off+12;
+                bytes(off:off+11,p)  = typecast(obj.phase_dir(:,p)             ,'uint8'); off=off+12;
+                bytes(off:off+11,p)  = typecast(obj.slice_dir(:,p)             ,'uint8'); off=off+12;
+                bytes(off:off+11,p)  = typecast(obj.patient_table_position(:,p),'uint8'); off=off+12;
+                bytes(off:off+1,p)   = typecast(obj.average(p)                 ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.slice(p)                   ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.contrast(p)                ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.phase(p)                   ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.repetition(p)              ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.set(p)                     ,'uint8'); off=off+2;
+                bytes(off:off+3,p)   = typecast(obj.acquisition_time_stamp(p)  ,'uint8'); off=off+4;
+                % The C struct has padding.
+                bytes(off:off+11,p)  = typecast(obj.physiology_time_stamp(:,p) ,'uint8'); off=off+12;
                 off = off+20; % Discard 5*uint32;
-                bytes(off:off+1,p)   = typecast(obj.image_data_type(p)         ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.image_type(p)              ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.image_index(p)             ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.image_series_index(p)      ,'int8'); off=off+2;
-                bytes(off:off+31,p)  = typecast(obj.user_int(:,p)              ,'int8'); off=off+32;
-                bytes(off:off+31,p)  = typecast(obj.user_float(:,p)            ,'int8');
+                bytes(off:off+1,p)   = typecast(obj.image_data_type(p)         ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.image_type(p)              ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.image_index(p)             ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.image_series_index(p)      ,'uint8'); off=off+2;
+                bytes(off:off+31,p)  = typecast(obj.user_int(:,p)              ,'uint8'); off=off+32;
+                bytes(off:off+31,p)  = typecast(obj.user_float(:,p)            ,'uint8');
             end
         end
         
