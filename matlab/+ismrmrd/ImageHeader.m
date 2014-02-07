@@ -260,32 +260,32 @@ classdef ImageHeader < handle
             end
             N = size(bytearray,2);
             for p = 1:N
-                obj.version(p)                  = typecast(bytes(1:2,p),     'uint16');
-                obj.flags(p)                    = typecast(bytes(3:10,p),    'uint64');
-                obj.measurement_uid(p)          = typecast(bytes(11:14,p),   'uint32');
-                obj.matrix_size(:,p)            = typecast(bytes(15:20,p),   'uint16');
-                obj.field_of_view(:,p)          = typecast(bytes(21:32,p),   'single');
-                obj.channels(p)                 = typecast(bytes(33:34,p),   'uint16');
-                obj.position(:,p)               = typecast(bytes(35:46,p),   'single');
-                obj.read_dir(:,p)               = typecast(bytes(47:58,p),   'single');
-                obj.phase_dir(:,p)              = typecast(bytes(59:70,p),   'single');
-                obj.slice_dir(:,p)              = typecast(bytes(71:82,p),   'single');
-                obj.patient_table_position(:,p) = typecast(bytes(83:94,p),   'single');
-                obj.average(p)                  = typecast(bytes(95:96,p),   'uint16');
-                obj.slice(p)                    = typecast(bytes(97:98,p),   'uint16');
-                obj.contrast(p)                 = typecast(bytes(99:100,p),  'uint16');
-                obj.phase(p)                    = typecast(bytes(101:102,p), 'uint16');
-                obj.repetition(p)               = typecast(bytes(103:104,p), 'uint16');
-                obj.set(p)                      = typecast(bytes(105:106,p), 'uint16');
-                obj.acquisition_time_stamp(p)   = typecast(bytes(107:110,p), 'uint32');
-                obj.physiology_time_stamp(:,p)  = typecast(bytes(111:122,p), 'uint32');
+                obj.version(p)                  = typecast(bytearray(1:2,p),     'uint16');
+                obj.flags(p)                    = typecast(bytearray(3:10,p),    'uint64');
+                obj.measurement_uid(p)          = typecast(bytearray(11:14,p),   'uint32');
+                obj.matrix_size(:,p)            = typecast(bytearray(15:20,p),   'uint16');
+                obj.field_of_view(:,p)          = typecast(bytearray(21:32,p),   'single');
+                obj.channels(p)                 = typecast(bytearray(33:34,p),   'uint16');
+                obj.position(:,p)               = typecast(bytearray(35:46,p),   'single');
+                obj.read_dir(:,p)               = typecast(bytearray(47:58,p),   'single');
+                obj.phase_dir(:,p)              = typecast(bytearray(59:70,p),   'single');
+                obj.slice_dir(:,p)              = typecast(bytearray(71:82,p),   'single');
+                obj.patient_table_position(:,p) = typecast(bytearray(83:94,p),   'single');
+                obj.average(p)                  = typecast(bytearray(95:96,p),   'uint16');
+                obj.slice(p)                    = typecast(bytearray(97:98,p),   'uint16');
+                obj.contrast(p)                 = typecast(bytearray(99:100,p),  'uint16');
+                obj.phase(p)                    = typecast(bytearray(101:102,p), 'uint16');
+                obj.repetition(p)               = typecast(bytearray(103:104,p), 'uint16');
+                obj.set(p)                      = typecast(bytearray(105:106,p), 'uint16');
+                obj.acquisition_time_stamp(p)   = typecast(bytearray(107:110,p), 'uint32');
+                obj.physiology_time_stamp(:,p)  = typecast(bytearray(111:122,p), 'uint32');
                                                            ... %   C-struct has padding
-                obj.image_data_type(p)          = typecast(bytes(143:144,p), 'uint16');
-                obj.image_type(p)               = typecast(bytes(145:146,p), 'uint16');
-                obj.image_index(p)              = typecast(bytes(147:148,p), 'uint16');
-                obj.image_series_index(p)       = typecast(bytes(149:150,p), 'uint16');
-                obj.user_int(:,p)               = typecast(bytes(151:182,p), 'uint32');
-                obj.user_float(:,p)             = typecast(bytes(183:214,p), 'single');
+                obj.image_data_type(p)          = typecast(bytearray(143:144,p), 'uint16');
+                obj.image_type(p)               = typecast(bytearray(145:146,p), 'uint16');
+                obj.image_index(p)              = typecast(bytearray(147:148,p), 'uint16');
+                obj.image_series_index(p)       = typecast(bytearray(149:150,p), 'uint16');
+                obj.user_int(:,p)               = typecast(bytearray(151:182,p), 'uint32');
+                obj.user_float(:,p)             = typecast(bytearray(183:214,p), 'single');
             end              
         end
         
