@@ -268,7 +268,7 @@ classdef IsmrmrdDataset
             mem_space_id = H5S.create_simple(2,[N 1],[]);
 
             % Check and fix the acquisition header types
-            acq.head = acq.head.check();
+            acq.head.check();
             % TODO: Error checking on the sizes of the data and trajectories.
             
             % Pack the acquisition into the correct struct for writing

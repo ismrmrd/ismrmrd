@@ -327,6 +327,136 @@ classdef ImageHeader < handle
             end
         end
         
+        function obj = check(obj)
+            % Check and fix the obj types
+            
+            % Check the number of elements for each entry
+            N = obj.getNumber();
+            if (size(obj.flags) ~= N)
+                error('Size of flags is not correct.');
+            end
+            if ((size(obj.measurement_uid,1) ~= 1) || ...
+                (size(obj.measurement_uid,2) ~= N))
+                error('Size of measurement_uid is not correct.');
+            end
+            if ((size(obj.matrix_size,1) ~= 3) || ...
+                (size(obj.matrix_size,2) ~= N))
+                error('Size of matrix_size is not correct.');
+            end
+            if ((size(obj.field_of_view,1) ~= 3) || ...
+                (size(obj.field_of_view,2) ~= N))
+                error('Size of field_of_view is not correct.');
+            end
+            if ((size(obj.channels,1) ~= 1) || ...
+                (size(obj.channels,2) ~= N))
+                error('Size of field_of_view is not correct.');
+            end
+            if ((size(obj.position,1) ~= 3) || ...
+                (size(obj.position,2) ~= N))    
+                error('Size of position is not correct.');
+            end
+            if ((size(obj.read_dir,1) ~= 3) || ...
+                (size(obj.read_dir,2) ~= N))    
+                error('Size of read_dir is not correct.');
+            end
+            if ((size(obj.phase_dir,1) ~= 3) || ...
+                (size(obj.phase_dir,2) ~= N))    
+                error('Size of phase_dir is not correct.');
+            end
+            if ((size(obj.slice_dir,1) ~= 3) || ...
+                (size(obj.slice_dir,2) ~= N))    
+                error('Size of slice_dir is not correct.');
+            end
+            if ((size(obj.patient_table_position,1) ~= 3) || ...
+                (size(obj.patient_table_position,2) ~= N))    
+                error('Size of patient_table_position is not correct.');
+            end
+            if ((size(obj.average,1) ~= 1) || ...
+                (size(obj.average,2) ~= N))    
+                error('Size of average is not correct.');
+            end
+            if ((size(obj.slice,1) ~= 1) || ...
+                (size(obj.slice,2) ~= N))    
+                error('Size of slice is not correct.');
+            end
+            if ((size(obj.contrast,1) ~= 1) || ...
+                (size(obj.contrast,2) ~= N))    
+                error('Size of contrast is not correct.');
+            end
+            if ((size(obj.phase,1) ~= 1) || ...
+                (size(obj.phase,2) ~= N))    
+                error('Size of phase is not correct.');
+            end
+            if ((size(obj.repetition,1) ~= 1) || ...
+                (size(obj.repetition,2) ~= N))    
+                error('Size of repetition is not correct.');
+            end
+            if ((size(obj.set,1) ~= 1) || ...
+                (size(obj.set,2) ~= N))    
+                error('Size of set is not correct.');
+            end            
+            if ((size(obj.acquisition_time_stamp,1) ~= 1) || ...
+                (size(obj.acquisition_time_stamp,2) ~= N))
+                error('Size of acquisition_time_stamp is not correct.');
+            end
+            if ((size(obj.physiology_time_stamp,1) ~= 3) || ...
+                (size(obj.physiology_time_stamp,2) ~= N))
+                error('Size of physiology_time_stamp is not correct.');
+            end
+            if ((size(obj.image_data_type,1) ~= 1) || ...
+                (size(obj.image_data_type,2) ~= N))
+                error('Size of image_data_type is not correct.');
+            end
+            if ((size(obj.image_type,1) ~= 1) || ...
+                (size(obj.image_type,2) ~= N))
+                error('Size of image_type is not correct.');
+            end
+            if ((size(obj.image_index,1) ~= 1) || ...
+                (size(obj.image_index,2) ~= N))
+                error('Size of image_index is not correct.');
+            end
+            if ((size(obj.image_series_index,1) ~= 1) || ...
+                (size(obj.image_series_index,2) ~= N))
+                error('Size of image_series_index is not correct.');
+            end
+                        if ((size(obj.user_int,1) ~= 8) || ...
+                (size(obj.user_int,2) ~= N))    
+                error('Size of user_int is not correct.');
+            end
+            if ((size(obj.user_float,1) ~= 8) || ...
+                (size(obj.user_float,2) ~= N))    
+                error('Size of user_float is not correct.');
+            end
+            
+            % Fix the type of all the elements
+            obj.version = uint16(obj.version);
+            obj.flags = uint64(obj.flags);
+            obj.measurement_uid = uint32(obj.measurement_uid);
+            obj.matrix_size = uint16(obj.matrix_size);
+            obj.field_of_view = single(obj.field_of_view);
+            obj.channels = uint16(obj.channels);
+            obj.position = single(obj.position);
+            obj.read_dir = single(obj.read_dir);
+            obj.phase_dir = single(obj.phase_dir);
+            obj.slice_dir = single(obj.slice_dir);
+            obj.patient_table_position = single(obj.patient_table_position);
+            obj.average = uint16(obj.average);
+            obj.slice = uint16(obj.slice);
+            obj.contrast = uint16(obj.contrast);
+            obj.phase = uint16(obj.phase);
+            obj.repetition = uint16(obj.repetition);
+            obj.set = uint16(obj.set);
+            obj.acquisition_time_stamp = uint32(obj.acquisition_time_stamp);
+            obj.physiology_time_stamp = uint32(obj.physiology_time_stamp);            
+            obj.image_data_type = uint16(obj.image_data_type);
+            obj.image_type = uint16(obj.image_type);
+            obj.image_index = uint16(obj.image_index);
+            obj.image_series_index = uint16(obj.image_series_index);
+            obj.user_int = int32(obj.user_int);
+            obj.user_float = single(obj.user_float);
+ 
+        end
+        
         function ret = flagIsSet(obj, flag, range)
             if nargin < 3
                 range = 1:obj.getNumber;
