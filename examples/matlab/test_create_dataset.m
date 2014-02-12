@@ -50,13 +50,13 @@ end
 acqblock = ismrmrd.Acquisition(nY);
 
 % Set the header elements that don't change
-acqblock.head.version(:) = 1.0;
+acqblock.head.version(:) = 1;
 acqblock.head.number_of_samples(:) = nX;
 acqblock.head.center_sample(:) = floor(nX/2);
 acqblock.head.active_channels(:) = nCoils;
-acqblock.head.read_dir  = repmat(single([1 0 0]'),[1 nY]);
-acqblock.head.phase_dir = repmat(single([0 1 0]'),[1 nY]);
-acqblock.head.slice_dir = repmat(single([0 0 1]'),[1 nY]);
+acqblock.head.read_dir  = repmat([1 0 0]',[1 nY]);
+acqblock.head.phase_dir = repmat([0 1 0]',[1 nY]);
+acqblock.head.slice_dir = repmat([0 0 1]',[1 nY]);
 
 % Loop over the acquisitions, set the header, set the data and append
 for rep = 1:nReps
