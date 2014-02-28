@@ -2,7 +2,10 @@
 
 %{
 
-#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+// for compatibility with Numpy version <= 1.6
+#if NPY_FEATURE_VERSION < 0x00000007
+#define NPY_ARRAY_FARRAY NPY_FARRAY
+#endif
 
 #include "ismrmrd_hdf5.h"
 #include "numpy/arrayobject.h"
