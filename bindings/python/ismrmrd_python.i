@@ -7,6 +7,12 @@
 #include "ismrmrd_hdf5.h"
 #include "numpy/arrayobject.h"
 
+// for compatibility with Numpy version <= 1.6
+#define NUMPY17_API 0x00000007
+#if NPY_FEATURE_VERSION < NUMPY17_API
+#define NPY_ARRAY_FARRAY NPY_FARRAY
+#endif
+
 #define SWIG_FILE_WITH_INIT
 
     /* exception helpers */
