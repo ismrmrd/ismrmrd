@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <complex>
+#include <string>
 
 #ifndef H5_NO_NAMESPACE
 	using namespace H5;
@@ -332,6 +333,12 @@ template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader_wi
 template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader_with_data< std::complex<double> > >()
 {
 	return getIsmrmrdHDF5Type<ImageHeader_with_data<double_complex_t> >();
+}
+
+template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<std::string>()
+{
+	boost::shared_ptr<DataType> ret(new StrType(0, H5T_VARIABLE));
+	return ret;
 }
 
 }
