@@ -77,6 +77,8 @@ classdef AcquisitionHeader < handle
     methods
         
         function obj = AcquisitionHeader(arg)
+            % Constructor
+            
             switch nargin
                 case 0
                     % No argument constructor
@@ -91,7 +93,7 @@ classdef AcquisitionHeader < handle
                     elseif (length(arg)==1 && ismrmrd.util.isInt(arg)) == 1
                         % number
                         extend(obj,arg);
-                    elseif isa(arg,'int8')
+                    elseif isa(arg,'uint8')
                         % Byte array
                         fromBytes(obj,arg);
                     else
@@ -106,7 +108,10 @@ classdef AcquisitionHeader < handle
         end
         
         function nacq = getNumber(obj)
+            % Return the number of headers
+            
             nacq = length(obj.version);
+            
         end
 
         function hdr = select(obj, range)
@@ -155,6 +160,7 @@ classdef AcquisitionHeader < handle
         
         function extend(obj,N)
             % Extend with blank header
+            
             range = obj.getNumber + (1:N);
             obj.version(1,range)                  = zeros(1,N,'uint16');
             obj.flags(1,range)                    = zeros(1,N,'uint64');
@@ -192,6 +198,8 @@ classdef AcquisitionHeader < handle
         end
         
         function append(obj, head)
+            % Append a header
+            
             Nstart = obj.getNumber + 1;
             Nend   = obj.getNumber + length(head.version);
             Nrange = Nstart:Nend;
@@ -231,6 +239,8 @@ classdef AcquisitionHeader < handle
         end
 
         function fromStruct(obj, hdr)
+            % Convert a struct to the object
+            
             %warning! no error checking
             obj.version = hdr.version;
             obj.flags = hdr.flags;
@@ -268,6 +278,8 @@ classdef AcquisitionHeader < handle
         end
 
         function hdr = toStruct(obj)
+            % Convert the object to a plain struct
+            
             %warning! no error checking
             hdr = struct();
             hdr.version = obj.version;
@@ -306,9 +318,9 @@ classdef AcquisitionHeader < handle
         end
         
         function fromBytes(obj, bytearray)
+            % Convert from a byte array to an ISMRMRD AcquisitionHeader
+            % This conforms to the memory layout of the C-struct
 
-            % TODO: physiology_time_stamp should be 3. So size will change
-            % from 360 to 340;
             if size(bytearray,1) ~= 360
                 error('Wrong number of bytes for AcquisitionHeader.')
             end
@@ -319,8 +331,8 @@ classdef AcquisitionHeader < handle
                 obj.measurement_uid(p) =          typecast(bytearray( 11: 14,p), 'uint32'); ... % Unique ID for the measurement %
                 obj.scan_counter(p) =             typecast(bytearray( 15: 18,p), 'uint32'); ... % Current acquisition number in the measurement %
                 obj.acquisition_time_stamp(p) =   typecast(bytearray( 19: 22,p), 'uint32'); ... % Acquisition clock %
-                obj.physiology_time_stamp(:,p) =  typecast(bytearray( 23: 30,p), 'uint32'); ... % Physiology time stamps, e.g. ecg, breating, etc. %
-                                                                                            ... %   TODO: the C header has a bug.  3 is correct
+                obj.physiology_time_stamp(:,p) =  typecast(bytearray( 23: 34,p), 'uint32'); ... % Physiology time stamps, e.g. ecg, breating, etc. %
+                                                                                            ... % C-Struct padding
                 obj.number_of_samples(p) =        typecast(bytearray( 55: 56,p), 'uint16'); ... % Number of samples acquired %
                 obj.available_channels(p) =       typecast(bytearray( 57: 58,p), 'uint16'); ... % Available coils %
                 obj.active_channels(p) =          typecast(bytearray( 59: 60,p), 'uint16'); ... % Active coils on current acquisiton %
@@ -352,57 +364,225 @@ classdef AcquisitionHeader < handle
         end
         
         function bytes = toBytes(obj)
-            % Convert to an ISMRMRD AcquisitionHeader struct to a byte array.
+            % Convert to an ISMRMRD AcquisitionHeader to a byte array
+            % This conforms to the memory layout of the C-struct
 
             N = obj.getNumber;
-            
-            % TODO: physiology_time_stamp should be 3.
-            %bytes = zeros(340,N,'int8');
-            bytes = zeros(360,N,'int8');
+            bytes = zeros(360,N,'uint8');
             for p = 1:N
                 off = 1;
-                bytes(off:off+1,p)   = typecast(obj.version(p)               ,'int8'); off=off+2;
-                bytes(off:off+7,p)   = typecast(obj.flags(p)                 ,'int8'); off=off+8;
-                bytes(off:off+3,p)   = typecast(obj.measurement_uid(p)       ,'int8'); off=off+4;
-                bytes(off:off+3,p)   = typecast(obj.scan_counter(p)          ,'int8'); off=off+4;
-                bytes(off:off+3,p)   = typecast(obj.acquisition_time_stamp(p),'int8'); off=off+4;
-
-                % TODO: physiology_time_stamp should be 3.
-                % but the C struct has a bug, so convert to padding.
-                bytes(off:off+11,p)  = typecast(obj.physiology_time_stamp(:,p) ,'int8'); off=off+12;
+                bytes(off:off+1,p)   = typecast(obj.version(p)               ,'uint8'); off=off+2;
+                bytes(off:off+7,p)   = typecast(obj.flags(p)                 ,'uint8'); off=off+8;
+                bytes(off:off+3,p)   = typecast(obj.measurement_uid(p)       ,'uint8'); off=off+4;
+                bytes(off:off+3,p)   = typecast(obj.scan_counter(p)          ,'uint8'); off=off+4;
+                bytes(off:off+3,p)   = typecast(obj.acquisition_time_stamp(p),'uint8'); off=off+4;
+                % The C struct has padding because of the 5 unused physio time stamps
+                bytes(off:off+11,p)  = typecast(obj.physiology_time_stamp(:,p) ,'uint8'); off=off+12;
                 off = off+20; % Discard 5*uint32;
-
-                bytes(off:off+1,p)   = typecast(obj.number_of_samples(p)     ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.available_channels(p)    ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.active_channels(p)       ,'int8'); off=off+2;
-                bytes(off:off+127,p) = typecast(obj.channel_mask(:,p)        ,'int8'); off=off+128;
-                bytes(off:off+1,p)   = typecast(obj.discard_pre(p)           ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.discard_post(p)          ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.center_sample(p)         ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.encoding_space_ref(p)    ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.trajectory_dimensions(p) ,'int8'); off=off+2;
-                bytes(off:off+3,p)   = typecast(obj.sample_time_us(p)        ,'int8'); off=off+4;
-                bytes(off:off+11,p)  = typecast(obj.position(:,p)            ,'int8'); off=off+12;
-                bytes(off:off+11,p)  = typecast(obj.read_dir(:,p)            ,'int8'); off=off+12;
-                bytes(off:off+11,p)  = typecast(obj.phase_dir(:,p)           ,'int8'); off=off+12;
-                bytes(off:off+11,p)  = typecast(obj.slice_dir(:,p)           ,'int8'); off=off+12;
-                bytes(off:off+11,p)  = typecast(obj.patient_table_position(:,p),'int8'); off=off+12;
-                bytes(off:off+1,p)   = typecast(obj.idx.kspace_encode_step_1(p),'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.idx.kspace_encode_step_2(p),'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.idx.average(p)           ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.idx.slice(p)             ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.idx.contrast(p)          ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.idx.phase(p)             ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.idx.repetition(p)        ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.idx.set(p)               ,'int8'); off=off+2;
-                bytes(off:off+1,p)   = typecast(obj.idx.segment(p)           ,'int8'); off=off+2;
-                bytes(off:off+15,p)  = typecast(obj.idx.user(:,p)            ,'int8'); off=off+16;
-                bytes(off:off+31,p)  = typecast(obj.user_int(:,p)            ,'int8'); off=off+32;
-                bytes(off:off+31,p)  = typecast(obj.user_float(:,p)          ,'int8');
+                bytes(off:off+1,p)   = typecast(obj.number_of_samples(p)     ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.available_channels(p)    ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.active_channels(p)       ,'uint8'); off=off+2;
+                bytes(off:off+127,p) = typecast(obj.channel_mask(:,p)        ,'uint8'); off=off+128;
+                bytes(off:off+1,p)   = typecast(obj.discard_pre(p)           ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.discard_post(p)          ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.center_sample(p)         ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.encoding_space_ref(p)    ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.trajectory_dimensions(p) ,'uint8'); off=off+2;
+                bytes(off:off+3,p)   = typecast(obj.sample_time_us(p)        ,'uint8'); off=off+4;
+                bytes(off:off+11,p)  = typecast(obj.position(:,p)            ,'uint8'); off=off+12;
+                bytes(off:off+11,p)  = typecast(obj.read_dir(:,p)            ,'uint8'); off=off+12;
+                bytes(off:off+11,p)  = typecast(obj.phase_dir(:,p)           ,'uint8'); off=off+12;
+                bytes(off:off+11,p)  = typecast(obj.slice_dir(:,p)           ,'uint8'); off=off+12;
+                bytes(off:off+11,p)  = typecast(obj.patient_table_position(:,p),'uint8'); off=off+12;
+                bytes(off:off+1,p)   = typecast(obj.idx.kspace_encode_step_1(p),'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.idx.kspace_encode_step_2(p),'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.idx.average(p)           ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.idx.slice(p)             ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.idx.contrast(p)          ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.idx.phase(p)             ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.idx.repetition(p)        ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.idx.set(p)               ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.idx.segment(p)           ,'uint8'); off=off+2;
+                bytes(off:off+15,p)  = typecast(obj.idx.user(:,p)            ,'uint8'); off=off+16;
+                bytes(off:off+31,p)  = typecast(obj.user_int(:,p)            ,'uint8'); off=off+32;
+                bytes(off:off+31,p)  = typecast(obj.user_float(:,p)          ,'uint8');
             end
         end
         
+        function obj = check(obj)
+            % Check and fix the obj types
+            
+            % Check the number of elements for each entry
+            N = obj.getNumber();
+            if (size(obj.flags) ~= N)
+                error('Size of flags is not correct.');
+            end
+            if ((size(obj.measurement_uid,1) ~= 1) || ...
+                (size(obj.measurement_uid,2) ~= N))
+                error('Size of measurement_uid is not correct.');
+            end
+            if ((size(obj.scan_counter,1) ~= 1) || ...
+                (size(obj.scan_counter,2) ~= N))
+                error('Size of scan_counter is not correct.');
+            end
+            if ((size(obj.acquisition_time_stamp,1) ~= 1) || ...
+                (size(obj.acquisition_time_stamp,2) ~= N))
+                error('Size of acquisition_time_stamp is not correct.');
+            end
+            if ((size(obj.physiology_time_stamp,1) ~= 3) || ...
+                (size(obj.physiology_time_stamp,2) ~= N))
+                error('Size of physiology_time_stamp is not correct.');
+            end
+            if ((size(obj.number_of_samples,1) ~= 1) || ...
+                (size(obj.number_of_samples,2) ~= N))
+                error('Size of number_of_samples is not correct.');
+            end
+            
+            if ((size(obj.available_channels,1) ~= 1) || ...
+                (size(obj.available_channels,2) ~= N))
+                error('Size of available_channels is not correct.');
+            end
+            if ((size(obj.active_channels,1) ~= 1) || ...
+                (size(obj.active_channels,2) ~= N))
+                error('Size of active_channels is not correct.');
+            end
+            if ((size(obj.channel_mask,1) ~= 16) || ...
+                (size(obj.channel_mask,2) ~= N))    
+                error('Size of channel_mask is not correct.');
+            end
+            if ((size(obj.discard_pre,1) ~= 1) || ...
+                (size(obj.discard_pre,2) ~= N))
+                error('Size of discard_pre is not correct.');
+            end
+            if ((size(obj.discard_post,1) ~= 1) || ...
+                (size(obj.discard_post,2) ~= N))    
+                error('Size of discard_post is not correct.');
+            end
+            if ((size(obj.center_sample,1) ~= 1) || ...
+                (size(obj.center_sample,2) ~= N))
+                error('Size of center_sample is not correct.');
+            end
+            if ((size(obj.encoding_space_ref,1) ~= 1) || ...
+                (size(obj.encoding_space_ref,2) ~= N))    
+                error('Size of encoding_space_ref is not correct.');
+            end
+            if ((size(obj.trajectory_dimensions,1) ~= 1) || ...
+                (size(obj.trajectory_dimensions,2) ~= N))
+                error('Size of trajectory_dimensions is not correct.');
+            end
+            if ((size(obj.sample_time_us,1) ~= 1) || ...
+                (size(obj.sample_time_us,2) ~= N))    
+                error('Size of sample_time_us is not correct.');
+            end
+            if ((size(obj.position,1) ~= 3) || ...
+                (size(obj.position,2) ~= N))    
+                error('Size of position is not correct.');
+            end
+            if ((size(obj.read_dir,1) ~= 3) || ...
+                (size(obj.read_dir,2) ~= N))    
+                error('Size of read_dir is not correct.');
+            end
+            if ((size(obj.phase_dir,1) ~= 3) || ...
+                (size(obj.phase_dir,2) ~= N))    
+                error('Size of phase_dir is not correct.');
+            end
+            if ((size(obj.slice_dir,1) ~= 3) || ...
+                (size(obj.slice_dir,2) ~= N))    
+                error('Size of slice_dir is not correct.');
+            end
+            if ((size(obj.patient_table_position,1) ~= 3) || ...
+                (size(obj.patient_table_position,2) ~= N))    
+                error('Size of patient_table_position is not correct.');
+            end
+            if ((size(obj.idx.kspace_encode_step_1,1) ~= 1) || ...
+                (size(obj.idx.kspace_encode_step_1,2) ~= N))
+                error('Size of kspace_encode_step_1 is not correct.');
+            end
+            if ((size(obj.idx.kspace_encode_step_2,1) ~= 1) || ...
+                (size(obj.idx.kspace_encode_step_2,2) ~= N))     
+                error('Size of kspace_encode_step_2 is not correct.');
+            end
+            if ((size(obj.idx.average,1) ~= 1) || ...
+                (size(obj.idx.average,2) ~= N))    
+                error('Size of idx.average is not correct.');
+            end
+            if ((size(obj.idx.slice,1) ~= 1) || ...
+                (size(obj.idx.slice,2) ~= N))    
+                error('Size of idx.slice is not correct.');
+            end
+            if ((size(obj.idx.contrast,1) ~= 1) || ...
+                (size(obj.idx.contrast,2) ~= N))    
+                error('Size of idx.contrast is not correct.');
+            end
+            if ((size(obj.idx.phase,1) ~= 1) || ...
+                (size(obj.idx.phase,2) ~= N))    
+                error('Size of idx.phase is not correct.');
+            end
+            if ((size(obj.idx.repetition,1) ~= 1) || ...
+                (size(obj.idx.repetition,2) ~= N))    
+                error('Size of idx.repetition is not correct.');
+            end
+            if ((size(obj.idx.set,1) ~= 1) || ...
+                (size(obj.idx.set,2) ~= N))    
+                error('Size of idx.set is not correct.');
+            end
+            if ((size(obj.idx.segment,1) ~= 1) || ...
+                (size(obj.idx.segment,2) ~= N))    
+                error('Size of idx.segment is not correct.');
+            end
+            if ((size(obj.idx.user,1) ~= 8) || ...
+                (size(obj.idx.user,2) ~= N))    
+                error('Size of idx.user is not correct.');
+            end
+            if ((size(obj.user_int,1) ~= 8) || ...
+                (size(obj.user_int,2) ~= N))    
+                error('Size of user_int is not correct.');
+            end
+            if ((size(obj.user_float,1) ~= 8) || ...
+                (size(obj.user_float,2) ~= N))    
+                error('Size of user_float is not correct.');
+            end
+            
+            % Fix the type of all the elements
+            obj.version = uint16(obj.version);
+            obj.flags = uint64(obj.flags);
+            obj.measurement_uid = uint32(obj.measurement_uid);
+            obj.scan_counter = uint32(obj.scan_counter);
+            obj.acquisition_time_stamp = uint32(obj.acquisition_time_stamp);
+            obj.physiology_time_stamp = uint32(obj.physiology_time_stamp);
+            obj.number_of_samples = uint16(obj.number_of_samples);
+            obj.available_channels = uint16(obj.available_channels);
+            obj.active_channels = uint16(obj.active_channels);
+            obj.channel_mask = uint64(obj.channel_mask);
+            obj.discard_pre = uint16(obj.discard_pre);
+            obj.discard_post = uint16(obj.discard_post);
+            obj.center_sample = uint16(obj.center_sample);
+            obj.encoding_space_ref = uint16(obj.encoding_space_ref);
+            obj.trajectory_dimensions = uint16(obj.trajectory_dimensions);
+            obj.sample_time_us = single(obj.sample_time_us);
+            obj.position = single(obj.position);
+            obj.read_dir = single(obj.read_dir);
+            obj.phase_dir = single(obj.phase_dir);
+            obj.slice_dir = single(obj.slice_dir);
+            obj.patient_table_position = single(obj.patient_table_position);
+            obj.idx.kspace_encode_step_1 = uint16(obj.idx.kspace_encode_step_1);
+            obj.idx.kspace_encode_step_2 = uint16(obj.idx.kspace_encode_step_2);
+            obj.idx.average = uint16(obj.idx.average);
+            obj.idx.slice = uint16(obj.idx.slice);
+            obj.idx.contrast = uint16(obj.idx.contrast);
+            obj.idx.phase = uint16(obj.idx.phase);
+            obj.idx.repetition = uint16(obj.idx.repetition);
+            obj.idx.set = uint16(obj.idx.set);
+            obj.idx.segment = uint16(obj.idx.segment);
+            obj.idx.user = uint16(obj.idx.user);
+            obj.user_int = int32(obj.user_int);
+            obj.user_float = single(obj.user_float);
+ 
+        end
+        
         function ret = flagIsSet(obj, flag, range)
+            % bool = obj.flagIsSet(flag, range)
+            
             if nargin < 3
                 range = 1:obj.getNumber;
             end
@@ -461,8 +641,13 @@ classdef AcquisitionHeader < handle
                     obj.flags(range(p)) = obj.flags(range(p)) - bitmask;
                 end
             end
-                
-            
+        end
+        
+        function flagClearAll(obj, range)
+            if nargin < 2
+                range = 1:obj.getNumber;
+            end
+            obj.flags(range) = zeros(1,length(range),'uint64');
         end
         
     end
