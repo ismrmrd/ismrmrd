@@ -632,7 +632,18 @@ int IsmrmrdDataset::appendImageAttrib(std::string& a, const char* varname)
 				return -1;
 			}
 
-			DataSpace mspace1 = dataset->getSpace();
+            std::vector<hsize_t> dims(1,1);
+		    std::vector<hsize_t> max_dims(1,1);
+            DataSpace mspace2( dims.size(), &dims[0] );
+
+            DataSpace mspace1( dims.size(), &dims[0], &max_dims[0]);
+            mspace1 = dataset->getSpace();
+
+			std::vector<hsize_t> offset(dims.size());
+			mspace1.selectHyperslab(H5S_SELECT_SET, &dims[0], &offset[0]);
+			dataset->write( a, *datatype, mspace2, mspace1 );
+
+			/*DataSpace mspace1 = dataset->getSpace();
 			int rank = mspace1.getSimpleExtentNdims();
 			std::vector<hsize_t> ddims(rank,0);
 			mspace1.getSimpleExtentDims(&ddims[0], NULL);
@@ -646,16 +657,12 @@ int IsmrmrdDataset::appendImageAttrib(std::string& a, const char* varname)
 			std::vector<hsize_t> offset(rank, 0);
 			offset[0] = ddims[0];
 
-			ddims[0]++;
-
-			dataset->extend(&ddims[0]);
-
 			DataSpace fspace2 = dataset->getSpace();
 			fspace2.selectHyperslab( H5S_SELECT_SET, &dims[0], &offset[0] );
 
 			DataSpace mspace2( rank, &dims[0] );
 
-			dataset->write( a, *datatype, mspace2, fspace2 );
+			dataset->write( a, *datatype, mspace2, fspace2 );*/
 
 		 }
 		 catch( FileIException& not_found_error)
