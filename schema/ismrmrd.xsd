@@ -5,14 +5,14 @@
 
     <xs:complexType name="ismrmrdHeader">
       <xs:sequence>
-	<xs:element maxOccurs="1" minOccurs="0" name="subjectInformation" type="subjectInformationType"/>
-	<xs:element maxOccurs="1" minOccurs="0" name="studyInformation" type="studyInformationType"/>
-	<xs:element maxOccurs="1" minOccurs="0" name="measurementInformation" type="measurementInformationType"/>
-	<xs:element maxOccurs="1" minOccurs="0" name="acquisitionSystemInformation" type="acquisitionSystemInformationType"/>
-	<xs:element maxOccurs="1" minOccurs="1" name="experimentalConditions" type="experimentalConditionsType"/>
+        <xs:element maxOccurs="1" minOccurs="0" name="subjectInformation" type="subjectInformationType"/>
+        <xs:element maxOccurs="1" minOccurs="0" name="studyInformation" type="studyInformationType"/>
+        <xs:element maxOccurs="1" minOccurs="0" name="measurementInformation" type="measurementInformationType"/>
+        <xs:element maxOccurs="1" minOccurs="0" name="acquisitionSystemInformation" type="acquisitionSystemInformationType"/>
+        <xs:element maxOccurs="1" minOccurs="1" name="experimentalConditions" type="experimentalConditionsType"/>
         <xs:element maxOccurs="unbounded" minOccurs="1" name="encoding" type="encoding"/>
-	<xs:element maxOccurs="1" minOccurs="0" name="parallelImaging" type="parallelImagingType"/>
-	<xs:element maxOccurs="1" minOccurs="0" name="sequenceParameters" type="sequenceParametersType"/>
+        <xs:element maxOccurs="1" minOccurs="0" name="parallelImaging" type="parallelImagingType"/>
+        <xs:element maxOccurs="1" minOccurs="0" name="sequenceParameters" type="sequenceParametersType"/>
         <xs:element maxOccurs="1" minOccurs="0" name="dicomParameters" type="dicomParametersType"/>
         <xs:element maxOccurs="1" minOccurs="0" name="userParameters" type="userParameters"/>
       </xs:sequence>
@@ -23,7 +23,7 @@
       <xs:element minOccurs="0" name="patientName" type="xs:string"/>
       <xs:element minOccurs="0" name="patientWeight_kg" type="xs:float"/>
       <xs:element minOccurs="0" name="patientID" type="xs:string"/>
-      <xs:element minOccurs="0" name="patientBirthdate" type="xs:date"/>
+      <xs:element minOccurs="0" name="patientBirthdate" type="xs:string"/>
       <xs:element minOccurs="0" name="patientGender">
         <xs:simpleType>
           <xs:restriction base="xs:string">
@@ -36,8 +36,8 @@
 
   <xs:complexType name="studyInformationType">
     <xs:all>
-      <xs:element minOccurs="1" name="studyDate" type="xs:date"/>
-      <xs:element minOccurs="1" name="studyTime" type="xs:time"/>
+      <xs:element minOccurs="0" name="studyDate" type="xs:date"/>
+      <xs:element minOccurs="0" name="studyTime" type="xs:time"/>
       <xs:element minOccurs="0" name="studyID" type="xs:string"/>
       <xs:element minOccurs="0" name="accessionNumber" type="xs:long"/>
       <xs:element minOccurs="0" name="referringPhysicianName" type="xs:string"/>
@@ -47,8 +47,8 @@
 
   <xs:complexType name="measurementInformationType">
     <xs:all>
-      <xs:element minOccurs="1" name="seriesDate" type="xs:date"/>
-      <xs:element minOccurs="1" name="seriesTime" type="xs:time"/>
+      <xs:element minOccurs="0" name="seriesDate" type="xs:date"/>
+      <xs:element minOccurs="0" name="seriesTime" type="xs:time"/>
       <xs:element minOccurs="1" name="patientPosition">
         <xs:simpleType>
           <xs:restriction base="xs:string">
