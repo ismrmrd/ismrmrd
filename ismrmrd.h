@@ -95,18 +95,17 @@ enum AcquisitionFlags {
     ACQ_LAST_IN_SET                             = 16,
     ACQ_FIRST_IN_SEGMENT                        = 17,
     ACQ_LAST_IN_SEGMENT                         = 18,
-
-    ACQ_LAST_IN_MEASUREMENT                     = 25,
-
     ACQ_IS_NOISE_MEASUREMENT                    = 19,
     ACQ_IS_PARALLEL_CALIBRATION                 = 20,
     ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING     = 21,
     ACQ_IS_REVERSE                              = 22,
     ACQ_IS_NAVIGATION_DATA                      = 23,
     ACQ_IS_PHASECORR_DATA                       = 24,
-    ACQ_IS_RTFEEDBACK_DATA                      = 25,
+
+    ACQ_LAST_IN_MEASUREMENT                     = 25,
     ACQ_IS_HPFEEDBACK_DATA                      = 26,
     ACQ_IS_DUMMYSCAN_DATA                       = 27,
+    ACQ_IS_RTFEEDBACK_DATA                      = 28,
 
     ACQ_USER1                                   = 57,
     ACQ_USER2                                   = 58,
