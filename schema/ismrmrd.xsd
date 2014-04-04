@@ -47,6 +47,7 @@
 
   <xs:complexType name="measurementInformationType">
     <xs:all>
+      <xs:element minOccurs="0" name="measurementID" type="xs:string"/>
       <xs:element minOccurs="0" name="seriesDate" type="xs:date"/>
       <xs:element minOccurs="0" name="seriesTime" type="xs:time"/>
       <xs:element minOccurs="1" name="patientPosition">
@@ -66,6 +67,17 @@
       <xs:element minOccurs="0" name="initialSeriesNumber" type="xs:long"/>
       <xs:element minOccurs="0" name="protocolName" type="xs:string"/>
       <xs:element minOccurs="0" name="seriesDescription" type="xs:string"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="measurementDependencyIDs" type="measurementDependenciesType"/>
+    </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="measurementDependenciesType">
+    <xs:all>
+      <xs:element maxOccurs="1" minOccurs="0" name="noiseMeasurement" type="xs:string"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="surfaceCoilCorrectionMeasurement" type="xs:string"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="otherMeasurement1" type="xs:string"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="otherMeasurement2" type="xs:string"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="otherMeasurement3" type="xs:string"/>
     </xs:all>
   </xs:complexType>
 
