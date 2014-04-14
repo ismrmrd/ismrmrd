@@ -229,7 +229,7 @@
       <xs:element minOccurs="0" name="mrAcquisitionType" type="xs:string"/>
       <xs:element minOccurs="0" name="echoTrainLength" type="xs:long"/>
       <xs:element minOccurs="0" name="triggerTime" type="xs:float"/>
-      <xs:element minOccurs="0" name="flipAngle_deg" type="xs:long"/>
+      <xs:element minOccurs="0" name="flipAngle_deg" type="xs:float"/>
       <xs:element minOccurs="0" name="freqEncodingDirection">
         <xs:simpleType>
           <xs:restriction base="xs:string">
