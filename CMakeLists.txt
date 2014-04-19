@@ -44,7 +44,7 @@ add_library(dummy SHARED ${XSDS_SOURCES})
 target_link_libraries(dummy ${XERCESC_LIBRARIES})
 
 # Add library ismrmrd
-add_library(ismrmrd SHARED ismrmrd_hdf5.cpp)
+add_library(ismrmrd SHARED ismrmrd_hdf5.cpp schema/ismrmrd.xsd)
 
 #The findHDF5.cmake does not work very well on Windows, let's help it out
 IF(WIN32)

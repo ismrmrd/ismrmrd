@@ -46,7 +46,7 @@
   </xs:complexType>
 
   <xs:complexType name="measurementInformationType">
-    <xs:all>
+    <xs:sequence>
       <xs:element minOccurs="0" name="measurementID" type="xs:string"/>
       <xs:element minOccurs="0" name="seriesDate" type="xs:date"/>
       <xs:element minOccurs="0" name="seriesTime" type="xs:time"/>
@@ -67,18 +67,15 @@
       <xs:element minOccurs="0" name="initialSeriesNumber" type="xs:long"/>
       <xs:element minOccurs="0" name="protocolName" type="xs:string"/>
       <xs:element minOccurs="0" name="seriesDescription" type="xs:string"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="measurementDependencyIDs" type="measurementDependenciesType"/>
-    </xs:all>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="measurementDependency" type="measurementDependencyType"/>
+    </xs:sequence>
   </xs:complexType>
 
-  <xs:complexType name="measurementDependenciesType">
-    <xs:all>
-      <xs:element maxOccurs="1" minOccurs="0" name="noiseMeasurement" type="xs:string"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="surfaceCoilCorrectionMeasurement" type="xs:string"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="otherMeasurement1" type="xs:string"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="otherMeasurement2" type="xs:string"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="otherMeasurement3" type="xs:string"/>
-    </xs:all>
+  <xs:complexType name="measurementDependencyType">
+    <xs:sequence>
+        <xs:element maxOccurs="1" minOccurs="1" name="dependencyType" type="xs:string"/>
+        <xs:element maxOccurs="1" minOccurs="1" name="measurementID" type="xs:string"/>
+    </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="acquisitionSystemInformationType">
@@ -197,6 +194,13 @@
     </xs:all>
   </xs:complexType>
 
+  <xs:complexType name="userParameterStringType">
+    <xs:all>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="value" type="xs:string"/>
+    </xs:all>
+  </xs:complexType>
+
   <xs:complexType name="userParameterBase64Type">
     <xs:all>
       <xs:element name="name" type="xs:string"/>
@@ -245,6 +249,7 @@
     <xs:sequence>
       <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterLong" type="userParameterLongType"/>
       <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterDouble" type="userParameterDoubleType"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterString" type="userParameterStringType"/>
       <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterBase64" type="userParameterBase64Type"/>
     </xs:sequence>
   </xs:complexType>

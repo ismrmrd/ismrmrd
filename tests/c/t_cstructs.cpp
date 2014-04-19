@@ -44,9 +44,9 @@ int main(void)
     acq_head.trajectory_dimensions = 2;
     acq_head.sample_time_us = 123.321;
 
-    acq_head.position[0] = -12.80;
-    acq_head.position[1] = 0.23;
-    acq_head.position[2] = 12.45;
+    acq_head.position[0] = -12.80f;
+    acq_head.position[1] = 0.23f;
+    acq_head.position[2] = 12.45f;
 
     acq_head.read_dir[0] = 1;
     acq_head.read_dir[1] = 0;
@@ -88,9 +88,9 @@ int main(void)
 
     img_head.channels = 32;
 
-    img_head.position[0] = -12.80;
-    img_head.position[1] = 0.23;
-    img_head.position[2] = 12.45;
+    img_head.position[0] = -12.80f;
+    img_head.position[1] = 0.23f;
+    img_head.position[2] = 12.45f;
 
     img_head.read_dir[0] = 1;
     img_head.read_dir[1] = 0;
@@ -106,7 +106,7 @@ int main(void)
 
     img_head.patient_table_position[0] = 0.0;
     img_head.patient_table_position[1] = 0.0;
-    img_head.patient_table_position[2] = 2.13;
+    img_head.patient_table_position[2] = 2.13f;
 
     img_head.average = 50;
     img_head.slice = 14;
