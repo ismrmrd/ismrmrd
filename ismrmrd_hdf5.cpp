@@ -50,6 +50,20 @@ int IsmrmrdDataset::openHDF5File()
 	return 0;
 }
 
+void IsmrmrdDataset::close(void)
+{
+    if (file_open_) {
+        dataset_->flush(H5F_SCOPE_LOCAL);
+        dataset_->close();
+        dataset_.reset();
+        file_->flush(H5F_SCOPE_LOCAL);
+        file_->close();
+        file_.reset();
+        file_open_ = false;
+    }
+}
+
+
 
 bool IsmrmrdDataset::linkExists(const char* name)
 {
