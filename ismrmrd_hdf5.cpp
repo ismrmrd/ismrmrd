@@ -19,10 +19,13 @@ int IsmrmrdDataset::openHDF5File()
 				return -1;
 			}
 			file_ = boost::shared_ptr<H5File>(new H5File(filename_.c_str(), H5F_ACC_RDWR));
-
 		} catch (...) {
-			std::cerr << "Failed to open HDF5 file." << std::endl;
-			return -1;
+                    try {
+                        file_ = boost::shared_ptr<H5File>(new H5File(filename_.c_str(), H5F_ACC_RDONLY));
+                    } catch (...) {
+                        std::cerr << "Failed to open HDF5 file." << std::endl;
+                        return -1;
+                    }
 		}
 		file_open_ = true;
 	} else if (create_file_if_needed_){
@@ -49,6 +52,20 @@ int IsmrmrdDataset::openHDF5File()
 
 	return 0;
 }
+
+void IsmrmrdDataset::close(void)
+{
+    if (file_open_) {
+        dataset_->flush(H5F_SCOPE_LOCAL);
+        dataset_->close();
+        dataset_.reset();
+        file_->flush(H5F_SCOPE_LOCAL);
+        file_->close();
+        file_.reset();
+        file_open_ = false;
+    }
+}
+
 
 
 bool IsmrmrdDataset::linkExists(const char* name)
