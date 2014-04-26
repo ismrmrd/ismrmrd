@@ -184,7 +184,7 @@ public:
 	template <typename T> boost::shared_ptr< NDArrayContainer<T> > readArray(const char* varname, unsigned long index = 0);
 
 
-    /**
+        /**
 	 *  This function appends the meta attribute information to the data set. The meta attributes are stored as an xml file.
 	 */
 	int appendImageAttrib(std::string& a, const char* varname);
