@@ -33,9 +33,12 @@ add_custom_command(
 )
 add_custom_target(ismrmrdjar ALL DEPENDS ${JAVA_OUTPUTS})
 
-install(TARGETS jismrmrd DESTINATION java)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ismrmrd.jar DESTINATION java)
+install(TARGETS jismrmrd
+    DESTINATION ${ISMRMRD_INSTALL_JAVA_DIR})
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ismrmrd.jar
+    DESTINATION ${ISMRMRD_INSTALL_JAVA_DIR})
 
 # Note: the API documentation is only for the XML header, and is installed
 # in ${INSTALL_PREFIX}/matlab/doc
-install(DIRECTORY ${JAVADOC_OUTPUT} DESTINATION matlab)
+install(DIRECTORY ${JAVADOC_OUTPUT}
+    DESTINATION ${ISMRMRD_INSTALL_MATLAB_DIR})

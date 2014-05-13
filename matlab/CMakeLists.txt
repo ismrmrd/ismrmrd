@@ -4,7 +4,7 @@ if (NOT JAVA_FOUND)
     message(STATUS "Java (xjc) Not Found - Not generating XML bindings")
 else (NOT JAVA_FOUND)
 
-    set(ISMRMRD_SCHEMA ${CMAKE_SOURCE_DIR}/schema/ismrmrd.xsd)
+    set(ISMRMRD_SCHEMA "${ISMRMRD_SCHEMA_DIR}/ismrmrd.xsd")
     set(ISMRMRD_JAR "${CMAKE_CURRENT_BINARY_DIR}/ismrmrd-matlab.jar")
     set(ISMRMRD_PACKAGE "org/ismrm/ismrmrd")
     set(ISMRMRD_PACKAGE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${ISMRMRD_PACKAGE}")
@@ -68,5 +68,7 @@ else (NOT JAVA_FOUND)
     add_custom_target(ismrmrd-matlab-jar ALL DEPENDS ${ISMRMRD_JAR})
 endif(NOT JAVA_FOUND)
 
-INSTALL(DIRECTORY +ismrmrd DESTINATION matlab)
-INSTALL(FILES ${ISMRMRD_JAR} DESTINATION matlab/+ismrmrd/+util)
+install(DIRECTORY +ismrmrd
+    DESTINATION ${ISMRMRD_INSTALL_MATLAB_DIR})
+install(FILES ${ISMRMRD_JAR}
+    DESTINATION ${ISMRMRD_INSTALL_MATLAB_DIR}/+ismrmrd/+util)

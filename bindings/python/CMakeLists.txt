@@ -15,18 +15,21 @@ IF(WIN32)
     swig_link_libraries(ismrmrd debug ${HDF5_hdf5_LIBRARY_DEBUG} debug ${HDF5_hdf5_cpp_LIBRARY_DEBUG})
     swig_link_libraries(ismrmrd ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 ELSE (WIN32)
-    swig_link_libraries(ismrmrd ${HDF5_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+    swig_link_libraries(ismrmrd ${HDF5_LIBRARIES} ${Boost_THREAD_LIBRARY}
+        ${Boost_SYSTEM_LIBRARY} ${PYTHON_LIBRARIES})
 ENDIF(WIN32)
 
-install(TARGETS ${SWIG_MODULE_ismrmrd_REAL_NAME} DESTINATION python)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ismrmrd.py DESTINATION python)
+install(TARGETS ${SWIG_MODULE_ismrmrd_REAL_NAME}
+    DESTINATION ${ISMRMRD_INSTALL_PYTHON_DIR})
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ismrmrd.py
+    DESTINATION ${ISMRMRD_INSTALL_PYTHON_DIR})
 
 find_program(PYXBGEN pyxbgen
     HINTS ${PYTHON_HOME} ${PYTHON_LIBRARY}/..
     PATH_SUFFIXES bin)
 
 if(PYXBGEN)
-    set(SCHEMA "${CMAKE_SOURCE_DIR}/schema/ismrmrd.xsd")
+    set(SCHEMA "${ISMRMRD_SCHEMA_DIR}/ismrmrd.xsd")
     set(XSD_PY_FILE "${CMAKE_CURRENT_BINARY_DIR}/ismrmrd_xsd.py")
     set(XSD_PY_DIR "${CMAKE_CURRENT_BINARY_DIR}/raw")
 
@@ -39,9 +42,10 @@ if(PYXBGEN)
 
     add_custom_target(pyismrmrd_xsd ALL DEPENDS ${XSD_PY_FILE})
 
-    install(FILES ${XSD_PY_FILE} DESTINATION python)
-    install(DIRECTORY ${XSD_PY_DIR} DESTINATION python)
-
+    install(FILES ${XSD_PY_FILE}
+        DESTINATION ${ISMRMRD_INSTALL_PYTHON_DIR})
+    install(DIRECTORY ${XSD_PY_DIR}
+        DESTINATION ${ISMRMRD_INSTALL_PYTHON_DIR})
 else(PYXBGEN)
     message("Can't find pyxbgen executable. Not building ismrmrd_xsd.py")
 endif(PYXBGEN)
