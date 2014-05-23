@@ -21,7 +21,10 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 find_package(XSD REQUIRED)
 find_package(XercesC REQUIRED)
 
-set(Boost_NO_BOOST_CMAKE ON)
+if(WIN32)
+    set(Boost_NO_BOOST_CMAKE ON)
+endif(WIN32)
+
 if(WIN32)
   add_definitions( -DBOOST_ALL_NO_LIB )
   add_definitions( -DBOOST_ALL_DYN_LINK )
