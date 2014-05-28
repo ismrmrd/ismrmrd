@@ -63,7 +63,7 @@ int main(int argc, char** argv)
 	}
 
 	std::cout << "Generating Cartesian Shepp Logan Phantom" << std::endl;
-	std::cout << "Accelleration: " << acc_factor << std::endl;
+	std::cout << "Acceleration: " << acc_factor << std::endl;
 
 	boost::shared_ptr<NDArrayContainer<std::complex<float> > > phantom = shepp_logan_phantom(matrix_size);
 	boost::shared_ptr<NDArrayContainer<std::complex<float> > > coils = generate_birdcage_sensititivies(matrix_size, ncoils, 1.5);
