@@ -17,9 +17,8 @@ template<> struct populate <float> {
     static void random (NDArrayContainer<type>& ndac) {
         type mi = (type) std::numeric_limits<int>::max();
         assert (ndac.is_consistent());
-        size_t i = ndac.elements();
-        size_t j = ndac.data_.size();
-        for (; i>=1; i--)
+        size_t j = ndac.elements();
+        for (size_t i=0; i<j; i++)
             ndac[i] = 1.0 - 2.0 * (type)rand() / mi;
     }
 
@@ -32,9 +31,8 @@ template<> struct populate <double> {
     static void random (NDArrayContainer<type>& ndac) {
         type mi = (type) std::numeric_limits<int>::max();
         assert (ndac.is_consistent());
-        size_t i = ndac.elements();
-        size_t j = ndac.data_.size();
-        for (; i>=1; i--)
+        size_t j = ndac.elements();
+        for (size_t i=0; i<j; i++)
             ndac[i] = 1.0 - 2.0 * (type)rand() / mi;
     }
 
@@ -48,9 +46,8 @@ template<> struct populate <std::complex<float> > {
     static void random (NDArrayContainer<type>& ndac) {
         rtype mi = std::numeric_limits<int>::max();
         assert (ndac.is_consistent());
-        size_t i = ndac.elements();
-        size_t j = ndac.data_.size();
-        for (; i>=1; i--)
+        size_t j = ndac.elements();
+        for (size_t i=0; i<j; i++)
             ndac[i] = type(1.0, 1.0) - type(2.0 * (rtype)rand() / mi, 2.0 * (rtype)rand() / mi);
     }
     
@@ -64,9 +61,8 @@ template<> struct populate <std::complex<double> > {
     static void random (NDArrayContainer<type>& ndac) {
         rtype mi = std::numeric_limits<int>::max();
         assert (ndac.is_consistent());
-        size_t i = ndac.elements();
-        size_t j = ndac.data_.size();
-        for (; i>=1; i--)
+        size_t j = ndac.elements();
+        for (size_t i=0; i<j; i++)
             ndac[i] = type(1.0, 1.0) - type(2.0 * (rtype)rand() / mi, 2.0 * (rtype)rand() / mi);
     }
     
@@ -79,9 +75,8 @@ template<> struct populate <int> {
     static void random (NDArrayContainer<type>& ndac) {
         type mi = (type) std::numeric_limits<type>::max();
         assert (ndac.is_consistent());
-        size_t i = ndac.elements();
-        size_t j = ndac.data_.size();
-        for (; i>=1; i--)
+        size_t j = ndac.elements();
+        for (size_t i=0; i<j; i++)
             ndac[i] = rand();
     }
     
@@ -94,9 +89,8 @@ template<> struct populate <short> {
     static void random (NDArrayContainer<type>& ndac) {
         type mi = (type) std::numeric_limits<type>::max();
         assert (ndac.is_consistent());
-        size_t i = ndac.elements();
-        size_t j = ndac.data_.size();
-        for (; i>=1; i--)
+        size_t j = ndac.elements();
+        for (size_t i=0; i<j; i++)
             ndac[i] = rand();
     }
     
@@ -109,9 +103,8 @@ template<> struct populate <long> {
     static void random (NDArrayContainer<type>& ndac) {
         type mi = (type) std::numeric_limits<type>::max();
         assert (ndac.is_consistent());
-        size_t i = ndac.elements();
-        size_t j = ndac.data_.size();
-        for (; i>=1; i--)
+        size_t j = ndac.elements();
+        for (size_t i=0; i<j; i++)
             ndac[i] = rand();
     }
     
