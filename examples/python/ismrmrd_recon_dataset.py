@@ -101,3 +101,25 @@ for n, im in enumerate(images):
     a = fig.add_subplot(1, 5, n)
     plt.imshow(im)
 fig.set_size_inches(16, 4)
+
+# grab the first acquisition for extra info
+acqh = dset.readAcquisition(0).getHead()
+
+for n, img in enumerate(images):
+    hdr = ismrmrd.ImageHeader()
+    hdr.acquisition_time_stamp = acqh.acquisition_time_stamp
+    hdr.flags = 0
+    hdr.measurement_uid = acqh.measurement_uid
+    hdr.phase_dir = acqh.phase_dir
+    hdr.physiology_time_stamp = acqh.physiology_time_stamp
+    hdr.position = acqh.position
+    hdr.read_dir = acqh.read_dir
+    hdr.slice_dir = acqh.slice_dir
+    hdr.channels = 1
+    hdr.image_data_type = ismrmrd.DATA_FLOAT
+    hdr.image_type = ismrmrd.TYPE_MAGNITUDE
+    hdr.image_index = n
+    hdr.slice = n
+
+    dset.appendImageHeader(hdr, "image_%d.hdr" % n)
+    dset.appendArray(img, "image_%d.img" % n)
