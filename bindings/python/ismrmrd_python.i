@@ -157,11 +157,62 @@
         memcpy(&(data[0]), raw, nbytes);
         $self->setData(data);
     }
+
+    PyObject* getTraj()
+    {
+        npy_intp dims[] = { $self->getTraj().size() };
+        PyObject *array = PyArray_New(&PyArray_Type, 1, dims, NPY_FLOAT,
+                NULL, NULL, 0, NPY_ARRAY_FARRAY, NULL);
+
+        char *raw = PyArray_BYTES((PyArrayObject*)array);
+        int data_size = PyArray_ITEMSIZE((PyArrayObject*)array);
+        npy_intp raw_size = PyArray_NBYTES((PyArrayObject*)array);
+
+        std::valarray<float> traj = $self->getTraj();
+        memcpy(raw, &traj[0], dims[0]*data_size);
+
+        return array;
+    }
+
+    void setTraj(PyObject *in_array)
+    {
+        if (!PyArray_Check((PyArrayObject*)in_array) || !PyArray_ISFLOAT((PyArrayObject*)in_array)) {
+            set_err("Argument to setData is not a numpy float array\n");
+            return;
+        } else if (!PyArray_ISBEHAVED_RO((PyArrayObject*)in_array)) {
+            set_err("Argument to setData must be aligned\n");
+            return;
+        } else if (!PyArray_ISONESEGMENT((PyArrayObject*)in_array)) {
+            set_err("Data is not one segment\n");
+            return;
+        }
+
+        PyObject *array = NULL;
+        /* if array is C-style contiguous, make a Fortran-style contiguous copy */
+        if (PyArray_ISCONTIGUOUS((PyArrayObject*)in_array)) {
+            array = PyArray_NewCopy((PyArrayObject*)in_array, NPY_FORTRANORDER);
+        } else {
+            array = in_array;
+        }
+
+        int ndim = PyArray_NDIM((PyArrayObject*)array);
+        int itemsize = PyArray_ITEMSIZE((PyArrayObject*)array);
+        npy_intp nbytes = PyArray_NBYTES((PyArrayObject*)array);
+        npy_intp nelements = PyArray_SIZE((PyArrayObject*)array);
+        npy_intp* dims = PyArray_DIMS((PyArrayObject*)array);
+        npy_intp* strides = PyArray_STRIDES((PyArrayObject*)array);
+        void *raw = PyArray_DATA((PyArrayObject*)array);
+
+        std::valarray<float> traj(0.0, nelements);
+        memcpy(&(traj[0]), raw, nbytes);
+        $self->setTraj(traj);
+    }
 }
 
 %ignore ISMRMRD::Acquisition::getData;
 %ignore ISMRMRD::Acquisition::setData;
-
+%ignore ISMRMRD::Acquisition::getTraj;
+%ignore ISMRMRD::Acquisition::setTraj;
 
 // IsmrmrdDataset
 
