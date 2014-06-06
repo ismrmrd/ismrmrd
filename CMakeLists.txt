@@ -35,7 +35,7 @@ endif (WIN32)
 
 # required packages for main library
 find_package(Boost COMPONENTS thread system REQUIRED)
-find_package(HDF5 1.8 COMPONENTS C CXX REQUIRED)
+find_package(HDF5 1.8 COMPONENTS C CXX HL REQUIRED)
 
 if(WIN32)
     set(Boost_NO_BOOST_CMAKE ON)
@@ -78,23 +78,31 @@ find_package(XercesC REQUIRED)
 # process the XSD files
 set(XSDS ${ISMRMRD_SCHEMA_DIR}/ismrmrd.xsd)
 set(XSD_ARGS cxx-tree --generate-serialization)
-#SET(XSD_ARGS cxx-tree --generate-serialization --export-symbol EXPORTISMRMRDXSD --hxx-prologue-file ${CMAKE_SOURCE_DIR}/ismrmrd_xsd_export.h)
-wrap_xsd(XSDS_SOURCES XSD_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/schema ${XSDS}
-    OPTIONS ${XSD_ARGS})
-#include_directories(${ISMRMRD_SCHEMA_SOURCE_DIR} ${XSD_INCLUDE_DIR}
-    #${XERCESC_INCLUDE_DIR} ${Boost_INCLUDE_DIR} ${HDF5_CXX_INCLUDE_DIR}
-    #${HDF5_C_INCLUDE_DIR})
-#link_directories(${Boost_LIBRARY_DIRS})
+if ( WIN32 )
+    SET(XSD_ARGS cxx-tree --generate-serialization --export-symbol EXPORTISMRMRDXSD --hxx-prologue-file ${CMAKE_SOURCE_DIR}/ismrmrd_xsd_export.h)
+endif (WIN32)
 
-add_library(ismrmrd_xsd SHARED ${XSDS_SOURCES})
-include_directories(${XERCESC_INCLUDE_DIR})
-target_link_libraries(ismrmrd_xsd ${XERCESC_LIBRARIES})
+wrap_xsd(XSDS_SOURCES XSD_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/schema ${XSDS} OPTIONS ${XSD_ARGS})
+
+if ( WIN32 )
+    include_directories(${ISMRMRD_SCHEMA_SOURCE_DIR} ${XSD_INCLUDE_DIR}
+        ${XERCESC_INCLUDE_DIR} ${Boost_INCLUDE_DIR} ${HDF5_CXX_INCLUDE_DIR}
+        ${HDF5_C_INCLUDE_DIR})
+    link_directories(${Boost_LIBRARY_DIRS})
+endif ( WIN32 )
+
+if ( NOT WIN32 )
+    add_library(ismrmrd_xsd SHARED ${XSDS_SOURCES})
+    include_directories(${XERCESC_INCLUDE_DIR})
+    target_link_libraries(ismrmrd_xsd ${XERCESC_LIBRARIES})
+endif ( NOT WIN32 )
 
 install(FILES ${XSDS} ${XSDS_SOURCES}
     DESTINATION ${ISMRMRD_INSTALL_SCHEMA_DIR})
 
-install(TARGETS ismrmrd_xsd
-    DESTINATION ${ISMRMRD_INSTALL_LIB_DIR})
+if ( NOT WIN32 )
+    install(TARGETS ismrmrd_xsd DESTINATION ${ISMRMRD_INSTALL_LIB_DIR})
+endif ( NOT WIN32 )
 
 install(FILES ${ISMRMRD_MODULE_DIR}/FindIsmrmrd.cmake
     ${ISMRMRD_MODULE_DIR}/FindFFTW3.cmake
