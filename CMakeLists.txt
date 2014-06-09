@@ -3,6 +3,13 @@ project(ISMRMRD)
 
 enable_testing()
 
+#Set the build type to Release if not specified                                                                                                                                                                                                                                         
+IF(NOT CMAKE_BUILD_TYPE)
+  SET(CMAKE_BUILD_TYPE Release CACHE STRING
+      "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+      FORCE)
+ENDIF(NOT CMAKE_BUILD_TYPE)
+
 # define install paths globally
 set(ISMRMRD_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/ismrmrd)
 set(ISMRMRD_INSTALL_LIB_DIR ${ISMRMRD_INSTALL_PREFIX}/lib)
