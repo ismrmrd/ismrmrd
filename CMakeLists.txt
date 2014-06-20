@@ -3,7 +3,7 @@ project(ISMRMRD)
 
 enable_testing()
 
-#Set the build type to Release if not specified                                                                                                                                                                                                                                         
+#Set the build type to Release if not specified
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Release CACHE STRING
       "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
@@ -44,9 +44,8 @@ endif (WIN32)
 find_package(Boost COMPONENTS thread system REQUIRED)
 find_package(HDF5 1.8 COMPONENTS C CXX HL REQUIRED)
 
-if(WIN32)
-    set(Boost_NO_BOOST_CMAKE ON)
-endif(WIN32)
+# necessary for Windows and RHEL <=6 systems
+set(Boost_NO_BOOST_CMAKE ON)
 
 if(WIN32)
   add_definitions( -DBOOST_ALL_NO_LIB )
