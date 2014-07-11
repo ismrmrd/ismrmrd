@@ -1,0 +1,11 @@
+ISMRMRD ToDo List
+
+* Versioning
+* Fix bug in fixed memory layout header that has been around for a while.
+* Make accessor class for XML Header (eliminate XSD)
+* Use C version of HDF5 (remove mutex)
+* Make library "header only"
+* Add proper support for meta attributes
+* Pure Matlab API
+* Pure Python API
+* Remove Java API
