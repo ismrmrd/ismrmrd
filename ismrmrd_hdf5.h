@@ -6,6 +6,10 @@
 #include "ismrmrd.h"
 
 #include <fstream>
+#include <typeinfo>
+#include <map>
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
@@ -85,6 +89,47 @@ public:
 
 		xml_header_path_ = groupname_ + std::string("/xml");
 		data_path_ = groupname_ + std::string("/data");
+
+		hid_t t;
+		
+		t = this->type_container_.get_type<float>();
+		std::cout << "Type for float: " << t << std::endl;
+		
+		t = this->type_container_.get_type<double>();
+		std::cout << "Type for double: " << t << std::endl;
+		
+		t = this->type_container_.get_type< std::complex<float> >();
+		std::cout << "Type for complex float: " << t << std::endl;
+
+		t = this->type_container_.get_type< std::complex<double> >();
+		std::cout << "Type for complex double: " << t << std::endl;
+
+		t = this->type_container_.get_type< EncodingCounters >();
+		std::cout << "Type for EncodingCounters: " << t << std::endl;
+
+		t = this->type_container_.get_type< AcquisitionHeader >();
+		std::cout << "Type for AcquisitionHeader: " << t << std::endl;
+
+		t = this->type_container_.get_type< AcquisitionHeader_with_data >();
+		std::cout << "Type for AcquisitionHeader_with_data: " << t << std::endl;
+
+		t = this->type_container_.get_type< ImageHeader >();
+		std::cout << "Type for ImageHeader: " << t << std::endl;
+
+		t = this->type_container_.get_type< ImageHeader_with_data<float> >();
+		std::cout << "Type for ImageHeader_with_data<float>: " << t << std::endl;
+
+		t = this->type_container_.get_type< ImageHeader_with_data<double> >();
+		std::cout << "Type for ImageHeader_with_data<double>: " << t << std::endl;
+
+		t = this->type_container_.get_type< ImageHeader_with_data<unsigned short> >();
+		std::cout << "Type for ImageHeader_with_data<unsigned short>: " << t << std::endl;
+
+		t = this->type_container_.get_type< ImageHeader_with_data<ccomplex_t> >();
+		std::cout << "Type for ImageHeader_with_data<ccomplex_t>: " << t << std::endl;
+
+		t = this->type_container_.get_type< ImageHeader_with_data<cdouble_complex_t> >();
+		std::cout << "Type for ImageHeader_with_data<cdouble_complex_t>: " << t << std::endl;
  	}
 
         /**
@@ -198,6 +243,7 @@ protected:
 		return file_exists_;
 	}
 
+
 	std::string filename_;
 	std::string groupname_;
 	std::string xml_header_path_;
@@ -210,6 +256,8 @@ protected:
 
 	boost::shared_ptr<H5File> file_;
 	boost::shared_ptr<DataSet> dataset_;
+	
+	IsmrmrdHDF5TypeContainer type_container_;
 };
 
 /**

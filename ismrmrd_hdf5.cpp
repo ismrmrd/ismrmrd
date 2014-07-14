@@ -11,7 +11,7 @@ namespace ISMRMRD
 
 int IsmrmrdDataset::openHDF5File()
 {
-
+  std::cout << "Opening file" << std::endl;
 	if (file_exists_) {
 		try {
 			if (!H5File::isHdf5(filename_.c_str())) {
@@ -228,10 +228,11 @@ template EXPORTISMRMRD int IsmrmrdDataset::appendArray(NDArrayContainer< ImageHe
 
 template <typename T> boost::shared_ptr< NDArrayContainer<T> > IsmrmrdDataset::readArray(const char* varname, unsigned long int index)
 {
-	boost::shared_ptr< NDArrayContainer<T> > ret(new NDArrayContainer<T>());
-    boost::shared_ptr<DataType> datatype = getIsmrmrdHDF5Type<T>();
+  boost::shared_ptr< NDArrayContainer<T> > ret(new NDArrayContainer<T>());
+  boost::shared_ptr<DataType> datatype = getIsmrmrdHDF5Type<T>();
 
-    std::string data_path = groupname_ + std::string("/") + std::string(varname);
+  std::string data_path = groupname_ + std::string("/") + std::string(varname);
+
 
 	try {
 

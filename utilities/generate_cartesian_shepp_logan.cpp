@@ -62,7 +62,7 @@ int main(int argc, char** argv)
 	    return 1;
 	}
 
-	std::cout << "Generating Cartesian Shepp Logan Phantom" << std::endl;
+	std::cout << "Generating Cartesian Shepp Logan Phantom!!!" << std::endl;
 	std::cout << "Acceleration: " << acc_factor << std::endl;
 
 	boost::shared_ptr<NDArrayContainer<std::complex<float> > > phantom = shepp_logan_phantom(matrix_size);
