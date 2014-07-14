@@ -327,26 +327,20 @@ namespace ISMRMRD
     return t;
   }
 
-/*
+  template <> inline hid_t IsmrmrdHDF5TypeContainer::getIsmrmrdHDF5Type<ImageHeader_with_data< std::complex<float> > >() {
+    return IsmrmrdHDF5TypeContainer::getIsmrmrdHDF5Type<ImageHeader_with_data<ccomplex_t> >();
+  }
 
-template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader_with_data< std::complex<float> > >()
-{
-	return getIsmrmrdHDF5Type<ImageHeader_with_data<complex_t> >();
-}
+  template <> inline hid_t IsmrmrdHDF5TypeContainer::getIsmrmrdHDF5Type<ImageHeader_with_data< std::complex<double> > >() {
+    return IsmrmrdHDF5TypeContainer::getIsmrmrdHDF5Type<ImageHeader_with_data<cdouble_complex_t> >();
+  }
 
-template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<ImageHeader_with_data< std::complex<double> > >()
-{
-	return getIsmrmrdHDF5Type<ImageHeader_with_data<double_complex_t> >();
-}
 
-template <> inline boost::shared_ptr<DataType> getIsmrmrdHDF5Type<std::string>()
-{
-	boost::shared_ptr<DataType> ret(new StrType(0, H5T_VARIABLE));
-	return ret;
-}
-
-*/
-
+  template <> inline hid_t IsmrmrdHDF5TypeContainer::getIsmrmrdHDF5Type< std::string >() {
+    hid_t t = H5Tcopy (H5T_C_S1);
+    H5Tset_size (t,H5T_VARIABLE);
+    return t;
+  }
   /* HDF5 C Interface (end) */
 
 template <typename T> boost::shared_ptr<DataType> getIsmrmrdHDF5Type();

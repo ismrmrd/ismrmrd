@@ -130,6 +130,15 @@ public:
 
 		t = this->type_container_.get_type< ImageHeader_with_data<cdouble_complex_t> >();
 		std::cout << "Type for ImageHeader_with_data<cdouble_complex_t>: " << t << std::endl;
+
+		t = this->type_container_.get_type< ImageHeader_with_data< std::complex<float> > >();
+		std::cout << "Type for ImageHeader_with_data< std::complex<float> >: " << t << std::endl;
+
+		t = this->type_container_.get_type< ImageHeader_with_data< std::complex<double>  > >();
+		std::cout << "Type for ImageHeader_with_data< std::complex<double> >: " << t << std::endl;
+
+		t = this->type_container_.get_type< std::string >();
+		std::cout << "Type for std::string: " << t << std::endl;
  	}
 
         /**
