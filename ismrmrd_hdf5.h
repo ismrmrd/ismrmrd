@@ -14,11 +14,11 @@
 #include <boost/thread.hpp>
 
 
-#include <H5Cpp.h>
+#include <hdf5.h>
 
-#ifndef H5_NO_NAMESPACE
-using namespace H5;
-#endif
+//#ifndef H5_NO_NAMESPACE
+//using namespace H5;
+//#endif
 
 
 namespace ISMRMRD
