@@ -156,10 +156,10 @@ typedef struct AcquisitionHeader {
   uint16_t number_of_samples;  /**< Number of samples acquired */
   uint16_t available_channels; /**< Available coils */
   uint16_t active_channels;    /**< Active coils on current acquisiton */
-  uint64_t
-      channel_mask
-          [ISMRMRD_CHANNEL_MASKS]; /**< Mask to indicate which channels are
-                                      active. Support for 1024 channels */
+  uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS]; /**< Mask to indicate which
+                                                   channels are
+                                                   active. Support for 1024
+                                                   channels */
   uint16_t discard_pre; /**< Samples to be discarded at the beginning of
                            acquisition */
   uint16_t
@@ -188,7 +188,7 @@ typedef struct AcquisitionHeader {
 } AcquisitionHeader;
 
 /* Initialize an Acquisition Header */
-void initAcquisitionHeader(AcquisitionHeader* hdr);
+void InitAcquisitionHeader(AcquisitionHeader* hdr);
 
 /**
    Individual MR acquisition.
@@ -199,10 +199,10 @@ typedef struct Acquisition {
   complex_float_t* data;
 } Acquisition;
 
-void initAcquisition(Acquisition* acq);
-void copyAcquisition(Acquisition* acqdest, const Acquisition* acqsource);
-void freeAcquisition(Acquisition* acq);
-void makeConsistentAcquisition(Acquisition* acq);
+void InitAcquisition(Acquisition* acq);
+void CopyAcquisition(Acquisition* acqdest, const Acquisition* acqsource);
+void FreeAcquisition(Acquisition* acq);
+void MakeConsistentAcquisition(Acquisition* acq);
 
 /**********/
 /* Images */
@@ -268,7 +268,7 @@ typedef struct ImageHeader {
   uint32_t attribute_string_len;         /**< Length of attributes string */
 } ImageHeader;
 
-void initImageHeader(ImageHeader* hdr);
+void InitImageHeader(ImageHeader* hdr);
 
 /**
  *  An individual Image
@@ -279,9 +279,9 @@ typedef struct Image {
   char* attribute_string;
 } Image;
 
-void initImage(Image* im);
-void freeImage(Image* im);
-void makeConsistentImage(Image* im);
+void InitImage(Image* im);
+void FreeImage(Image* im);
+void MakeConsistentImage(Image* im);
 
 /************/
 /* NDArrays */
@@ -295,9 +295,9 @@ typedef struct NDArray {
   void* data;                            /**< pointer to data array */
 } NDArray;
 
-void initNDArray(NDArray* arr);
-void freeNDArray(NDArray* arr);
-void makeConsistentNDArray(NDArray* arr);
+void InitNDArray(NDArray* arr);
+void FreeNDArray(NDArray* arr);
+void MakeConsistentNDArray(NDArray* arr);
 
 /*********/
 /* Flags */
@@ -311,16 +311,16 @@ void flags_clear_all(uint64_t* flags);
 /* Rotations and Quaternions */
 /*****************************/
 /* Calculates the determinant of the matrix and return the sign */
-intsign_of_directions(float read_dir[3], float phase_dir[3],
-                      float slice_dir[3]);
+int sign_of_directions(float read_dir[3], float phase_dir[3],
+                       float slice_dir[3]);
 
 /* Creates a normalized quaternion from a 3x3 rotation matrix */
-voiddirections_to_quaternion(float read_dir[3], float phase_dir[3],
-                             float slice_dir[3], float quat[4]);
+void directions_to_quaternion(float read_dir[3], float phase_dir[3],
+                              float slice_dir[3], float quat[4]);
 
 /* Converts a quaternion of the form | a b c d | to a 3x3 rotation matrix */
-voidquaternion_to_directions(float quat[4], float read_dir[3],
-                             float phase_dir[3], float slice_dir[3]);
+void quaternion_to_directions(float quat[4], float read_dir[3],
+                              float phase_dir[3], float slice_dir[3]);
 
 #ifdef __cplusplus
 }  // End of ISMRMRD namespace
