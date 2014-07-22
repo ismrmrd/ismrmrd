@@ -13,46 +13,34 @@
 #ifndef ISMRMRD_H
 #define ISMRMRD_H
 
-/* Language and Cross platform section for defining types */
+/* Language and cross platform section for defining types */
 #ifdef __cplusplus
 
-#ifdef _MSC_VER
-/* MS C++ Compiler */
+#ifdef _MSC_VER /* MS C++ Compiler */
 typedef __int16 int16_t;
 typedef unsigned __int16 uint16_t;
 typedef __int32 int32_t;
 typedef unsigned __int32 uint32_t;
 typedef __int64 int64_t;
 typedef unsigned __int64 uint64_t;
-
-#else
-/* non MS C++ compiler */
+#else /* non MS C++ compiler */
 #include <cstdint>
 #endif
-
-#include <cstdlib>
-#include <cstring>
 #include <complex>
-#include <cmath>
 typedef std::complex<float> complex_float_t;
 typedef std::complex<double> complex_double_t;
-
-#else
-/* C99 compiler */
+#else /* C99 compiler */
 #include <stdint.h>
 #include <complex.h>
-#include <math.h>
-#include <string.h>
-#include <stdlib.h>
 #include <stdbool.h>
 typedef float complex complex_float_t;
 typedef double complex complex_double_t;
-
 #endif /* __cplusplus */
 
 #pragma pack(push, 2) /* Use 2 byte alignment */
 
 #ifdef __cplusplus
+namespace ISMRMRD {
 extern "C" {
 #endif
 
@@ -213,9 +201,11 @@ typedef struct ISMRMRD_Acquisition {
 } ISMRMRD_Acquisition;
 
 void ismrmrd_init_acquisition(ISMRMRD_Acquisition *acq);
-void ismrmrd_copy_acquisition(ISMRMRD_Acquisition *acqdest, const ISMRMRD_Acquisition *acqsource);
 void ismrmrd_free_acquisition(ISMRMRD_Acquisition *acq);
+void ismrmrd_copy_acquisition(ISMRMRD_Acquisition *acqdest, const ISMRMRD_Acquisition *acqsource);
 void ismrmrd_make_consistent_acquisition(ISMRMRD_Acquisition *acq);
+size_t ismrmrd_size_of_acquisition_traj(const ISMRMRD_Acquisition *acq);
+size_t ismrmrd_size_of_acquisition_data(const ISMRMRD_Acquisition *acq);
 
 /**********/
 /* Images */
@@ -265,11 +255,11 @@ typedef struct ISMRMRD_Image {
 } ISMRMRD_Image;
 
 void ismrmrd_init_image(ISMRMRD_Image *im);
-void ismrmrd_copy_image(ISMRMRD_Image *imdest, const ISMRMRD_Image *imsource);
 void ismrmrd_free_image(ISMRMRD_Image *im);
+void ismrmrd_copy_image(ISMRMRD_Image *imdest, const ISMRMRD_Image *imsource);
 void ismrmrd_make_consistent_image(ISMRMRD_Image *im);
-int ismrmrd_size_of_image_attribute_string(const ISMRMRD_Image *im);
-int ismrmrd_size_of_image_data(const ISMRMRD_Image *im);
+size_t ismrmrd_size_of_image_attribute_string(const ISMRMRD_Image *im);
+size_t ismrmrd_size_of_image_data(const ISMRMRD_Image *im);
 
 /************/
 /* NDArrays */
@@ -284,10 +274,10 @@ typedef struct ISMRMRD_NDArray {
 } ISMRMRD_NDArray;
 
 void ismrmrd_init_ndarray(ISMRMRD_NDArray *arr);
-void ismrmrd_copy_ndarray(ISMRMRD_NDArray *arrdest, const ISMRMRD_NDArray *arrsource);
 void ismrmrd_free_ndarray(ISMRMRD_NDArray *arr);
+void ismrmrd_copy_ndarray(ISMRMRD_NDArray *arrdest, const ISMRMRD_NDArray *arrsource);
 void ismrmrd_make_consistent_ndarray(ISMRMRD_NDArray *arr);
-int ismrmrd_size_of_ndarray_data(const ISMRMRD_NDArray *arr);
+size_t ismrmrd_size_of_ndarray_data(const ISMRMRD_NDArray *arr);
 
 /*********/
 /* Flags */
@@ -316,7 +306,8 @@ void ismrmrd_quaternion_to_directions(float quat[4], float read_dir[3], float ph
 #pragma pack(pop) // Restore old alignment
 
 #ifdef __cplusplus
-} //End of extern C
+} // extern "C"
+} // namespace ISMRMRD
 #endif
 
 #endif // ISMRMRD_H

@@ -1,6 +1,19 @@
+/* Language and Cross platform section for defining types */
+#ifdef __cplusplus
+#include <cstring>
+#include <cstdlib>
+#include <cmath>
+#else
+/* C99 compiler */
+#include <string.h>
+#include <stdlib.h>
+#include <math.h>
+#endif /* __cplusplus */
+
 #include "ismrmrd.h"
 
 #ifdef __cplusplus
+namespace ISMRMRD {
 extern "C" {
 #endif
 
@@ -18,17 +31,17 @@ void ismrmrd_init_acquisition(ISMRMRD_Acquisition *acq) {
     acq->data = NULL;
 }
 
-void ismrmrd_copy_acquisition(ISMRMRD_Acquisition *acqdest, const ISMRMRD_Acquisition *acqsource) {
-    memcpy(&(acqdest->head), &(acqsource->head), sizeof(ISMRMRD_AcquisitionHeader));
-    ismrmrd_make_consistent_acquisition(acqdest);
-    memcpy(&(acqdest->traj), &(acqsource->traj), acqdest->head.number_of_samples * acqdest->head.trajectory_dimensions * sizeof(acqdest->traj));
-    memcpy(&(acqdest->data), &(acqsource->data), acqdest->head.number_of_samples * acqdest->head.active_channels * sizeof(acqdest->data));
-}
-
 void ismrmrd_free_acquisition(ISMRMRD_Acquisition *acq) {
     free(acq->data);
     free(acq->traj);
     free(acq);
+}
+
+void ismrmrd_copy_acquisition(ISMRMRD_Acquisition *acqdest, const ISMRMRD_Acquisition *acqsource) {
+    memcpy(&(acqdest->head), &(acqsource->head), sizeof(ISMRMRD_AcquisitionHeader));
+    ismrmrd_make_consistent_acquisition(acqdest);
+    memcpy(&(acqdest->traj), &(acqsource->traj), ismrmrd_size_of_acquisition_traj(acqdest));
+    memcpy(&(acqdest->data), &(acqsource->data), ismrmrd_size_of_acquisition_data(acqdest));
 }
 
 void ismrmrd_make_consistent_acquisition(ISMRMRD_Acquisition *acq) {
@@ -36,17 +49,36 @@ void ismrmrd_make_consistent_acquisition(ISMRMRD_Acquisition *acq) {
         acq->head.available_channels = acq->head.active_channels;
     }
 
-    int num_traj = acq->head.number_of_samples * acq->head.trajectory_dimensions;
-    if (num_traj > 0) {
-        acq->traj = (float *)realloc(acq->traj, num_traj * sizeof(acq->traj));
+    size_t traj_size = ismrmrd_size_of_acquisition_traj(acq);
+    if (traj_size > 0) {
+        acq->traj = (float *)realloc(acq->traj, traj_size);
     }
 
-    int num_data = acq->head.number_of_samples * acq->head.active_channels;
-    if (num_data > 0) {
-        acq->data = (complex_float_t *)realloc(acq->data, num_data * sizeof(acq->data));
+    size_t data_size = ismrmrd_size_of_acquisition_data(acq);
+    if (data_size > 0) {
+        acq->data = (complex_float_t *)realloc(acq->data, data_size);
     }
 }
 
+size_t ismrmrd_size_of_acquisition_traj(const ISMRMRD_Acquisition *acq) {
+    size_t traj_size = 0;
+    int num_traj = acq->head.number_of_samples * acq->head.trajectory_dimensions;
+    if (num_traj > 0) {
+        traj_size = num_traj * sizeof(acq->traj);
+    }
+    return traj_size;
+}
+
+size_t ismrmrd_size_of_acquisition_data(const ISMRMRD_Acquisition *acq) {
+    size_t data_size = 0;
+    int num_data = acq->head.number_of_samples * acq->head.active_channels;
+    if (num_data > 0) {
+        data_size = num_data * sizeof(acq->data);
+    }
+    return data_size;
+}
+
+/* ImageHeader functions */
 void ismrmrd_init_image_header(ISMRMRD_ImageHeader *hdr) {
     memset(hdr, 0, sizeof(ISMRMRD_ImageHeader));
     hdr->version = ISMRMRD_VERSION;
@@ -56,6 +88,7 @@ void ismrmrd_init_image_header(ISMRMRD_ImageHeader *hdr) {
     hdr->channels = 1;
 }
 
+/* Image functions */
 void ismrmrd_init_image(ISMRMRD_Image *im) {
     ismrmrd_init_image_header(&(im->head));
     im->attribute_string = NULL;
@@ -68,8 +101,32 @@ void ismrmrd_free_image(ISMRMRD_Image *im) {
     free(im);
 }
 
-int ismrmrd_size_of_image_data(const ISMRMRD_Image *im) {
-    int data_size = 0;
+void ismrmrd_copy_image(ISMRMRD_Image *imdest, const ISMRMRD_Image *imsource) {
+    memcpy(&(imdest->head), &(imsource->head), sizeof(ISMRMRD_ImageHeader));
+    ismrmrd_make_consistent_image(imdest);
+    size_t attr_size = ismrmrd_size_of_image_attribute_string(imdest);
+    if (attr_size > 0) {
+        memcpy(&(imdest->attribute_string), &(imsource->attribute_string), attr_size);
+    }
+    size_t data_size = ismrmrd_size_of_image_data(imdest);
+    if (data_size > 0) {
+        memcpy(&(imdest->data), &(imsource->data), data_size);
+    }
+}
+
+void ismrmrd_make_consistent_image(ISMRMRD_Image *im) {
+    size_t attr_size = ismrmrd_size_of_image_attribute_string(im);
+    if (attr_size > 0) {
+        im->attribute_string = (char *)realloc(im->attribute_string, attr_size);
+    }
+    size_t data_size = ismrmrd_size_of_image_data(im);
+    if (data_size > 0) {
+        im->data = realloc(im->data, data_size);
+    }
+}
+
+size_t ismrmrd_size_of_image_data(const ISMRMRD_Image *im) {
+    size_t data_size = 0;
     int num_data = im->head.matrix_size[0] * im->head.matrix_size[1] * im->head.matrix_size[2] * im->head.channels;
     if (num_data > 0) {
         switch (im->head.data_type) {
@@ -102,38 +159,15 @@ int ismrmrd_size_of_image_data(const ISMRMRD_Image *im) {
     return data_size;
 }
 
-int ismrmrd_size_of_image_attribute_string(const ISMRMRD_Image *im) {
-    int attribute_string_size = 0;
+size_t ismrmrd_size_of_image_attribute_string(const ISMRMRD_Image *im) {
+    size_t attribute_string_size = 0;
     if (im->head.attribute_string_len > 0) {
         attribute_string_size = im->head.attribute_string_len * sizeof(im->attribute_string);
     }
     return attribute_string_size;
 }
 
-void ismrmrd_make_consistent_image(ISMRMRD_Image *im) {
-    int attr_size = ismrmrd_size_of_image_attribute_string(im);
-    if (attr_size > 0) {
-        im->attribute_string = (char *)realloc(im->attribute_string, attr_size);
-    }
-    int data_size = ismrmrd_size_of_image_data(im);
-    if (data_size > 0) {
-        im->data = realloc(im->data, data_size);
-    }
-}
-
-void ismrmrd_copy_image(ISMRMRD_Image *imdest, const ISMRMRD_Image *imsource) {
-    memcpy(&(imdest->head), &(imsource->head), sizeof(ISMRMRD_ImageHeader));
-    ismrmrd_make_consistent_image(imdest);
-    int attr_size = ismrmrd_size_of_image_attribute_string(imdest);
-    if (attr_size > 0) {
-        memcpy(&(imdest->attribute_string), &(imsource->attribute_string), attr_size);
-    }
-    int data_size = ismrmrd_size_of_image_data(imdest);
-    if (data_size > 0) {
-        memcpy(&(imdest->data), &(imsource->data), data_size);
-    }
-}
-
+/* NDArray functions */
 void ismrmrd_init_ndarray(ISMRMRD_NDArray *arr) {
     arr->version = ISMRMRD_VERSION;
     arr->data_type = 0; // no default data type
@@ -149,8 +183,29 @@ void ismrmrd_free_ndarray(ISMRMRD_NDArray *arr) {
     free(arr);
 }
 
-int ismrmrd_size_of_ndarray_data(const ISMRMRD_NDArray *arr) {
-    int data_size = 0;
+void ismrmrd_copy_ndarray(ISMRMRD_NDArray *arrdest, const ISMRMRD_NDArray *arrsource) {
+    arrdest->version = arrsource->version;
+    arrdest->data_type = arrsource->data_type;
+    arrdest->ndim = arrsource->ndim;
+    for (int n = 0; n < ISMRMRD_NDARRAY_MAXDIM; n++) {
+        arrdest->dims[n] = arrsource->dims[n];
+    }
+    ismrmrd_make_consistent_ndarray(arrdest);
+    size_t data_size = ismrmrd_size_of_ndarray_data(arrdest);
+    if (data_size > 0) {
+        memcpy(&(arrdest->data), &(arrsource->data), ismrmrd_size_of_ndarray_data(arrdest));
+    }
+}
+
+void ismrmrd_make_consistent_ndarray(ISMRMRD_NDArray *arr) {
+    size_t data_size = ismrmrd_size_of_ndarray_data(arr);
+    if (data_size > 0) {
+        arr->data = realloc(arr->data, data_size);
+    }
+}
+
+size_t ismrmrd_size_of_ndarray_data(const ISMRMRD_NDArray *arr) {
+    size_t data_size = 0;
     int num_data = 1;
     for (int n = 0; n < ISMRMRD_NDARRAY_MAXDIM; n++) {
         num_data *= arr->dims[n];
@@ -184,27 +239,6 @@ int ismrmrd_size_of_ndarray_data(const ISMRMRD_NDArray *arr) {
         }
     }
     return data_size;
-}
-
-void ismrmrd_make_consistent_ndarray(ISMRMRD_NDArray *arr) {
-    int data_size = ismrmrd_size_of_ndarray_data(arr);
-    if (data_size > 0) {
-        arr->data = realloc(arr->data, data_size);
-    }
-}
-
-void ismrmrd_copy_ndarray(ISMRMRD_NDArray *arrdest, const ISMRMRD_NDArray *arrsource) {
-    arrdest->version = arrsource->version;
-    arrdest->data_type = arrsource->data_type;
-    arrdest->ndim = arrsource->ndim;
-    for (int n = 0; n < ISMRMRD_NDARRAY_MAXDIM; n++) {
-        arrdest->dims[n] = arrsource->dims[n];
-    }
-    ismrmrd_make_consistent_ndarray(arrdest);
-    int data_size = ismrmrd_size_of_ndarray_data(arrdest);
-    if (data_size > 0) {
-        memcpy(&(arrdest->data), &(arrsource->data), ismrmrd_size_of_ndarray_data(arrdest));
-    }
 }
 
 bool ismrmrd_is_flag_set(const uint64_t flags, const uint64_t val) {
@@ -276,8 +310,8 @@ void ismrmrd_directions_to_quaternion(float read_dir[3], float phase_dir[3],
         d = 0.25l * s;
     } else {
         /* trickier case...
-	     * determine which major diagonal element has
-	     * the greatest value... */
+		 * determine which major diagonal element has
+		 * the greatest value... */
         xd = 1.0 + r11 - (r22 + r33); /* 4**b**b */
         yd = 1.0 + r22 - (r11 + r33); /* 4**c**c */
         zd = 1.0 + r33 - (r11 + r22); /* 4**d**d */
@@ -338,5 +372,6 @@ void ismrmrd_quaternion_to_directions(float quat[4], float read_dir[3],
 }
 
 #ifdef __cplusplus
-} //End of extern C
+} // extern "C"
+} // namespace ISMRMRD
 #endif
