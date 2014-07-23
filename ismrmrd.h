@@ -50,8 +50,6 @@ extern "C" {
  */
 enum Constants {
     ISMRMRD_VERSION = 1,
-    ISMRMRD_POSITION_LENGTH = 3,
-    ISMRMRD_DIRECTION_LENGTH = 3,
     ISMRMRD_USER_INTS = 8,
     ISMRMRD_USER_FLOATS = 8,
     ISMRMRD_PHYS_STAMPS = 3,
@@ -162,30 +160,30 @@ typedef struct ISMRMRD_EncodingCounters {
    Header for each MR acquisition.
 */
 typedef struct ISMRMRD_AcquisitionHeader {
-    uint16_t version;                                      /**< First unsigned int indicates the version */
-    uint64_t flags;                                        /**< bit field with flags */
-    uint32_t measurement_uid;                              /**< Unique ID for the measurement */
-    uint32_t scan_counter;                                 /**< Current acquisition number in the measurement */
-    uint32_t acquisition_time_stamp;                       /**< Acquisition clock */
-    uint32_t physiology_time_stamp[ISMRMRD_PHYS_STAMPS];   /**< Physiology time stamps, e.g. ecg, breating, etc. */
-    uint16_t number_of_samples;                            /**< Number of samples acquired */
-    uint16_t available_channels;                           /**< Available coils */
-    uint16_t active_channels;                              /**< Active coils on current acquisiton */
-    uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS];          /**< Mask to indicate which channels are active. Support for 1024 channels */
-    uint16_t discard_pre;                                  /**< Samples to be discarded at the beginning of  acquisition */
-    uint16_t discard_post;                                 /**< Samples to be discarded at the end of acquisition */
-    uint16_t center_sample;                                /**< Sample at the center of k-space */
-    uint16_t encoding_space_ref;                           /**< Reference to an encoding space, typically only one per acquisition */
-    uint16_t trajectory_dimensions;                        /**< Indicates the dimensionality of the trajectory vector (0 means no trajectory) */
-    float sample_time_us;                                  /**< Time between samples in micro seconds, sampling BW */
-    float position[ISMRMRD_POSITION_LENGTH];               /**< Three-dimensional spatial offsets from isocenter */
-    float read_dir[ISMRMRD_DIRECTION_LENGTH];              /**< Directional cosines of the readout/frequency encoding */
-    float phase_dir[ISMRMRD_DIRECTION_LENGTH];             /**< Directional cosines of the phase */
-    float slice_dir[ISMRMRD_DIRECTION_LENGTH];             /**< Directional cosines of the slice direction */
-    float patient_table_position[ISMRMRD_POSITION_LENGTH]; /**< Patient table off-center */
-    ISMRMRD_EncodingCounters idx;                          /**< Encoding loop counters, see above */
-    int32_t user_int[ISMRMRD_USER_INTS];                   /**< Free user parameters */
-    float user_float[ISMRMRD_USER_FLOATS];                 /**< Free user parameters */
+    uint16_t version;                                    /**< First unsigned int indicates the version */
+    uint64_t flags;                                      /**< bit field with flags */
+    uint32_t measurement_uid;                            /**< Unique ID for the measurement */
+    uint32_t scan_counter;                               /**< Current acquisition number in the measurement */
+    uint32_t acquisition_time_stamp;                     /**< Acquisition clock */
+    uint32_t physiology_time_stamp[ISMRMRD_PHYS_STAMPS]; /**< Physiology time stamps, e.g. ecg, breating, etc. */
+    uint16_t number_of_samples;                          /**< Number of samples acquired */
+    uint16_t available_channels;                         /**< Available coils */
+    uint16_t active_channels;                            /**< Active coils on current acquisiton */
+    uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS];        /**< Mask to indicate which channels are active. Support for 1024 channels */
+    uint16_t discard_pre;                                /**< Samples to be discarded at the beginning of  acquisition */
+    uint16_t discard_post;                               /**< Samples to be discarded at the end of acquisition */
+    uint16_t center_sample;                              /**< Sample at the center of k-space */
+    uint16_t encoding_space_ref;                         /**< Reference to an encoding space, typically only one per acquisition */
+    uint16_t trajectory_dimensions;                      /**< Indicates the dimensionality of the trajectory vector (0 means no trajectory) */
+    float sample_time_us;                                /**< Time between samples in micro seconds, sampling BW */
+    float position[3];                                   /**< Three-dimensional spatial offsets from isocenter */
+    float read_dir[3];                                   /**< Directional cosines of the readout/frequency encoding */
+    float phase_dir[3];                                  /**< Directional cosines of the phase */
+    float slice_dir[3];                                  /**< Directional cosines of the slice direction */
+    float patient_table_position[3];                     /**< Patient table off-center */
+    ISMRMRD_EncodingCounters idx;                        /**< Encoding loop counters, see above */
+    int32_t user_int[ISMRMRD_USER_INTS];                 /**< Free user parameters */
+    float user_float[ISMRMRD_USER_FLOATS];               /**< Free user parameters */
 } ISMRMRD_AcquisitionHeader;
 
 /* Initialize an Acquisition Header */
@@ -215,32 +213,32 @@ size_t ismrmrd_size_of_acquisition_data(const ISMRMRD_Acquisition *acq);
  *  Header for each Image
  */
 typedef struct ISMRMRD_ImageHeader {
-    uint16_t version;                                      /**< First unsigned int indicates the version */
-    uint16_t data_type;                                    /**< e.g. unsigned short, float, complex float, etc. */
-    uint64_t flags;                                        /**< bit field with flags */
-    uint32_t measurement_uid;                              /**< Unique ID for the measurement  */
-    uint16_t matrix_size[3];                               /**< Pixels in the 3 spatial dimensions */
-    float field_of_view[3];                                /**< Size (in mm) of the 3 spatial dimensions */
-    uint16_t channels;                                     /**< Number of receive channels */
-    float position[ISMRMRD_POSITION_LENGTH];               /**< Three-dimensional spatial offsets from isocenter */
-    float read_dir[ISMRMRD_DIRECTION_LENGTH];              /**< Directional cosines of the readout/frequency encoding */
-    float phase_dir[ISMRMRD_DIRECTION_LENGTH];             /**< Directional cosines of the phase */
-    float slice_dir[ISMRMRD_DIRECTION_LENGTH];             /**< Directional cosines of the slice direction */
-    float patient_table_position[ISMRMRD_POSITION_LENGTH]; /**< Patient table off-center */
-    uint16_t average;                                      /**< e.g. signal average number */
-    uint16_t slice;                                        /**< e.g. imaging slice number */
-    uint16_t contrast;                                     /**< e.g. echo number in multi-echo */
-    uint16_t phase;                                        /**< e.g. cardiac phase number */
-    uint16_t repetition;                                   /**< e.g. dynamic number for dynamic scanning */
-    uint16_t set;                                          /**< e.g. flow encodning set */
-    uint32_t acquisition_time_stamp;                       /**< Acquisition clock */
-    uint32_t physiology_time_stamp[ISMRMRD_PHYS_STAMPS];   /**< Physiology time stamps, e.g. ecg, breathing, etc. */
-    uint16_t image_type;                                   /**< e.g. magnitude, phase, complex, real, imag, etc. */
-    uint16_t image_index;                                  /**< e.g. image number in series of images  */
-    uint16_t image_series_index;                           /**< e.g. series number */
-    int32_t user_int[ISMRMRD_USER_INTS];                   /**< Free user parameters */
-    float user_float[ISMRMRD_USER_FLOATS];                 /**< Free user parameters */
-    uint32_t attribute_string_len;                         /**< Length of attributes string */
+    uint16_t version;                                    /**< First unsigned int indicates the version */
+    uint16_t data_type;                                  /**< e.g. unsigned short, float, complex float, etc. */
+    uint64_t flags;                                      /**< bit field with flags */
+    uint32_t measurement_uid;                            /**< Unique ID for the measurement  */
+    uint16_t matrix_size[3];                             /**< Pixels in the 3 spatial dimensions */
+    float field_of_view[3];                              /**< Size (in mm) of the 3 spatial dimensions */
+    uint16_t channels;                                   /**< Number of receive channels */
+    float position[3];                                   /**< Three-dimensional spatial offsets from isocenter */
+    float read_dir[3];                                   /**< Directional cosines of the readout/frequency encoding */
+    float phase_dir[3];                                  /**< Directional cosines of the phase */
+    float slice_dir[3];                                  /**< Directional cosines of the slice direction */
+    float patient_table_position[3];                     /**< Patient table off-center */
+    uint16_t average;                                    /**< e.g. signal average number */
+    uint16_t slice;                                      /**< e.g. imaging slice number */
+    uint16_t contrast;                                   /**< e.g. echo number in multi-echo */
+    uint16_t phase;                                      /**< e.g. cardiac phase number */
+    uint16_t repetition;                                 /**< e.g. dynamic number for dynamic scanning */
+    uint16_t set;                                        /**< e.g. flow encodning set */
+    uint32_t acquisition_time_stamp;                     /**< Acquisition clock */
+    uint32_t physiology_time_stamp[ISMRMRD_PHYS_STAMPS]; /**< Physiology time stamps, e.g. ecg, breathing, etc. */
+    uint16_t image_type;                                 /**< e.g. magnitude, phase, complex, real, imag, etc. */
+    uint16_t image_index;                                /**< e.g. image number in series of images  */
+    uint16_t image_series_index;                         /**< e.g. series number */
+    int32_t user_int[ISMRMRD_USER_INTS];                 /**< Free user parameters */
+    float user_float[ISMRMRD_USER_FLOATS];               /**< Free user parameters */
+    uint32_t attribute_string_len;                       /**< Length of attributes string */
 } ISMRMRD_ImageHeader;
 
 void ismrmrd_init_image_header(ISMRMRD_ImageHeader *hdr);
