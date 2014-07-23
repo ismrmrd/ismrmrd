@@ -48,7 +48,7 @@ extern "C" {
  * Constants
  *
  */
-enum Constants {
+enum ISMRMRD_Constants {
     ISMRMRD_VERSION = 1,
     ISMRMRD_USER_INTS = 8,
     ISMRMRD_USER_FLOATS = 8,
@@ -60,7 +60,7 @@ enum Constants {
 /**
  * Data Types
  */
-enum DataTypes {
+enum ISMRMRD_DataTypes {
     ISMRMRD_USHORT = 1, /**< corresponds to uint16_t */
     ISMRMRD_SHORT,      /**< corresponds to int16_t */
     ISMRMRD_UINT,       /**< corresponds to uint32_t */
@@ -74,7 +74,7 @@ enum DataTypes {
 /**
  * Acquisition Flags
  */
-enum AcquisitionFlags {
+enum ISMRMRD_AcquisitionFlags {
     ISMRMRD_ACQ_FIRST_IN_ENCODE_STEP1 = 1,
     ISMRMRD_ACQ_LAST_IN_ENCODE_STEP1,
     ISMRMRD_ACQ_FIRST_IN_ENCODE_STEP2,
@@ -117,7 +117,7 @@ enum AcquisitionFlags {
 /**
  * Image Types
  */
-enum ImageType {
+enum ISMRMRD_ImageType {
     ISMRMRD_IMTYPE_MAGNITUDE = 1,
     ISMRMRD_IMTYPE_PHASE,
     ISMRMRD_IMTYPE_REAL,
@@ -128,7 +128,7 @@ enum ImageType {
 /**
  * Image Flags
  */
-enum ImageFlags {
+enum ISMRMRD_ImageFlags {
     ISMRMRD_IMAGE_IS_NAVIGATION_DATA = 1,
     ISMRMRD_IMAGE_USER1 = 57,
     ISMRMRD_IMAGE_USER2,
