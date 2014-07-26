@@ -46,7 +46,6 @@ extern "C" {
 
 /**
  * Constants
- *
  */
 enum ISMRMRD_Constants {
     ISMRMRD_VERSION = 1,
@@ -57,6 +56,15 @@ enum ISMRMRD_Constants {
     ISMRMRD_NDARRAY_MAXDIM = 7
 };
 
+    
+/**
+ * Constants
+ */
+enum ISMRMRD_ErrorCodes {
+    ISMRMRD_NOERROR,
+    ISMRMRD_FILEERROR
+};
+    
 /**
  * Data Types
  */
@@ -263,6 +271,9 @@ size_t ismrmrd_size_of_image_data(const ISMRMRD_Image *im);
 /* NDArrays */
 /************/
 
+/**
+ *  A simple N dimensional array
+ */
 typedef struct ISMRMRD_NDArray {
     uint16_t version;                      /**< First unsigned int indicates the version */
     uint16_t data_type;                    /**< e.g. unsigned short, float, complex float, etc. */

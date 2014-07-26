@@ -2,6 +2,9 @@
 //  ISMRMRD C++ Interface
 //
 
+// TODO:
+// - exports for all the classes
+
 #include "ismrmrd.h"
 
 #pragma once

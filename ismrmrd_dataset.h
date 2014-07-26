@@ -5,7 +5,6 @@
 #define ISMRMRD_DATASET_H
 
 #include "ismrmrd.h"
-#include <hdf5.h>
 
 #ifdef __cplusplus
 namespace ISMRMRD {
@@ -19,7 +18,7 @@ enum ISMRMRD_BlockModes {
     ISMRMRD_BLOCKMODE_ARRAY,
     ISMRMRD_BLOCKMODE_BLOBS
 };
-
+    
 /**
  *   Interface for accessing an ISMRMRD Data Set stored on disk in HDF5 format.
  *
@@ -30,16 +29,23 @@ enum ISMRMRD_BlockModes {
  *
  */
 typedef struct ISMRMRD_Dataset {
-    char *filename_;
-    char *groupname_;
-    int dataset_;
+    char *filename;
+    char *groupname;
+    int fileid;
+    int datasetid;
 } ISMRMRD_Dataset;
 
+/**
+ * Initializes an ISMRMRD dataset structure
+ *
+ */
+void ismrmrd_init_dataset(ISMRMRD_Dataset *dset);
+            
 /**
  * Opens an ISMRMRD dataset.
  *
  */
-int ismrmrd_open_dataset(ISMRMRD_Dataset *dset);
+int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool create_if_neded);
 
 /**
  * Closes all references to the underlying HDF5 file.
@@ -57,15 +63,18 @@ int ismrmrd_write_xml_header(const ISMRMRD_Dataset *dset, const char *xml);
 
 /**
  *  Reads the XML configuration header from the dataset.
+ *
+ *  @warning There is no check of whether the string is a valid XML document at this point.
+ *
  */
 int ismrmrd_read_xml_header(const ISMRMRD_Dataset *dset, char *xml);
 
 /**
  *  Appends and NMR/MRI acquisition to the dataset.
  *
- *  Please consult @See Acquisition struct for details.
+ *  Please consult @See ISMRMRD_Acquisition struct for details.
  */
-int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const Acquisition *a);
+int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquisition *a);
 
 /**
  *  Reads the acquisition with the specified index from the dataset.
@@ -80,7 +89,7 @@ unsigned long ismrmrd_get_number_of_acquisitions(const ISMRMRD_Dataset *dset);
 /**
  *  Appends an Image to the variable named varname in the dataset.
  *
- *  Please consult @See Image struct for details.
+ *  Please consult @See ISMRMRD_Image struct for details.
  *
  *  Images can be stored in one of two ways.  In either case headers and attribute strings are stored
  *  separatey for each of image.   This allows for easy viewing and reading in other applications.
@@ -93,14 +102,19 @@ unsigned long ismrmrd_get_number_of_acquisitions(const ISMRMRD_Dataset *dset);
  *
  */
 int ismrmrd_append_image(const ISMRMRD_Dataset *dset, const char *varname,
-                         const int blockmode, const *Image);
+                         const int block_mode, const ISMRMRD_Image *im);
 
 /**
  *   Reads an image stored with appendImage.
  *   The index indicates which image to read from the variable named varname.
  */
 int ismrmrd_read_image(const ISMRMRD_Dataset *dset, const char *varname,
-                       const unsigned long index, Image *im);
+                       const unsigned long index, ISMRMRD_Image *im);
+
+/**
+ *  Return the number of images in the variable varname in the dataset.
+ */
+int ismrmrd_get_number_of_images(const ISMRMRD_Dataset *dset, const char *varname);
 
 /**
  *  Appends an NDArray to the variable named varname in the dataset.
@@ -117,14 +131,20 @@ int ismrmrd_read_image(const ISMRMRD_Dataset *dset, const char *varname,
  *
  */
 int ismrmrd_append_array(const ISMRMRD_Dataset *dset, const char *varname,
-                         const int blockmode, const ISMRMRD_NDArray *arr);
+                         const int block_mode, const ISMRMRD_NDArray *arr);
 
 /**
- *  Reads a multi-dimensional array from the data file.
+ *  Reads an array from the data file.
  */
 int ismrmrd_read_array(const ISMRMRD_Dataset *dataset, const char *varname,
                        const unsigned long index, ISMRMRD_NDArray *arr);
 
+/**
+ *  Return the number of arrays in the variable varname in the dataset.
+ */
+int ismrmrd_get_number_of_arrays(const ISMRMRD_Dataset *dset, const char *varname);
+
+    
 #ifdef __cplusplus
 } /* extern "C" */
 } /* ISMRMRD namespace */
