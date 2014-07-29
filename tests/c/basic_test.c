@@ -1,8 +1,6 @@
 #include <stdio.h>
-#include "ismrmrd.h"
-#include "ismrmrd_dataset.h"
 
-#include <hdf5.h>
+#include "ismrmrd.h"
 
 int main(void)
 {
@@ -32,15 +30,13 @@ int main(void)
 
    ISMRMRD_Dataset dataset;
    ismrmrd_init_dataset(&dataset);
-   dataset.filename = "test.h5";
-
+   dataset.filename = "myfile.h5";
+   dataset.groupname = "/G1/V";
+   
    int status;
    status = ismrmrd_open_dataset(&dataset, true);
    printf("Status from open: %d\n", status);
    printf("File_id: %d\n", dataset.fileid);
-
-   status = H5Fis_hdf5(dataset.filename);
-   printf("Status from H5is_hdf5: %d\n", status);
 
    status = ismrmrd_close_dataset(&dataset);
    printf("File_id: %d\n", dataset.fileid);

@@ -1,24 +1,78 @@
+/* Language and Cross platform section for defining types */
+#ifdef __cplusplus
+#include <cstring>
+#include <cstdlib>
+#include <cstdio>
+#else
+/* C99 compiler */
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#endif /* __cplusplus */
+
 #include <hdf5.h>
 #include "ismrmrd_dataset.h"
-
-#include <stdio.h>
 
 #ifdef __cplusplus
 namespace ISMRMRD {
 extern "C" {
 #endif
+    
+/******************************/
+/* Private (Static) Functions */
+/******************************/
+static bool link_exists(const ISMRMRD_Dataset *dset, const char *link_path) {
 
+    htri_t val;
+    val = H5Lexists(dset->fileid, link_path, H5P_DEFAULT);
+
+    if (val < 0 ) {
+        return false;
+    }
+    else if (val) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+static int create_link(ISMRMRD_Dataset *dset, const char *link_path) {
+
+    if (link_exists(dset, link_path)) {
+        return ISMRMRD_NOERROR;
+    }
+    else {
+        hid_t lcpl_id;
+        lcpl_id = H5Pcreate(H5P_LINK_CREATE);
+        H5Pset_create_intermediate_group(lcpl_id, 1);
+        H5Gcreate2(dset->fileid, link_path, lcpl_id, H5P_DEFAULT, H5P_DEFAULT);
+        // TODO does this thing return error
+        return ISMRMRD_NOERROR;
+    }
+
+}
+
+/********************/
+/* Public functions */
+/********************/
 void ismrmrd_init_dataset(ISMRMRD_Dataset *dset) {
     dset->filename = NULL;
     dset->groupname = NULL;
     dset->fileid = 0;
-    dset->datasetid = 0;
 }
 
 int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool create_if_needed) {
+    // TODO add a mode for clobbering the dataset if it exists.
+
     hid_t       fileid, filetype, memtype, space, daset;
     herr_t      status;
 
+    /* Turn of HDF5 Errors */
+    /* TODO, this is bad.  Maybe have it compile time dependent */
+    /* or add to our error log */
+    H5Eset_auto1(NULL, NULL);
+    
     /* Check if the file exists and is an HDF5 File */
     status = H5Fis_hdf5(dset->filename);
     
@@ -29,46 +83,50 @@ int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool create_if_needed) {
         if (fileid > 0) {
             dset->fileid = fileid;
         }
-       else {
-           /* Error creating file */
+        else {
+           /* Error opening the existing file */
            // TODO raise error
            return ISMRMRD_FILEERROR;
-       }
-   }
-   else if (status == 0) {
+        }
+    }
+    else if (status == 0) {
        /* Zero value for exists and is NOT HDF5 */
        //TODO raise error
        return ISMRMRD_FILEERROR;
-   }
-   else {
-       /* Negative value for does NOT exist or other error */
-       if (create_if_needed == false) {
-           // TODO raise error
-           return ISMRMRD_FILEERROR;
-       }
-       else {
-           /* Create a new file using the default properties. */
-           /* this will be readwrite */
-           fileid = H5Fcreate(dset->filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-           if (fileid > 0) {
-               dset->fileid = fileid;
-           }
-           else {
-               /* Error creating file */
-               // TODO raise error
-               return ISMRMRD_FILEERROR;
-           }
-       }
-   }
+    }
+    else {
+        /* Negative value for does NOT exist or other error */
+        if (create_if_needed == false) {
+            // TODO raise error
+            return ISMRMRD_FILEERROR;
+        }
+        else {
+            /* Create a new file using the default properties. */
+            /* this will be readwrite */
+            fileid = H5Fcreate(dset->filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+            if (fileid > 0) {
+                dset->fileid = fileid;
+            }
+            else {
+                /* Error creating file */
+                // TODO raise error
+                return ISMRMRD_FILEERROR;
+            }
+        }
+    }
 
-   return ISMRMRD_NOERROR;
+    /* Open the dataset exists, create if needed */
+    /* insure that /groupname exists */
+    int val = create_link(dset, dset->groupname);
+
+    return val;
 };
 
 int ismrmrd_close_dataset(ISMRMRD_Dataset *dset) {
 
     herr_t      status;
 
-    /* Check for a valide fileid before trying to close the file */
+    /* Check for a valid fileid before trying to close the file */
     if (dset->fileid > 0) {
         status = H5Fclose (dset->fileid);
         dset->fileid = 0;
@@ -76,6 +134,10 @@ int ismrmrd_close_dataset(ISMRMRD_Dataset *dset) {
     return ISMRMRD_NOERROR;
 };
 
+
+/*****************************/
+/* TODO Implement these ones */  
+/*****************************/
 int ismrmrd_write_xml_header(const ISMRMRD_Dataset *dset, const char *xml) {
     return ISMRMRD_NOERROR;
 };
