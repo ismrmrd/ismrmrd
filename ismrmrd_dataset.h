@@ -38,7 +38,7 @@ typedef struct ISMRMRD_Dataset {
  * Initializes an ISMRMRD dataset structure
  *
  */
-void ismrmrd_init_dataset(ISMRMRD_Dataset *dset);
+void ismrmrd_init_dataset(ISMRMRD_Dataset *dset, const char *filename, const char *groupname);
             
 /**
  * Opens an ISMRMRD dataset.
@@ -58,7 +58,7 @@ int ismrmrd_close_dataset(ISMRMRD_Dataset *dset);
  *  @warning There is no check of whether the string is a valid XML document at this point.
  *
  */
-int ismrmrd_write_xml_header(const ISMRMRD_Dataset *dset, const char *xml);
+int ismrmrd_write_header(const ISMRMRD_Dataset *dset, const char *xmlstring);
 
 /**
  *  Reads the XML configuration header from the dataset.
@@ -66,7 +66,7 @@ int ismrmrd_write_xml_header(const ISMRMRD_Dataset *dset, const char *xml);
  *  @warning There is no check of whether the string is a valid XML document at this point.
  *
  */
-int ismrmrd_read_xml_header(const ISMRMRD_Dataset *dset, char *xml);
+char * ismrmrd_read_header(const ISMRMRD_Dataset *dset);
 
 /**
  *  Appends and NMR/MRI acquisition to the dataset.

@@ -1,6 +1,9 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "ismrmrd.h"
+#include "ismrmrd_dataset.h"
 
 int main(void)
 {
@@ -28,23 +31,30 @@ int main(void)
    //printf("Array ndim: %d\n", arr.ndim);
    //printf("Array dim[0]: %d\n", arr.dims[0]);  
 
+   const char *filename = "myfile.h5";
+   const char *groupname = "/G1/V";
+
    ISMRMRD_Dataset dataset;
-   ismrmrd_init_dataset(&dataset);
-   dataset.filename = "myfile.h5";
-   dataset.groupname = "/G1/V";
+   ismrmrd_init_dataset(&dataset, filename, groupname);
+   printf("Filename: %s\n", dataset.filename);
+   printf("Groupname: %s\n", dataset.groupname);
    
    int status;
    status = ismrmrd_open_dataset(&dataset, true);
    printf("Status from open: %d\n", status);
    printf("File_id: %d\n", dataset.fileid);
 
+   const char *xmlhdr="Hello world.";
+   status = ismrmrd_write_header(&dataset, xmlhdr);
+   printf("XMLString: %s\nLength: %lu\n", xmlhdr, strlen(xmlhdr));
+
+   char *xmlstring = ismrmrd_read_header(&dataset);
+   printf("XMLString OUT: %s\n", xmlstring);
+   free(xmlstring);
+
    status = ismrmrd_close_dataset(&dataset);
    printf("File_id: %d\n", dataset.fileid);
    printf("File close status: %d\n", status);
-   
-   //const char *filename="test.h5";
-   //const char *datasetname="Today";
-   //const char *xmlstring = "This is the end my friend.";
-   
+
    return 0;
 }

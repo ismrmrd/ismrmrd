@@ -37,8 +37,7 @@ static bool link_exists(const ISMRMRD_Dataset *dset, const char *link_path) {
     }
 }
 
-static int create_link(ISMRMRD_Dataset *dset, const char *link_path) {
-
+static int create_link(const ISMRMRD_Dataset *dset, const char *link_path) {
     if (link_exists(dset, link_path)) {
         return ISMRMRD_NOERROR;
     }
@@ -46,19 +45,40 @@ static int create_link(ISMRMRD_Dataset *dset, const char *link_path) {
         hid_t lcpl_id;
         lcpl_id = H5Pcreate(H5P_LINK_CREATE);
         H5Pset_create_intermediate_group(lcpl_id, 1);
-        H5Gcreate2(dset->fileid, link_path, lcpl_id, H5P_DEFAULT, H5P_DEFAULT);
+        hid_t gid = H5Gcreate2(dset->fileid, link_path, lcpl_id, H5P_DEFAULT, H5P_DEFAULT);
+        H5Gclose(gid);
         // TODO does this thing return error
         return ISMRMRD_NOERROR;
     }
+}
 
+static int delete_var(const ISMRMRD_Dataset *dset, const char *var) {
+    herr_t status;
+    char *path;
+    path = (char *) malloc(strlen(dset->groupname)+strlen(var)+2);
+    memset(path, '\0', strlen(dset->groupname)+strlen(var)+2);
+    strcat(path, dset->groupname);
+    strcat(path, "/");
+    strcat(path, var);
+    if (link_exists(dset, path)) {
+        status = H5Ldelete(dset->fileid, path, H5P_DEFAULT);
+        // TODO handle errors
+    }
+    free(path);
+    return ISMRMRD_NOERROR;
 }
 
 /********************/
 /* Public functions */
 /********************/
-void ismrmrd_init_dataset(ISMRMRD_Dataset *dset) {
-    dset->filename = NULL;
-    dset->groupname = NULL;
+void ismrmrd_init_dataset(ISMRMRD_Dataset *dset, const char *filename, const char *groupname) {
+
+    dset->filename = (char *) realloc(dset->filename, (strlen(filename)+1)*sizeof(char));
+    strcpy(dset->filename, filename);
+
+    dset->groupname = (char *) realloc(dset->groupname, (strlen(groupname)+1)*sizeof(char));
+    strcpy(dset->groupname, groupname);
+
     dset->fileid = 0;
 }
 
@@ -115,7 +135,7 @@ int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool create_if_needed) {
         }
     }
 
-    /* Open the dataset exists, create if needed */
+    /* Open the existing dataset */
     /* insure that /groupname exists */
     int val = create_link(dset, dset->groupname);
 
@@ -124,7 +144,7 @@ int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool create_if_needed) {
 
 int ismrmrd_close_dataset(ISMRMRD_Dataset *dset) {
 
-    herr_t      status;
+    herr_t status;
 
     /* Check for a valid fileid before trying to close the file */
     if (dset->fileid > 0) {
@@ -135,17 +155,96 @@ int ismrmrd_close_dataset(ISMRMRD_Dataset *dset) {
 };
 
 
+int ismrmrd_write_header(const ISMRMRD_Dataset *dset, const char *xmlstring) {
+
+    hid_t dataset, dataspace, datatype, props;
+    hsize_t dims[] = {1};
+    herr_t status;
+
+    /* The path to the xml header */
+    const char *var = "xml";
+    char *path;
+    path = (char *) malloc(strlen(dset->groupname)+strlen(var)+2);
+    memset(path, '\0', strlen(dset->groupname)+strlen(var)+2);
+    strcat(path, dset->groupname);
+    strcat(path, "/");
+    strcat(path, var);
+
+    /* Delete the old header if it exists */
+    status = delete_var(dset, var);
+
+    /* Create a new dataset for the xmlstring */
+    /* i.e. create the memory type, data space, and data set */
+    dataspace = H5Screate_simple(1, dims, NULL);
+    datatype = H5Tcopy(H5T_C_S1);
+    status = H5Tset_size(datatype, H5T_VARIABLE);
+    props = H5Pcreate (H5P_DATASET_CREATE);
+    dataset = H5Dcreate(dset->fileid, path, datatype, dataspace, H5P_DEFAULT, props,  H5P_DEFAULT);
+
+    /* Write it out */
+    /* We have to wrap the xmlstring in an array */
+    void *buff[1];
+    buff[0] = (void *) xmlstring;  /* safe to get rid of const the type */
+    status = H5Dwrite(dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, buff);
+
+    /* Clean up */
+    status = H5Pclose(props);
+    status = H5Tclose(datatype);
+    status = H5Sclose(dataspace);
+    status = H5Dclose(dataset);
+    
+    return ISMRMRD_NOERROR;
+};
+
+char * ismrmrd_read_header(const ISMRMRD_Dataset *dset) {
+
+    hid_t dataset, dataspace, datatype, props;
+    hsize_t dims[] = {1};
+    herr_t status;
+    char * xmlstring;
+    
+    /* The path to the xml header */
+    const char *var = "xml";
+    char *path;
+    path = (char *) malloc(strlen(dset->groupname)+strlen(var)+2);
+    memset(path, '\0', strlen(dset->groupname)+strlen(var)+2);
+    strcat(path, dset->groupname);
+    strcat(path, "/");
+    strcat(path, var);
+
+    if (link_exists(dset, path)) {
+        dataset = H5Dopen(dset->fileid, path, H5P_DEFAULT);
+        /* Get the datatype */
+        datatype = H5Dget_type(dataset);
+        /* Read it into a 1D buffer*/
+        void *buff[1];
+        status = H5Dread(dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, buff);
+
+        /* Unpack */
+        xmlstring = (char *) malloc(strlen(buff[0])+1);
+        memcpy(xmlstring, buff[0], strlen(buff[0])+1);
+        
+        /* Clean up */
+        status = H5Pclose(props);
+        status = H5Tclose(datatype);
+        status = H5Sclose(dataspace);
+        status = H5Dclose(dataset);
+        free(path);
+        
+        return xmlstring;
+    }
+    else {
+        // No XML String found
+        // TODO handle errors
+        free(path);
+        return NULL;
+    }
+
+};
+
 /*****************************/
 /* TODO Implement these ones */  
 /*****************************/
-int ismrmrd_write_xml_header(const ISMRMRD_Dataset *dset, const char *xml) {
-    return ISMRMRD_NOERROR;
-};
-
-int ismrmrd_read_xml_header(const ISMRMRD_Dataset *dset, char *xml) {
-    return ISMRMRD_NOERROR;
-};
-
 int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquisition *a) {
     return ISMRMRD_NOERROR;
 };
