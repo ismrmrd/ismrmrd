@@ -1,6 +1,7 @@
 add_library(ismrmrd_xml SHARED 
   ismrmrd_xml.h
   ismrmrd_xml.cpp
+  pugixml.cpp
   )
 
 install (FILES ismrmrd_xml.h
