@@ -117,7 +117,7 @@ int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool create_if_needed) {
     else {
         /* Negative value for does NOT exist or other error */
         if (create_if_needed == false) {
-            // TODO raise error
+            ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed to open file.");
             return ISMRMRD_FILEERROR;
         }
         else {

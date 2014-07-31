@@ -3,11 +3,17 @@
 #include <cstring>
 #include <cstdlib>
 #include <cmath>
+#include <cassert>
+/* TODO this should be wrapped in ifdef DEBUG */
+#include <cstdio>
 #else
 /* C99 compiler */
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <assert.h>
+/* TODO this should be wrapped in ifdef DEBUG */
+#include <stdio.h>
 #endif /* __cplusplus */
 
 #include "ismrmrd.h"
@@ -263,6 +269,33 @@ void ismrmrd_clear_flag(uint64_t *flags, const uint64_t val) {
 
 void ismrmrd_clear_all_flags(uint64_t *flags) {
     *flags = 0;
+}
+
+    static void ismrmrd_error_default(const char *file, int line, const char *func, int err, char *msg)
+{
+    /* TODO this should be a no op or wrapped in a #ifdef DEBUG */
+    char *msgtype = ismrmrd_strerror(err);
+    fprintf(stderr, "ERROR: %s in %s, line %d: %s\n", msgtype, file, line, msg);
+}
+
+ismrmrd_error_handler_t ismrmrd_error_handler = ismrmrd_error_default;
+
+void ismrmrd_set_error_handler(ismrmrd_error_handler_t handler) {
+    ismrmrd_error_handler = handler;
+}
+
+char *ismrmrd_strerror(int err) {
+    assert(err > ISMRMRD_BEGINERROR);
+    assert(err < ISMRMRD_ENDERROR);
+
+    /* Match the ISMRMRD_ErrorCodes */
+    char *error_messages[] = {
+        "No Error",
+        "Memory Error",
+        "File Error"
+    };
+    
+    return error_messages[err];
 }
 
 int ismrmrd_sign_of_directions(float read_dir[3], float phase_dir[3], float slice_dir[3]) {

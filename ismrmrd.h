@@ -61,8 +61,11 @@ enum ISMRMRD_Constants {
  * Constants
  */
 enum ISMRMRD_ErrorCodes {
+    ISMRMRD_BEGINERROR=-1,
     ISMRMRD_NOERROR,
-    ISMRMRD_FILEERROR
+    ISMRMRD_MEMORYERROR,
+    ISMRMRD_FILEERROR,
+    ISMRMRD_ENDERROR
 };
     
 /**
@@ -295,6 +298,17 @@ bool ismrmrd_is_flag_set(const uint64_t flags, const uint64_t val);
 void ismrmrd_set_flag(uint64_t *flags, const uint64_t val);
 void ismrmrd_clear_flag(uint64_t *flags, const uint64_t val);
 void ismrmrd_clear_all_flags(uint64_t *flags);
+
+
+/******************/
+/* Error Handling */
+/******************/
+typedef void (*ismrmrd_error_handler_t)(const char *file, int line, const char *function, int err, char *msg);
+extern ismrmrd_error_handler_t ismrmrd_error_handler;
+#define ISMRMRD_THROW(err, msg) ismrmrd_error_handler(__FILE__, __LINE__, __func__, (err), (msg))
+
+void ismrmrd_set_error_handler(ismrmrd_error_handler_t);
+char *ismrmrd_strerror(int err);
 
 /*****************************/
 /* Rotations and Quaternions */
