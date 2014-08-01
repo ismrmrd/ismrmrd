@@ -52,14 +52,19 @@ static int create_link(const ISMRMRD_Dataset *dset, const char *link_path) {
     }
 }
 
-static int delete_var(const ISMRMRD_Dataset *dset, const char *var) {
-    herr_t status;
-    char *path;
-    path = (char *) malloc(strlen(dset->groupname)+strlen(var)+2);
+static char * make_path(const ISMRMRD_Dataset *dset, const char * var) {
+    char *path = (char *) malloc(strlen(dset->groupname)+strlen(var)+2);
     memset(path, '\0', strlen(dset->groupname)+strlen(var)+2);
     strcat(path, dset->groupname);
     strcat(path, "/");
     strcat(path, var);
+    return path;
+}
+    
+
+static int delete_var(const ISMRMRD_Dataset *dset, const char *var) {
+    herr_t status;
+    char *path = make_path(dset, var);
     if (link_exists(dset, path)) {
         status = H5Ldelete(dset->fileid, path, H5P_DEFAULT);
         // TODO handle errors
@@ -162,16 +167,10 @@ int ismrmrd_write_header(const ISMRMRD_Dataset *dset, const char *xmlstring) {
     herr_t status;
 
     /* The path to the xml header */
-    const char *var = "xml";
-    char *path;
-    path = (char *) malloc(strlen(dset->groupname)+strlen(var)+2);
-    memset(path, '\0', strlen(dset->groupname)+strlen(var)+2);
-    strcat(path, dset->groupname);
-    strcat(path, "/");
-    strcat(path, var);
+    char *path = make_path(dset, "xml");
 
     /* Delete the old header if it exists */
-    status = delete_var(dset, var);
+    status = delete_var(dset, "xml");
 
     /* Create a new dataset for the xmlstring */
     /* i.e. create the memory type, data space, and data set */
@@ -204,18 +203,13 @@ char * ismrmrd_read_header(const ISMRMRD_Dataset *dset) {
     char * xmlstring;
     
     /* The path to the xml header */
-    const char *var = "xml";
-    char *path;
-    path = (char *) malloc(strlen(dset->groupname)+strlen(var)+2);
-    memset(path, '\0', strlen(dset->groupname)+strlen(var)+2);
-    strcat(path, dset->groupname);
-    strcat(path, "/");
-    strcat(path, var);
+    char *path = make_path(dset, "xml");
 
     if (link_exists(dset, path)) {
         dataset = H5Dopen(dset->fileid, path, H5P_DEFAULT);
         /* Get the datatype */
         datatype = H5Dget_type(dataset);
+        printf("datatype: %d\n.", datatype);
         /* Read it into a 1D buffer*/
         void *buff[1];
         status = H5Dread(dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, buff);
@@ -242,18 +236,59 @@ char * ismrmrd_read_header(const ISMRMRD_Dataset *dset) {
 
 };
 
+unsigned long ismrmrd_get_number_of_acquisitions(const ISMRMRD_Dataset *dset) {
+
+    hid_t dataset, dataspace;
+    hsize_t dims[2], maxdims[2];
+    herr_t h5status;
+    unsigned long numacq;
+    
+    /* The path to the acqusition data */    
+    char *path = make_path(dset, "data");
+
+    if (link_exists(dset, path)) {
+        dataset = H5Dopen(dset->fileid, path, H5P_DEFAULT);
+        dataspace = H5Dget_space(dataset);
+        h5status = H5Sget_simple_extent_dims(dataspace, dims, maxdims);
+        numacq = dims[0];
+        H5Sclose(dataspace);
+        H5Dclose(dataset);
+    }
+    else {
+        /* none */
+        numacq = 0;
+    }
+
+    return numacq;
+};
+
+
+int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquisition *a) {
+
+    hid_t dataset, dataspace, datatype, props;
+    hsize_t dims[2];
+    herr_t h5status;
+    int status;
+    
+    /* The path to the acqusition data */    
+    char *path = make_path(dset, "data");
+
+    /* Check the path, open or create if needed */
+    if (link_exists(dset, path)) {
+        /* open */
+    }
+    else {
+        /* create */
+    }
+
+    
+    return ISMRMRD_NOERROR;
+};
+
 /*****************************/
 /* TODO Implement these ones */  
 /*****************************/
-int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquisition *a) {
-    return ISMRMRD_NOERROR;
-};
-
 int ismrmrd_read_acquisition(const ISMRMRD_Dataset *dset, unsigned long index, ISMRMRD_Acquisition *a) {
-    return ISMRMRD_NOERROR;
-};
-
-unsigned long ismrmrd_get_number_of_acquisitions(const ISMRMRD_Dataset *dset) {
     return ISMRMRD_NOERROR;
 };
 
@@ -294,57 +329,22 @@ int ismrmrd_get_number_of_arrays(const ISMRMRD_Dataset *dset, const char *varnam
 
 
 #ifdef YOMAMA
-xml_header_path_ = groupname_ + std::string("/xml");
-data_path_ = groupname_ + std::string("/data");
-
-hid_t t;
 
 t = this->type_container_.get_type<float>();
-std::cout << "Type for float: " << t << std::endl;
-
 t = this->type_container_.get_type<double>();
-std::cout << "Type for double: " << t << std::endl;
-
 t = this->type_container_.get_type<std::complex<float> >();
-std::cout << "Type for complex float: " << t << std::endl;
-
 t = this->type_container_.get_type<std::complex<double> >();
-std::cout << "Type for complex double: " << t << std::endl;
-
 t = this->type_container_.get_type<EncodingCounters>();
-std::cout << "Type for EncodingCounters: " << t << std::endl;
-
 t = this->type_container_.get_type<AcquisitionHeader>();
-std::cout << "Type for AcquisitionHeader: " << t << std::endl;
-
 t = this->type_container_.get_type<AcquisitionHeader_with_data>();
-std::cout << "Type for AcquisitionHeader_with_data: " << t << std::endl;
-
 t = this->type_container_.get_type<ImageHeader>();
-std::cout << "Type for ImageHeader: " << t << std::endl;
-
 t = this->type_container_.get_type<ImageHeader_with_data<float> >();
-std::cout << "Type for ImageHeader_with_data<float>: " << t << std::endl;
-
 t = this->type_container_.get_type<ImageHeader_with_data<double> >();
-std::cout << "Type for ImageHeader_with_data<double>: " << t << std::endl;
-
 t = this->type_container_.get_type<ImageHeader_with_data<unsigned short> >();
-std::cout << "Type for ImageHeader_with_data<unsigned short>: " << t << std::endl;
-
 t = this->type_container_.get_type<ImageHeader_with_data<ccomplex_t> >();
-std::cout << "Type for ImageHeader_with_data<ccomplex_t>: " << t << std::endl;
-
 t = this->type_container_.get_type<ImageHeader_with_data<cdouble_complex_t> >();
-std::cout << "Type for ImageHeader_with_data<cdouble_complex_t>: " << t << std::endl;
-
 t = this->type_container_.get_type<ImageHeader_with_data<std::complex<float> > >();
-std::cout << "Type for ImageHeader_with_data< std::complex<float> >: " << t << std::endl;
-
 t = this->type_container_.get_type<ImageHeader_with_data<std::complex<double> > >();
-std::cout << "Type for ImageHeader_with_data< std::complex<double> >: " << t << std::endl;
-
 t = this->type_container_.get_type<std::string>();
-std::cout << "Type for std::string: " << t << std::endl;
 
 #endif

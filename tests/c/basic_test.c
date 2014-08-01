@@ -17,63 +17,65 @@ int main(void)
     int status;
     ISMRMRD_Dataset dataset, dataset2;
     const char *filename = "myfile.h5";
-    const char *groupname = "/G1/dataset";
-    const char *xmlhdr = "Hello world.";
+    const char *groupname = "/dataset";
+    const char *xmlhdr = "This is some text for the header.";
     
     /* Set the error handler */
     ismrmrd_set_error_handler(myerror);
 
-    /* Create a data set */
-    ismrmrd_init_dataset(&dataset, filename, groupname);   
-    status = ismrmrd_open_dataset(&dataset, true);
-    printf("Dataset1 open, fileid: %d\n", dataset.fileid);
+    if (0) {
+        /* Create a data set */
+        ismrmrd_init_dataset(&dataset, filename, groupname);   
+        status = ismrmrd_open_dataset(&dataset, true);
 
-    status = ismrmrd_write_header(&dataset, xmlhdr);
-    /* Close the dataset */
-    status = ismrmrd_close_dataset(&dataset);
-    printf("Dataset1 closed\n");
-
-
+        //status = ismrmrd_write_header(&dataset, xmlhdr);
+    
+        /* Close the dataset */
+        status = ismrmrd_close_dataset(&dataset);
+    }
     
     /* Reopen the file as a different dataset */
     ismrmrd_init_dataset(&dataset2, filename, groupname);       
-    status = ismrmrd_open_dataset(&dataset2, true);
-    printf("Dataset2 open, fileid: %d\n", dataset2.fileid);
+    status = ismrmrd_open_dataset(&dataset2, false);
 
     /* Read the header */
     char *xmlstring = ismrmrd_read_header(&dataset2);
     printf("Header: %s\n", xmlstring);
 
+    /* Get the number of acquisitions */
+    printf("Number of Acquisitions: %lu\n", ismrmrd_get_number_of_acquisitions(&dataset2));
+    
     /* Clean up */
     free(xmlstring);
     
     /* Close the dataset */
     status = ismrmrd_close_dataset(&dataset2);
-    printf("Dataset2 closed\n");
 
-            
-    ISMRMRD_Acquisition acq;
-    ismrmrd_init_acquisition(&acq);
-    acq.head.number_of_samples = 128;
-    acq.head.active_channels = 4;
-    ismrmrd_make_consistent_acquisition(&acq);
-    printf("Acq Version: %d\n", acq.head.version);
+    /* TODO */
+    if (0) {
+        ISMRMRD_Acquisition acq;
+        ismrmrd_init_acquisition(&acq);
+        acq.head.number_of_samples = 128;
+        acq.head.active_channels = 4;
+        ismrmrd_make_consistent_acquisition(&acq);
+        printf("Acq Version: %d\n", acq.head.version);
 
-    ismrmrd_set_flag(&(acq.head.flags), ISMRMRD_ACQ_FIRST_IN_SLICE);
-    printf("Flags: %llu\n", acq.head.flags);
-    printf("ACQ_FIRST_IN_SLICE: %d\n", ismrmrd_is_flag_set(acq.head.flags, ISMRMRD_ACQ_FIRST_IN_SLICE));
-    ismrmrd_clear_flag(&(acq.head.flags), ISMRMRD_ACQ_FIRST_IN_SLICE);
-    printf("Flags: %llu\n", acq.head.flags);
-    printf("ACQ_FIRST_IN_SLICE: %d\n", ismrmrd_is_flag_set(acq.head.flags, ISMRMRD_ACQ_FIRST_IN_SLICE));
+        ismrmrd_set_flag(&(acq.head.flags), ISMRMRD_ACQ_FIRST_IN_SLICE);
+        printf("Flags: %llu\n", acq.head.flags);
+        printf("ACQ_FIRST_IN_SLICE: %d\n", ismrmrd_is_flag_set(acq.head.flags, ISMRMRD_ACQ_FIRST_IN_SLICE));
+        ismrmrd_clear_flag(&(acq.head.flags), ISMRMRD_ACQ_FIRST_IN_SLICE);
+        printf("Flags: %llu\n", acq.head.flags);
+        printf("ACQ_FIRST_IN_SLICE: %d\n", ismrmrd_is_flag_set(acq.head.flags, ISMRMRD_ACQ_FIRST_IN_SLICE));
 
-    //   Image im;
-    //initImage(&im);
-    //printf("Image Version: %d\n", im.head.version);
+        //   Image im;
+        //initImage(&im);
+        //printf("Image Version: %d\n", im.head.version);
     
-    //NDArray arr;
-    //initNDArray(&arr);
-    //printf("Array ndim: %d\n", arr.ndim);
-    //printf("Array dim[0]: %d\n", arr.dims[0]);  
+        //NDArray arr;
+        //initNDArray(&arr);
+        //printf("Array ndim: %d\n", arr.ndim);
+        //printf("Array dim[0]: %d\n", arr.dims[0]);  
+    }
     
     return 0;
 }
