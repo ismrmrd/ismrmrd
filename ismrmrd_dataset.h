@@ -38,7 +38,7 @@ typedef struct ISMRMRD_Dataset {
  * Initializes an ISMRMRD dataset structure
  *
  */
-void ismrmrd_init_dataset(ISMRMRD_Dataset *dset, const char *filename, const char *groupname);
+int ismrmrd_init_dataset(ISMRMRD_Dataset *dset, const char *filename, const char *groupname);
             
 /**
  * Opens an ISMRMRD dataset.

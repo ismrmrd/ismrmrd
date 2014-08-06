@@ -7,7 +7,7 @@
 /*    Kaveh Vahedipour  (k.vahedipour@fz-juelich.de)       */
 /*    Hui Xue           (hui.xue@nih.gov)                  */
 /*    Souheil Inati     (souheil.inati@nih.gov)            */
-/*    Joeseph Naegele   (joseph.naegele@gmail.com)         */
+/*    Joseph Naegele    (joseph.naegele@nih.gov)           */
 
 #pragma once
 #ifndef ISMRMRD_H
@@ -65,6 +65,7 @@ enum ISMRMRD_ErrorCodes {
     ISMRMRD_NOERROR,
     ISMRMRD_MEMORYERROR,
     ISMRMRD_FILEERROR,
+    ISMRMRD_TYPEERROR,
     ISMRMRD_ENDERROR
 };
     
@@ -212,7 +213,7 @@ typedef struct ISMRMRD_Acquisition {
 void ismrmrd_init_acquisition(ISMRMRD_Acquisition *acq);
 void ismrmrd_free_acquisition(ISMRMRD_Acquisition *acq);
 void ismrmrd_copy_acquisition(ISMRMRD_Acquisition *acqdest, const ISMRMRD_Acquisition *acqsource);
-void ismrmrd_make_consistent_acquisition(ISMRMRD_Acquisition *acq);
+int ismrmrd_make_consistent_acquisition(ISMRMRD_Acquisition *acq);
 size_t ismrmrd_size_of_acquisition_traj(const ISMRMRD_Acquisition *acq);
 size_t ismrmrd_size_of_acquisition_data(const ISMRMRD_Acquisition *acq);
 
@@ -266,7 +267,7 @@ typedef struct ISMRMRD_Image {
 void ismrmrd_init_image(ISMRMRD_Image *im);
 void ismrmrd_free_image(ISMRMRD_Image *im);
 void ismrmrd_copy_image(ISMRMRD_Image *imdest, const ISMRMRD_Image *imsource);
-void ismrmrd_make_consistent_image(ISMRMRD_Image *im);
+int ismrmrd_make_consistent_image(ISMRMRD_Image *im);
 size_t ismrmrd_size_of_image_attribute_string(const ISMRMRD_Image *im);
 size_t ismrmrd_size_of_image_data(const ISMRMRD_Image *im);
 
@@ -288,7 +289,7 @@ typedef struct ISMRMRD_NDArray {
 void ismrmrd_init_ndarray(ISMRMRD_NDArray *arr);
 void ismrmrd_free_ndarray(ISMRMRD_NDArray *arr);
 void ismrmrd_copy_ndarray(ISMRMRD_NDArray *arrdest, const ISMRMRD_NDArray *arrsource);
-void ismrmrd_make_consistent_ndarray(ISMRMRD_NDArray *arr);
+int ismrmrd_make_consistent_ndarray(ISMRMRD_NDArray *arr);
 size_t ismrmrd_size_of_ndarray_data(const ISMRMRD_NDArray *arr);
 
 /*********/
@@ -319,11 +320,7 @@ int ismrmrd_sign_of_directions(float read_dir[3], float phase_dir[3], float slic
 /* Creates a normalized quaternion from a 3x3 rotation matrix */
 void ismrmrd_directions_to_quaternion(float read_dir[3], float phase_dir[3], float slice_dir[3], float quat[4]);
 
-/**
- * Converts a quaternion of the form | a b c d | to a 3x3 rotation matrix
- *
- * http://www.cs.princeton.edu/~gewang/projects/darth/stuff/quat_faq.html#Q54
- */
+/* Converts a quaternion of the form | a b c d | to a 3x3 rotation matrix */
 void ismrmrd_quaternion_to_directions(float quat[4], float read_dir[3], float phase_dir[3], float slice_dir[3]);
 
 #pragma pack(pop) // Restore old alignment

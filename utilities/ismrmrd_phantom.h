@@ -6,6 +6,7 @@
  */
 
 #include <boost/shared_ptr.hpp>
+#include <vector>
 #include <complex>
 #include "ismrmrd.h"
 #include "ismrmrd_utilities_export.h"

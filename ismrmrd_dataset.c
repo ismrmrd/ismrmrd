@@ -53,14 +53,20 @@ static int create_link(const ISMRMRD_Dataset *dset, const char *link_path) {
 }
 
 static char * make_path(const ISMRMRD_Dataset *dset, const char * var) {
-    char *path = (char *) malloc(strlen(dset->groupname)+strlen(var)+2);
-    memset(path, '\0', strlen(dset->groupname)+strlen(var)+2);
+    size_t len = strlen(dset->groupname) + strlen(var) + 2;
+
+    char *path = (char *) malloc(len);
+    if (path == NULL) {
+        ISMRMRD_THROW(ISMRMRD_MEMORYERROR, "Failed to malloc path");
+        return NULL;
+    }
+
+    memset(path, 0, len);
     strcat(path, dset->groupname);
     strcat(path, "/");
     strcat(path, var);
     return path;
 }
-    
 
 static int delete_var(const ISMRMRD_Dataset *dset, const char *var) {
     herr_t status;
@@ -76,15 +82,25 @@ static int delete_var(const ISMRMRD_Dataset *dset, const char *var) {
 /********************/
 /* Public functions */
 /********************/
-void ismrmrd_init_dataset(ISMRMRD_Dataset *dset, const char *filename, const char *groupname) {
+int ismrmrd_init_dataset(ISMRMRD_Dataset *dset, const char *filename, const char *groupname) {
 
-    dset->filename = (char *) realloc(dset->filename, (strlen(filename)+1)*sizeof(char));
+    dset->filename = (char *) malloc(strlen(filename) + 1);
+    if (dset->filename == NULL) {
+        ISMRMRD_THROW(ISMRMRD_MEMORYERROR, "Failed to malloc dataset groupname");
+        return ISMRMRD_MEMORYERROR;
+    }
     strcpy(dset->filename, filename);
 
-    dset->groupname = (char *) realloc(dset->groupname, (strlen(groupname)+1)*sizeof(char));
+    dset->groupname = (char *) malloc(strlen(groupname) + 1);
+    if (dset->groupname == NULL) {
+        ISMRMRD_THROW(ISMRMRD_MEMORYERROR, "Failed to malloc dataset groupname");
+        return ISMRMRD_MEMORYERROR;
+    }
     strcpy(dset->groupname, groupname);
 
     dset->fileid = 0;
+
+    return ISMRMRD_NOERROR;
 }
 
 int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool create_if_needed) {
@@ -209,20 +225,23 @@ char * ismrmrd_read_header(const ISMRMRD_Dataset *dset) {
         dataset = H5Dopen(dset->fileid, path, H5P_DEFAULT);
         /* Get the datatype */
         datatype = H5Dget_type(dataset);
-        printf("datatype: %d\n.", datatype);
         /* Read it into a 1D buffer*/
         void *buff[1];
         status = H5Dread(dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, buff);
 
         /* Unpack */
         xmlstring = (char *) malloc(strlen(buff[0])+1);
-        memcpy(xmlstring, buff[0], strlen(buff[0])+1);
-        
-        /* Clean up */
-        status = H5Pclose(props);
-        status = H5Tclose(datatype);
-        status = H5Sclose(dataspace);
-        status = H5Dclose(dataset);
+        if (xmlstring == NULL) {
+            ISMRMRD_THROW(ISMRMRD_MEMORYERROR, "Failed to malloc xmlstring");
+        } else {
+            memcpy(xmlstring, buff[0], strlen(buff[0])+1);
+            
+            /* Clean up */
+            status = H5Pclose(props);
+            status = H5Tclose(datatype);
+            status = H5Sclose(dataspace);
+            status = H5Dclose(dataset);
+        }
         free(path);
         
         return xmlstring;
@@ -259,6 +278,8 @@ unsigned long ismrmrd_get_number_of_acquisitions(const ISMRMRD_Dataset *dset) {
         numacq = 0;
     }
 
+    free(path);
+
     return numacq;
 };
 
@@ -281,6 +302,7 @@ int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquis
         /* create */
     }
 
+    free(path);
     
     return ISMRMRD_NOERROR;
 };

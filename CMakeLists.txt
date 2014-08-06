@@ -41,38 +41,29 @@ if (WIN32)
 endif (WIN32)
 
 # required packages for main library
-find_package(Boost COMPONENTS thread system REQUIRED)
-find_package(HDF5 1.8 COMPONENTS C CXX HL REQUIRED)
+find_package(HDF5 1.8 COMPONENTS C HL REQUIRED)
 
-# necessary for Windows and RHEL <=6 systems
-set(Boost_NO_BOOST_CMAKE ON)
+include_directories(${HDF5_C_INCLUDE_DIR})
 
-if(WIN32)
-  add_definitions( -DBOOST_ALL_NO_LIB )
-  add_definitions( -DBOOST_ALL_DYN_LINK )
-endif(WIN32)
-
-add_library(ismrmrd SHARED ismrmrd_hdf5.cpp)
-include_directories(${HDF5_C_INCLUDE_DIR} ${HDF5_CXX_INCLUDE_DIR}
-    ${Boost_INCLUDE_DIR})
+add_library(ismrmrd SHARED ismrmrd.c ismrmrd_dataset.c)
+add_library(ismrmrd++ SHARED ismrmrd.c ismrmrd.cpp ismrmrd_dataset.c)
 
 #The findHDF5.cmake does not work very well on Windows, let's help it out
 if(WIN32)
-    target_link_libraries(ismrmrd optimized ${HDF5_hdf5_LIBRARY_RELEASE}
-        optimized ${HDF5_hdf5_cpp_LIBRARY_RELEASE})
-    target_link_libraries(ismrmrd debug ${HDF5_hdf5_LIBRARY_DEBUG}
-        debug ${HDF5_hdf5_cpp_LIBRARY_DEBUG})
-    target_link_libraries(ismrmrd ${Boost_LIBRARIES})
+    target_link_libraries(ismrmrd optimized ${HDF5_hdf5_LIBRARY_RELEASE})
+    target_link_libraries(ismrmrd debug ${HDF5_hdf5_LIBRARY_DEBUG})
+    target_link_libraries(ismrmrd++ optimized ${HDF5_hdf5_LIBRARY_RELEASE})
+    target_link_libraries(ismrmrd++ debug ${HDF5_hdf5_LIBRARY_DEBUG})
 else(WIN32)
-    target_link_libraries(ismrmrd ${HDF5_LIBRARIES} ${Boost_THREAD_LIBRARY}
-        ${Boost_SYSTEM_LIBRARY})
+    target_link_libraries(ismrmrd ${HDF5_LIBRARIES})
+    target_link_libraries(ismrmrd++ ${HDF5_LIBRARIES})
 endif(WIN32)
 
-install(TARGETS ismrmrd
-    DESTINATION ${ISMRMRD_INSTALL_LIB_DIR})
+install(TARGETS ismrmrd ismrmrd++ DESTINATION ${ISMRMRD_INSTALL_LIB_DIR})
 
 install(FILES ${ISMRMRD_SOURCE_DIR}/ismrmrd.h
-    ${ISMRMRD_SOURCE_DIR}/ismrmrd_hdf5.h
+    ${ISMRMRD_SOURCE_DIR}/ismrmrd.hpp
+    ${ISMRMRD_SOURCE_DIR}/ismrmrd_dataset.h
     ${ISMRMRD_SOURCE_DIR}/ismrmrd_hdf5_datatypes.h
     ${ISMRMRD_SOURCE_DIR}/ismrmrd_export.h
     DESTINATION ${ISMRMRD_INSTALL_INCLUDE_DIR})
@@ -92,9 +83,7 @@ wrap_xsd(XSDS_SOURCES XSD_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/schema ${XSDS} OP
 
 if ( WIN32 )
     include_directories(${ISMRMRD_SCHEMA_SOURCE_DIR} ${XSD_INCLUDE_DIR}
-        ${XERCESC_INCLUDE_DIR} ${Boost_INCLUDE_DIR} ${HDF5_CXX_INCLUDE_DIR}
-        ${HDF5_C_INCLUDE_DIR})
-    link_directories(${Boost_LIBRARY_DIRS})
+        ${XERCESC_INCLUDE_DIR} ${HDF5_CXX_INCLUDE_DIR} ${HDF5_C_INCLUDE_DIR})
 endif ( WIN32 )
 
 if ( NOT WIN32 )
@@ -117,9 +106,10 @@ install(FILES ${ISMRMRD_MODULE_DIR}/FindIsmrmrd.cmake
     ${ISMRMRD_MODULE_DIR}/FindNumPy.cmake
     DESTINATION ${ISMRMRD_INSTALL_MODULE_DIR})
 
-add_subdirectory(examples/c++)
-add_subdirectory(utilities)
-add_subdirectory(tests)
 add_subdirectory(doc)
+add_subdirectory(examples/c)
+#add_subdirectory(examples/c++)
+#add_subdirectory(utilities)
+#add_subdirectory(tests)
 add_subdirectory(matlab)
-add_subdirectory(bindings)
+#add_subdirectory(bindings)
