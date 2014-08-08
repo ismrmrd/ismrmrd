@@ -486,7 +486,7 @@ namespace ISMRMRD
     }
 
   protected:
-    IsmrmrdHeader h_;    
+    IsmrmrdHeader h_;
   };
 
 
