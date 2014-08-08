@@ -8,6 +8,16 @@
 #include <string.h>
 #include <iostream>
 
+
+/*
+  TODO LIST
+
+  - Add a date time class
+  - Add enumeration class
+
+ */
+
+
 namespace ISMRMRD
 {
 
@@ -50,7 +60,7 @@ namespace ISMRMRD
       allocate(v.len_);
       len_ = v.len_;
       siz_ = v.siz_;
-      copy(v_,v.v_,len_);      
+      copy(v.v_,len_);      
     }
 
     ///Asignment operator
@@ -58,7 +68,7 @@ namespace ISMRMRD
       allocate(v.len_);
       len_ = v.len_;
       siz_ = v.siz_;
-      copy(v_,v.v_,len_);
+      copy(v.v_,len_);
     }
 
 
@@ -122,13 +132,17 @@ namespace ISMRMRD
      which can cause problems when exported from a DLL on Windows. 
 
    */
-  class EXPORTISMRMRDXML String : public Vector<char>
+  class String : public Vector<char>
   {
     typedef Vector<char> inherited;
 
   public:
     ///Default constructor
-    String();
+    String() 
+    {
+      inherited();
+    }
+    
 
     ///Construct taking null terminated string
     String(const char* s) 
@@ -174,23 +188,68 @@ namespace ISMRMRD
   };
 
 
+  template <typename T> class Optional
+  {
+  public:
+    Optional()
+      : present_(false)
+    {
+
+    }
+
+    Optional(const T&v) {
+      present_ = true;
+      value_ = v;      
+    }
+
+    const Optional& operator=(const T& v) {
+      present_ = true;
+      value_ = v;
+    }
+
+    bool is_present() {
+      return present_;
+    }
+
+    T& get() {
+      if (!present_) {
+	throw std::runtime_error("Access optional value, which has not been set");
+      }
+      return value_;
+    }
+    
+    T& operator()() {
+      return get();
+    }
+
+    void set(const T& v) {
+      present_ = true;
+      value_ = v;
+    }
+
+  protected:
+    bool present_;
+    T value_;
+
+  }; 
+
   struct EXPORTISMRMRDXML SubjectInformation 
   {
-    String patientName;
-    float patientWeight_kg;
-    String patientID;
-    String patientBirthDate;
-    String patientGender;
+    Optional<String> patientName;
+    Optional<float> patientWeight_kg;
+    Optional<String> patientID;
+    Optional<String> patientBirthDate;
+    Optional<String> patientGender;
   };
 
   struct StudyInformation
   {
-    String studyDate;
-    String studyTime;
-    String studyID;
-    long int accessionNumber;
-    String referringPhysicianName;
-    String studyDescription;
+    Optional<String> studyDate;
+    Optional<String> studyTime;
+    Optional<String> studyID;
+    Optional<long int> accessionNumber;
+    Optional<String> referringPhysicianName;
+    Optional<String> studyDescription;
   };
 
   struct MeasurementDependency
@@ -201,45 +260,234 @@ namespace ISMRMRD
 
   struct MeasurementInformation
   {
-    String measurementID;
-    String seriesDate;
-    String seriesTime;
+    Optional<String> measurementID;
+    Optional<String> seriesDate;
+    Optional<String> seriesTime;
     String patientPosition;
-    long int initialSeriesNumber;
-    String protocolName;
-    String seriesDescription;
+    Optional<long int> initialSeriesNumber;
+    Optional<String> protocolName;
+    Optional<String> seriesDescription;
     Vector<MeasurementDependency> measurementDepencency;
   };
 
   
+  struct AcquisitionSystemInformation
+  {
+    Optional<String> systemVendor;
+    Optional<String> systemModel;
+    Optional<float> systemFieldStrength_T;
+    Optional<float> relativeReceiverNoiseBandwidth;
+    Optional<unsigned short> receiverChannels;
+    Optional<String> institutionName;
+    Optional<String> stationName;
+  };
 
 
-  /*
-  //Should this actually be the name. 
-  //Xml in the name is bad but I wanted to avoid confusion with the AcquisitionHeader
-  class IsmrmrdXmlHeader 
+  struct ExperimentalConditions
+  {
+    long int H1resonanceFrequency_Hz;
+  };
+
+  struct MatrixSize
+  {
+    MatrixSize()
+    : x(1)
+    , y(1)
+    , z(1)
+    {
+
+    }
+    unsigned short x;
+    unsigned short y;
+    unsigned short z;
+  };
+
+  struct FieldOfView_mm
+  {
+    float x;
+    float y;
+    float z;
+  };
+
+  struct EncodingSpace
+  {
+    MatrixSize matrixSize;
+    FieldOfView_mm fieldOfView_mm;
+  };
+
+
+  struct Limit
+  {
+    Limit() 
+    : minimum(0)
+    , maximum(0)
+    , center(0)
+    {
+
+    }
+    
+    unsigned short minimum;
+    unsigned short maximum;
+    unsigned short center;
+  };
+
+  struct EncodingLimits
+  {
+    Optional<Limit> kspace_encoding_step_0;
+    Optional<Limit> kspace_encoding_step_1;
+    Optional<Limit> kspace_encoding_step_2;
+    Optional<Limit> average;
+    Optional<Limit> slice;
+    Optional<Limit> contrast;
+    Optional<Limit> phase;
+    Optional<Limit> repetition;
+    Optional<Limit> set;
+    Optional<Limit> segment;
+  };
+
+
+  struct UserParameterLong
+  {
+    String name;
+    long value;
+  };
+
+  struct UserParameterDouble
+  {
+    String name;
+    double value;
+  };
+  
+  struct UserParameterString
+  {
+    String name;
+    String value;
+  };
+
+  struct UserParameterBase64
+  {
+    String name;
+    String value;
+  };
+
+  struct UserParameters
+  {
+    Vector<UserParameterLong> userParameterLong;
+    Vector<UserParameterDouble> userParameterDouble;
+    Vector<UserParameterString> userParameterString;
+    Vector<UserParameterBase64> userParameterBase64;
+  };
+
+  struct TrajectoryDescription
+  {
+    String identifier;
+    Vector<UserParameterLong> userParameterLong;
+    Vector<UserParameterDouble> userParameterDouble;
+    Optional<String> comment; 
+  };
+
+  struct Encoding
+  {
+    EncodingSpace encodedSpace;
+    EncodingSpace reconSpace;
+    EncodingLimits encodingLimits;
+    String trajectory;
+    Optional<TrajectoryDescription> trajectoryDescription;
+  };
+
+  struct SequenceParameters
+  {
+    Vector<float> TR;
+    Vector<float> TE;
+    Vector<float> TI;
+  };
+
+  struct ReferencedImageSequence
+  {
+    String referencedSOPInstanceUID;
+  };
+  
+
+  struct MRImageModule
+  {
+    Optional<String> imageType;
+    Optional<String> scanningSequence;
+    Optional<String> sequenceVartiant;
+    Optional<String> scanOptions;
+    Optional<String> mrAcquisitionType;
+    Optional<long> echoTrainLength;
+    Optional<float> triggerTime;
+    Optional<float> flipAngle_deg;
+    Optional<String> freqEncodingDirection;
+  };
+
+  struct DicomParameters
+  {
+    String studyInstanceUID;
+    Optional<String> seriesInstanceUIDRoot;
+    Optional<String> frameOfReference;
+    Vector<ReferencedImageSequence> referencedImageSequence;
+    Optional<MRImageModule> mrImageModule;
+  };
+
+
+  struct AccelerationFactor
+  {
+    unsigned short kspace_encoding_step_1;
+    unsigned short kspace_encoding_step_2;
+  };
+
+  struct ParallelImaging
+  {
+    AccelerationFactor accelerationFactor;
+    Optional<String> calibrationMode;
+    Optional<String> interleavingDimension;
+  };
+
+
+  struct IsmrmrdHeader
+  {
+    Optional<SubjectInformation> subjectInformation;
+    Optional<StudyInformation> studyInformation;
+    Optional<MeasurementInformation> measurementInformation;
+    Optional<AcquisitionSystemInformation> acquisitionSystemInformation;
+    Optional<ExperimentalConditions> experimentalConditions;
+    Vector<Encoding> encoding;
+    Optional<ParallelImaging> parallelImaging;
+    Optional<SequenceParameters> sequenceParameters;
+    Optional<DicomParameters> dicomParameters;
+    Optional<UserParameters> userParameters;    
+  };
+
+
+
+  class IsmrmrdHeaderProxy 
   {
 
   public:
 
     //Constructors
-    IsmrmrdXmlHeader(const char* xml);
-    IsmrmrdXmlHeader(const std::string& xml);
-    IsmrmrdXmlHeader(); //Minimal Header
+    IsmrmrdHeaderProxy(const char* xml);
+    IsmrmrdHeaderProxy(const std::string& xml);
+    IsmrmrdHeaderProxy(); //Minimal Header
 
     //Copy constructor
-    IsmrmrdXmlHeader(const IsmrmrdXmlHeader& h);
+    IsmrmrdHeaderProxy(const IsmrmrdHeader& h);
     
     //Assignment operator
-    IsmrmrdXmlHeader& operator=(const IsmrmrdXmlHeader& h);
+    IsmrmrdHeaderProxy& operator=(const IsmrmrdHeader& h);
 
-    
+    void deserialize(const char* xml);
+
+    void serialize(std::ostream& o);
+
+    IsmrmrdHeader& h() {
+      return h_;
+    }
 
   protected:
-    
-    
+    IsmrmrdHeader h_;    
   };
-  */
 
 
 }
