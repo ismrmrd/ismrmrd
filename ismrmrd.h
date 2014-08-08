@@ -106,6 +106,7 @@ enum AcquisitionFlags {
     ACQ_IS_DUMMYSCAN_DATA                       = 27,
     ACQ_IS_RTFEEDBACK_DATA                      = 28,
     ACQ_IS_SURFACECOILCORRECTIONSCAN_DATA       = 29,
+    ACQ_IS_RETRO_END_SCAN_DATA                  = 30,
 
     ACQ_USER1                                   = 57,
     ACQ_USER2                                   = 58,
