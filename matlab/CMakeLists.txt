@@ -40,6 +40,7 @@ else (NOT JAVA_FOUND)
         LimitType
         SequenceParametersType
         UserParameterLongType
+	UserParameterStringType
         EncodingLimitsType
         MRImageModule
         StudyInformationType
@@ -47,6 +48,7 @@ else (NOT JAVA_FOUND)
         EncodingSpaceType
         MatrixSize
         SubjectInformationType
+	MeasurementDependencyType
         package-info
     )
         list (APPEND ISMRMRD_XJC_SOURCES "${ISMRMRD_PACKAGE}/${class}.java")
