@@ -7,7 +7,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
-
+#include <string>
+#include <vector>
 
 /*
   TODO LIST
@@ -20,181 +21,6 @@
 
 namespace ISMRMRD
 {
-
-  template <typename T> class Vector
-  {
-
-  public:
-
-    Vector()
-      : v_(0)
-      , len_(0)
-      , siz_(0)
-      {} 
-
-    Vector(const T* v, size_t len)
-      : v_(0)
-      , len_(0)
-      , siz_(0)
-    {
-      allocate(len);
-      copy(v,len);
-      siz_ = len;
-    }
-
-    Vector(size_t len)
-      : v_(0)
-      , len_(0)
-      , siz_(0)
-    {
-      allocate(len);
-      siz_ = len;
-    }
-
-    Vector(size_t len, const T& val) 
-      : Vector()
-    { 
-      allocate(len);
-      siz_ = len;
-      for (size_t i = 0; i < siz_; i++) v_[i] = val;
-    }
-
-    //Copy constructor
-    Vector(const Vector& v) {
-      allocate(v.len_);
-      len_ = v.len_;
-      siz_ = v.siz_;
-      copy(v.v_,len_);      
-    }
-
-    ///Asignment operator
-    Vector& operator=(const Vector& v) {
-      allocate(v.len_);
-      len_ = v.len_;
-      siz_ = v.siz_;
-      copy(v.v_,len_);
-    }
-
-
-    virtual ~Vector() {
-      if (v_) delete [] v_;
-    }
-
-    void push_back(const T& item) {
-      if ((siz_+1) > len_) {
-	allocate(len_ + 5); //We will grow by 5 items at a time
-      }
-      v_[siz_++] = item; //Copy item to array
-    }
-
-    T& operator[](size_t index) {
-      return v_[index];
-    }
-
-    size_t size() {
-      return siz_;
-    }
-
-  protected:
-    T* v_;
-    size_t len_; ///Allocated length
-    size_t siz_; ///Size of vector
-
-    void allocate(size_t len) {
-      T* tmp_v = v_;
-      if (len != len_) {
-	if (len) {
-	  //Allocate new array
-	  try {
-	    v_ = new T[len];
-	  } catch (std::bad_alloc&) {
-	    std::cout << "Error allocating memory in ISMRMRD::Vector" << std::endl;
-	    throw;
-	  }
-	} else {
-	  v_ = 0;
-	}
-
-	//Copy old content if applicable
-	if (tmp_v) {
-	  memcpy(v_, tmp_v, (len < len_ ? len : len_)*sizeof(T));
-	  delete [] tmp_v;
-	}
-
-	len_ = len;
-      }
-    }
-
-    void copy(const T* v, size_t len) {
-      if (len > len_) {
-	throw std::length_error("Invalid length array specified for copy in IsmrmrdXmlString");
-      }
-      memcpy(v_,v,len*sizeof(T));
-    } 
-
-  };
-
-  /**
-
-     Simple string container class. The class is used for returning string values to avoid using std::string 
-     which can cause problems when exported from a DLL on Windows. 
-
-   */
-  class String : public Vector<char>
-  {
-
-  public:
-    ///Default constructor
-    String() 
-      : Vector()
-    {
-    }
-    
-
-    ///Construct taking null terminated string
-    String(const char* s)
-      : Vector(s,strlen(s)+1)
-    {
-      std::cout << "Constructing string: " << s << std::endl;
-    }
-    
-    ///Construct taking length of string as input
-    String(const char* s, size_t length) 
-      : Vector(length+1)
-    {
-      copy(s,length);
-      v_[length-1] = '\0';
-    }
-
-    ///Get a const pointer to the string
-    const char* c_str() {
-      return &v_[0];
-    }
-
-    ///Set the string
-    void  set(const char* s) {
-      size_t l = strlen(s);
-      allocate(l+1);
-      copy(s,l);
-      v_[len_-1] = '\0';
-      siz_ = len_;
-    }
-      
-    ///Set the string with specified length
-    void  set(const char* s, size_t len)
-    {
-      allocate(len+1);
-      copy(s,len);
-      v_[len_-1] = '\0';
-      siz_ = len_;
-    }
-
-    ///Get the length of the string
-    size_t size() {
-      return siz_-1;
-    }
-  };
-
 
   template <typename T> class Optional
   {
@@ -215,7 +41,19 @@ namespace ISMRMRD
       value_ = v;
     }
 
-    bool is_present() {
+    const T* operator->() const {
+      return &value_;
+    }
+
+    const T& operator*() const {
+      return value_;
+    }
+
+    operator bool() const {
+      return present_;
+    }
+
+    bool is_present() const {
       return present_;
     }
 
@@ -243,51 +81,51 @@ namespace ISMRMRD
 
   struct EXPORTISMRMRDXML SubjectInformation 
   {
-    Optional<String> patientName;
+    Optional<std::string> patientName;
     Optional<float> patientWeight_kg;
-    Optional<String> patientID;
-    Optional<String> patientBirthdate;
-    Optional<String> patientGender;
+    Optional<std::string> patientID;
+    Optional<std::string> patientBirthdate;
+    Optional<std::string> patientGender;
   };
 
   struct StudyInformation
   {
-    Optional<String> studyDate;
-    Optional<String> studyTime;
-    Optional<String> studyID;
+    Optional<std::string> studyDate;
+    Optional<std::string> studyTime;
+    Optional<std::string> studyID;
     Optional<long> accessionNumber;
-    Optional<String> referringPhysicianName;
-    Optional<String> studyDescription;
+    Optional<std::string> referringPhysicianName;
+    Optional<std::string> studyDescription;
   };
 
   struct MeasurementDependency
   {
-    String dependencyType;
-    String dependencyID;
+    std::string dependencyType;
+    std::string dependencyID;
   };
 
   struct MeasurementInformation
   {
-    Optional<String> measurementID;
-    Optional<String> seriesDate;
-    Optional<String> seriesTime;
-    String patientPosition;
+    Optional<std::string> measurementID;
+    Optional<std::string> seriesDate;
+    Optional<std::string> seriesTime;
+    std::string patientPosition;
     Optional<long int> initialSeriesNumber;
-    Optional<String> protocolName;
-    Optional<String> seriesDescription;
-    Vector<MeasurementDependency> measurementDepencency;
+    Optional<std::string> protocolName;
+    Optional<std::string> seriesDescription;
+    std::vector<MeasurementDependency> measurementDepencency;
   };
 
   
   struct AcquisitionSystemInformation
   {
-    Optional<String> systemVendor;
-    Optional<String> systemModel;
+    Optional<std::string> systemVendor;
+    Optional<std::string> systemModel;
     Optional<float> systemFieldStrength_T;
     Optional<float> relativeReceiverNoiseBandwidth;
     Optional<unsigned short> receiverChannels;
-    Optional<String> institutionName;
-    Optional<String> stationName;
+    Optional<std::string> institutionName;
+    Optional<std::string> stationName;
   };
 
 
@@ -356,36 +194,37 @@ namespace ISMRMRD
 
   struct UserParameterLong
   {
-    String name;
+    std::string name;
     long value;
   };
 
   struct UserParameterDouble
   {
-    String name;
+    std::string name;
     double value;
   };
   
   struct UserParameterString
+
   {
-    String name;
-    String value;
+    std::string name;
+    std::string value;
   };
 
   struct UserParameters
   {
-    Vector<UserParameterLong> userParameterLong;
-    Vector<UserParameterDouble> userParameterDouble;
-    Vector<UserParameterString> userParameterString;
-    Vector<UserParameterString> userParameterBase64;
+    std::vector<UserParameterLong> userParameterLong;
+    std::vector<UserParameterDouble> userParameterDouble;
+    std::vector<UserParameterString> userParameterString;
+    std::vector<UserParameterString> userParameterBase64;
   };
 
   struct TrajectoryDescription
   {
-    String identifier;
-    Vector<UserParameterLong> userParameterLong;
-    Vector<UserParameterDouble> userParameterDouble;
-    Optional<String> comment; 
+    std::string identifier;
+    std::vector<UserParameterLong> userParameterLong;
+    std::vector<UserParameterDouble> userParameterDouble;
+    Optional<std::string> comment; 
   };
 
   struct Encoding
@@ -393,42 +232,42 @@ namespace ISMRMRD
     EncodingSpace encodedSpace;
     EncodingSpace reconSpace;
     EncodingLimits encodingLimits;
-    String trajectory;
+    std::string trajectory;
     Optional<TrajectoryDescription> trajectoryDescription;
   };
 
   struct SequenceParameters
   {
-    Vector<float> TR;
-    Vector<float> TE;
-    Vector<float> TI;
+    std::vector<float> TR;
+    std::vector<float> TE;
+    std::vector<float> TI;
   };
 
   struct ReferencedImageSequence
   {
-    String referencedSOPInstanceUID;
+    std::string referencedSOPInstanceUID;
   };
   
 
   struct MRImageModule
   {
-    Optional<String> imageType;
-    Optional<String> scanningSequence;
-    Optional<String> sequenceVartiant;
-    Optional<String> scanOptions;
-    Optional<String> mrAcquisitionType;
+    Optional<std::string> imageType;
+    Optional<std::string> scanningSequence;
+    Optional<std::string> sequenceVartiant;
+    Optional<std::string> scanOptions;
+    Optional<std::string> mrAcquisitionType;
     Optional<long> echoTrainLength;
     Optional<float> triggerTime;
     Optional<float> flipAngle_deg;
-    Optional<String> freqEncodingDirection;
+    Optional<std::string> freqEncodingDirection;
   };
 
   struct DicomParameters
   {
-    String studyInstanceUID;
-    Optional<String> seriesInstanceUIDRoot;
-    Optional<String> frameOfReference;
-    Vector<ReferencedImageSequence> referencedImageSequence;
+    std::string studyInstanceUID;
+    Optional<std::string> seriesInstanceUIDRoot;
+    Optional<std::string> frameOfReference;
+    std::vector<ReferencedImageSequence> referencedImageSequence;
     Optional<MRImageModule> mrImageModule;
   };
 
@@ -442,8 +281,8 @@ namespace ISMRMRD
   struct ParallelImaging
   {
     AccelerationFactor accelerationFactor;
-    Optional<String> calibrationMode;
-    Optional<String> interleavingDimension;
+    Optional<std::string> calibrationMode;
+    Optional<std::string> interleavingDimension;
   };
 
 
@@ -454,7 +293,7 @@ namespace ISMRMRD
     Optional<MeasurementInformation> measurementInformation;
     Optional<AcquisitionSystemInformation> acquisitionSystemInformation;
     Optional<ExperimentalConditions> experimentalConditions;
-    Vector<Encoding> encoding;
+    std::vector<Encoding> encoding;
     Optional<ParallelImaging> parallelImaging;
     Optional<SequenceParameters> sequenceParameters;
     Optional<DicomParameters> dicomParameters;
@@ -463,6 +302,10 @@ namespace ISMRMRD
 
 
 
+  void deserialize(const char* xml, IsmrmrdHeader& h);
+  void serialize(const IsmrmrdHeader& h, std::ostream& o);
+
+  /*
   class IsmrmrdHeaderProxy 
   {
 
@@ -490,6 +333,7 @@ namespace ISMRMRD
   protected:
     IsmrmrdHeader h_;
   };
+  */
 
 
 }

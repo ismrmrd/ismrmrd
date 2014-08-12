@@ -4,32 +4,6 @@
 
 namespace ISMRMRD
 {
-  IsmrmrdHeaderProxy::IsmrmrdHeaderProxy(const char* xml)
-  {
-    deserialize(xml);
-  }
-
-  IsmrmrdHeaderProxy::IsmrmrdHeaderProxy(const std::string& xml)
-  {
-    deserialize(xml.c_str());
-  }
-
-  IsmrmrdHeaderProxy::IsmrmrdHeaderProxy()
-  {
-
-  }
-  
-  IsmrmrdHeaderProxy::IsmrmrdHeaderProxy(const IsmrmrdHeader& h)
-  {
-    h_ = h;
-  }
-  
-  IsmrmrdHeaderProxy& IsmrmrdHeaderProxy::operator=(const IsmrmrdHeader& h)
-  {
-    h_ = h;
-    return *this;
-  }
-  
   //Utility Functions for deserializing Header
   EncodingSpace parse_encoding_space(pugi::xml_node& n, const char* child) 
   {
@@ -73,17 +47,17 @@ namespace ISMRMRD
     return o;
   }
 
-  String parse_string(pugi::xml_node& n, const char* child) 
+  std::string parse_string(pugi::xml_node& n, const char* child) 
   {
-    String r(n.child_value(child));
+    std::string r(n.child_value(child));
     if (r.size() == 0) throw std::runtime_error("Null length string");
     return r;
   }
 
-  Optional<String> parse_optional_string(pugi::xml_node& n, const char* child)
+  Optional<std::string> parse_optional_string(pugi::xml_node& n, const char* child)
   {
-    String s(n.child_value(child));
-    Optional<String> r;
+    std::string s(n.child_value(child));
+    Optional<std::string> r;
     if (s.size()) r = s;
     return r;
   }
@@ -116,9 +90,9 @@ namespace ISMRMRD
     return r;
   }
 
-  Vector<float> parse_vector_float(pugi::xml_node& n, const char* child) 
+  std::vector<float> parse_vector_float(pugi::xml_node& n, const char* child) 
   {
-    Vector<float> r;
+    std::vector<float> r;
     
     pugi::xml_node nc = n.child(child);
 
@@ -131,21 +105,21 @@ namespace ISMRMRD
     return r;
   }
 
-  Vector<String> parse_vector_string(pugi::xml_node& n, const char* child)
+  std::vector<std::string> parse_vector_string(pugi::xml_node& n, const char* child)
   {
-    Vector<String> r;
+    std::vector<std::string> r;
     pugi::xml_node nc = n.child(child);
     while (nc) {
-      String s = nc.child_value();
+      std::string s = nc.child_value();
       r.push_back(s);
       nc = nc.next_sibling(child);
     }
     return r;
   }
 
-  Vector<UserParameterLong> parse_user_parameter_long(pugi::xml_node& n, const char* child) 
+  std::vector<UserParameterLong> parse_user_parameter_long(pugi::xml_node& n, const char* child) 
   {
-    Vector<UserParameterLong> r;
+    std::vector<UserParameterLong> r;
     pugi::xml_node nc = n.child(child);
     while (nc) {
       UserParameterLong v;
@@ -156,7 +130,7 @@ namespace ISMRMRD
 	throw std::runtime_error("Malformed user parameter (long)");
       }
 
-      v.name = String(name.child_value());
+      v.name = std::string(name.child_value());
       v.value = std::atoi(value.child_value());
 
       r.push_back(v);
@@ -166,9 +140,9 @@ namespace ISMRMRD
     return r;
   }
 
-  Vector<UserParameterDouble> parse_user_parameter_double(pugi::xml_node& n, const char* child) 
+  std::vector<UserParameterDouble> parse_user_parameter_double(pugi::xml_node& n, const char* child) 
   {
-    Vector<UserParameterDouble> r;
+    std::vector<UserParameterDouble> r;
     pugi::xml_node nc = n.child(child);
     while (nc) {
       UserParameterDouble v;
@@ -181,8 +155,8 @@ namespace ISMRMRD
 
       char buffer[10000];
       memcpy(buffer,name.child_value(),strlen(name.child_value())+1);
-      String tmp("BLAH");
-      v.name = "BLAKKK";//tmp;//String("BLAH");//name.child_value());
+      std::string tmp("BLAH");
+      v.name = "BLAKKK";//xtmp;//std::string("BLAH");//name.child_value());
       v.value = std::atof(value.child_value());
 
       r.push_back(v);
@@ -193,9 +167,9 @@ namespace ISMRMRD
     return r;
   }
 
-  Vector<UserParameterString> parse_user_parameter_string(pugi::xml_node& n, const char* child) 
+  std::vector<UserParameterString> parse_user_parameter_string(pugi::xml_node& n, const char* child) 
   {
-    Vector<UserParameterString> r;
+    std::vector<UserParameterString> r;
     pugi::xml_node nc = n.child(child);
     while (nc) {
       UserParameterString v;
@@ -206,8 +180,8 @@ namespace ISMRMRD
 	throw std::runtime_error("Malformed user parameter (string)");
       }
 
-      v.name = String(name.child_value());
-      v.value = String(value.child_value());
+      v.name = std::string(name.child_value());
+      v.value = std::string(value.child_value());
 
       r.push_back(v);
 
@@ -219,7 +193,7 @@ namespace ISMRMRD
 
   //End of utility functions for deserializing header
 
-  void IsmrmrdHeaderProxy::deserialize(const char* xml) 
+  void deserialize(const char* xml, IsmrmrdHeader& h) 
   {
     pugi::xml_document doc;
     pugi::xml_parse_result result = doc.load(xml);
@@ -244,7 +218,7 @@ namespace ISMRMRD
       } else {
 	ExperimentalConditions e;
 	e.H1resonanceFrequency_Hz = std::atoi(experimentalConditions.child_value("H1resonanceFrequency_Hz"));
-	h_.experimentalConditions = e;
+	h.experimentalConditions = e;
       }
 
       
@@ -284,7 +258,7 @@ namespace ISMRMRD
 	  if (!trajectory) {
 	    throw std::runtime_error("trajectory not found in encoding section");
 	  } else {
-	    e.trajectory = String(encoding.child_value("trajectory"));
+	    e.trajectory = std::string(encoding.child_value("trajectory"));
 	  }
 
 	  pugi::xml_node trajectoryDescription = encoding.child("trajectoryDescription");
@@ -306,7 +280,7 @@ namespace ISMRMRD
 	    
 	  }
 
-	  h_.encoding.push_back(e);
+	  h.encoding.push_back(e);
 	  encoding = encoding.next_sibling("encoding");
 	}
 
@@ -319,7 +293,7 @@ namespace ISMRMRD
 	info.patientID = parse_optional_string(subjectInformation, "patientID");
 	info.patientBirthdate = parse_optional_string(subjectInformation, "patientBirthdate");
 	info.patientGender = parse_optional_string(subjectInformation, "patientGender");
-	h_.subjectInformation = info;
+	h.subjectInformation = info;
       }
 
       if (studyInformation) {
@@ -330,7 +304,7 @@ namespace ISMRMRD
 	info.accessionNumber = parse_optional_long(studyInformation,"accessionNumber");
 	info.referringPhysicianName = parse_optional_string(studyInformation,"referringPhysicianName");
 	info.studyDescription = parse_optional_string(studyInformation,"studyDescription");
-	h_.studyInformation = info;
+	h.studyInformation = info;
       }
 
       if (measurementInformation) {
@@ -356,7 +330,7 @@ namespace ISMRMRD
 	  } 
 	  measurementDependency = measurementDependency.next_sibling("measurementDependency");
 	}
-	h_.measurementInformation = info;
+	h.measurementInformation = info;
       }
 
       if (acquisitionSystemInformation) {
@@ -369,7 +343,7 @@ namespace ISMRMRD
 	info.institutionName = parse_optional_string(acquisitionSystemInformation, "institutionName");
 	info.stationName = parse_optional_string(acquisitionSystemInformation, "stationName");
 
-	h_.acquisitionSystemInformation = info;
+	h.acquisitionSystemInformation = info;
       }
 
       if (parallelImaging) {
@@ -385,7 +359,7 @@ namespace ISMRMRD
 
 	info.calibrationMode = parse_optional_string(parallelImaging,"calibrationMode");
 	info.interleavingDimension = parse_optional_string(parallelImaging,"interleavingDimension");
-	h_.parallelImaging = info;
+	h.parallelImaging = info;
       }
 
       if (sequenceParameters) {
@@ -393,7 +367,7 @@ namespace ISMRMRD
 	p.TR = parse_vector_float(sequenceParameters,"TR");
 	p.TE = parse_vector_float(sequenceParameters,"TE");
 	p.TI = parse_vector_float(sequenceParameters,"TI");
-	h_.sequenceParameters = p;
+	h.sequenceParameters = p;
       }
 
       if (dicomParameters) { 
@@ -428,19 +402,17 @@ namespace ISMRMRD
 	  m.freqEncodingDirection = parse_optional_string(mrimageModule, "freqEncodingDirection");
 	  p.mrImageModule = m;
 	}
-	h_.dicomParameters = p;
+	h.dicomParameters = p;
       }
-
 
       if (userParameters) {
 	UserParameters p;
- 	//p.userParameterLong = parse_user_parameter_long(userParameters,"userParameterLong");
+ 	p.userParameterLong = parse_user_parameter_long(userParameters,"userParameterLong");
  	p.userParameterDouble = parse_user_parameter_double(userParameters,"userParameterDouble");
  	p.userParameterString = parse_user_parameter_string(userParameters,"userParameterString");
  	p.userParameterBase64 = parse_user_parameter_string(userParameters,"userParameterBase64");
-	h_.userParameters = p;
+	h.userParameters = p;
       }
-
     } else {
       throw std::runtime_error("Root node 'ismrmrdHeader' not found");
     }
@@ -448,9 +420,88 @@ namespace ISMRMRD
   }
 
 
-  void serialize(std::ostream& o)
+  //Utility functions for serialization
+  void to_string_val(const std::string& v, std::string& o)
   {
+    o = v;
+  }
 
+  void to_string_val(const float& v, std::string& o)
+  {
+    char buffer[256];
+    sprintf(buffer,"%f",v);
+    o = std::string(buffer);
+  }
+
+  void to_string_val(const unsigned short& v, std::string& o)
+  {
+    char buffer[256];
+    sprintf(buffer,"%d",v);
+    o = std::string(buffer);
+  }
+
+  template <class T> void append_optional_node(pugi::xml_node& n, const char* child, const Optional<T>& v) {
+    if (v) {
+      pugi::xml_node n2 = n.append_child(child);
+      std::string v_as_string;
+      to_string_val(*v, v_as_string);
+      n2.append_child(pugi::node_pcdata).set_value(v_as_string.c_str());
+    }
+  } 
+  
+  template <class T> void append_node(pugi::xml_node& n, const char* child, const T& v) {
+    pugi::xml_node n2 = n.append_child(child);
+    std::string v_as_string;
+    to_string_val(*v, v_as_string);
+    n2.append_child(pugi::node_pcdata).set_value(v_as_string.c_str());
+  } 
+
+  //End utility functions for serialization
+
+  void serialize(const IsmrmrdHeader& h, std::ostream& o)
+  {
+    pugi::xml_document doc;
+    pugi::xml_node root = doc.append_child();
+    pugi::xml_node n1;
+    pugi::xml_attribute a;
+
+    root.set_name("ismrmrdHeader");
+
+    a = root.append_attribute("xmlns");
+    a.set_value("http://www.ismrm.org/ISMRMRD");
+
+    a = root.append_attribute("xmlns:xsi");
+    a.set_value("http://www.w3.org/2001/XMLSchema-instance");
+  
+    a = root.append_attribute("xmlns:xs");
+    a.set_value("http://www.w3.org/2001/XMLSchema");
+    
+    a = root.append_attribute("xsi:schemaLocation");
+    a.set_value("http://www.ismrm.org/ISMRMRD ismrmrd.xsd");
+
+    if (h.subjectInformation) {
+      n1 = root.append_child();
+      n1.set_name("subjectInformation");
+      append_optional_node(n1,"patientName",h.subjectInformation->patientName);
+      append_optional_node(n1,"patientWeight_kg",h.subjectInformation->patientWeight_kg);
+      append_optional_node(n1,"patientID",h.subjectInformation->patientID);
+      append_optional_node(n1,"patientBirthdate",h.subjectInformation->patientBirthdate);
+      append_optional_node(n1,"patientGender",h.subjectInformation->patientGender);
+    }
+
+    if (h.acquisitionSystemInformation) {
+      n1 = root.append_child();
+      n1.set_name("acquisitionSystemInformation");
+      append_optional_node(n1,"systemVendor",h.acquisitionSystemInformation->systemVendor);
+      append_optional_node(n1,"systemModel",h.acquisitionSystemInformation->systemModel);
+      append_optional_node(n1,"systemFieldStrength_T",h.acquisitionSystemInformation->systemFieldStrength_T);
+      append_optional_node(n1,"relativeReceiverNoiseBandwidth",h.acquisitionSystemInformation->relativeReceiverNoiseBandwidth);
+      append_optional_node(n1,"receiverChannels",h.acquisitionSystemInformation->receiverChannels);
+      append_optional_node(n1,"institutionName",h.acquisitionSystemInformation->institutionName);
+      append_optional_node(n1,"stationName",h.acquisitionSystemInformation->stationName);
+    }
+
+    doc.save(o);
   }
 
 
