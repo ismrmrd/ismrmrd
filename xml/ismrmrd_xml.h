@@ -32,7 +32,11 @@ namespace ISMRMRD
       , siz_(0)
       {} 
 
-    Vector(const T* v, size_t len) {
+    Vector(const T* v, size_t len)
+      : v_(0)
+      , len_(0)
+      , siz_(0)
+    {
       allocate(len);
       copy(v,len);
       siz_ = len;
@@ -99,12 +103,16 @@ namespace ISMRMRD
     void allocate(size_t len) {
       T* tmp_v = v_;
       if (len != len_) {
-	//Allocate new array
-	try {
-	  v_ = new T[len];
-	} catch (std::bad_alloc&) {
-	  std::cout << "Error allocating memory in IsmrmrdXmlString" << std::endl;
-	  throw;
+	if (len) {
+	  //Allocate new array
+	  try {
+	    v_ = new T[len];
+	  } catch (std::bad_alloc&) {
+	    std::cout << "Error allocating memory in ISMRMRD::Vector" << std::endl;
+	    throw;
+	  }
+	} else {
+	  v_ = 0;
 	}
 
 	//Copy old content if applicable
@@ -134,26 +142,26 @@ namespace ISMRMRD
    */
   class String : public Vector<char>
   {
-    typedef Vector<char> inherited;
 
   public:
     ///Default constructor
     String() 
+      : Vector()
     {
-      inherited();
     }
     
 
     ///Construct taking null terminated string
-    String(const char* s) 
+    String(const char* s)
+      : Vector(s,strlen(s)+1)
     {
-      inherited(s,strlen(s)+1);
+      std::cout << "Constructing string: " << s << std::endl;
     }
     
     ///Construct taking length of string as input
     String(const char* s, size_t length) 
+      : Vector(length+1)
     {
-      inherited(length+1);
       copy(s,length);
       v_[length-1] = '\0';
     }
@@ -183,7 +191,7 @@ namespace ISMRMRD
 
     ///Get the length of the string
     size_t size() {
-      return inherited::size()-1;
+      return siz_-1;
     }
   };
 
@@ -238,7 +246,7 @@ namespace ISMRMRD
     Optional<String> patientName;
     Optional<float> patientWeight_kg;
     Optional<String> patientID;
-    Optional<String> patientBirthDate;
+    Optional<String> patientBirthdate;
     Optional<String> patientGender;
   };
 
@@ -247,7 +255,7 @@ namespace ISMRMRD
     Optional<String> studyDate;
     Optional<String> studyTime;
     Optional<String> studyID;
-    Optional<long int> accessionNumber;
+    Optional<long> accessionNumber;
     Optional<String> referringPhysicianName;
     Optional<String> studyDescription;
   };
@@ -364,18 +372,12 @@ namespace ISMRMRD
     String value;
   };
 
-  struct UserParameterBase64
-  {
-    String name;
-    String value;
-  };
-
   struct UserParameters
   {
     Vector<UserParameterLong> userParameterLong;
     Vector<UserParameterDouble> userParameterDouble;
     Vector<UserParameterString> userParameterString;
-    Vector<UserParameterBase64> userParameterBase64;
+    Vector<UserParameterString> userParameterBase64;
   };
 
   struct TrajectoryDescription
