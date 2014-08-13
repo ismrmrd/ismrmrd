@@ -23,9 +23,9 @@ namespace ISMRMRD
     if (!fieldOfView_mm) {
       throw std::runtime_error("fieldOfView_mm not found in encodingSpace");
     } else {
-      e.fieldOfView_mm.x = std::atoi(fieldOfView_mm.child_value("x"));
-      e.fieldOfView_mm.y = std::atoi(fieldOfView_mm.child_value("y"));
-      e.fieldOfView_mm.z = std::atoi(fieldOfView_mm.child_value("z"));
+      e.fieldOfView_mm.x = std::atof(fieldOfView_mm.child_value("x"));
+      e.fieldOfView_mm.y = std::atof(fieldOfView_mm.child_value("y"));
+      e.fieldOfView_mm.z = std::atof(fieldOfView_mm.child_value("z"));
     }
 
     return e;
@@ -155,8 +155,7 @@ namespace ISMRMRD
 
       char buffer[10000];
       memcpy(buffer,name.child_value(),strlen(name.child_value())+1);
-      std::string tmp("BLAH");
-      v.name = "BLAKKK";//xtmp;//std::string("BLAH");//name.child_value());
+      v.name = name.child_value();
       v.value = std::atof(value.child_value());
 
       r.push_back(v);
@@ -321,9 +320,9 @@ namespace ISMRMRD
 	while (measurementDependency) {
 	  try {
 	    MeasurementDependency d;
-	    d.dependencyID = parse_string(measurementDependency,"dependencyID");
+	    d.measurementID = parse_string(measurementDependency,"measurementID");
 	    d.dependencyType = parse_string(measurementDependency,"dependencyType");
-	    info.measurementDepencency.push_back(d);
+	    info.measurementDependency.push_back(d);
 	  } catch (std::runtime_error& e) {
 	    std::cout << "Error parsing measurement dependency: " << e.what() << std::endl;
 	    throw;
@@ -374,7 +373,7 @@ namespace ISMRMRD
 	DicomParameters p;
 	p.studyInstanceUID = parse_string(dicomParameters,"studyInstanceUID");
 	p.seriesInstanceUIDRoot = parse_optional_string(dicomParameters,"seriesInstanceUIDRoot");
-	p.frameOfReference = parse_optional_string(dicomParameters,"frameOfReferenceUID");
+	p.frameOfReferenceUID = parse_optional_string(dicomParameters,"frameOfReferenceUID");
 
 	//This part of the schema is totally messed up and needs to be fixed, but for now we will just read it. 
 	pugi::xml_node ri = dicomParameters.child("referencedImageSequemce");
@@ -393,7 +392,7 @@ namespace ISMRMRD
 	  MRImageModule m;
 	  m.imageType = parse_optional_string(mrimageModule,"imageType");
 	  m.scanningSequence = parse_optional_string(mrimageModule, "scanningSequence");
-	  m.sequenceVartiant = parse_optional_string(mrimageModule, "sequenceVariant");
+	  m.sequenceVariant = parse_optional_string(mrimageModule, "sequenceVariant");
 	  m.scanOptions = parse_optional_string(mrimageModule, "scanOptions");
 	  m.mrAcquisitionType = parse_optional_string(mrimageModule, "mrAcquisitionType");
 	  m.echoTrainLength = parse_optional_long(mrimageModule, "echoTrainLength");
@@ -433,6 +432,13 @@ namespace ISMRMRD
     o = std::string(buffer);
   }
 
+  void to_string_val(const double& v, std::string& o)
+  {
+    char buffer[256];
+    sprintf(buffer,"%f",v);
+    o = std::string(buffer);
+  }
+
   void to_string_val(const unsigned short& v, std::string& o)
   {
     char buffer[256];
@@ -440,7 +446,15 @@ namespace ISMRMRD
     o = std::string(buffer);
   }
 
-  template <class T> void append_optional_node(pugi::xml_node& n, const char* child, const Optional<T>& v) {
+  void to_string_val(const long& v, std::string& o)
+  {
+    char buffer[256];
+    sprintf(buffer,"%ld",v);
+    o = std::string(buffer);
+  }
+
+  template <class T> void append_optional_node(pugi::xml_node& n, const char* child, const Optional<T>& v) 
+  {
     if (v) {
       pugi::xml_node n2 = n.append_child(child);
       std::string v_as_string;
@@ -449,12 +463,47 @@ namespace ISMRMRD
     }
   } 
   
-  template <class T> void append_node(pugi::xml_node& n, const char* child, const T& v) {
+  template <class T> void append_node(pugi::xml_node& n, const char* child, const T& v) 
+  {
     pugi::xml_node n2 = n.append_child(child);
     std::string v_as_string;
-    to_string_val(*v, v_as_string);
+    to_string_val(v, v_as_string);
     n2.append_child(pugi::node_pcdata).set_value(v_as_string.c_str());
   } 
+
+  void append_encoding_space(pugi::xml_node& n, const char* child, const EncodingSpace& s) 
+  {
+    pugi::xml_node n2 = n.append_child(child);
+    pugi::xml_node n3 = n2.append_child("matrixSize");
+    append_node(n3,"x",s.matrixSize.x);
+    append_node(n3,"y",s.matrixSize.y);
+    append_node(n3,"z",s.matrixSize.z);
+    n3 = n2.append_child("fieldOfView_mm");
+    append_node(n3,"x",s.fieldOfView_mm.x);
+    append_node(n3,"y",s.fieldOfView_mm.y);
+    append_node(n3,"z",s.fieldOfView_mm.z);
+  }
+  
+  void append_encoding_limit(pugi::xml_node& n, const char* child, const Optional<Limit>& l) 
+  {
+    if (l) {
+      pugi::xml_node n2 = n.append_child(child);
+      append_node(n2,"minimum",l->minimum);
+      append_node(n2,"maximum",l->maximum);
+      append_node(n2,"center",l->center);
+    }
+  }
+
+  template <class T> 
+  void append_user_parameter(pugi::xml_node& n, const char* child, 
+			     const std::vector<T>& v) 
+  {
+    for (size_t i = 0; i < v.size(); i++) {
+      pugi::xml_node n2 = n.append_child(child);
+      append_node(n2,"name",v[i].name);
+      append_node(n2,"value",v[i].value);
+    }
+  }
 
   //End utility functions for serialization
 
@@ -462,7 +511,7 @@ namespace ISMRMRD
   {
     pugi::xml_document doc;
     pugi::xml_node root = doc.append_child();
-    pugi::xml_node n1;
+    pugi::xml_node n1,n2;
     pugi::xml_attribute a;
 
     root.set_name("ismrmrdHeader");
@@ -489,6 +538,37 @@ namespace ISMRMRD
       append_optional_node(n1,"patientGender",h.subjectInformation->patientGender);
     }
 
+    if (h.studyInformation) {
+      n1 = root.append_child();
+      n1.set_name("studyInformation");
+      append_optional_node(n1,"studyDate",h.studyInformation->studyDate);
+      append_optional_node(n1,"studyTime",h.studyInformation->studyTime);
+      append_optional_node(n1,"studyID",h.studyInformation->studyID);
+      append_optional_node(n1,"accessionNumber",h.studyInformation->accessionNumber);
+      append_optional_node(n1,"referringPhysicianName",h.studyInformation->referringPhysicianName);
+      append_optional_node(n1,"studyDescription",h.studyInformation->studyDescription);
+    }
+
+    if (h.measurementInformation) {
+      n1 = root.append_child();
+      n1.set_name("measurementInformation");
+      append_optional_node(n1,"measurementID",h.measurementInformation->measurementID);
+      append_optional_node(n1,"seriesDate",h.measurementInformation->seriesDate);
+      append_optional_node(n1,"seriesTime",h.measurementInformation->seriesTime);
+      append_node(n1,"patientPosition",h.measurementInformation->patientPosition);
+      append_optional_node(n1,"initialSeriesNumber",h.measurementInformation->initialSeriesNumber);
+      append_optional_node(n1,"protocolName",h.measurementInformation->protocolName);
+      append_optional_node(n1,"seriesDescription",h.measurementInformation->seriesDescription);
+
+      for (size_t i = 0; i < h.measurementInformation->measurementDependency.size(); i++) {
+	n2 = n1.append_child();
+	n2.set_name("measurementDependency");
+	append_node(n2,"deoendencyType",h.measurementInformation->measurementDependency[i].dependencyType);
+	append_node(n2,"measurementID",h.measurementInformation->measurementDependency[i].measurementID);
+      }
+
+    }
+
     if (h.acquisitionSystemInformation) {
       n1 = root.append_child();
       n1.set_name("acquisitionSystemInformation");
@@ -499,6 +579,105 @@ namespace ISMRMRD
       append_optional_node(n1,"receiverChannels",h.acquisitionSystemInformation->receiverChannels);
       append_optional_node(n1,"institutionName",h.acquisitionSystemInformation->institutionName);
       append_optional_node(n1,"stationName",h.acquisitionSystemInformation->stationName);
+    }
+
+    n1 = root.append_child();
+    n1.set_name("experimentalConditions");
+    append_node(n1,"H1resonanceFrequency_Hz", h.experimentalConditions.H1resonanceFrequency_Hz);
+
+    if (!h.encoding.size()) {
+      throw std::runtime_error("Encoding array is empty. Invalid ISMRMRD header structure");
+    }
+
+    for (size_t i = 0; i < h.encoding.size(); i++) {
+      n1 = root.append_child("encoding");
+      append_encoding_space(n1,"encodedSpace",h.encoding[i].encodedSpace);
+      append_encoding_space(n1,"reconSpace",h.encoding[i].reconSpace);
+      n2 = n1.append_child("encodingLimits");
+      append_encoding_limit(n2,"kspace_encoding_step_0",h.encoding[i].encodingLimits.kspace_encoding_step_0);
+      append_encoding_limit(n2,"kspace_encoding_step_1",h.encoding[i].encodingLimits.kspace_encoding_step_1);
+      append_encoding_limit(n2,"kspace_encoding_step_2",h.encoding[i].encodingLimits.kspace_encoding_step_2);
+      append_encoding_limit(n2,"average",h.encoding[i].encodingLimits.average);
+      append_encoding_limit(n2,"slice",h.encoding[i].encodingLimits.slice);
+      append_encoding_limit(n2,"contrast",h.encoding[i].encodingLimits.contrast);
+      append_encoding_limit(n2,"phase",h.encoding[i].encodingLimits.phase);
+      append_encoding_limit(n2,"repetition",h.encoding[i].encodingLimits.repetition);
+      append_encoding_limit(n2,"set",h.encoding[i].encodingLimits.set);
+      append_encoding_limit(n2,"segment",h.encoding[i].encodingLimits.segment);
+      append_node(n1,"trajectory",h.encoding[i].trajectory);
+      
+      if (h.encoding[i].trajectoryDescription) {
+	n2 = n1.append_child("trajectoryDescription");
+	append_node(n2,"identifier",h.encoding[i].trajectoryDescription->identifier);
+	append_user_parameter(n2,"userParameterLong",h.encoding[i].trajectoryDescription->userParameterLong); 
+	append_user_parameter(n2,"userParameterDouble",h.encoding[i].trajectoryDescription->userParameterDouble); 
+	append_optional_node(n2,"comment",h.encoding[i].trajectoryDescription->comment);
+      }
+    }
+
+    if (h.parallelImaging) {
+      n1 = root.append_child("parallelImaging");
+      n2 = n1.append_child("accelerationFactor");
+      append_node(n2,"kspace_encoding_step_1",h.parallelImaging->accelerationFactor.kspace_encoding_step_1);
+      append_node(n2,"kspace_encoding_step_2",h.parallelImaging->accelerationFactor.kspace_encoding_step_2);
+      append_optional_node(n1, "calibrationMode", h.parallelImaging->calibrationMode);
+      append_optional_node(n1, "interleavingDimension", h.parallelImaging->interleavingDimension);
+    }
+
+    if (h.sequenceParameters) {
+      n1 = root.append_child("sequenceParameters");
+      if (!h.sequenceParameters->TR.size()) {
+	throw std::runtime_error("TR section of sequenceParameters does not contain any values");
+      }
+      if (!h.sequenceParameters->TE.size()) {
+	throw std::runtime_error("TE section of sequenceParameters does not contain any values");
+      }
+
+      for (size_t i = 0; i < h.sequenceParameters->TR.size(); i++) {
+	append_node(n1,"TR",h.sequenceParameters->TR[i]);
+      }
+      for (size_t i = 0; i < h.sequenceParameters->TE.size(); i++) {
+	append_node(n1,"TE",h.sequenceParameters->TE[i]);
+      }
+      for (size_t i = 0; i < h.sequenceParameters->TI.size(); i++) {
+	append_node(n1,"TI",h.sequenceParameters->TI[i]);
+      }
+    }
+
+    if (h.dicomParameters) {
+      n1 = root.append_child("dicomParameters");
+      append_node(n1, "studyInstanceUID", h.dicomParameters->studyInstanceUID);
+      append_optional_node(n1, "seriesInstanceUIDRoot",h.dicomParameters->seriesInstanceUIDRoot);
+      append_optional_node(n1, "frameOfReferenceUID", h.dicomParameters->frameOfReferenceUID);
+      
+      //TODO: Sort out stuff with this referenced image sequence. This is all messed up. 
+      if (h.dicomParameters->referencedImageSequence.size()) {
+	n2 = n1.append_child("referencedImageSequence");
+	for (size_t i = 0; i < h.dicomParameters->referencedImageSequence.size(); i++) {
+	  append_node(n2,"referencedSOPInstanceUID", h.dicomParameters->referencedImageSequence[i].referencedSOPInstanceUID);
+	}
+      }
+      
+      if (h.dicomParameters->mrImageModule) {
+	n2 = n1.append_child("MRImageModule");
+	append_optional_node(n2,"imageType",h.dicomParameters->mrImageModule->imageType);
+	append_optional_node(n2,"scanningSequence",h.dicomParameters->mrImageModule->scanningSequence);
+	append_optional_node(n2,"sequenceVariant",h.dicomParameters->mrImageModule->sequenceVariant);
+	append_optional_node(n2,"scanOptions",h.dicomParameters->mrImageModule->scanOptions);
+	append_optional_node(n2,"mrAcquisitionType",h.dicomParameters->mrImageModule->mrAcquisitionType);
+	append_optional_node(n2,"echoTrainLength",h.dicomParameters->mrImageModule->echoTrainLength);
+	append_optional_node(n2,"triggerTime",h.dicomParameters->mrImageModule->triggerTime);
+	append_optional_node(n2,"flipAngle_deg",h.dicomParameters->mrImageModule->flipAngle_deg);
+	append_optional_node(n2,"freqEncodingDirection",h.dicomParameters->mrImageModule->freqEncodingDirection);
+      }
+    }
+
+    if (h.userParameters) {
+      n1 = root.append_child("userParameters");
+      append_user_parameter(n1,"userParameterLong",h.userParameters->userParameterLong);
+      append_user_parameter(n1,"userParameterDouble",h.userParameters->userParameterDouble);
+      append_user_parameter(n1,"userParameterString",h.userParameters->userParameterString);
+      append_user_parameter(n1,"userParameterBase64",h.userParameters->userParameterBase64);
     }
 
     doc.save(o);

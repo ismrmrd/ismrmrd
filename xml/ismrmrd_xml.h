@@ -79,7 +79,7 @@ namespace ISMRMRD
 
   }; 
 
-  struct EXPORTISMRMRDXML SubjectInformation 
+  struct SubjectInformation 
   {
     Optional<std::string> patientName;
     Optional<float> patientWeight_kg;
@@ -101,7 +101,7 @@ namespace ISMRMRD
   struct MeasurementDependency
   {
     std::string dependencyType;
-    std::string dependencyID;
+    std::string measurementID;
   };
 
   struct MeasurementInformation
@@ -113,7 +113,7 @@ namespace ISMRMRD
     Optional<long int> initialSeriesNumber;
     Optional<std::string> protocolName;
     Optional<std::string> seriesDescription;
-    std::vector<MeasurementDependency> measurementDepencency;
+    std::vector<MeasurementDependency> measurementDependency;
   };
 
   
@@ -253,7 +253,7 @@ namespace ISMRMRD
   {
     Optional<std::string> imageType;
     Optional<std::string> scanningSequence;
-    Optional<std::string> sequenceVartiant;
+    Optional<std::string> sequenceVariant;
     Optional<std::string> scanOptions;
     Optional<std::string> mrAcquisitionType;
     Optional<long> echoTrainLength;
@@ -266,7 +266,7 @@ namespace ISMRMRD
   {
     std::string studyInstanceUID;
     Optional<std::string> seriesInstanceUIDRoot;
-    Optional<std::string> frameOfReference;
+    Optional<std::string> frameOfReferenceUID;
     std::vector<ReferencedImageSequence> referencedImageSequence;
     Optional<MRImageModule> mrImageModule;
   };
@@ -292,7 +292,7 @@ namespace ISMRMRD
     Optional<StudyInformation> studyInformation;
     Optional<MeasurementInformation> measurementInformation;
     Optional<AcquisitionSystemInformation> acquisitionSystemInformation;
-    Optional<ExperimentalConditions> experimentalConditions;
+    ExperimentalConditions experimentalConditions;
     std::vector<Encoding> encoding;
     Optional<ParallelImaging> parallelImaging;
     Optional<SequenceParameters> sequenceParameters;
@@ -302,8 +302,9 @@ namespace ISMRMRD
 
 
 
-  void deserialize(const char* xml, IsmrmrdHeader& h);
-  void serialize(const IsmrmrdHeader& h, std::ostream& o);
+  EXPORTISMRMRDXML void deserialize(const char* xml, IsmrmrdHeader& h);
+  EXPORTISMRMRDXML void serialize(const IsmrmrdHeader& h, std::ostream& o);
+
 
   /*
   class IsmrmrdHeaderProxy 
