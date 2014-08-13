@@ -39,6 +39,7 @@ namespace ISMRMRD
     const Optional& operator=(const T& v) {
       present_ = true;
       value_ = v;
+      return *this;
     }
 
     const T* operator->() const {
