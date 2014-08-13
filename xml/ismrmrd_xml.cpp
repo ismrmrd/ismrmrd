@@ -76,7 +76,7 @@ namespace ISMRMRD
     Optional<long> r;
     pugi::xml_node nc = n.child(child);
     if (nc) {
-      r = std::atoi(nc.child_value());
+      r = std::atol(nc.child_value());
     }
     return r;
   }
@@ -563,7 +563,7 @@ namespace ISMRMRD
       for (size_t i = 0; i < h.measurementInformation->measurementDependency.size(); i++) {
 	n2 = n1.append_child();
 	n2.set_name("measurementDependency");
-	append_node(n2,"deoendencyType",h.measurementInformation->measurementDependency[i].dependencyType);
+	append_node(n2,"dependencyType",h.measurementInformation->measurementDependency[i].dependencyType);
 	append_node(n2,"measurementID",h.measurementInformation->measurementDependency[i].measurementID);
       }
 
