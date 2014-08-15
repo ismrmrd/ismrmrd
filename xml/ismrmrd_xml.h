@@ -1,3 +1,6 @@
+#ifndef ISMRMRDXML_H
+#define ISMRMRDXML_H
+
 #include "ismrmrd_xml_export.h"
 
 
@@ -39,6 +42,7 @@ namespace ISMRMRD
     const Optional& operator=(const T& v) {
       present_ = true;
       value_ = v;
+      return *this;
     }
 
     const T* operator->() const {
@@ -304,37 +308,6 @@ namespace ISMRMRD
 
   EXPORTISMRMRDXML void deserialize(const char* xml, IsmrmrdHeader& h);
   EXPORTISMRMRDXML void serialize(const IsmrmrdHeader& h, std::ostream& o);
-
-
-  /*
-  class IsmrmrdHeaderProxy 
-  {
-
-  public:
-
-    //Constructors
-    IsmrmrdHeaderProxy(const char* xml);
-    IsmrmrdHeaderProxy(const std::string& xml);
-    IsmrmrdHeaderProxy(); //Minimal Header
-
-    //Copy constructor
-    IsmrmrdHeaderProxy(const IsmrmrdHeader& h);
-    
-    //Assignment operator
-    IsmrmrdHeaderProxy& operator=(const IsmrmrdHeader& h);
-
-    void deserialize(const char* xml);
-
-    void serialize(std::ostream& o);
-
-    IsmrmrdHeader& h() {
-      return h_;
-    }
-
-  protected:
-    IsmrmrdHeader h_;
-  };
-  */
-
-
 }
+
+#endif //ISMRMRDXML_H
