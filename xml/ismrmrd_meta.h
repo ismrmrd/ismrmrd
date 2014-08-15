@@ -8,6 +8,7 @@
 #include <vector>
 #include <map>
 #include <stdexcept>
+#include <stdio.h>
 
 namespace ISMRMRD
 {
