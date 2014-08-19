@@ -171,17 +171,18 @@ int main(int argc, char** argv)
 	el.repetition(ISMRMRD::limitType(0,repetitions*acc_factor,0));
 	ISMRMRD::encoding e(es,rs,el,ISMRMRD::trajectoryType::cartesian);
 
+	//e.g. parallel imaging
+	if (acc_factor > 1) {
+		ISMRMRD::parallelImagingType parallel(ISMRMRD::accelerationFactorType(acc_factor,1));
+		parallel.calibrationMode(ISMRMRD::calibrationModeType::interleaved);
+		e.parallelImaging(parallel);
+	}
+
 	//Add the encoding section to the header
 	h.encoding().push_back(e);
 
 	//Add any additional fields that you may want would go here....
 
-	//e.g. parallel imaging
-	if (acc_factor > 1) {
-		ISMRMRD::parallelImagingType parallel(ISMRMRD::accelerationFactorType(acc_factor,1));
-		parallel.calibrationMode(ISMRMRD::calibrationModeType::interleaved);
-		h.parallelImaging(parallel);
-	}
 
 	//Serialize the header
 	xml_schema::namespace_infomap map;

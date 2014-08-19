@@ -100,6 +100,7 @@ namespace ISMRMRD
     Optional<long> accessionNumber;
     Optional<std::string> referringPhysicianName;
     Optional<std::string> studyDescription;
+    Optional<std::string> studyInstanceUID;
   };
 
   struct MeasurementDependency
@@ -108,6 +109,11 @@ namespace ISMRMRD
     std::string measurementID;
   };
 
+  struct ReferencedImageSequence
+  {
+    std::string referencedSOPInstanceUID;
+  };
+  
   struct MeasurementInformation
   {
     Optional<std::string> measurementID;
@@ -118,6 +124,9 @@ namespace ISMRMRD
     Optional<std::string> protocolName;
     Optional<std::string> seriesDescription;
     std::vector<MeasurementDependency> measurementDependency;
+    Optional<std::string> seriesInstanceUIDRoot;
+    Optional<std::string> frameOfReferenceUID;
+    std::vector<ReferencedImageSequence> referencedImageSequence;
   };
 
   
@@ -231,51 +240,6 @@ namespace ISMRMRD
     Optional<std::string> comment; 
   };
 
-  struct Encoding
-  {
-    EncodingSpace encodedSpace;
-    EncodingSpace reconSpace;
-    EncodingLimits encodingLimits;
-    std::string trajectory;
-    Optional<TrajectoryDescription> trajectoryDescription;
-  };
-
-  struct SequenceParameters
-  {
-    std::vector<float> TR;
-    std::vector<float> TE;
-    std::vector<float> TI;
-  };
-
-  struct ReferencedImageSequence
-  {
-    std::string referencedSOPInstanceUID;
-  };
-  
-
-  struct MRImageModule
-  {
-    Optional<std::string> imageType;
-    Optional<std::string> scanningSequence;
-    Optional<std::string> sequenceVariant;
-    Optional<std::string> scanOptions;
-    Optional<std::string> mrAcquisitionType;
-    Optional<long> echoTrainLength;
-    Optional<float> triggerTime;
-    Optional<float> flipAngle_deg;
-    Optional<std::string> freqEncodingDirection;
-  };
-
-  struct DicomParameters
-  {
-    std::string studyInstanceUID;
-    Optional<std::string> seriesInstanceUIDRoot;
-    Optional<std::string> frameOfReferenceUID;
-    std::vector<ReferencedImageSequence> referencedImageSequence;
-    Optional<MRImageModule> mrImageModule;
-  };
-
-
   struct AccelerationFactor
   {
     unsigned short kspace_encoding_step_1;
@@ -289,6 +253,24 @@ namespace ISMRMRD
     Optional<std::string> interleavingDimension;
   };
 
+  struct Encoding
+  {
+    EncodingSpace encodedSpace;
+    EncodingSpace reconSpace;
+    EncodingLimits encodingLimits;
+    std::string trajectory;
+    Optional<TrajectoryDescription> trajectoryDescription;
+    Optional<ParallelImaging> parallelImaging;
+    Optional<long> echoTrainLength;
+  };
+
+  struct SequenceParameters
+  {
+    std::vector<float> TR;
+    std::vector<float> TE;
+    std::vector<float> TI;
+    std::vector<float> flipAngle_deg;
+  };
 
   struct IsmrmrdHeader
   {
@@ -298,9 +280,7 @@ namespace ISMRMRD
     Optional<AcquisitionSystemInformation> acquisitionSystemInformation;
     ExperimentalConditions experimentalConditions;
     std::vector<Encoding> encoding;
-    Optional<ParallelImaging> parallelImaging;
     Optional<SequenceParameters> sequenceParameters;
-    Optional<DicomParameters> dicomParameters;
     Optional<UserParameters> userParameters;    
   };
 
