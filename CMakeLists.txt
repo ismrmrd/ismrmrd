@@ -61,12 +61,36 @@ WRAP_XSD(XSDS_SOURCES XSD_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/schema ${XSDS} OP
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/src/xsd ${XSD_INCLUDE_DIR} ${XERCESC_INCLUDE_DIR} ${Boost_INCLUDE_DIR} ${HDF5_CXX_INCLUDE_DIR} ${HDF5_C_INCLUDE_DIR})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
+<<<<<<< HEAD
 # This dummy is required to trigger autogeneration of ${XSDS_SOURCES}
 add_library(dummy SHARED ${XSDS_SOURCES})
 target_link_libraries(dummy ${XERCESC_LIBRARIES})
 
 # Add library ismrmrd
 add_library(ismrmrd SHARED ismrmrd_hdf5.cpp schema/ismrmrd.xsd)
+=======
+# process the XSD files
+set(XSDS ${ISMRMRD_SCHEMA_DIR}/ismrmrd.xsd)
+set(XSD_ARGS cxx-tree --generate-serialization)
+if ( WIN32 )
+
+    set(XSD_ARGS cxx-tree --generate-serialization --export-symbol EXPORTISMRMRDXSD --hxx-prologue-file ${CMAKE_SOURCE_DIR}/ismrmrd_xsd_export.h)
+        set(XSDS schema/ismrmrd.xsd)
+    set(XSD_ARGS cxx-tree --generate-serialization)
+    WRAP_XSD(XSDS_SOURCES XSD_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/schema ${XSDS} OPTIONS ${XSD_ARGS})
+    include_directories(${ISMRMRD_SCHEMA_SOURCE_DIR} ${XSD_INCLUDE_DIR}
+        ${XERCESC_INCLUDE_DIR} ${Boost_INCLUDE_DIR} ${HDF5_CXX_INCLUDE_DIR}
+        ${HDF5_C_INCLUDE_DIR})
+    link_directories(${Boost_LIBRARY_DIRS})
+    
+    # This dummy is required to trigger autogeneration of ${XSDS_SOURCES}
+    add_library(dummy SHARED ${XSDS_SOURCES})
+    target_link_libraries(dummy ${XERCESC_LIBRARIES})
+
+elseif (WIN32)
+    wrap_xsd(XSDS_SOURCES XSD_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/schema ${XSDS} OPTIONS ${XSD_ARGS})
+endif (WIN32)
+>>>>>>> dev_xml_reorg
 
 #The findHDF5.cmake does not work very well on Windows, let's help it out
 IF(WIN32)

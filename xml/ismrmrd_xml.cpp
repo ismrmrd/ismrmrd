@@ -206,9 +206,7 @@ namespace ISMRMRD
       pugi::xml_node acquisitionSystemInformation = root.child("acquisitionSystemInformation");
       pugi::xml_node experimentalConditions = root.child("experimentalConditions");
       pugi::xml_node encoding = root.child("encoding");
-      pugi::xml_node parallelImaging = root.child("parallelImaging");
       pugi::xml_node sequenceParameters = root.child("sequenceParameters");
-      pugi::xml_node dicomParameters = root.child("dicomParameters");
       pugi::xml_node userParameters = root.child("userParameters");
       
       //Parsing experimentalConditions
@@ -279,6 +277,25 @@ namespace ISMRMRD
 	    
 	  }
 
+	  pugi::xml_node parallelImaging = encoding.child("parallelImaging");
+	  if (parallelImaging) {
+	    ParallelImaging info;
+	    
+	    pugi::xml_node accelerationFactor = parallelImaging.child("accelerationFactor");
+	    if (!accelerationFactor) {
+	      throw std::runtime_error("Unable to accelerationFactor section in parallelImaging");
+	    } else {
+	      info.accelerationFactor.kspace_encoding_step_1 = static_cast<unsigned short>(std::atoi(accelerationFactor.child_value("kspace_encoding_step_1")));
+	      info.accelerationFactor.kspace_encoding_step_2 = static_cast<unsigned short>(std::atoi(accelerationFactor.child_value("kspace_encoding_step_2")));
+	    }
+	    
+	    info.calibrationMode = parse_optional_string(parallelImaging,"calibrationMode");
+	    info.interleavingDimension = parse_optional_string(parallelImaging,"interleavingDimension");
+	    e.parallelImaging = info;
+	  }
+
+	  e.echoTrainLength = parse_optional_long(encoding, "echoTrainLength");
+
 	  h.encoding.push_back(e);
 	  encoding = encoding.next_sibling("encoding");
 	}
@@ -303,6 +320,7 @@ namespace ISMRMRD
 	info.accessionNumber = parse_optional_long(studyInformation,"accessionNumber");
 	info.referringPhysicianName = parse_optional_string(studyInformation,"referringPhysicianName");
 	info.studyDescription = parse_optional_string(studyInformation,"studyDescription");
+	info.studyInstanceUID = parse_optional_string(studyInformation,"studyInstanceUID");
 	h.studyInformation = info;
       }
 
@@ -329,6 +347,22 @@ namespace ISMRMRD
 	  } 
 	  measurementDependency = measurementDependency.next_sibling("measurementDependency");
 	}
+
+	info.seriesInstanceUIDRoot = parse_optional_string(measurementInformation,"seriesInstanceUIDRoot");
+	info.frameOfReferenceUID = parse_optional_string(measurementInformation,"frameOfReferenceUID");
+
+	//This part of the schema is totally messed up and needs to be fixed, but for now we will just read it. 
+	pugi::xml_node ri = measurementInformation.child("referencedImageSequemce");
+	if (ri) {
+	  pugi::xml_node ric = ri.child("referencedSOPInstanceUID");
+	  while (ric) {
+	    ReferencedImageSequence r;
+	    r.referencedSOPInstanceUID = ric.child_value();
+	    info.referencedImageSequence.push_back(r);
+	    ric = ric.next_sibling("referenceSOPInstanceIUID");
+	  }
+	}
+
 	h.measurementInformation = info;
       }
 
@@ -345,63 +379,14 @@ namespace ISMRMRD
 	h.acquisitionSystemInformation = info;
       }
 
-      if (parallelImaging) {
-	ParallelImaging info;
-	
-	pugi::xml_node accelerationFactor = parallelImaging.child("accelerationFactor");
-	if (!accelerationFactor) {
-	  throw std::runtime_error("Unable to accelerationFactor section in parallelImaging");
-	} else {
-	  info.accelerationFactor.kspace_encoding_step_1 = static_cast<unsigned short>(std::atoi(accelerationFactor.child_value("kspace_encoding_step_1")));
-	  info.accelerationFactor.kspace_encoding_step_2 = static_cast<unsigned short>(std::atoi(accelerationFactor.child_value("kspace_encoding_step_2")));
-	}
-
-	info.calibrationMode = parse_optional_string(parallelImaging,"calibrationMode");
-	info.interleavingDimension = parse_optional_string(parallelImaging,"interleavingDimension");
-	h.parallelImaging = info;
-      }
-
       if (sequenceParameters) {
 	SequenceParameters p;
 	p.TR = parse_vector_float(sequenceParameters,"TR");
 	p.TE = parse_vector_float(sequenceParameters,"TE");
 	p.TI = parse_vector_float(sequenceParameters,"TI");
+	p.flipAngle_deg = parse_vector_float(sequenceParameters, "flipAngle_deg");
+
 	h.sequenceParameters = p;
-      }
-
-      if (dicomParameters) { 
-	DicomParameters p;
-	p.studyInstanceUID = parse_string(dicomParameters,"studyInstanceUID");
-	p.seriesInstanceUIDRoot = parse_optional_string(dicomParameters,"seriesInstanceUIDRoot");
-	p.frameOfReferenceUID = parse_optional_string(dicomParameters,"frameOfReferenceUID");
-
-	//This part of the schema is totally messed up and needs to be fixed, but for now we will just read it. 
-	pugi::xml_node ri = dicomParameters.child("referencedImageSequemce");
-	if (ri) {
-	  pugi::xml_node ric = ri.child("referencedSOPInstanceUID");
-	  while (ric) {
-	    ReferencedImageSequence r;
-	    r.referencedSOPInstanceUID = ric.child_value();
-	    p.referencedImageSequence.push_back(r);
-	    ric = ric.next_sibling("referenceSOPInstanceIUID");
-	  }
-	}
-	
-	pugi::xml_node mrimageModule = dicomParameters.child("MRImageModule");
-	if (mrimageModule) {
-	  MRImageModule m;
-	  m.imageType = parse_optional_string(mrimageModule,"imageType");
-	  m.scanningSequence = parse_optional_string(mrimageModule, "scanningSequence");
-	  m.sequenceVariant = parse_optional_string(mrimageModule, "sequenceVariant");
-	  m.scanOptions = parse_optional_string(mrimageModule, "scanOptions");
-	  m.mrAcquisitionType = parse_optional_string(mrimageModule, "mrAcquisitionType");
-	  m.echoTrainLength = parse_optional_long(mrimageModule, "echoTrainLength");
-	  m.triggerTime = parse_optional_float(mrimageModule, "triggerTime");
-	  m.flipAngle_deg = parse_optional_float(mrimageModule, "flipAngle_deg");
-	  m.freqEncodingDirection = parse_optional_string(mrimageModule, "freqEncodingDirection");
-	  p.mrImageModule = m;
-	}
-	h.dicomParameters = p;
       }
 
       if (userParameters) {
@@ -511,7 +496,7 @@ namespace ISMRMRD
   {
     pugi::xml_document doc;
     pugi::xml_node root = doc.append_child();
-    pugi::xml_node n1,n2;
+    pugi::xml_node n1,n2,n3;
     pugi::xml_attribute a;
 
     root.set_name("ismrmrdHeader");
@@ -547,6 +532,7 @@ namespace ISMRMRD
       append_optional_node(n1,"accessionNumber",h.studyInformation->accessionNumber);
       append_optional_node(n1,"referringPhysicianName",h.studyInformation->referringPhysicianName);
       append_optional_node(n1,"studyDescription",h.studyInformation->studyDescription);
+      append_optional_node(n1,"studyInstanceUID",h.studyInformation->studyInstanceUID);
     }
 
     if (h.measurementInformation) {
@@ -566,6 +552,18 @@ namespace ISMRMRD
 	append_node(n2,"dependencyType",h.measurementInformation->measurementDependency[i].dependencyType);
 	append_node(n2,"measurementID",h.measurementInformation->measurementDependency[i].measurementID);
       }
+      
+      append_optional_node(n1,"seriesInstanceUIDRoot",h.measurementInformation->seriesInstanceUIDRoot);
+      append_optional_node(n1,"frameOfReferenceUID",h.measurementInformation->frameOfReferenceUID);
+      
+      //TODO: Sort out stuff with this referenced image sequence. This is all messed up. 
+      if (h.measurementInformation->referencedImageSequence.size()) {
+	n2 = n1.append_child("referencedImageSequence");
+	for (size_t i = 0; i < h.measurementInformation->referencedImageSequence.size(); i++) {
+	  append_node(n2,"referencedSOPInstanceUID", h.measurementInformation->referencedImageSequence[i].referencedSOPInstanceUID);
+	}
+      }
+      
 
     }
 
@@ -613,15 +611,18 @@ namespace ISMRMRD
 	append_user_parameter(n2,"userParameterDouble",h.encoding[i].trajectoryDescription->userParameterDouble); 
 	append_optional_node(n2,"comment",h.encoding[i].trajectoryDescription->comment);
       }
-    }
 
-    if (h.parallelImaging) {
-      n1 = root.append_child("parallelImaging");
-      n2 = n1.append_child("accelerationFactor");
-      append_node(n2,"kspace_encoding_step_1",h.parallelImaging->accelerationFactor.kspace_encoding_step_1);
-      append_node(n2,"kspace_encoding_step_2",h.parallelImaging->accelerationFactor.kspace_encoding_step_2);
-      append_optional_node(n1, "calibrationMode", h.parallelImaging->calibrationMode);
-      append_optional_node(n1, "interleavingDimension", h.parallelImaging->interleavingDimension);
+      if (h.encoding[i].parallelImaging) {
+	n2 = n1.append_child("parallelImaging");
+	n3 = n2.append_child("accelerationFactor");
+	append_node(n3,"kspace_encoding_step_1",h.encoding[i].parallelImaging->accelerationFactor.kspace_encoding_step_1);
+	append_node(n3,"kspace_encoding_step_2",h.encoding[i].parallelImaging->accelerationFactor.kspace_encoding_step_2);
+	append_optional_node(n2, "calibrationMode", h.encoding[i].parallelImaging->calibrationMode);
+	append_optional_node(n2, "interleavingDimension", h.encoding[i].parallelImaging->interleavingDimension);
+      }
+
+      append_optional_node(n1, "echoTrainLength", h.encoding[i].echoTrainLength);
+
     }
 
     if (h.sequenceParameters) {
@@ -642,33 +643,8 @@ namespace ISMRMRD
       for (size_t i = 0; i < h.sequenceParameters->TI.size(); i++) {
 	append_node(n1,"TI",h.sequenceParameters->TI[i]);
       }
-    }
-
-    if (h.dicomParameters) {
-      n1 = root.append_child("dicomParameters");
-      append_node(n1, "studyInstanceUID", h.dicomParameters->studyInstanceUID);
-      append_optional_node(n1, "seriesInstanceUIDRoot",h.dicomParameters->seriesInstanceUIDRoot);
-      append_optional_node(n1, "frameOfReferenceUID", h.dicomParameters->frameOfReferenceUID);
-      
-      //TODO: Sort out stuff with this referenced image sequence. This is all messed up. 
-      if (h.dicomParameters->referencedImageSequence.size()) {
-	n2 = n1.append_child("referencedImageSequence");
-	for (size_t i = 0; i < h.dicomParameters->referencedImageSequence.size(); i++) {
-	  append_node(n2,"referencedSOPInstanceUID", h.dicomParameters->referencedImageSequence[i].referencedSOPInstanceUID);
-	}
-      }
-      
-      if (h.dicomParameters->mrImageModule) {
-	n2 = n1.append_child("MRImageModule");
-	append_optional_node(n2,"imageType",h.dicomParameters->mrImageModule->imageType);
-	append_optional_node(n2,"scanningSequence",h.dicomParameters->mrImageModule->scanningSequence);
-	append_optional_node(n2,"sequenceVariant",h.dicomParameters->mrImageModule->sequenceVariant);
-	append_optional_node(n2,"scanOptions",h.dicomParameters->mrImageModule->scanOptions);
-	append_optional_node(n2,"mrAcquisitionType",h.dicomParameters->mrImageModule->mrAcquisitionType);
-	append_optional_node(n2,"echoTrainLength",h.dicomParameters->mrImageModule->echoTrainLength);
-	append_optional_node(n2,"triggerTime",h.dicomParameters->mrImageModule->triggerTime);
-	append_optional_node(n2,"flipAngle_deg",h.dicomParameters->mrImageModule->flipAngle_deg);
-	append_optional_node(n2,"freqEncodingDirection",h.dicomParameters->mrImageModule->freqEncodingDirection);
+      for (size_t i = 0; i < h.sequenceParameters->flipAngle_deg.size(); i++) {
+	append_node(n1,"flipAngle_deg",h.sequenceParameters->flipAngle_deg[i]);
       }
     }
 
