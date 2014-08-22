@@ -73,12 +73,12 @@ char * ismrmrd_read_header(const ISMRMRD_Dataset *dset);
  *
  *  Please consult @See ISMRMRD_Acquisition struct for details.
  */
-int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquisition *a);
+int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquisition *acq);
 
 /**
  *  Reads the acquisition with the specified index from the dataset.
  */
-int ismrmrd_read_acquisition(const ISMRMRD_Dataset *dset, unsigned long index, ISMRMRD_Acquisition *a);
+int ismrmrd_read_acquisition(const ISMRMRD_Dataset *dset, unsigned long index, ISMRMRD_Acquisition *acq);
 
 /**
  *  Return the number of acquisitions in the dataset.

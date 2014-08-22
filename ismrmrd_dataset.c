@@ -79,6 +79,150 @@ static int delete_var(const ISMRMRD_Dataset *dset, const char *var) {
     return ISMRMRD_NOERROR;
 }
 
+/*********************************************/
+/* Private (Static) Functions for HDF5 Types */
+/*********************************************/
+typedef struct HDF5_Acquisition
+{
+    ISMRMRD_AcquisitionHeader head;
+    hvl_t traj;
+    hvl_t data;
+} HDF5_Acquisition;
+    
+static hid_t get_hdf5type_xmlheader(void) {
+    hid_t datatype = H5Tcopy(H5T_C_S1);
+    herr_t status = H5Tset_size(datatype, H5T_VARIABLE);
+    return datatype;
+}
+
+static hid_t get_hdf5type_float(void) {
+    hid_t datatype = H5Tcopy(H5T_NATIVE_FLOAT);
+    return datatype;
+}
+
+static hid_t get_hdf5type_double(void) {
+    hid_t datatype = H5Tcopy(H5T_NATIVE_DOUBLE);
+    return datatype;
+}
+
+static hid_t get_hdf5type_complexfloat(void) {
+    hid_t datatype;
+    herr_t status;
+    datatype = H5Tcreate(H5T_COMPOUND, sizeof(complex_float_t));
+    status = H5Tinsert(datatype, "real", 0, H5T_NATIVE_FLOAT);
+    status = H5Tinsert(datatype, "imag", sizeof(float), H5T_NATIVE_FLOAT);
+    return datatype;
+}
+    
+static hid_t get_hdf5type_complexdouble(void) {
+    hid_t datatype;
+    herr_t status;
+    datatype = H5Tcreate(H5T_COMPOUND, sizeof(complex_double_t));
+    status = H5Tinsert(datatype, "real", 0, H5T_NATIVE_DOUBLE);
+    status = H5Tinsert(datatype, "imag", sizeof(double), H5T_NATIVE_DOUBLE);
+    return datatype;
+}
+
+static hid_t get_hdf5type_encoding(void) {
+    hid_t datatype;
+    herr_t status;
+    datatype = H5Tcreate(H5T_COMPOUND, sizeof(ISMRMRD_EncodingCounters));
+    status = H5Tinsert(datatype, "kspace_encode_step_1", HOFFSET(ISMRMRD_EncodingCounters, kspace_encode_step_1),  H5T_NATIVE_UINT16);
+    status = H5Tinsert(datatype, "kspace_encode_step_2", HOFFSET(ISMRMRD_EncodingCounters, kspace_encode_step_2), H5T_NATIVE_UINT16);
+    status = H5Tinsert(datatype, "average", HOFFSET(ISMRMRD_EncodingCounters, average), H5T_NATIVE_UINT16);
+    status = H5Tinsert(datatype, "slice", HOFFSET(ISMRMRD_EncodingCounters, slice), H5T_NATIVE_UINT16);
+    status = H5Tinsert(datatype, "contrast", HOFFSET(ISMRMRD_EncodingCounters, contrast), H5T_NATIVE_UINT16);
+    status = H5Tinsert(datatype, "phase", HOFFSET(ISMRMRD_EncodingCounters, phase), H5T_NATIVE_UINT16);
+    status = H5Tinsert(datatype, "repetition", HOFFSET(ISMRMRD_EncodingCounters, repetition), H5T_NATIVE_UINT16);
+    status = H5Tinsert(datatype, "set", HOFFSET(ISMRMRD_EncodingCounters, set), H5T_NATIVE_UINT16);
+    status = H5Tinsert(datatype, "segment", HOFFSET(ISMRMRD_EncodingCounters, segment), H5T_NATIVE_UINT16);
+    hsize_t arraydims[] = {ISMRMRD_USER_INTS};
+    hid_t arraytype = H5Tarray_create(H5T_NATIVE_UINT16, 1, arraydims);
+    status = H5Tinsert(datatype, "user", HOFFSET(ISMRMRD_EncodingCounters, user), arraytype);
+    H5Tclose(arraytype);
+    return datatype;
+}
+
+static hid_t get_hdf5type_acquisitionheader(void) {
+    hid_t datatype;
+    herr_t status;
+    hsize_t arraydims[1];
+    hid_t vartype;
+    
+    datatype = H5Tcreate(H5T_COMPOUND, sizeof(ISMRMRD_AcquisitionHeader));
+    status = H5Tinsert(datatype, "version", HOFFSET(ISMRMRD_AcquisitionHeader, version), H5T_NATIVE_UINT16);
+    status = H5Tinsert(datatype, "flags", HOFFSET(ISMRMRD_AcquisitionHeader, flags), H5T_NATIVE_UINT64);
+    status = H5Tinsert(datatype, " measurement_uid", HOFFSET(ISMRMRD_AcquisitionHeader,  measurement_uid), H5T_NATIVE_UINT32);
+    status = H5Tinsert(datatype, "scan_counter", HOFFSET(ISMRMRD_AcquisitionHeader, scan_counter), H5T_NATIVE_UINT32);
+    status = H5Tinsert(datatype, "acquisition_time_stamp", HOFFSET(ISMRMRD_AcquisitionHeader, acquisition_time_stamp), H5T_NATIVE_UINT32);
+    status = H5Tinsert(datatype, "acquisition_time_stamp", HOFFSET(ISMRMRD_AcquisitionHeader, acquisition_time_stamp), H5T_NATIVE_UINT32);
+
+    arraydims[0] = ISMRMRD_PHYS_STAMPS;
+    vartype = H5Tarray_create(H5T_NATIVE_UINT32, 1, arraydims);
+    status = H5Tinsert(datatype, "physiology_time_stamp", HOFFSET(ISMRMRD_AcquisitionHeader, physiology_time_stamp), vartype);
+    
+    status = H5Tinsert(datatype, "number_of_samples", HOFFSET(ISMRMRD_AcquisitionHeader, number_of_samples), H5T_NATIVE_UINT16);
+    status = H5Tinsert(datatype, "available_channels", HOFFSET(ISMRMRD_AcquisitionHeader, available_channels), H5T_NATIVE_UINT16);
+    status = H5Tinsert(datatype, "active_channels", HOFFSET(ISMRMRD_AcquisitionHeader, active_channels), H5T_NATIVE_UINT16);
+
+    arraydims[0] = ISMRMRD_CHANNEL_MASKS;
+    vartype = H5Tarray_create(H5T_NATIVE_UINT64, 1, arraydims);
+    status = H5Tinsert(datatype, "channel_mask", HOFFSET(ISMRMRD_AcquisitionHeader, channel_mask), vartype);
+    
+    status = H5Tinsert(datatype, "discard_pre", HOFFSET(ISMRMRD_AcquisitionHeader, discard_pre), H5T_NATIVE_UINT16);
+    status = H5Tinsert(datatype, "discard_post", HOFFSET(ISMRMRD_AcquisitionHeader, discard_post), H5T_NATIVE_UINT16);
+    status = H5Tinsert(datatype, "center_sample", HOFFSET(ISMRMRD_AcquisitionHeader, center_sample), H5T_NATIVE_UINT16);
+    status = H5Tinsert(datatype, "encoding_space_ref", HOFFSET(ISMRMRD_AcquisitionHeader, encoding_space_ref), H5T_NATIVE_UINT16);
+    status = H5Tinsert(datatype, "trajectory_dimensions", HOFFSET(ISMRMRD_AcquisitionHeader, trajectory_dimensions), H5T_NATIVE_UINT16);
+    status = H5Tinsert(datatype, "sample_time_us", HOFFSET(ISMRMRD_AcquisitionHeader, sample_time_us), H5T_NATIVE_FLOAT);
+
+    arraydims[0] = 3;
+    vartype = H5Tarray_create(H5T_NATIVE_FLOAT, 1, arraydims);
+    status = H5Tinsert(datatype, "position", HOFFSET(ISMRMRD_AcquisitionHeader, position), vartype);
+    status = H5Tinsert(datatype, "read_dir", HOFFSET(ISMRMRD_AcquisitionHeader, read_dir), vartype);
+    status = H5Tinsert(datatype, "phase_dir", HOFFSET(ISMRMRD_AcquisitionHeader, phase_dir), vartype);
+    status = H5Tinsert(datatype, "slice_dir", HOFFSET(ISMRMRD_AcquisitionHeader, slice_dir), vartype);
+    status = H5Tinsert(datatype, "patient_table_position", HOFFSET(ISMRMRD_AcquisitionHeader, patient_table_position), vartype);
+
+    vartype = get_hdf5type_encoding();
+    status = H5Tinsert(datatype, "idx", HOFFSET(ISMRMRD_AcquisitionHeader, idx), vartype);
+    
+    arraydims[0] = ISMRMRD_USER_INTS;
+    vartype = H5Tarray_create(H5T_NATIVE_INT32, 1, arraydims);
+    status = H5Tinsert(datatype, "user_int", HOFFSET(ISMRMRD_AcquisitionHeader, user_int), vartype);
+    
+    arraydims[0] = ISMRMRD_USER_FLOATS;
+    vartype = H5Tarray_create(H5T_NATIVE_FLOAT, 1, arraydims);
+    status = H5Tinsert(datatype, "user_float", HOFFSET(ISMRMRD_AcquisitionHeader, user_float), vartype);
+
+    /* Clean up */
+    H5Tclose(vartype);
+    
+    return datatype;   
+}
+
+static hid_t get_hdf5type_acquisition(void) {
+    hid_t datatype, vartype, vlvartype;
+    herr_t status;
+
+    datatype = H5Tcreate(H5T_COMPOUND, sizeof(HDF5_Acquisition));
+    vartype = get_hdf5type_acquisitionheader();
+    status = H5Tinsert(datatype, "head", HOFFSET(HDF5_Acquisition, head), vartype);
+
+    vartype =  get_hdf5type_float();
+    vlvartype = H5Tvlen_create(vartype);
+    status = H5Tinsert(datatype, "traj", HOFFSET(HDF5_Acquisition, traj), vlvartype);
+    
+    vartype = get_hdf5type_complexfloat();
+    vlvartype = H5Tvlen_create(vartype);
+    status = H5Tinsert(datatype, "data", HOFFSET(HDF5_Acquisition, data), vlvartype);
+    
+    H5Tclose(vartype);
+    H5Tclose(vlvartype);
+    
+    return datatype;
+}
+
 /********************/
 /* Public functions */
 /********************/
@@ -191,8 +335,7 @@ int ismrmrd_write_header(const ISMRMRD_Dataset *dset, const char *xmlstring) {
     /* Create a new dataset for the xmlstring */
     /* i.e. create the memory type, data space, and data set */
     dataspace = H5Screate_simple(1, dims, NULL);
-    datatype = H5Tcopy(H5T_C_S1);
-    status = H5Tset_size(datatype, H5T_VARIABLE);
+    datatype = get_hdf5type_xmlheader();
     props = H5Pcreate (H5P_DATASET_CREATE);
     dataset = H5Dcreate(dset->fileid, path, datatype, dataspace, H5P_DEFAULT, props,  H5P_DEFAULT);
 
@@ -223,8 +366,7 @@ char * ismrmrd_read_header(const ISMRMRD_Dataset *dset) {
 
     if (link_exists(dset, path)) {
         dataset = H5Dopen(dset->fileid, path, H5P_DEFAULT);
-        /* Get the datatype */
-        datatype = H5Dget_type(dataset);
+        datatype = get_hdf5type_xmlheader();
         /* Read it into a 1D buffer*/
         void *buff[1];
         status = H5Dread(dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, buff);
@@ -235,13 +377,13 @@ char * ismrmrd_read_header(const ISMRMRD_Dataset *dset) {
             ISMRMRD_THROW(ISMRMRD_MEMORYERROR, "Failed to malloc xmlstring");
         } else {
             memcpy(xmlstring, buff[0], strlen(buff[0])+1);
-            
-            /* Clean up */
-            status = H5Pclose(props);
-            status = H5Tclose(datatype);
-            status = H5Sclose(dataspace);
-            status = H5Dclose(dataset);
         }
+        
+        /* Clean up */
+        status = H5Pclose(props);
+        status = H5Tclose(datatype);
+        status = H5Sclose(dataspace);
+        status = H5Dclose(dataset);
         free(path);
         
         return xmlstring;
@@ -258,7 +400,7 @@ char * ismrmrd_read_header(const ISMRMRD_Dataset *dset) {
 unsigned long ismrmrd_get_number_of_acquisitions(const ISMRMRD_Dataset *dset) {
 
     hid_t dataset, dataspace;
-    hsize_t dims[2], maxdims[2];
+    hsize_t dims[1], maxdims[1];
     herr_t h5status;
     unsigned long numacq;
     
@@ -284,23 +426,70 @@ unsigned long ismrmrd_get_number_of_acquisitions(const ISMRMRD_Dataset *dset) {
 };
 
 
-int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquisition *a) {
+int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquisition *acq) {
 
-    hid_t dataset, dataspace, datatype, props;
-    hsize_t dims[2];
+    hid_t dataset, dataspace, datatype, props, filespace, memspace;
+    hsize_t dims[1] = {1};
+    hsize_t maxdims[1] = {H5S_UNLIMITED};
+    hsize_t chunk_dims[] = {1};
+    hsize_t ext_dims[] = {1};
+    hsize_t offset[1] = {0};
     herr_t h5status;
     int status;
     
     /* The path to the acqusition data */    
     char *path = make_path(dset, "data");
 
-    /* Check the path, open or create if needed */
+    /* The acquisition datatype */
+    datatype = get_hdf5type_acquisition();
+    
+    /* Check the path, extend or create if needed */
     if (link_exists(dset, path)) {
         /* open */
+        dataset = H5Dopen(dset->fileid, path, H5P_DEFAULT);
+        /* TODO check that the dataset's datatype is correct */
+        dataspace = H5Dget_space(dataset);
+        h5status = H5Sget_simple_extent_dims(dataspace, dims, maxdims);
+        /* extend it by one */
+        dims[0] += 1;
+        status = H5Dset_extent(dataset, dims);
     }
     else {
+        /* create a new dataset for the data */
+        dims[0] = 1;
+        maxdims[0] = H5S_UNLIMITED;
+        dataspace = H5Screate_simple(1, dims, maxdims);
+        props = H5Pcreate(H5P_DATASET_CREATE);
+        /* enable chunking so that the dataset is extensible */
+        status = H5Pset_chunk (props, 1, chunk_dims);
         /* create */
+        dataset = H5Dcreate(dset->fileid, path, datatype, dataspace, H5P_DEFAULT, props,  H5P_DEFAULT);
+        h5status = H5Pclose(props);
     }
+
+    /* Select the last block */
+    offset[0] = dims[0]-1;
+    filespace = H5Dget_space(dataset);
+    h5status  = H5Sselect_hyperslab (filespace, H5S_SELECT_SET, offset, NULL, ext_dims, NULL);
+    memspace = H5Screate_simple(1, ext_dims, NULL);
+    
+    /* Create the HDF5 version of the acquisition */
+    HDF5_Acquisition hdf5acq[1];
+    hdf5acq[0].head = acq->head;
+    hdf5acq[0].traj.len = acq->head.number_of_samples * acq->head.trajectory_dimensions;
+    hdf5acq[0].traj.p = acq->traj;
+    hdf5acq[0].data.len = acq->head.number_of_samples * acq->head.active_channels;
+    hdf5acq[0].data.p = acq->data;
+    
+    /* Write it */
+    h5status = H5Dwrite (dataset, datatype, memspace, filespace, H5P_DEFAULT, hdf5acq);
+    fprintf(stderr,"Write status: %d\n", h5status);
+    
+    /* Clean up */
+    h5status = H5Tclose(datatype);
+    h5status = H5Sclose(dataspace);
+    h5status = H5Dclose(dataset);
+
 
     free(path);
     
@@ -310,7 +499,7 @@ int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquis
 /*****************************/
 /* TODO Implement these ones */  
 /*****************************/
-int ismrmrd_read_acquisition(const ISMRMRD_Dataset *dset, unsigned long index, ISMRMRD_Acquisition *a) {
+int ismrmrd_read_acquisition(const ISMRMRD_Dataset *dset, unsigned long index, ISMRMRD_Acquisition *acq) {
     return ISMRMRD_NOERROR;
 };
 
