@@ -149,6 +149,11 @@ namespace ISMRMRD
     }
   };
 
+  class MetaContainer;
+
+  EXPORTISMRMRDXML void deserialize(const char* xml, MetaContainer& h);
+  EXPORTISMRMRDXML void serialize(MetaContainer& h, std::ostream& o);
+
   class MetaContainer
   {
     typedef std::map< std::string, std::vector<MetaValue> > map_t;
@@ -239,10 +244,6 @@ namespace ISMRMRD
   template void MetaContainer::append<long>(const char* name, long value);
   template void MetaContainer::append<double>(const char* name, double);
   */
-
-  EXPORTISMRMRDXML void deserialize(const char* xml, MetaContainer& h);
-  EXPORTISMRMRDXML void serialize(MetaContainer& h, std::ostream& o);
-
 }
 
 #endif //ISMRMRDMETA_H
