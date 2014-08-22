@@ -70,8 +70,24 @@ int main(void)
     printf("Header: %s\n", xmlstring);
 
     /* Get the number of acquisitions */
-    printf("Number of Acquisitions: %lu\n", ismrmrd_get_number_of_acquisitions(&dataset2));
+    unsigned long nacq_read = ismrmrd_get_number_of_acquisitions(&dataset2);
+    printf("Number of Acquisitions: %lu\n", nacq_read);
 
+    /* read the next to last one */
+    ISMRMRD_Acquisition acq2;
+    unsigned long index = 0;
+    if (nacq_read>1) {
+        index = nacq_read - 1;
+    }
+    else {
+        index = 0;
+    }
+    printf("Acquisition index: %lu\n", index);
+    ismrmrd_read_acquisition(&dataset2, index, &acq2);
+    printf("Number of samples: %hu\n", acq2.head.number_of_samples);
+    printf("Flags: %llu\n", acq2.head.flags);
+    printf("Data[4]: %f, %f\n", creal(acq2.data[4]), cimag(acq2.data[4]));
+    
     /* Clean up */
     free(xmlstring);
 

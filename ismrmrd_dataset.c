@@ -435,7 +435,6 @@ int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquis
     hsize_t ext_dims[] = {1};
     hsize_t offset[1] = {0};
     herr_t h5status;
-    int status;
     
     /* The path to the acqusition data */    
     char *path = make_path(dset, "data");
@@ -452,7 +451,7 @@ int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquis
         h5status = H5Sget_simple_extent_dims(dataspace, dims, maxdims);
         /* extend it by one */
         dims[0] += 1;
-        status = H5Dset_extent(dataset, dims);
+        h5status = H5Dset_extent(dataset, dims);
     }
     else {
         /* create a new dataset for the data */
@@ -461,7 +460,7 @@ int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquis
         dataspace = H5Screate_simple(1, dims, maxdims);
         props = H5Pcreate(H5P_DATASET_CREATE);
         /* enable chunking so that the dataset is extensible */
-        status = H5Pset_chunk (props, 1, chunk_dims);
+        h5status = H5Pset_chunk (props, 1, chunk_dims);
         /* create */
         dataset = H5Dcreate(dset->fileid, path, datatype, dataspace, H5P_DEFAULT, props,  H5P_DEFAULT);
         h5status = H5Pclose(props);
@@ -483,15 +482,71 @@ int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquis
     
     /* Write it */
     h5status = H5Dwrite (dataset, datatype, memspace, filespace, H5P_DEFAULT, hdf5acq);
-    fprintf(stderr,"Write status: %d\n", h5status);
+    /* TODO error check */
     
     /* Clean up */
     h5status = H5Tclose(datatype);
     h5status = H5Sclose(dataspace);
+    h5status = H5Sclose(filespace);
+    h5status = H5Sclose(memspace);
     h5status = H5Dclose(dataset);
-
-
     free(path);
+    
+    return ISMRMRD_NOERROR;
+};
+
+int ismrmrd_read_acquisition(const ISMRMRD_Dataset *dset, unsigned long index, ISMRMRD_Acquisition *acq) {
+    hid_t dataset, datatype, filespace, memspace;
+    hsize_t dims[1];
+    hsize_t offset[1];
+    hsize_t dimsr[1] = {1};
+    herr_t h5status;
+    HDF5_Acquisition hdf5acq;
+    
+    /* The path to the acqusition data */    
+    char *path = make_path(dset, "data");
+
+    /* Check the path, extend or create if needed */
+    if (link_exists(dset, path)) {
+        /* open */
+        dataset = H5Dopen(dset->fileid, path, H5P_DEFAULT);
+        
+        /* The acquisition datatype */
+        datatype = get_hdf5type_acquisition();
+        /* TODO check that the dataset's datatype is correct */
+
+        filespace = H5Dget_space(dataset);
+        h5status = H5Sget_simple_extent_dims(filespace, dims, NULL);
+
+        if (index < dims[0]) {
+            offset[0] = index;
+            h5status = H5Sselect_hyperslab (filespace, H5S_SELECT_SET, offset, NULL, dimsr, NULL);
+            memspace = H5Screate_simple(1, dimsr, NULL);
+            h5status = H5Dread(dataset, datatype, memspace, filespace, H5P_DEFAULT, (void *) &hdf5acq);
+            memcpy(&acq->head, &hdf5acq.head, sizeof(ISMRMRD_AcquisitionHeader));
+            ismrmrd_make_consistent_acquisition(acq);
+            memcpy(acq->traj, hdf5acq.traj.p, ismrmrd_size_of_acquisition_traj(acq));
+            memcpy(acq->data, hdf5acq.data.p, ismrmrd_size_of_acquisition_data(acq));
+
+            /* clean up */
+            free(hdf5acq.traj.p);
+            free(hdf5acq.data.p);
+            h5status = H5Tclose(datatype);
+            h5status = H5Sclose(filespace);
+            h5status = H5Sclose(memspace);
+            h5status = H5Dclose(dataset);
+        }
+        else {
+            /* index out of range */
+            /* TODO throw an error */
+            return ISMRMRD_FILEERROR;
+        }
+    }
+    else {
+        /* No data */
+        /* TODO Throw error */
+        return ISMRMRD_FILEERROR;
+    }
     
     return ISMRMRD_NOERROR;
 };
@@ -499,9 +554,6 @@ int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquis
 /*****************************/
 /* TODO Implement these ones */  
 /*****************************/
-int ismrmrd_read_acquisition(const ISMRMRD_Dataset *dset, unsigned long index, ISMRMRD_Acquisition *acq) {
-    return ISMRMRD_NOERROR;
-};
 
 int ismrmrd_append_image(const ISMRMRD_Dataset *dset, const char *varname,
                          const int block_mode, const ISMRMRD_Image *im) {
