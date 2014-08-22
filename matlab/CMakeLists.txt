@@ -32,7 +32,6 @@ else (NOT JAVA_FOUND)
         InterleavingDimensionType
         ParallelImagingType
         UserParameterBase64Type
-        DicomParametersType
         IsmrmrdHeader
         ReferencedImageSequence
         UserParameterDoubleType
@@ -42,7 +41,6 @@ else (NOT JAVA_FOUND)
         UserParameterLongType
 	UserParameterStringType
         EncodingLimitsType
-        MRImageModule
         StudyInformationType
         UserParameters
         EncodingSpaceType

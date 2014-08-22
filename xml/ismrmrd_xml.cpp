@@ -352,7 +352,7 @@ namespace ISMRMRD
 	info.frameOfReferenceUID = parse_optional_string(measurementInformation,"frameOfReferenceUID");
 
 	//This part of the schema is totally messed up and needs to be fixed, but for now we will just read it. 
-	pugi::xml_node ri = measurementInformation.child("referencedImageSequemce");
+	pugi::xml_node ri = measurementInformation.child("referencedImageSequence");
 	if (ri) {
 	  pugi::xml_node ric = ri.child("referencedSOPInstanceUID");
 	  while (ric) {

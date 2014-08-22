@@ -85,18 +85,21 @@ namespace ISMRMRD
     MetaValue& operator=(const char * s) 
     {
       set(s);
+      return *this;
     }
 
     ///Assignment operator for long
     MetaValue& operator=(long l) 
     {
       set(l);
+      return *this;
     }
 
     ///Assignment operator for double
     MetaValue& operator=(double d) 
     {
       set(d);
+      return *this;
     }
 
     ///Get the ingeter representation of the value
