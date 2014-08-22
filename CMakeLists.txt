@@ -99,7 +99,7 @@ if ( WIN32 )
     add_library(dummy SHARED ${XSDS_SOURCES})
     target_link_libraries(dummy ${XERCESC_LIBRARIES})
 
-elseif (WIN32)
+else (WIN32)
     wrap_xsd(XSDS_SOURCES XSD_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/schema ${XSDS} OPTIONS ${XSD_ARGS})
 endif (WIN32)
 
