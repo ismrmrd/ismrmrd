@@ -11,9 +11,7 @@
         <xs:element maxOccurs="1" minOccurs="0" name="acquisitionSystemInformation" type="acquisitionSystemInformationType"/>
         <xs:element maxOccurs="1" minOccurs="1" name="experimentalConditions" type="experimentalConditionsType"/>
         <xs:element maxOccurs="unbounded" minOccurs="1" name="encoding" type="encoding"/>
-        <xs:element maxOccurs="1" minOccurs="0" name="parallelImaging" type="parallelImagingType"/>
         <xs:element maxOccurs="1" minOccurs="0" name="sequenceParameters" type="sequenceParametersType"/>
-        <xs:element maxOccurs="1" minOccurs="0" name="dicomParameters" type="dicomParametersType"/>
         <xs:element maxOccurs="1" minOccurs="0" name="userParameters" type="userParameters"/>
       </xs:sequence>
     </xs:complexType>
@@ -36,12 +34,13 @@
 
   <xs:complexType name="studyInformationType">
     <xs:all>
-      <xs:element minOccurs="0" name="studyDate" type="xs:date"/>
-      <xs:element minOccurs="0" name="studyTime" type="xs:time"/>
-      <xs:element minOccurs="0" name="studyID" type="xs:string"/>
-      <xs:element minOccurs="0" name="accessionNumber" type="xs:long"/>
-      <xs:element minOccurs="0" name="referringPhysicianName" type="xs:string"/>
-      <xs:element minOccurs="0" name="studyDescription" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="studyDate" type="xs:date"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="studyTime" type="xs:time"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="studyID" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="accessionNumber" type="xs:long"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="referringPhysicianName" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="studyDescription" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="studyInstanceUID" type="xs:string"/>
     </xs:all>
   </xs:complexType>
 
@@ -68,6 +67,9 @@
       <xs:element minOccurs="0" name="protocolName" type="xs:string"/>
       <xs:element minOccurs="0" name="seriesDescription" type="xs:string"/>
       <xs:element maxOccurs="unbounded" minOccurs="0" name="measurementDependency" type="measurementDependencyType"/>
+      <xs:element minOccurs="0" name="seriesInstanceUIDRoot" type="xs:string"/>
+      <xs:element minOccurs="0" name="frameOfReferenceUID" type="xs:string"/>
+      <xs:element minOccurs="0" name="referencedImageSequence" type="referencedImageSequence"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -103,6 +105,8 @@
       <xs:element maxOccurs="1" minOccurs="1" name="encodingLimits" type="encodingLimitsType"/>
       <xs:element maxOccurs="1" minOccurs="1" name="trajectory" type="trajectoryType"/>
       <xs:element maxOccurs="1" minOccurs="0" name="trajectoryDescription" type="trajectoryDescriptionType"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="parallelImaging" type="parallelImagingType"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="echoTrainLength" type="xs:long"/>
     </xs:all>
   </xs:complexType>
 
@@ -177,6 +181,8 @@
       <xs:element minOccurs="1" maxOccurs="unbounded" type="xs:float" name="TR"/>
       <xs:element minOccurs="1" maxOccurs="unbounded" type="xs:float" name="TE"/>
       <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="TI"/>
+      <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="flipAngle_deg"/>
+
     </xs:sequence>
   </xs:complexType>
 
@@ -208,43 +214,12 @@
     </xs:all>
   </xs:complexType>
 
-  <xs:complexType name="dicomParametersType">
-    <xs:all>
-      <xs:element minOccurs="1" name="studyInstanceUID" type="xs:string"/>
-      <xs:element minOccurs="0" name="seriesInstanceUIDRoot" type="xs:string"/>
-      <xs:element minOccurs="0" name="frameOfReferenceUID" type="xs:string"/>
-      <xs:element minOccurs="0" name="referencedImageSequence" type="referencedImageSequence"/>
-      <xs:element minOccurs="0" name="MRImageModule" type="MRImageModule"/>
-    </xs:all>
-  </xs:complexType>
-
   <xs:complexType name="referencedImageSequence">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="referencedSOPInstanceUID" type="xs:string"/>
     </xs:sequence>
   </xs:complexType>
       
-  <xs:complexType name="MRImageModule">
-    <xs:all>
-      <xs:element minOccurs="0" name="imageType" type="xs:string"/>
-      <xs:element minOccurs="0" name="scanningSequence" type="xs:string"/>
-      <xs:element minOccurs="0" name="sequenceVariant" type="xs:string"/>
-      <xs:element minOccurs="0" name="scanOptions" type="xs:string"/>
-      <xs:element minOccurs="0" name="mrAcquisitionType" type="xs:string"/>
-      <xs:element minOccurs="0" name="echoTrainLength" type="xs:long"/>
-      <xs:element minOccurs="0" name="triggerTime" type="xs:float"/>
-      <xs:element minOccurs="0" name="flipAngle_deg" type="xs:float"/>
-      <xs:element minOccurs="0" name="freqEncodingDirection">
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:enumeration value="ROW"/>
-            <xs:enumeration value="COL"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:element>
-    </xs:all>
-  </xs:complexType>
-
   <xs:complexType name="userParameters">
     <xs:sequence>
       <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterLong" type="userParameterLongType"/>
