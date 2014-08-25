@@ -1,3 +1,24 @@
+add_executable(ismrmrd_basic_test basic_test.cpp)
+target_link_libraries(ismrmrd_basic_test ismrmrd)
+
+install(TARGETS ismrmrd_basic_test DESTINATION bin)
+
+#find_package(FFTW3 COMPONENTS single)
+#if(FFTW3_FOUND)
+#    message("FFTW3 Found, building examples")
+#    add_executable(ismrmrd_create_dataset test_create_dataset.cpp)
+#    target_link_libraries(ismrmrd_create_dataset ismrmrd ${FFTW3_LIBRARIES})
+#    add_executable(ismrmrd_recon_dataset test_recon_dataset.cpp)
+#    target_link_libraries(ismrmrd_recon_dataset ismrmrd ${FFTW3_LIBRARIES})
+#    install(TARGETS ismrmrd_create_dataset
+#                              ismrmrd_recon_dataset
+#              DESTINATION bin)
+#else(FFTW3_FOUND)
+#       message("FFTW3 NOT Found, cannot build examples")
+#endif(FFTW3_FOUND)
+
+if(0)
+
 find_package(FFTW3 COMPONENTS single)
 
 if(FFTW3_FOUND)
@@ -34,3 +55,4 @@ else(FFTW3_FOUND)
        message("FFTW3 NOT Found, cannot build examples")
 endif(FFTW3_FOUND)
 
+endif(0)

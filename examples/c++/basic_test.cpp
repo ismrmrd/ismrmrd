@@ -1,5 +1,6 @@
 #include <iostream>
-#include "ismrmrd.hpp"
+#include "ismrmrd.h"
+#include "ismrmrd_xml.h"
 
 int main (int args, char** argv) {
 
@@ -30,6 +31,9 @@ int main (int args, char** argv) {
   acq.number_of_samples(64);
   std::cout << "Number of samples: " << acq.number_of_samples() << std::endl;
   
+
+  ISMRMRD::IsmrmrdHeader h;
+  //serialize(h,std::cout);
 
   return 0;
 }
