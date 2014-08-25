@@ -300,6 +300,7 @@ void ismrmrd_set_flag(uint64_t *flags, const uint64_t val);
 void ismrmrd_clear_flag(uint64_t *flags, const uint64_t val);
 void ismrmrd_clear_all_flags(uint64_t *flags);
 
+/* TODO add helper functions for channel mask */
 
 /******************/
 /* Error Handling */

@@ -2,13 +2,14 @@
  * test_create_dataset.cpp
  *
  *  Created on: Sep 4, 2012
- *      Author: Michael S. Hansen (michael.hansen@nih.gov)
+ *      Authors: Michael S. Hansen (michael.hansen@nih.gov)
+ *               Souheil J. Inati  (souheil.inati@nih.gov)
  */
 
 #include <iostream>
-#include "ismrmrd_hdf5.h"
+#include "ismrmrd.h"
+#include "ismrmrd_dataset.h"
 #include "fftw3.h"
-#include "ismrmrd.hxx"
 
 //Utility function for appending different sizes of arrays, used for testing here
 template <typename T, int size_x, int size_y> int appendImageArray(ISMRMRD::IsmrmrdDataset& d, const char* varname)

@@ -94,12 +94,6 @@ int main(void)
     /* Close the dataset */
     status = ismrmrd_close_dataset(&dataset2);
 
-    //printf("Acq Version: %d\n", acq.head.version);
-    //printf("Flags: %llu\n", acq.head.flags);
-    //printf("ACQ_FIRST_IN_SLICE: %d\n", ismrmrd_is_flag_set(acq.head.flags, ISMRMRD_ACQ_FIRST_IN_SLICE));
-    //printf("Flags: %llu\n", acq.head.flags);
-    //printf("ACQ_FIRST_IN_SLICE: %d\n", ismrmrd_is_flag_set(acq.head.flags, ISMRMRD_ACQ_FIRST_IN_SLICE));
-
     //   Image im;
     //initImage(&im);
     //printf("Image Version: %d\n", im.head.version);

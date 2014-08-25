@@ -205,7 +205,25 @@ protected:
     ISMRMRD_Image image_;
 };
 
-class NDArray : protected ISMRMRD_NDArray {
+class NDArray {
+public:
+    // Constructors
+    NDArray();
+    NDArray(NDArray &arr);
+    NDArray(ISMRMRD_NDArray *arr);
+
+    // Accessors and mutators
+    const uint16_t &version();
+    const uint16_t &data_type();
+    void data_type(const uint16_t dtype);
+    const uint16_t &ndim();
+    void ndim(const uint16_t numdim);
+    uint16_t dims[ISMRMRD_NDARRAY_MAXDIM];
+    void *data;
+
+    
+protected:
+    ISMRMRD_NDArray;
 };
 
 } // namespace ISMRMRD
