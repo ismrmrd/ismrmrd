@@ -1,7 +1,7 @@
 #ifndef ISMRMRDXML_H
 #define ISMRMRDXML_H
 
-#include "ismrmrd_xml_export.h"
+#include "ismrmrd_export.h"
 
 
 #include <cstddef>
@@ -286,8 +286,8 @@ namespace ISMRMRD
 
 
 
-  EXPORTISMRMRDXML void deserialize(const char* xml, IsmrmrdHeader& h);
-  EXPORTISMRMRDXML void serialize(const IsmrmrdHeader& h, std::ostream& o);
+  EXPORTISMRMRD void deserialize(const char* xml, IsmrmrdHeader& h);
+  EXPORTISMRMRD void serialize(const IsmrmrdHeader& h, std::ostream& o);
 }
 
 #endif //ISMRMRDXML_H

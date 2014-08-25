@@ -1,7 +1,7 @@
 #ifndef ISMRMRDMETA_H
 #define ISMRMRDMETA_H
 
-#include "ismrmrd_xml_export.h"
+#include "ismrmrd_export.h"
 
 #include <string>
 #include <sstream>
@@ -243,8 +243,8 @@ namespace ISMRMRD
   template void MetaContainer::append<double>(const char* name, double);
   */
 
-  EXPORTISMRMRDXML void deserialize(const char* xml, MetaContainer& h);
-  EXPORTISMRMRDXML void serialize(MetaContainer& h, std::ostream& o);
+  EXPORTISMRMRD void deserialize(const char* xml, MetaContainer& h);
+  EXPORTISMRMRD void serialize(MetaContainer& h, std::ostream& o);
 
 }
 
