@@ -7,9 +7,6 @@ set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/ismrmrd)
 # add project specific cmake find modules
 list(APPEND CMAKE_MODULE_PATH cmake)
 
-# enable ctest
-enable_testing()
-
 # set the build type to Release if not specified
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Release CACHE STRING
@@ -73,11 +70,11 @@ install(FILES
     cmake/FindNumPy.cmake
     DESTINATION cmake)
 
+# copy the examples directory
+install(DIRECTORY examples DESTINATION .)
+
 #add_subdirectory(doc)
-add_subdirectory(examples/c)
-add_subdirectory(examples/c++)
 #add_subdirectory(utilities)
 #add_subdirectory(tests)
 #add_subdirectory(matlab)
 #add_subdirectory(bindings)
-add_subdirectory(xml)

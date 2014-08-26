@@ -1,7 +1,20 @@
-add_executable(ismrmrd_basic_test basic_test.cpp)
-target_link_libraries(ismrmrd_basic_test ismrmrd)
+cmake_minimum_required(VERSION 2.8)
+project(ISMRMRD_C++_EXAMPLES)
 
-install(TARGETS ismrmrd_basic_test DESTINATION bin)
+if (NOT DEFINED ENV{ISMRMRD_HOME})
+    message(FATAL_ERROR "Environment variable $ISMRMRD_HOME not set")
+endif()
+# for finding Ismrmrd
+list (APPEND CMAKE_MODULE_PATH "$ENV{ISMRMRD_HOME}/cmake")
+
+find_package(Ismrmrd REQUIRED)
+
+include_directories (
+    ${ISMRMRD_INCLUDE_DIR}
+)
+
+add_executable(ismrmrd_basic_test basic_test.cpp)
+target_link_libraries(ismrmrd_basic_test ${ISMRMRD_LIBRARIES})
 
 #find_package(FFTW3 COMPONENTS single)
 #if(FFTW3_FOUND)

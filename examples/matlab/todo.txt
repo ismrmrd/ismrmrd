@@ -1,0 +1,1 @@
+Put Michaels spiral and gridder example back.
