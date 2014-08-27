@@ -57,16 +57,7 @@ include_directories(${HDF5_C_INCLUDE_DIR} ${HDF5_CXX_INCLUDE_DIR}
     ${Boost_INCLUDE_DIR})
 
 #The findHDF5.cmake does not work very well on Windows, let's help it out
-if(WIN32)
-    target_link_libraries(ismrmrd optimized ${HDF5_hdf5_LIBRARY_RELEASE}
-        optimized ${HDF5_hdf5_cpp_LIBRARY_RELEASE})
-    target_link_libraries(ismrmrd debug ${HDF5_hdf5_LIBRARY_DEBUG}
-        debug ${HDF5_hdf5_cpp_LIBRARY_DEBUG})
-    target_link_libraries(ismrmrd ${Boost_LIBRARIES})
-else(WIN32)
-    target_link_libraries(ismrmrd ${HDF5_LIBRARIES} ${Boost_THREAD_LIBRARY}
-        ${Boost_SYSTEM_LIBRARY})
-endif(WIN32)
+target_link_libraries(ismrmrd ${HDF5_LIBRARIES} ${Boost_THREAD_LIBRARY} ${Boost_SYSTEM_LIBRARY})
 
 install(TARGETS ismrmrd
     DESTINATION ${ISMRMRD_INSTALL_LIB_DIR})
