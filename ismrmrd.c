@@ -41,8 +41,19 @@ void ismrmrd_init_acquisition_header(ISMRMRD_AcquisitionHeader *hdr) {
 
 void ismrmrd_init_acquisition(ISMRMRD_Acquisition *acq) {
     ismrmrd_init_acquisition_header(&acq->head);
-    acq->traj = NULL;
-    acq->data = NULL;
+    acq->traj = (float *)malloc(ismrmrd_size_of_acquisition_traj(acq));
+    acq->data = (complex_float_t *)malloc(ismrmrd_size_of_acquisition_data(acq));
+}
+
+void ismrmrd_cleanup_acquisition(ISMRMRD_Acquisition *acq) {
+    free(acq->data);
+    free(acq->traj);
+}
+    
+ISMRMRD_Acquisition * ismrmrd_create_acquisition() {
+    ISMRMRD_Acquisition *acq = (ISMRMRD_Acquisition *) malloc(sizeof(ISMRMRD_Acquisition));
+    ismrmrd_init_acquisition(acq);
+    return acq;
 }
 
 void ismrmrd_free_acquisition(ISMRMRD_Acquisition *acq) {
@@ -52,10 +63,13 @@ void ismrmrd_free_acquisition(ISMRMRD_Acquisition *acq) {
 }
 
 void ismrmrd_copy_acquisition(ISMRMRD_Acquisition *acqdest, const ISMRMRD_Acquisition *acqsource) {
+    /* Copy the header */
     memcpy(&acqdest->head, &acqsource->head, sizeof(ISMRMRD_AcquisitionHeader));
+    /* Reallocate memory for the trajectory and the data*/
     ismrmrd_make_consistent_acquisition(acqdest);
-    memcpy(&acqdest->traj, &acqsource->traj, ismrmrd_size_of_acquisition_traj(acqdest));
-    memcpy(&acqdest->data, &acqsource->data, ismrmrd_size_of_acquisition_data(acqdest));
+    /* Copy the trajectory and the data */
+    memcpy(acqdest->traj, acqsource->traj, ismrmrd_size_of_acquisition_traj(acqsource));
+    memcpy(acqdest->data, acqsource->data, ismrmrd_size_of_acquisition_data(acqsource));
 }
 
 int ismrmrd_make_consistent_acquisition(ISMRMRD_Acquisition *acq) {

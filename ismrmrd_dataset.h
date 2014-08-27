@@ -146,6 +146,35 @@ int ismrmrd_get_number_of_arrays(const ISMRMRD_Dataset *dset, const char *varnam
     
 #ifdef __cplusplus
 } /* extern "C" */
+
+//
+//  ISMRMRD Datset C++ Interface
+//
+
+// TODO:
+// - exports as needed
+class Dataset {
+public:
+    // Constructor and destructor
+    Dataset(const char* filename, const char* groupname, bool create_file_if_needed = true);
+    ~Dataset();
+    
+    // Methods
+    // XML Header
+    int writeHeader(const std::string& xmlstring);
+    int writeHeader(const char* xml);
+    int readHeader(std::string& xmlstring);
+    char * readHeader();
+    // Acquisitions
+    int appendAcquisition(const Acquisition &acq);
+    Acquisition * readAcquisition(unsigned long index);
+    unsigned long getNumberOfAcquisitions();
+
+protected:
+    ISMRMRD_Dataset dset_;
+};
+
+
 } /* ISMRMRD namespace */
 #endif
 

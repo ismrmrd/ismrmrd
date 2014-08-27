@@ -34,8 +34,12 @@ int main(void)
 
     /* Append some acquisitions */
     ISMRMRD_Acquisition acq;
+    // must initialize an acquisition before you can use it
+    ismrmrd_init_acquisition(&acq);
     int nacq_write = 5;
     for (int n=0; n < nacq_write; n++) {
+        // must free an acquisition before you can reinitialize it
+        ismrmrd_init_acquisition(&acq);
         ismrmrd_init_acquisition(&acq);
         acq.head.number_of_samples = 128;
         acq.head.active_channels = 4;
@@ -75,6 +79,7 @@ int main(void)
 
     /* read the next to last one */
     ISMRMRD_Acquisition acq2;
+    ismrmrd_init_acquisition(&acq2);
     unsigned long index = 0;
     if (nacq_read>1) {
         index = nacq_read - 1;
@@ -88,7 +93,18 @@ int main(void)
     printf("Flags: %llu\n", acq2.head.flags);
     printf("Data[4]: %f, %f\n", creal(acq2.data[4]), cimag(acq2.data[4]));
     
+    ISMRMRD_Acquisition acq3;
+    ismrmrd_init_acquisition(&acq3);
+    ismrmrd_copy_acquisition(&acq3, &acq2);
+    
+    printf("Pointers 3: %p\t 2: %p\n", (void *) acq3.data, (void *) acq2.data);
+    printf("Data 3: %f\t 2: %f\n", creal(acq3.data[4]), creal(acq2.data[4]));
+        
     /* Clean up */
+    /* This frees the internal memory of the acquisitions */
+    ismrmrd_cleanup_acquisition(&acq);
+    ismrmrd_cleanup_acquisition(&acq2);
+    ismrmrd_cleanup_acquisition(&acq3);
     free(xmlstring);
 
     /* Close the dataset */

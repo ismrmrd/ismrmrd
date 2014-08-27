@@ -38,6 +38,7 @@ add_library(ismrmrd SHARED
 		    ismrmrd.c 
 		    ismrmrd.cpp 
 		    ismrmrd_dataset.c
+		    ismrmrd_dataset.cpp
   		    xml/ismrmrd_xml.cpp
   		    xml/ismrmrd_meta.cpp
   		    xml/pugixml.cpp)
@@ -73,7 +74,7 @@ install(FILES
 # copy the examples directory
 install(DIRECTORY examples DESTINATION .)
 
-#add_subdirectory(doc)
+add_subdirectory(doc)
 #add_subdirectory(utilities)
 #add_subdirectory(tests)
 #add_subdirectory(matlab)

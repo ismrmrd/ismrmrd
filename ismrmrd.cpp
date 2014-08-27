@@ -5,8 +5,13 @@ namespace ISMRMRD {
 //
 // AcquisitionHeader class implementation
 //
+// Constructors
 AcquisitionHeader::AcquisitionHeader() {
-    ismrmrd_init_acquisition_header(&(head_));
+    ismrmrd_init_acquisition_header(&head_);
+};
+
+AcquisitionHeader::AcquisitionHeader(const ISMRMRD_AcquisitionHeader *head) {
+    memcpy(&head_, head, sizeof(ISMRMRD_AcquisitionHeader));
 };
 
 // Accessors and mutators
@@ -128,9 +133,36 @@ void AcquisitionHeader::clearAllFlags() {
 //
 // Acquisition class Implementation
 //
+// Constructors, assignment operator, destructor
 Acquisition::Acquisition() {
     ismrmrd_init_acquisition(&acq_);
-};
+}
+
+Acquisition::Acquisition(const Acquisition &other) {
+    // This is a deep copy
+    ismrmrd_init_acquisition(&acq_);
+    ismrmrd_copy_acquisition(&acq_, &other.acq_);
+}
+
+Acquisition::Acquisition(const ISMRMRD_Acquisition *acq) {
+    // This is a deep copy
+    ismrmrd_init_acquisition(&acq_);
+    ismrmrd_copy_acquisition(&acq_, acq);
+}
+
+Acquisition & Acquisition::operator= (const Acquisition &other) {
+    // Assignment makes a copy
+    if (this != &other )
+    {
+        ismrmrd_init_acquisition(&acq_);
+        ismrmrd_copy_acquisition(&acq_, &other.acq_);
+    }
+    return *this;
+}
+
+Acquisition::~Acquisition() {
+    ismrmrd_cleanup_acquisition(&acq_);
+}
 
 // Accessors and mutators
 const uint16_t &Acquisition::version() {
@@ -234,6 +266,11 @@ ISMRMRD_EncodingCounters &Acquisition::idx() {
 int32_t (&Acquisition::user_int()) [ISMRMRD_USER_INTS] { return acq_.head.user_int; };
 
 float (&Acquisition::user_float()) [ISMRMRD_USER_FLOATS] { return acq_.head.user_float; };
+
+// Data and Trajectory accessors
+complex_float_t * Acquisition::data() { return acq_.data; };
+
+float * Acquisition::traj() { return acq_.traj; };
 
 // Flag methods
 bool Acquisition::isFlagSet(const uint64_t val) {

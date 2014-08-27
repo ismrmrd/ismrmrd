@@ -210,13 +210,15 @@ typedef struct ISMRMRD_Acquisition {
     complex_float_t *data;
 } ISMRMRD_Acquisition;
 
-void ismrmrd_init_acquisition(ISMRMRD_Acquisition *acq);
+ISMRMRD_Acquisition * ismrmrd_create_acquisition();
 void ismrmrd_free_acquisition(ISMRMRD_Acquisition *acq);
+void ismrmrd_init_acquisition(ISMRMRD_Acquisition *acq);
+void ismrmrd_cleanup_acquisition(ISMRMRD_Acquisition *acq);
 void ismrmrd_copy_acquisition(ISMRMRD_Acquisition *acqdest, const ISMRMRD_Acquisition *acqsource);
 int ismrmrd_make_consistent_acquisition(ISMRMRD_Acquisition *acq);
 size_t ismrmrd_size_of_acquisition_traj(const ISMRMRD_Acquisition *acq);
 size_t ismrmrd_size_of_acquisition_data(const ISMRMRD_Acquisition *acq);
-
+    
 /**********/
 /* Images */
 /**********/
@@ -338,8 +340,13 @@ void ismrmrd_quaternion_to_directions(float quat[4], float read_dir[3], float ph
 
 class AcquisitionHeader {
 public:
+    // Constructors
     AcquisitionHeader();
+    AcquisitionHeader(const ISMRMRD_AcquisitionHeader *head);
 
+    // TODO
+    // Do we need to define an assignment operator?
+    
     // Accessors and mutators
     const uint16_t &version();
     const uint64_t &flags();
@@ -384,8 +391,14 @@ protected:
 };
 
 class Acquisition {
+    friend class Dataset;
 public:
+    // Constructors, assignment, destructor
     Acquisition();
+    Acquisition(const Acquisition &other);
+    Acquisition(const ISMRMRD_Acquisition *acq);
+    Acquisition & operator= (const Acquisition &other);
+    ~Acquisition();
 
     // Accessors and mutators
     const uint16_t &version();
@@ -414,6 +427,12 @@ public:
     ISMRMRD_EncodingCounters &idx();
     int32_t (&user_int())[ISMRMRD_USER_INTS];
     float (&user_float())[ISMRMRD_USER_FLOATS];
+
+    // Data and Trajectory accessors
+    complex_float_t * data();
+    uint64_t numDataElements();
+    float * traj();
+    uint64_t numTrajElements();
 
     // Flag methods
     bool isFlagSet(const uint64_t val);
