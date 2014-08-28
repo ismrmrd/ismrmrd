@@ -29,6 +29,7 @@ typedef unsigned __int64 uint64_t;
 #include <complex>
 typedef std::complex<float> complex_float_t;
 typedef std::complex<double> complex_double_t;
+#include <vector>
 #else /* C99 compiler */
 #include <stdint.h>
 #include <complex.h>
@@ -288,8 +289,10 @@ typedef struct ISMRMRD_NDArray {
     void *data;                            /**< Pointer to data */
 } ISMRMRD_NDArray;
 
-void ismrmrd_init_ndarray(ISMRMRD_NDArray *arr);
+ISMRMRD_NDArray * ismrmrd_create_ndarray();
 void ismrmrd_free_ndarray(ISMRMRD_NDArray *arr);
+void ismrmrd_init_ndarray(ISMRMRD_NDArray *arr);
+void ismrmrd_cleanup_ndarray(ISMRMRD_NDArray *arr);
 void ismrmrd_copy_ndarray(ISMRMRD_NDArray *arrdest, const ISMRMRD_NDArray *arrsource);
 int ismrmrd_make_consistent_ndarray(ISMRMRD_NDArray *arr);
 size_t ismrmrd_size_of_ndarray_data(const ISMRMRD_NDArray *arr);
@@ -374,9 +377,9 @@ public:
     float (&user_float())[ISMRMRD_USER_FLOATS];
 
     // Flag methods
-    bool isFlagSet(const uint64_t val);
-    void setFlag(const uint64_t val);
-    void clearFlag(const uint64_t val);
+    bool isFlagSet(const ISMRMRD_AcquisitionFlags val);
+    void setFlag(const ISMRMRD_AcquisitionFlags val);
+    void clearFlag(const ISMRMRD_AcquisitionFlags val);
     void clearAllFlags();
 
     // Channel mask methods
@@ -549,24 +552,28 @@ protected:
 
 class NDArray {
 public:
-    // Constructors
+    // Constructors, destructor and copy
     NDArray();
-    NDArray(NDArray &arr);
-    NDArray(ISMRMRD_NDArray *arr);
+    NDArray(const ISMRMRD_DataTypes dtype, const uint16_t ndim, const uint16_t dims[ISMRMRD_NDARRAY_MAXDIM]);
+    NDArray(const ISMRMRD_DataTypes dtype, const std::vector<uint16_t> dimvec);
+    NDArray(const NDArray &other);
+    NDArray(const ISMRMRD_NDArray *arr);
+    ~NDArray();
+    NDArray & operator= (const NDArray &other);
 
     // Accessors and mutators
-    const uint16_t &version();
-    const uint16_t &data_type();
-    void data_type(const uint16_t dtype);
-    const uint16_t &ndim();
-    void ndim(const uint16_t numdim);
-    uint16_t dims[ISMRMRD_NDARRAY_MAXDIM];
-    void *data;
+    const uint16_t version();
+    const ISMRMRD_DataTypes data_type();
+    const uint16_t ndim();
+    const uint16_t (&dims())[ISMRMRD_NDARRAY_MAXDIM];
+    int setProperties(const ISMRMRD_DataTypes dtype, const uint16_t ndim, const uint16_t dims[ISMRMRD_NDARRAY_MAXDIM]);
+    int setProperties(const ISMRMRD_DataTypes dtype, const std::vector<uint16_t> dimvec);
+    void * data();
 
-    
 protected:
-    ISMRMRD_NDArray arr;
+    ISMRMRD_NDArray arr_;
 };
+
 
 } // namespace ISMRMRD
 #endif

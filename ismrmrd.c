@@ -207,6 +207,17 @@ size_t ismrmrd_size_of_image_attribute_string(const ISMRMRD_Image *im) {
 }
 
 /* NDArray functions */
+ISMRMRD_NDArray * ismrmrd_create_ndarray() {
+    ISMRMRD_NDArray *arr = (ISMRMRD_NDArray *) malloc(sizeof(ISMRMRD_NDArray));
+    ismrmrd_init_ndarray(arr);
+    return arr;
+}
+
+void ismrmrd_free_ndarray(ISMRMRD_NDArray *arr) {
+    free(arr->data);
+    free(arr);
+}
+
 void ismrmrd_init_ndarray(ISMRMRD_NDArray *arr) {
     arr->version = ISMRMRD_VERSION;
     arr->data_type = 0; // no default data type
@@ -214,12 +225,11 @@ void ismrmrd_init_ndarray(ISMRMRD_NDArray *arr) {
     for (int n = 0; n < ISMRMRD_NDARRAY_MAXDIM; n++) {
         arr->dims[n] = 1;
     }
-    arr->data = NULL;
+    ismrmrd_make_consistent_ndarray(arr);
 }
 
-void ismrmrd_free_ndarray(ISMRMRD_NDArray *arr) {
+void ismrmrd_cleanup_ndarray(ISMRMRD_NDArray *arr) {
     free(arr->data);
-    free(arr);
 }
 
 void ismrmrd_copy_ndarray(ISMRMRD_NDArray *arrdest, const ISMRMRD_NDArray *arrsource) {
@@ -243,7 +253,6 @@ int ismrmrd_make_consistent_ndarray(ISMRMRD_NDArray *arr) {
             return ISMRMRD_MEMORYERROR;
         }
     }
-
     return ISMRMRD_NOERROR;
 }
 
