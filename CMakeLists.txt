@@ -32,6 +32,9 @@ endif (WIN32)
 # required packages for main library
 find_package(HDF5 1.8 COMPONENTS C HL REQUIRED)
 
+# use only the HDF5 1.8 API (H5Gcreate2)
+add_definitions(-DH5_NO_DEPRECATED_SYMBOLS)
+
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/xml 
