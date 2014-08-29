@@ -150,7 +150,7 @@ static hid_t get_hdf5type_encoding(void) {
     h5status = H5Tinsert(datatype, "set", HOFFSET(ISMRMRD_EncodingCounters, set), H5T_NATIVE_UINT16);
     h5status = H5Tinsert(datatype, "segment", HOFFSET(ISMRMRD_EncodingCounters, segment), H5T_NATIVE_UINT16);
     hsize_t arraydims[] = {ISMRMRD_USER_INTS};
-    hid_t arraytype = H5Tarray_create(H5T_NATIVE_UINT16, 1, arraydims);
+    hid_t arraytype = H5Tarray_create2(H5T_NATIVE_UINT16, 1, arraydims);
     h5status = H5Tinsert(datatype, "user", HOFFSET(ISMRMRD_EncodingCounters, user), arraytype);
     if (h5status < 0) {
         ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed get endoding data type");
@@ -173,7 +173,7 @@ static hid_t get_hdf5type_acquisitionheader(void) {
     h5status = H5Tinsert(datatype, "acquisition_time_stamp", HOFFSET(ISMRMRD_AcquisitionHeader, acquisition_time_stamp), H5T_NATIVE_UINT32);
 
     arraydims[0] = ISMRMRD_PHYS_STAMPS;
-    vartype = H5Tarray_create(H5T_NATIVE_UINT32, 1, arraydims);
+    vartype = H5Tarray_create2(H5T_NATIVE_UINT32, 1, arraydims);
     h5status = H5Tinsert(datatype, "physiology_time_stamp", HOFFSET(ISMRMRD_AcquisitionHeader, physiology_time_stamp), vartype);
     
     h5status = H5Tinsert(datatype, "number_of_samples", HOFFSET(ISMRMRD_AcquisitionHeader, number_of_samples), H5T_NATIVE_UINT16);
@@ -181,7 +181,7 @@ static hid_t get_hdf5type_acquisitionheader(void) {
     h5status = H5Tinsert(datatype, "active_channels", HOFFSET(ISMRMRD_AcquisitionHeader, active_channels), H5T_NATIVE_UINT16);
 
     arraydims[0] = ISMRMRD_CHANNEL_MASKS;
-    vartype = H5Tarray_create(H5T_NATIVE_UINT64, 1, arraydims);
+    vartype = H5Tarray_create2(H5T_NATIVE_UINT64, 1, arraydims);
     h5status = H5Tinsert(datatype, "channel_mask", HOFFSET(ISMRMRD_AcquisitionHeader, channel_mask), vartype);
     
     h5status = H5Tinsert(datatype, "discard_pre", HOFFSET(ISMRMRD_AcquisitionHeader, discard_pre), H5T_NATIVE_UINT16);
@@ -192,7 +192,7 @@ static hid_t get_hdf5type_acquisitionheader(void) {
     h5status = H5Tinsert(datatype, "sample_time_us", HOFFSET(ISMRMRD_AcquisitionHeader, sample_time_us), H5T_NATIVE_FLOAT);
 
     arraydims[0] = 3;
-    vartype = H5Tarray_create(H5T_NATIVE_FLOAT, 1, arraydims);
+    vartype = H5Tarray_create2(H5T_NATIVE_FLOAT, 1, arraydims);
     h5status = H5Tinsert(datatype, "position", HOFFSET(ISMRMRD_AcquisitionHeader, position), vartype);
     h5status = H5Tinsert(datatype, "read_dir", HOFFSET(ISMRMRD_AcquisitionHeader, read_dir), vartype);
     h5status = H5Tinsert(datatype, "phase_dir", HOFFSET(ISMRMRD_AcquisitionHeader, phase_dir), vartype);
@@ -203,11 +203,11 @@ static hid_t get_hdf5type_acquisitionheader(void) {
     h5status = H5Tinsert(datatype, "idx", HOFFSET(ISMRMRD_AcquisitionHeader, idx), vartype);
     
     arraydims[0] = ISMRMRD_USER_INTS;
-    vartype = H5Tarray_create(H5T_NATIVE_INT32, 1, arraydims);
+    vartype = H5Tarray_create2(H5T_NATIVE_INT32, 1, arraydims);
     h5status = H5Tinsert(datatype, "user_int", HOFFSET(ISMRMRD_AcquisitionHeader, user_int), vartype);
     
     arraydims[0] = ISMRMRD_USER_FLOATS;
-    vartype = H5Tarray_create(H5T_NATIVE_FLOAT, 1, arraydims);
+    vartype = H5Tarray_create2(H5T_NATIVE_FLOAT, 1, arraydims);
     h5status = H5Tinsert(datatype, "user_float", HOFFSET(ISMRMRD_AcquisitionHeader, user_float), vartype);
 
     /* Clean up */
