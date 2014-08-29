@@ -1,5 +1,6 @@
 #include "ismrmrd_dataset.h"
 
+#include <stdlib.h>     // for `free` in GCC 4.3
 namespace ISMRMRD {
 //
 // Dataset class implementation
