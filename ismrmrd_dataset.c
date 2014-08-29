@@ -171,7 +171,6 @@ static hid_t get_hdf5type_acquisitionheader(void) {
     h5status = H5Tinsert(datatype, " measurement_uid", HOFFSET(ISMRMRD_AcquisitionHeader,  measurement_uid), H5T_NATIVE_UINT32);
     h5status = H5Tinsert(datatype, "scan_counter", HOFFSET(ISMRMRD_AcquisitionHeader, scan_counter), H5T_NATIVE_UINT32);
     h5status = H5Tinsert(datatype, "acquisition_time_stamp", HOFFSET(ISMRMRD_AcquisitionHeader, acquisition_time_stamp), H5T_NATIVE_UINT32);
-    h5status = H5Tinsert(datatype, "acquisition_time_stamp", HOFFSET(ISMRMRD_AcquisitionHeader, acquisition_time_stamp), H5T_NATIVE_UINT32);
 
     arraydims[0] = ISMRMRD_PHYS_STAMPS;
     vartype = H5Tarray_create(H5T_NATIVE_UINT32, 1, arraydims);
@@ -277,10 +276,12 @@ int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool create_if_needed) {
     hid_t       fileid;
     herr_t      h5status;
 
-    /* Turn of HDF5 Errors */
-    /* TODO, this is bad.  Maybe have it compile time dependent */
-    /* or add to our error log */
-    H5Eset_auto1(NULL, NULL);
+    // TODO Opening the dataset when it doesn't already exist causes spew in the error log.
+    /* Turn of HDF5 errors completely*/
+    /* This is bad.  Maybe have it compile time dependent */
+     /* or add to our error log */
+    //H5Eset_auto2(NULL, NULL, NULL);
+    
     
     /* Check if the file exists and is an HDF5 File */
     h5status = H5Fis_hdf5(dset->filename);
@@ -366,7 +367,7 @@ int ismrmrd_write_header(const ISMRMRD_Dataset *dset, const char *xmlstring) {
     dataspace = H5Screate_simple(1, dims, NULL);
     datatype = get_hdf5type_xmlheader();
     props = H5Pcreate (H5P_DATASET_CREATE);
-    dataset = H5Dcreate(dset->fileid, path, datatype, dataspace, H5P_DEFAULT, props,  H5P_DEFAULT);
+    dataset = H5Dcreate2(dset->fileid, path, datatype, dataspace, H5P_DEFAULT, props,  H5P_DEFAULT);
 
     /* Write it out */
     /* We have to wrap the xmlstring in an array */
@@ -398,7 +399,7 @@ char * ismrmrd_read_header(const ISMRMRD_Dataset *dset) {
     char *path = make_path(dset, "xml");
 
     if (link_exists(dset, path)) {
-        dataset = H5Dopen(dset->fileid, path, H5P_DEFAULT);
+        dataset = H5Dopen2(dset->fileid, path, H5P_DEFAULT);
         datatype = get_hdf5type_xmlheader();
         /* Read it into a 1D buffer*/
         void *buff[1];
@@ -444,7 +445,7 @@ unsigned long ismrmrd_get_number_of_acquisitions(const ISMRMRD_Dataset *dset) {
     char *path = make_path(dset, "data");
 
     if (link_exists(dset, path)) {
-        dataset = H5Dopen(dset->fileid, path, H5P_DEFAULT);
+        dataset = H5Dopen2(dset->fileid, path, H5P_DEFAULT);
         dataspace = H5Dget_space(dataset);
         h5status = H5Sget_simple_extent_dims(dataspace, dims, maxdims);
         numacq = dims[0];
@@ -484,7 +485,7 @@ int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquis
     /* Check the path, extend or create if needed */
     if (link_exists(dset, path)) {
         /* open */
-        dataset = H5Dopen(dset->fileid, path, H5P_DEFAULT);
+        dataset = H5Dopen2(dset->fileid, path, H5P_DEFAULT);
         /* TODO check that the dataset's datatype is correct */
         dataspace = H5Dget_space(dataset);
         h5status = H5Sget_simple_extent_dims(dataspace, dims, maxdims);
@@ -501,7 +502,7 @@ int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquis
         /* enable chunking so that the dataset is extensible */
         h5status = H5Pset_chunk (props, 1, chunk_dims);
         /* create */
-        dataset = H5Dcreate(dset->fileid, path, datatype, dataspace, H5P_DEFAULT, props,  H5P_DEFAULT);
+        dataset = H5Dcreate2(dset->fileid, path, datatype, dataspace, H5P_DEFAULT, props,  H5P_DEFAULT);
         h5status = H5Pclose(props);
     }
 
@@ -552,7 +553,7 @@ int ismrmrd_read_acquisition(const ISMRMRD_Dataset *dset, unsigned long index, I
     /* Check the path, extend or create if needed */
     if (link_exists(dset, path)) {
         /* open */
-        dataset = H5Dopen(dset->fileid, path, H5P_DEFAULT);
+        dataset = H5Dopen2(dset->fileid, path, H5P_DEFAULT);
         
         /* The acquisition datatype */
         datatype = get_hdf5type_acquisition();
