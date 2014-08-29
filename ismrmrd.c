@@ -41,8 +41,8 @@ void ismrmrd_init_acquisition_header(ISMRMRD_AcquisitionHeader *hdr) {
 
 void ismrmrd_init_acquisition(ISMRMRD_Acquisition *acq) {
     ismrmrd_init_acquisition_header(&acq->head);
-    acq->traj = (float *)malloc(ismrmrd_size_of_acquisition_traj(acq));
-    acq->data = (complex_float_t *)malloc(ismrmrd_size_of_acquisition_data(acq));
+    acq->traj = (float *)malloc(0); /* can be passed to free */
+    acq->data = (complex_float_t *)malloc(0);
 }
 
 void ismrmrd_cleanup_acquisition(ISMRMRD_Acquisition *acq) {
@@ -223,9 +223,9 @@ void ismrmrd_init_ndarray(ISMRMRD_NDArray *arr) {
     arr->data_type = 0; // no default data type
     arr->ndim = 0;
     for (int n = 0; n < ISMRMRD_NDARRAY_MAXDIM; n++) {
-        arr->dims[n] = 1;
+        arr->dims[n] = 0;
     }
-    ismrmrd_make_consistent_ndarray(arr);
+    arr->data = malloc(0);  /* Can be freed */
 }
 
 void ismrmrd_cleanup_ndarray(ISMRMRD_NDArray *arr) {
@@ -253,14 +253,18 @@ int ismrmrd_make_consistent_ndarray(ISMRMRD_NDArray *arr) {
             return ISMRMRD_MEMORYERROR;
         }
     }
+    else {
+        /* data_size == 0 */
+        /* the data type is invalid for some other reason */
+        return ISMRMRD_MEMORYERROR;
+    }
     return ISMRMRD_NOERROR;
 }
 
 size_t ismrmrd_size_of_ndarray_data(const ISMRMRD_NDArray *arr) {
     size_t data_size = 0;
     int num_data = 1;
-    int n = 0;
-    for (int n = 0; n < ISMRMRD_NDARRAY_MAXDIM; n++) {
+    for (int n = 0; n < arr->ndim; n++) {
         num_data *= arr->dims[n];
     }
 
