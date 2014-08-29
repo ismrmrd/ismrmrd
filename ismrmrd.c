@@ -1,8 +1,8 @@
+#include <string.h>
+#include <stdlib.h>
+
 /* Language and Cross platform section for defining types */
 #ifdef __cplusplus
-
-#include <cstring>
-#include <cstdlib>
 #include <cmath>
 #include <cassert>
 
@@ -11,10 +11,7 @@
 #endif /* DEBUG */
 
 #else
-
 /* C99 compiler */
-#include <string.h>
-#include <stdlib.h>
 #include <math.h>
 #include <assert.h>
 
