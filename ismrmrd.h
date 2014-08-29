@@ -30,12 +30,14 @@ typedef unsigned __int64 uint64_t;
 typedef std::complex<float> complex_float_t;
 typedef std::complex<double> complex_double_t;
 #include <vector>
+#include <cstring>
 #else /* C99 compiler */
 #include <stdint.h>
 #include <complex.h>
 #include <stdbool.h>
 typedef float complex complex_float_t;
 typedef double complex complex_double_t;
+#include <string.h>
 #endif /* __cplusplus */
 
 #pragma pack(push, 2) /* Use 2 byte alignment */
