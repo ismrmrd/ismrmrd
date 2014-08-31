@@ -3,6 +3,7 @@ project(ISMRMRD)
 
 enable_testing()
 
+
 #Set the build type to Release if not specified
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Release CACHE STRING
@@ -25,6 +26,46 @@ set(ISMRMRD_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(ISMRMRD_SCHEMA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/schema)
 set(ISMRMRD_SCHEMA_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/src/xsd)
 
+
+#  ---   VERSIONING  (begin) ----
+#The ISMRMRD convention is to use version numbers with the format:
+#   XX.YY.ZZ (major, minor, patch)
+#
+#The major number increaments when the binary compatibility of
+#the fixed memory layout strucs (e.g. AcquisitionHeader) is broken.
+#The minor number changes when there are changes to the XML schema for 
+#the flexible header. The micro number changes when there are small changes
+#in the utility libraries, that don't affect the data format itself.
+set(ISMRMRD_VERSION_MAJOR 0)
+set(ISMRMRD_VERSION_MINOR 0)
+set(ISMRMRD_VERSION_PATCH 1) 
+
+set(ISMRMRD_XML_SCHEMA_SHA1 "62d277cee06c9971b08b20974425ccbf34c0a597")
+file(SHA1 ${CMAKE_SOURCE_DIR}/schema/ismrmrd.xsd ISMRMRD_CURRENT_XML_SCHEMA_SHA1)
+
+if (NOT (${ISMRMRD_XML_SCHEMA_SHA1} STREQUAL ${ISMRMRD_CURRENT_XML_SCHEMA_SHA1}))
+  message("")
+  message("-----------------------------------------------")
+  message("            !!VERSION ERROR!!                  ")
+  message("                                               ")
+  message(" Expected SHA1 hash:                           ")
+  message("    ${ISMRMRD_XML_SCHEMA_SHA1}")
+  message(" Actual SHA1 hash:                             ")
+  message("    ${ISMRMRD_CURRENT_XML_SCHEMA_SHA1}")
+  message("                                               ")
+  message(" The XML Schema (ismrmrmd.xsd) has changed and ")
+  message(" the MINOR version number should be increased  ")
+  message(" and the SHA1 has should be updated in the     ")
+  message(" CMakelists.txt file.                          ")
+  message("                                               ")
+  message(" If you don't know what this message means, you")
+  message(" probably shouldn't be changing anything       ")
+  message("-----------------------------------------------")
+  message("")
+  message(FATAL_ERROR "     FATAL XML VERSION ERROR")
+endif()
+#  ---   VERSIONING  (end) ----
+ 
 # add project specific cmake find modules
 list(APPEND CMAKE_MODULE_PATH ${ISMRMRD_MODULE_DIR})
 
@@ -53,6 +94,10 @@ if(WIN32)
 endif(WIN32)
 
 add_library(ismrmrd SHARED ismrmrd_hdf5.cpp)
+set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
+
+set_target_properties(ismrmrd PROPERTIES VERSION ${ISMRMRD_VERSION_STRING} SOVERSION ${ISMRMRD_VERSION_MAJOR})
+
 include_directories(${HDF5_C_INCLUDE_DIR} ${HDF5_CXX_INCLUDE_DIR}
     ${Boost_INCLUDE_DIR})
 
@@ -92,6 +137,7 @@ endif ( WIN32 )
 
 if ( NOT WIN32 )
     add_library(ismrmrd_xsd SHARED ${XSDS_SOURCES})
+    set_target_properties(ismrmrd_xsd PROPERTIES VERSION ${ISMRMRD_VERSION_STRING} SOVERSION ${ISMRMRD_VERSION_MAJOR})
     include_directories(${XERCESC_INCLUDE_DIR})
     target_link_libraries(ismrmrd_xsd ${XERCESC_LIBRARIES})
 endif ( NOT WIN32 )
