@@ -26,7 +26,7 @@ Dataset::~Dataset()
 }
 
 // XML Header
-int Dataset::writeHeader(const std::string& xmlstring)
+int Dataset::writeHeader(const std::string xmlstring)
 {
     int status = ismrmrd_write_header(&dset_, xmlstring.c_str());
     return status;

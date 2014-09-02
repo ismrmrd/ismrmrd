@@ -10,125 +10,24 @@ namespace ISMRMRD {
 //
 // Constructors
 AcquisitionHeader::AcquisitionHeader() {
-    ismrmrd_init_acquisition_header(&head_);
-};
-
-AcquisitionHeader::AcquisitionHeader(const ISMRMRD_AcquisitionHeader *head) {
-    memcpy(&head_, head, sizeof(ISMRMRD_AcquisitionHeader));
-};
-
-// Accessors and mutators
-const uint16_t &AcquisitionHeader::version() {
-    return head_.version;
-};
-
-const uint64_t &AcquisitionHeader::flags() {
-    return head_.flags;
-};
-
-uint32_t &AcquisitionHeader::measurement_uid() {
-    return head_.measurement_uid;
-};
-
-uint32_t &AcquisitionHeader::scan_counter() {
-    return head_.scan_counter;
-};
-
-uint32_t &AcquisitionHeader::acquisition_time_stamp() {
-    return head_.acquisition_time_stamp;
-};
-
-uint32_t (&AcquisitionHeader::physiology_time_stamp()) [ISMRMRD_PHYS_STAMPS] {
-    return head_.physiology_time_stamp;
-};
-
-uint16_t &AcquisitionHeader::number_of_samples() {
-    return head_.number_of_samples;
-};
-
-uint16_t &AcquisitionHeader::available_channels() {
-    return head_.available_channels;
-};
-
-uint16_t &AcquisitionHeader::active_channels() {
-    return head_.active_channels;
-};
-
-const uint64_t (&AcquisitionHeader::channel_mask()) [ISMRMRD_CHANNEL_MASKS] { 
-    return head_.channel_mask;
-};
-
-uint16_t &AcquisitionHeader::discard_pre() {
-    return head_.discard_pre;
-};
-
-uint16_t &AcquisitionHeader::discard_post() {
-    return head_.discard_post;
-};
-
-uint16_t &AcquisitionHeader::center_sample() {
-    return head_.center_sample;
-};
-
-uint16_t &AcquisitionHeader::encoding_space_ref() {
-    return head_.encoding_space_ref;
-};
-
-uint16_t &AcquisitionHeader::trajectory_dimensions() {
-    return head_.trajectory_dimensions;
-};
-
-float &AcquisitionHeader::sample_time_us() {
-    return head_.sample_time_us;
-};
-
-float (&AcquisitionHeader::position())[3] {
-    return head_.position;
-};
-
-float (&AcquisitionHeader::read_dir())[3] {
-    return head_.read_dir;
-};
-
-float (&AcquisitionHeader::phase_dir())[3] {
-    return head_.phase_dir;
-};
-
-float (&AcquisitionHeader::slice_dir())[3] {
-    return head_.slice_dir;
-};
-
-float (&AcquisitionHeader::patient_table_position())[3] {
-    return head_.patient_table_position;
-};
-
-ISMRMRD_EncodingCounters &AcquisitionHeader::idx() {
-    return head_.idx;
-};
-
-int32_t (&AcquisitionHeader::user_int()) [ISMRMRD_USER_INTS] { 
-    return head_.user_int;
-};
-
-float (&AcquisitionHeader::user_float()) [ISMRMRD_USER_FLOATS] {
- return head_.user_float;
+    ismrmrd_init_acquisition_header(this);
 };
 
 // Flag methods
 bool AcquisitionHeader::isFlagSet(const ISMRMRD_AcquisitionFlags val) {
-    return ismrmrd_is_flag_set(head_.flags, val);
+    return ismrmrd_is_flag_set(flags, val);
 };
 
 void AcquisitionHeader::setFlag(const ISMRMRD_AcquisitionFlags val) {
-    ismrmrd_set_flag(&(head_.flags), val);
+    ismrmrd_set_flag(&flags, val);
 };
 
 void AcquisitionHeader::clearFlag(const ISMRMRD_AcquisitionFlags val) {
-    ismrmrd_clear_flag(&(head_.flags), val);
+    ismrmrd_clear_flag(&flags, val);
 };
 
 void AcquisitionHeader::clearAllFlags() {
-    ismrmrd_clear_all_flags(&(head_.flags));
+    ismrmrd_clear_all_flags(&flags);
 };
 
 // TODO: Channel mask methods go here
@@ -295,156 +194,26 @@ void Acquisition::clearAllFlags() {
 // ImageHeader class Implementation
 //
 
-// Constructors
+// Constructor
 ImageHeader::ImageHeader() {
-    ismrmrd_init_image_header(&head_);
-};
-
-// Accessors and mutators
-const uint16_t &ImageHeader::version() {
-    return head_.version;
-};
-const uint16_t &ImageHeader::data_type() {
-    return head_.data_type;
-};
-void ImageHeader::data_type(uint16_t dtype) {
-    // TODO function to check if type is valid
-    head_.data_type = dtype;
-};
-
-const uint64_t &ImageHeader::flags() {
-    return head_.flags;
-};
-
-uint32_t &ImageHeader::measurement_uid() {
-    return head_.measurement_uid;
-};
-
-const uint16_t (&ImageHeader::matrix_size())[3] {
-    return head_.matrix_size;
-};
-
-void ImageHeader::matrix_size(const uint16_t msize[3]) {
-    head_.matrix_size[0] = msize[0];
-    if (msize[1] > 1) {
-        head_.matrix_size[1] = msize[1];
-    } else {
-        head_.matrix_size[1] = 1;
-    }
-    if (msize[2] > 0) {
-        head_.matrix_size[2] = msize[2];
-    } else {
-        head_.matrix_size[2] = 1;
-    }
-};
-
-float (&ImageHeader::field_of_view())[3] {
-    return head_.field_of_view;
-};
-
-const uint16_t &ImageHeader::channels() {
-    return head_.channels;
-};
-
-void ImageHeader::channels(const uint16_t num_channels) {
-    if (num_channels > 1) {
-        head_.channels = num_channels;
-    } else {
-        head_.channels = 1;
-    }
-};
-
-float (&ImageHeader::position())[3] {
-    return head_.position;
-};
-
-float (&ImageHeader::read_dir())[3] {
-    return head_.read_dir;
-};
-
-float (&ImageHeader::phase_dir())[3] {
-    return head_.phase_dir;
-};
-
-float (&ImageHeader::slice_dir())[3] {
-    return head_.slice_dir;
-};
-
-float (&ImageHeader::patient_table_position())[3] {
-    return head_.patient_table_position;
-};
-
-uint16_t &ImageHeader::average() {
-    return head_.average;
-};
-
-uint16_t &ImageHeader::slice() {
-    return head_.slice;
-};
-
-uint16_t &ImageHeader::contrast() {
-    return head_.contrast;
-};
-
-uint16_t &ImageHeader::phase() {
-    return head_.repetition;
-};
-
-uint16_t &ImageHeader::repetition() {
-    return head_.repetition;
-};
-
-uint16_t &ImageHeader::set() {
-    return head_.set;
-};
-
-uint32_t &ImageHeader::acquisition_time_stamp() {
-    return head_.acquisition_time_stamp;
-};
-
-uint32_t (&ImageHeader::physiology_time_stamp()) [ISMRMRD_PHYS_STAMPS] {
-    return head_.physiology_time_stamp;
-};
-
-uint16_t &ImageHeader::image_type() {
-    return head_.image_type;
-};
-
-uint16_t &ImageHeader::image_index() {
-    return head_.image_index;
-};
-
-uint16_t &ImageHeader::image_series_index() {
-    return head_.image_series_index;
-};
-
-int32_t (&ImageHeader::user_int()) [ISMRMRD_USER_INTS] { 
-    return head_.user_int;
-};
-
-float (&ImageHeader::user_float()) [ISMRMRD_USER_FLOATS] { 
-    return head_.user_float;
-};
-
-const uint32_t &ImageHeader::attribute_string_len() {
-    return head_.attribute_string_len;
+    ismrmrd_init_image_header(this);
 };
 
 // Flag methods
 bool ImageHeader::isFlagSet(const uint64_t val) {
-    return ismrmrd_is_flag_set(head_.flags, val);
+    return ismrmrd_is_flag_set(flags, val);
 };
 
 void ImageHeader::setFlag(const uint64_t val) {
-    ismrmrd_set_flag(&(head_.flags), val);
+    ismrmrd_set_flag(&flags, val);
 };
 
 void ImageHeader::clearFlag(const uint64_t val) {
-    ismrmrd_clear_flag(&(head_.flags), val);
+    ismrmrd_clear_flag(&flags, val);
 };
 
 void ImageHeader::clearAllFlags() {
-    ismrmrd_clear_all_flags(&(head_.flags));
+    ismrmrd_clear_all_flags(&flags);
 };
 
 //

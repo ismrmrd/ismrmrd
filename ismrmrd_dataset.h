@@ -7,6 +7,7 @@
 #include "ismrmrd.h"
 
 #ifdef __cplusplus
+#include <string>
 namespace ISMRMRD {
 extern "C" {
 #endif
@@ -161,7 +162,7 @@ public:
     
     // Methods
     // XML Header
-    int writeHeader(const std::string& xmlstring);
+    int writeHeader(const std::string xmlstring);
     int writeHeader(const char* xml);
     int readHeader(std::string& xmlstring);
     char * readHeader();

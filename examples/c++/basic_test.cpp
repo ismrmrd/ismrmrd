@@ -8,23 +8,24 @@ int main (int args, char** argv) {
   using namespace ISMRMRD;
   
   AcquisitionHeader acqhdr;
-  std::cout << "Version: " << acqhdr.version() << std::endl;
-  std::cout << "Flags 0: " << acqhdr.flags() << std::endl;
+  std::cout << "Version: " << acqhdr.version << std::endl;
+  std::cout << "Flags 0: " << acqhdr.flags << std::endl;
   std::cout << "ACQ_FIRST_IN_SLICE: " << acqhdr.isFlagSet(ISMRMRD_ACQ_FIRST_IN_SLICE) << std::endl;
   acqhdr.setFlag(ISMRMRD_ACQ_FIRST_IN_SLICE);
-  std::cout << "Flags 1: " << acqhdr.flags() << std::endl;
+  std::cout << "Flags 1: " << acqhdr.flags << std::endl;
   std::cout << "ACQ_FIRST_IN_SLICE: " << acqhdr.isFlagSet(ISMRMRD_ACQ_FIRST_IN_SLICE) << std::endl;
   acqhdr.clearFlag(ISMRMRD_ACQ_FIRST_IN_SLICE);
-  std::cout << "Flags 2: " << acqhdr.flags() << std::endl;
+  std::cout << "Flags 2: " << acqhdr.flags << std::endl;
   std::cout << "ACQ_FIRST_IN_SLICE: " << acqhdr.isFlagSet(ISMRMRD_ACQ_FIRST_IN_SLICE) << std::endl;
 
-  // How to use the AcquisitionHeader as a wrapper to the C struct.
+  // The C++ AcquisitionHeader can be mem copied from the C struct ISMRMRD_AcquisitionHeader
   ISMRMRD_AcquisitionHeader c_acqhdr;
   ismrmrd_init_acquisition_header(&c_acqhdr);
   c_acqhdr.flags = 64;
-  
-  AcquisitionHeader acqhdr2(&c_acqhdr);
-  std::cout << "AcquisitionHeader copy: flags: " << acqhdr2.flags() << std::endl;
+
+  AcquisitionHeader acqhdr2;
+  memcpy(&acqhdr2, &c_acqhdr, sizeof(AcquisitionHeader));
+  std::cout << "AcquisitionHeader copy: flags: " << acqhdr2.flags << std::endl;
   
   Acquisition acq;
   std::cout << "Version: " << acq.version() << std::endl;
@@ -46,7 +47,7 @@ int main (int args, char** argv) {
   std::cout << "Acquisition copy ACQ_FIRST_IN_SLICE: " << acq2.isFlagSet(ISMRMRD_ACQ_FIRST_IN_SLICE) << std::endl;
   std::cout << "Acquisition nsamp: " << acq.number_of_samples() << "    Acquisition copy nsamp: " << acq2.number_of_samples() << std::endl;
  
-  // How to use the Acquisition as a wrapper to the C struct.
+  // How to use the C++ Acquisition as a wrapper to the C struct ISMRMRD_Acquistion
   ISMRMRD_Acquisition c_acq;
   ismrmrd_init_acquisition(&c_acq);
   c_acq.head.number_of_samples = 128;
