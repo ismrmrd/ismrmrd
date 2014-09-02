@@ -131,7 +131,7 @@ enum ISMRMRD_AcquisitionFlags {
 /**
  * Image Types
  */
-enum ISMRMRD_ImageType {
+enum ISMRMRD_ImageTypes {
     ISMRMRD_IMTYPE_MAGNITUDE = 1,
     ISMRMRD_IMTYPE_PHASE,
     ISMRMRD_IMTYPE_REAL,
