@@ -118,10 +118,10 @@ void ismrmrd_init_image_header(ISMRMRD_ImageHeader *hdr) {
 }
 
 /* Image functions */
-void ismrmrd_init_image(ISMRMRD_Image *im) {
-    ismrmrd_init_image_header(&im->head);
-    im->attribute_string = NULL;
-    im->data = NULL;
+ISMRMRD_Image * ismrmrd_create_image() {
+    ISMRMRD_Image *im = (ISMRMRD_Image *) malloc(sizeof(ISMRMRD_Image));
+    ismrmrd_init_image(im);
+    return im;
 }
 
 void ismrmrd_free_image(ISMRMRD_Image *im) {
@@ -129,7 +129,18 @@ void ismrmrd_free_image(ISMRMRD_Image *im) {
     free(im->attribute_string);
     free(im);
 }
+    
+void ismrmrd_init_image(ISMRMRD_Image *im) {
+    ismrmrd_init_image_header(&im->head);
+    im->attribute_string = NULL;
+    im->data = NULL;
+}
 
+void ismrmrd_cleanup_image(ISMRMRD_Image *im) {
+    free(im->attribute_string);
+    free(im->data);
+}
+    
 void ismrmrd_copy_image(ISMRMRD_Image *imdest, const ISMRMRD_Image *imsource) {
     memcpy(&imdest->head, &imsource->head, sizeof(ISMRMRD_ImageHeader));
     ismrmrd_make_consistent_image(imdest);

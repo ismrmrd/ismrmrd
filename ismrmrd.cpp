@@ -46,12 +46,6 @@ Acquisition::Acquisition(const Acquisition &other) {
     ismrmrd_copy_acquisition(this, &other);
 }
 
-Acquisition::Acquisition(const ISMRMRD_Acquisition *acq) {
-    // This is a deep copy
-    ismrmrd_init_acquisition(this);
-    ismrmrd_copy_acquisition(this, acq);
-}
-
 Acquisition & Acquisition::operator= (const Acquisition &other) {
     // Assignment makes a copy
     if (this != &other )
@@ -240,159 +234,198 @@ void ImageHeader::clearAllFlags() {
 
 // Constructors
 Image::Image() {
-    ismrmrd_init_image(&image_);
+    ismrmrd_init_image(this);
 };
+
+Image::Image(const Image &other) {
+    // This is a deep copy
+    ismrmrd_init_image(this);
+    ismrmrd_copy_image(this, &other);
+}
+
+Image & Image::operator= (const Image &other) {
+    // Assignment makes a copy
+    if (this != &other )
+    {
+        ismrmrd_init_image(this);
+        ismrmrd_copy_image(this, &other);
+    }
+    return *this;
+}
+
+Image::~Image() {
+    ismrmrd_cleanup_image(this);
+}
 
 // Accessors and mutators
 const uint16_t &Image::version() {
-    return image_.head.version;
+    return head.version;
 };
 
 const uint16_t &Image::data_type() {
-    return image_.head.data_type;
+    return head.data_type;
 };
 
 void Image::data_type(uint16_t dtype) {
     // TODO function to check if type is valid
-    image_.head.data_type = dtype;
-    ismrmrd_make_consistent_image(&image_);
+    head.data_type = dtype;
+    ismrmrd_make_consistent_image(this);
 };
 
 const uint64_t &Image::flags() {
-    return image_.head.flags;
+    return head.flags;
 };
 
 uint32_t &Image::measurement_uid() {
-    return image_.head.measurement_uid;
+    return head.measurement_uid;
 };
 
 const uint16_t (&Image::matrix_size())[3] {
-    return image_.head.matrix_size;
+    return head.matrix_size;
 };
 
 void Image::matrix_size(const uint16_t msize[3]) {
-    image_.head.matrix_size[0] = msize[0];
+    head.matrix_size[0] = msize[0];
     if (msize[1] > 1) {
-        image_.head.matrix_size[1] = msize[1];
+        head.matrix_size[1] = msize[1];
     } else {
-        image_.head.matrix_size[1] = 1;
+        head.matrix_size[1] = 1;
     }
     if (msize[2] > 0) {
-        image_.head.matrix_size[2] = msize[2];
+        head.matrix_size[2] = msize[2];
     } else {
-        image_.head.matrix_size[2] = 1;
+        head.matrix_size[2] = 1;
     }
-    ismrmrd_make_consistent_image(&image_);
+    ismrmrd_make_consistent_image(this);
 };
 
 float (&Image::field_of_view())[3] {
-    return image_.head.field_of_view;
+    return head.field_of_view;
 };
 
 const uint16_t &Image::channels() {
-    return image_.head.channels;
+    return head.channels;
 };
 
 void Image::channels(const uint16_t num_channels) {
     if (num_channels > 1) {
-        image_.head.channels = num_channels;
+        head.channels = num_channels;
     } else {
-        image_.head.channels = 1;
+        head.channels = 1;
     }
-    ismrmrd_make_consistent_image(&image_);
+    ismrmrd_make_consistent_image(this);
 };
 
 float (&Image::position())[3] {
-    return image_.head.position;
+    return head.position;
 };
 
 float (&Image::read_dir())[3] {
-    return image_.head.read_dir;
+    return head.read_dir;
 };
 
 float (&Image::phase_dir())[3] {
-    return image_.head.phase_dir;
+    return head.phase_dir;
 };
 
 float (&Image::slice_dir())[3] {
-    return image_.head.slice_dir;
+    return head.slice_dir;
 };
 
 float (&Image::patient_table_position())[3] {
-    return image_.head.patient_table_position;
+    return head.patient_table_position;
 };
 
 uint16_t &Image::average() {
-    return image_.head.average;
+    return head.average;
 };
 
 uint16_t &Image::slice() {
-    return image_.head.slice;
+    return head.slice;
 };
 
 uint16_t &Image::contrast() {
-    return image_.head.contrast;
+    return head.contrast;
 };
 
 uint16_t &Image::phase() {
-    return image_.head.repetition;
+    return head.repetition;
 };
 
 uint16_t &Image::repetition() {
-    return image_.head.repetition;
+    return head.repetition;
 };
 
 uint16_t &Image::set() {
-    return image_.head.set;
+    return head.set;
 };
 
 uint32_t &Image::acquisition_time_stamp() {
-    return image_.head.acquisition_time_stamp;
+    return head.acquisition_time_stamp;
 };
 
 uint32_t (&Image::physiology_time_stamp()) [ISMRMRD_PHYS_STAMPS] { 
-    return image_.head.physiology_time_stamp;
+    return head.physiology_time_stamp;
 };
 
 uint16_t &Image::image_type() {
-    return image_.head.image_type;
+    return head.image_type;
 };
 
 uint16_t &Image::image_index() {
-    return image_.head.image_index;
+    return head.image_index;
 };
 
 uint16_t &Image::image_series_index() {
-    return image_.head.image_series_index;
+    return head.image_series_index;
 };
 
 int32_t (&Image::user_int()) [ISMRMRD_USER_INTS] { 
-    return image_.head.user_int;
+    return head.user_int;
 };
 
 float (&Image::user_float()) [ISMRMRD_USER_FLOATS] {
-    return image_.head.user_float;
+    return head.user_float;
 };
 
 const uint32_t &Image::attribute_string_len() {
-    return image_.head.attribute_string_len;
+    return head.attribute_string_len;
 };
+
+// Header and data accessors
+ImageHeader &Image::getHead() {
+    // This returns a reference
+    return *static_cast<ImageHeader *>(&head);
+}
+
+void Image::setHead(const ImageHeader other) {
+    memcpy(&head, &other, sizeof(ImageHeader));
+    ismrmrd_make_consistent_image(this);
+}
+
+char *Image::getAttributeString() {
+    return attribute_string;
+}
+
+void *Image::getData() {
+    return data;
+}
 
 // Flag methods
 bool Image::isFlagSet(const uint64_t val) {
-    return ismrmrd_is_flag_set(image_.head.flags, val);
+    return ismrmrd_is_flag_set(head.flags, val);
 };
 
 void Image::setFlag(const uint64_t val) {
-    ismrmrd_set_flag(&(image_.head.flags), val);
+    ismrmrd_set_flag(&(head.flags), val);
 };
 
 void Image::clearFlag(const uint64_t val) {
-    ismrmrd_clear_flag(&(image_.head.flags), val);
+    ismrmrd_clear_flag(&(head.flags), val);
 };
 
 void Image::clearAllFlags() {
-    ismrmrd_clear_all_flags(&(image_.head.flags));
+    ismrmrd_clear_all_flags(&(head.flags));
 };
 
 //

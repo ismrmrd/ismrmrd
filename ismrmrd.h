@@ -270,13 +270,16 @@ typedef struct ISMRMRD_Image {
     void *data;
 } ISMRMRD_Image;
 
-void ismrmrd_init_image(ISMRMRD_Image *im);
+
+ISMRMRD_Image * ismrmrd_create_image();
 void ismrmrd_free_image(ISMRMRD_Image *im);
+void ismrmrd_init_image(ISMRMRD_Image *im);
+void ismrmrd_cleanup_image(ISMRMRD_Image *im);
 void ismrmrd_copy_image(ISMRMRD_Image *imdest, const ISMRMRD_Image *imsource);
 int ismrmrd_make_consistent_image(ISMRMRD_Image *im);
 size_t ismrmrd_size_of_image_attribute_string(const ISMRMRD_Image *im);
 size_t ismrmrd_size_of_image_data(const ISMRMRD_Image *im);
-
+    
 /************/
 /* NDArrays */
 /************/
@@ -389,12 +392,10 @@ public:
 };
 
 class Acquisition: protected ISMRMRD_Acquisition {
-    friend class Dataset;
 public:
     // Constructors, assignment, destructor
     Acquisition();
     Acquisition(const Acquisition &other);
-    Acquisition(const ISMRMRD_Acquisition *other);
     Acquisition & operator= (const Acquisition &other);
     ~Acquisition();
 
@@ -430,9 +431,7 @@ public:
     AcquisitionHeader &getHead();
     void setHead(const AcquisitionHeader other);
     complex_float_t *getData();
-    uint64_t numDataElements();
     float *getTraj();
-    uint64_t numTrajElements();
 
     // Flag methods
     bool isFlagSet(const uint64_t val);
@@ -462,12 +461,13 @@ public:
 
 };
 
-class Image {
+class Image : protected ISMRMRD_Image {
 public:
     // Constructors
     Image();
-    Image(Image &im);
-    Image(ISMRMRD_Image *im);
+    Image(const Image &other);
+    Image & operator= (const Image &other);
+    ~Image();
 
     // Accessors and mutators
     const uint16_t &version();
@@ -500,14 +500,18 @@ public:
     float (&user_float())[ISMRMRD_USER_FLOATS];
     const uint32_t &attribute_string_len();
 
+    // Header and data accessors
+    ImageHeader &getHead();
+    void setHead(const ImageHeader other);
+    char *getAttributeString();
+    void setAttributeString(std::string attr);
+    void *getData();
+
     // Flag methods
     bool isFlagSet(const uint64_t val);
     void setFlag(const uint64_t val);
     void clearFlag(const uint64_t val);
     void clearAllFlags();
-
-protected:
-    ISMRMRD_Image image_;
 };
 
 class NDArray: protected ISMRMRD_NDArray {
