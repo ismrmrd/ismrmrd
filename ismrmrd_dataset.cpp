@@ -58,16 +58,16 @@ char * Dataset::readHeader()
 }
 
 // Acquisitions
-int Dataset::appendAcquisition(const Acquisition &acq)
+int Dataset::appendAcquisition(const Acquisition acq)
 {
-    int status = ismrmrd_append_acquisition(&dset_, &acq.acq_);
+    int status = ismrmrd_append_acquisition(&dset_, static_cast<const ISMRMRD_Acquisition*>(&acq));
     return status;
 }
 
 Acquisition * Dataset::readAcquisition(unsigned long index)
 {
     Acquisition * acq = new Acquisition();
-    int status = ismrmrd_read_acquisition(&dset_, index, &acq->acq_);
+    int status = ismrmrd_read_acquisition(&dset_, index, static_cast<ISMRMRD_Acquisition*>(acq));
     return acq;
 }
 

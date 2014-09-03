@@ -37,155 +37,173 @@ void AcquisitionHeader::clearAllFlags() {
 //
 // Constructors, assignment operator, destructor
 Acquisition::Acquisition() {
-    ismrmrd_init_acquisition(&acq_);
+    ismrmrd_init_acquisition(this);
 }
 
 Acquisition::Acquisition(const Acquisition &other) {
     // This is a deep copy
-    ismrmrd_init_acquisition(&acq_);
-    ismrmrd_copy_acquisition(&acq_, &other.acq_);
+    ismrmrd_init_acquisition(this);
+    ismrmrd_copy_acquisition(this, &other);
 }
 
 Acquisition::Acquisition(const ISMRMRD_Acquisition *acq) {
     // This is a deep copy
-    ismrmrd_init_acquisition(&acq_);
-    ismrmrd_copy_acquisition(&acq_, acq);
+    ismrmrd_init_acquisition(this);
+    ismrmrd_copy_acquisition(this, acq);
 }
 
 Acquisition & Acquisition::operator= (const Acquisition &other) {
     // Assignment makes a copy
     if (this != &other )
     {
-        ismrmrd_init_acquisition(&acq_);
-        ismrmrd_copy_acquisition(&acq_, &other.acq_);
+        ismrmrd_init_acquisition(this);
+        ismrmrd_copy_acquisition(this, &other);
     }
     return *this;
 }
 
 Acquisition::~Acquisition() {
-    ismrmrd_cleanup_acquisition(&acq_);
+    ismrmrd_cleanup_acquisition(this);
 }
 
 // Accessors and mutators
 const uint16_t &Acquisition::version() {
-    return acq_.head.version;
-};
+    return head.version;
+}
 
 const uint64_t &Acquisition::flags() {
-    return acq_.head.flags;
-};
+    return head.flags;
+}
 
 uint32_t &Acquisition::measurement_uid() {
-    return acq_.head.measurement_uid;
-};
+    return head.measurement_uid;
+}
 
 uint32_t &Acquisition::scan_counter() {
-    return acq_.head.scan_counter;
-};
+    return head.scan_counter;
+}
 
 uint32_t &Acquisition::acquisition_time_stamp() {
-    return acq_.head.acquisition_time_stamp;
-};
+    return head.acquisition_time_stamp;
+}
 
 uint32_t (&Acquisition::physiology_time_stamp()) [ISMRMRD_PHYS_STAMPS] {
-    return acq_.head.physiology_time_stamp;
-};
+    return head.physiology_time_stamp;
+}
 
 const uint16_t &Acquisition::number_of_samples() {
-    return acq_.head.number_of_samples;
-};
+    return head.number_of_samples;
+}
 
 void Acquisition::number_of_samples(uint16_t num_samples) {
-    acq_.head.number_of_samples = num_samples;
-    ismrmrd_make_consistent_acquisition(&acq_);
-};
+    head.number_of_samples = num_samples;
+    ismrmrd_make_consistent_acquisition(this);
+}
 
 uint16_t &Acquisition::available_channels() {
-    return acq_.head.available_channels;
-};
+    return head.available_channels;
+}
 
 const uint16_t &Acquisition::active_channels() {
-    return acq_.head.active_channels;
-};
+    return head.active_channels;
+}
 
 void Acquisition::active_channels(uint16_t num_channels) {
-    acq_.head.active_channels = num_channels;
-    ismrmrd_make_consistent_acquisition(&acq_);
-};
+    head.active_channels = num_channels;
+    ismrmrd_make_consistent_acquisition(this);
+}
 
 const uint64_t (&Acquisition::channel_mask()) [ISMRMRD_CHANNEL_MASKS] {
-    return acq_.head.channel_mask;
-};
+    return head.channel_mask;
+}
 
 uint16_t &Acquisition::discard_pre() {
-    return acq_.head.discard_pre;
-};
+    return head.discard_pre;
+}
 
 uint16_t &Acquisition::discard_post() {
-    return acq_.head.discard_post;
-};
+    return head.discard_post;
+}
 
 uint16_t &Acquisition::center_sample() {
-    return acq_.head.center_sample;
-};
+    return head.center_sample;
+}
 
 uint16_t &Acquisition::encoding_space_ref() {
-    return acq_.head.encoding_space_ref;
-};
+    return head.encoding_space_ref;
+}
 
 uint16_t &Acquisition::trajectory_dimensions() {
-    return acq_.head.trajectory_dimensions;
-};
+    return head.trajectory_dimensions;
+}
 
 float &Acquisition::sample_time_us() {
-    return acq_.head.sample_time_us;
-};
+    return head.sample_time_us;
+}
 
 float (&Acquisition::position())[3] {
-    return acq_.head.position;
-};
+    return head.position;
+}
 
 float (&Acquisition::read_dir())[3] {
-    return acq_.head.read_dir;
-};
+    return head.read_dir;
+}
 
 float (&Acquisition::phase_dir())[3] {
-    return acq_.head.phase_dir;
-};
+    return head.phase_dir;
+}
 
 float (&Acquisition::slice_dir())[3] {
-    return acq_.head.slice_dir;
-};
+    return head.slice_dir;
+}
 
 float (&Acquisition::patient_table_position())[3] {
-    return acq_.head.patient_table_position;
-};
+    return head.patient_table_position;
+}
 
 ISMRMRD_EncodingCounters &Acquisition::idx() {
-    return acq_.head.idx;
-};
+    return head.idx;
+}
 
-int32_t (&Acquisition::user_int()) [ISMRMRD_USER_INTS] { return acq_.head.user_int; };
+int32_t (&Acquisition::user_int()) [ISMRMRD_USER_INTS] {
+    return head.user_int;
+}
 
-float (&Acquisition::user_float()) [ISMRMRD_USER_FLOATS] { return acq_.head.user_float; };
+float (&Acquisition::user_float()) [ISMRMRD_USER_FLOATS] {
+    return head.user_float;
+}
 
 // Data and Trajectory accessors
-complex_float_t * Acquisition::data() { return acq_.data; };
+AcquisitionHeader * Acquisition::getHead() {
+    // This returns a pointer
+    return static_cast<AcquisitionHeader *>(&head);
+}
 
-float * Acquisition::traj() { return acq_.traj; };
+void Acquisition::setHead(const AcquisitionHeader other) {
+    memcpy(&head, &other, sizeof(AcquisitionHeader));
+    ismrmrd_make_consistent_acquisition(this);
+}
+
+complex_float_t * Acquisition::getData() {
+    return data;
+}
+
+float * Acquisition::getTraj() {
+    return traj;
+}
 
 // Flag methods
 bool Acquisition::isFlagSet(const uint64_t val) {
-    return ismrmrd_is_flag_set(acq_.head.flags, val);
+    return ismrmrd_is_flag_set(head.flags, val);
 };
 void Acquisition::setFlag(const uint64_t val) {
-    ismrmrd_set_flag(&acq_.head.flags, val);
+    ismrmrd_set_flag(&head.flags, val);
 };
 void Acquisition::clearFlag(const uint64_t val) {
-    ismrmrd_clear_flag(&acq_.head.flags, val);
+    ismrmrd_clear_flag(&head.flags, val);
 };
 void Acquisition::clearAllFlags() {
-    ismrmrd_clear_all_flags(&acq_.head.flags);
+    ismrmrd_clear_all_flags(&head.flags);
 };
 
 // TODO: Channel mask methods go here

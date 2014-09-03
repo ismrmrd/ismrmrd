@@ -362,13 +362,13 @@ public:
 
 };
 
-class Acquisition {
+class Acquisition: protected ISMRMRD_Acquisition {
     friend class Dataset;
 public:
     // Constructors, assignment, destructor
     Acquisition();
     Acquisition(const Acquisition &other);
-    Acquisition(const ISMRMRD_Acquisition *acq);
+    Acquisition(const ISMRMRD_Acquisition *other);
     Acquisition & operator= (const Acquisition &other);
     ~Acquisition();
 
@@ -400,10 +400,12 @@ public:
     int32_t (&user_int())[ISMRMRD_USER_INTS];
     float (&user_float())[ISMRMRD_USER_FLOATS];
 
-    // Data and Trajectory accessors
-    complex_float_t * data();
+    // Header, data and trajectory accessors
+    AcquisitionHeader * getHead();
+    void setHead(const AcquisitionHeader other);
+    complex_float_t * getData();
     uint64_t numDataElements();
-    float * traj();
+    float * getTraj();
     uint64_t numTrajElements();
 
     // Flag methods
@@ -419,8 +421,6 @@ public:
     //void setChannelNotActive(uint16_t channel_id);
     //void setAllChannelsNotActive();
 
-protected:
-    ISMRMRD_Acquisition acq_;
 };
 
 class ImageHeader: public ISMRMRD_ImageHeader {

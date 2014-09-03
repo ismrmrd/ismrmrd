@@ -61,7 +61,7 @@ int main (int args, char** argv) {
   ismrmrd_set_flag(&(c_acq.head.flags), ISMRMRD_ACQ_FIRST_IN_SLICE);
   Acquisition acq3(&c_acq);
   std::cout << "Acquisition nsamp: " << c_acq.head.number_of_samples << "    Acquisition wrapper nsamp: " << acq3.number_of_samples() << std::endl;
-  std::cout << "Acquisition data[4]: " << c_acq.data[4].real() << "      Acquisition wrapper data[4]: " << acq3.data()[4].real() << std::endl;
+  std::cout << "Acquisition data[4]: " << c_acq.data[4].real() << "      Acquisition wrapper data[4]: " << acq3.getData()[4].real() << std::endl;
 
   // Open an existing file
   Dataset dataset1 = Dataset("myfile.h5", "/dataset", false);
@@ -88,7 +88,7 @@ int main (int args, char** argv) {
       Acquisition * acqref = dataset1.readAcquisition(n);
       std::cout << "Acquisition " << n << " nsamp: " << acqref->number_of_samples() << std::endl;
       std::cout << "Acquisition " << n << " flags: " << acqref->flags() << std::endl;
-      std::cout << "Acquisition " << n << " data[4]: " << acqref->data()[4].real() << std::endl;
+      std::cout << "Acquisition " << n << " data[4]: " << acqref->getData()[4].real() << std::endl;
       dataset2.appendAcquisition(* acqref);
       delete acqref;
   }

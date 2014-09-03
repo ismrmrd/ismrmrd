@@ -167,7 +167,7 @@ public:
     int readHeader(std::string& xmlstring);
     char * readHeader();
     // Acquisitions
-    int appendAcquisition(const Acquisition &acq);
+    int appendAcquisition(const Acquisition acq);
     Acquisition * readAcquisition(unsigned long index);
     unsigned long getNumberOfAcquisitions();
 
