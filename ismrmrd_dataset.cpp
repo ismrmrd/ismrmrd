@@ -17,12 +17,18 @@ Dataset::Dataset(const char* filename, const char* groupname, bool create_file_i
     status = ismrmrd_init_dataset(&dset_, filename, groupname);
     // Open the file
     status = ismrmrd_open_dataset(&dset_, create_file_if_needed);
+    if (status != ISMRMRD_NOERROR) {
+      // TODO throw an exception
+    }
 }
 
 // Destructor
 Dataset::~Dataset()
 {
     int status = ismrmrd_close_dataset(&dset_);
+    if (status != ISMRMRD_NOERROR) {
+      // TODO throw an exception
+    }
 }
 
 // XML Header
@@ -68,8 +74,17 @@ Acquisition * Dataset::readAcquisition(unsigned long index)
 {
     Acquisition * acq = new Acquisition();
     int status = ismrmrd_read_acquisition(&dset_, index, reinterpret_cast<ISMRMRD_Acquisition*>(acq));
+    if (status != ISMRMRD_NOERROR) {
+      //TODO throw an exception
+    }
     return acq;
 }
+
+int Dataset::readAcquisition(unsigned long index, Acquisition * acqptr) {
+    int status = ismrmrd_read_acquisition(&dset_, index, reinterpret_cast<ISMRMRD_Acquisition*>(acqptr));
+    return status;
+}
+
 
 unsigned long Dataset::getNumberOfAcquisitions()
 {

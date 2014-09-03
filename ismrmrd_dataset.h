@@ -169,6 +169,7 @@ public:
     // Acquisitions
     int appendAcquisition(const Acquisition acq);
     Acquisition * readAcquisition(unsigned long index);
+    int readAcquisition(unsigned long index, Acquisition *acq);
     unsigned long getNumberOfAcquisitions();
 
 protected:
