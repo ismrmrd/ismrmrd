@@ -401,11 +401,11 @@ public:
     float (&user_float())[ISMRMRD_USER_FLOATS];
 
     // Header, data and trajectory accessors
-    AcquisitionHeader * getHead();
+    AcquisitionHeader &getHead();
     void setHead(const AcquisitionHeader other);
-    complex_float_t * getData();
+    complex_float_t *getData();
     uint64_t numDataElements();
-    float * getTraj();
+    float *getTraj();
     uint64_t numTrajElements();
 
     // Flag methods
@@ -484,28 +484,22 @@ protected:
     ISMRMRD_Image image_;
 };
 
-class NDArray {
+class NDArray: protected ISMRMRD_NDArray {
 public:
     // Constructors, destructor and copy
     NDArray();
-    NDArray(const ISMRMRD_DataTypes dtype, const uint16_t ndim, const uint16_t dims[ISMRMRD_NDARRAY_MAXDIM]);
     NDArray(const ISMRMRD_DataTypes dtype, const std::vector<uint16_t> dimvec);
     NDArray(const NDArray &other);
-    NDArray(const ISMRMRD_NDArray *arr);
     ~NDArray();
     NDArray & operator= (const NDArray &other);
 
     // Accessors and mutators
-    const uint16_t version();
-    const ISMRMRD_DataTypes data_type();
-    const uint16_t ndim();
-    const uint16_t (&dims())[ISMRMRD_NDARRAY_MAXDIM];
-    int setProperties(const ISMRMRD_DataTypes dtype, const uint16_t ndim, const uint16_t dims[ISMRMRD_NDARRAY_MAXDIM]);
+    const uint16_t getVersion();
+    const ISMRMRD_DataTypes getDataType();
+    const uint16_t getNDim();
+    const uint16_t (&getDims())[ISMRMRD_NDARRAY_MAXDIM];
     int setProperties(const ISMRMRD_DataTypes dtype, const std::vector<uint16_t> dimvec);
-    void * data();
-
-protected:
-    ISMRMRD_NDArray arr_;
+    void * getData();
 };
 
 

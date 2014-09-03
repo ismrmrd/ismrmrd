@@ -174,9 +174,9 @@ float (&Acquisition::user_float()) [ISMRMRD_USER_FLOATS] {
 }
 
 // Data and Trajectory accessors
-AcquisitionHeader * Acquisition::getHead() {
-    // This returns a pointer
-    return static_cast<AcquisitionHeader *>(&head);
+AcquisitionHeader & Acquisition::getHead() {
+    // This returns a reference
+    return *static_cast<AcquisitionHeader *>(&head);
 }
 
 void Acquisition::setHead(const AcquisitionHeader other) {
@@ -398,39 +398,26 @@ void Image::clearAllFlags() {
 //
 // Array class Implementation
 //
-
 NDArray::NDArray()
 {
-    ismrmrd_init_ndarray(&arr_);
-}
-
-NDArray::NDArray(const ISMRMRD_DataTypes dtype, const uint16_t ndim, const uint16_t dims[ISMRMRD_NDARRAY_MAXDIM])
-{
-    ismrmrd_init_ndarray(&arr_);
-    setProperties(dtype, ndim, dims);
+    ismrmrd_init_ndarray(this);
 }
 
 NDArray::NDArray(const ISMRMRD_DataTypes dtype, const std::vector<uint16_t> dimvec)
 {
-    ismrmrd_init_ndarray(&arr_);
+    ismrmrd_init_ndarray(this);
     setProperties(dtype, dimvec);    
 }
 
 NDArray::NDArray(const NDArray &other)
 {
-    ismrmrd_init_ndarray(&arr_);
-    ismrmrd_copy_ndarray(&arr_, &other.arr_);    
-}
-
-NDArray::NDArray(const ISMRMRD_NDArray *arr)
-{
-    ismrmrd_init_ndarray(&arr_);
-    ismrmrd_copy_ndarray(&arr_, arr);
+    ismrmrd_init_ndarray(this);
+    ismrmrd_copy_ndarray(this, &other);
 }
 
 NDArray::~NDArray()
 {
-    ismrmrd_cleanup_ndarray(&arr_);
+    ismrmrd_cleanup_ndarray(this);
 }
 
 NDArray & NDArray::operator= (const NDArray &other)
@@ -438,54 +425,44 @@ NDArray & NDArray::operator= (const NDArray &other)
     // Assignment makes a copy
     if (this != &other )
     {
-        ismrmrd_init_ndarray(&arr_);
-        ismrmrd_copy_ndarray(&arr_, &other.arr_);
+        ismrmrd_init_ndarray(this);
+        ismrmrd_copy_ndarray(this, &other);
     }
     return *this;
 }
 
-const uint16_t NDArray::version() {
-    return arr_.version;
+const uint16_t NDArray::getVersion() {
+    return version;
 };
 
-const ISMRMRD_DataTypes NDArray::data_type() {
-    return static_cast<ISMRMRD_DataTypes>( arr_.data_type );
+const ISMRMRD_DataTypes NDArray::getDataType() {
+    return static_cast<ISMRMRD_DataTypes>( data_type );
 }
 
-const uint16_t NDArray::ndim() {
-    return  arr_.ndim;
+const uint16_t NDArray::getNDim() {
+    return  ndim;
 };
     
-const uint16_t (&NDArray::dims())[ISMRMRD_NDARRAY_MAXDIM] {
-    return arr_.dims;
+const uint16_t (&NDArray::getDims())[ISMRMRD_NDARRAY_MAXDIM] {
+    return dims;
 };
-    
-int NDArray::setProperties(const ISMRMRD_DataTypes dtype, const uint16_t ndim, const uint16_t dims[ISMRMRD_NDARRAY_MAXDIM]) {
-    arr_.data_type = dtype;
-    arr_.ndim = ndim;
-    for (int n=0; n<ISMRMRD_NDARRAY_MAXDIM; n++) {
-        arr_.dims[n] = dims[n];
-    }
-    int status = ismrmrd_make_consistent_ndarray(&arr_);
-    return status;
-}
 
 int NDArray::setProperties(const ISMRMRD_DataTypes dtype, const std::vector<uint16_t> dimvec) {
     if (dimvec.size() > ISMRMRD_NDARRAY_MAXDIM) {
         // TODO throw exception
         return ISMRMRD_MEMORYERROR;
     }
-    arr_.data_type = dtype;
-    arr_.ndim = dimvec.size();
-    for (int n=0; n<arr_.ndim; n++) {
-        arr_.dims[n] = dimvec[n];
+    data_type = dtype;
+    ndim = dimvec.size();
+    for (int n=0; n<ndim; n++) {
+        dims[n] = dimvec[n];
     }
-    int status=ismrmrd_make_consistent_ndarray(&arr_);
+    int status=ismrmrd_make_consistent_ndarray(this);
     return status;
 }
 
-void * NDArray::data() {
-    return arr_.data;
+void * NDArray::getData() {
+    return data;
 }
 
 } // namespace ISMRMRD
