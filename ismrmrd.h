@@ -55,7 +55,9 @@ enum ISMRMRD_Constants {
     ISMRMRD_USER_FLOATS = 8,
     ISMRMRD_PHYS_STAMPS = 3,
     ISMRMRD_CHANNEL_MASKS = 16,
-    ISMRMRD_NDARRAY_MAXDIM = 7
+    ISMRMRD_NDARRAY_MAXDIM = 7,
+    ISMRMRD_POSITION_LENGTH=3,
+    ISMRMRD_DIRECTION_LENGTH=3
 };
 
     
@@ -341,6 +343,30 @@ void ismrmrd_quaternion_to_directions(float quat[4], float read_dir[3], float ph
 
 // TODO:
 // - exports for all the classes
+
+// Some typedefs to beautify the namespace
+typedef  ISMRMRD_EncodingCounters EncodingCounters;
+
+// A convenience class for flags
+class FlagBit
+{
+public:
+ FlagBit(unsigned short b)
+   : bitmask_(0)
+    {
+      if (b > 0) {
+    bitmask_ = 1;
+    bitmask_ = (bitmask_ << (b-1));
+      }
+    }
+  
+  bool isSet(const uint64_t& m) const {
+    return ((m & bitmask_)>0);
+  }
+  
+  uint64_t bitmask_;
+  
+};
 
 class AcquisitionHeader: public ISMRMRD_AcquisitionHeader {
 public:
