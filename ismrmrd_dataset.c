@@ -92,13 +92,45 @@ typedef struct HDF5_Acquisition
     hvl_t traj;
     hvl_t data;
 } HDF5_Acquisition;
+
+typedef struct HDF5_Image
+{
+    ISMRMRD_ImageHeader head;
+    hvl_t attribute_string;
+    hvl_t data;
+} HDF5_Image;
+
+typedef struct HDF5_NDArray
+{
+    uint16_t version;
+    uint16_t data_type;
+    uint16_t ndim;
+    uint16_t dims[ISMRMRD_NDARRAY_MAXDIM];
+    hvl_t data;
+} HDF5_NDArray;
+
+static hid_t get_hdf5type_char(void) {
+    hid_t datatype = H5Tcopy(H5T_NATIVE_CHAR);
+    return datatype;
+}
+
+static hid_t get_hdf5type_ushort(void) {
+    hid_t datatype = H5Tcopy(H5T_NATIVE_UINT16);
+    return datatype;
+}
+
+static hid_t get_hdf5type_short(void) {
+    hid_t datatype = H5Tcopy(H5T_NATIVE_INT16);
+    return datatype;
+}
+
+static hid_t get_hdf5type_uint(void) {
+    hid_t datatype = H5Tcopy(H5T_NATIVE_UINT32);
+    return datatype;
+}
     
-static hid_t get_hdf5type_xmlheader(void) {
-    hid_t datatype = H5Tcopy(H5T_C_S1);
-    herr_t h5status = H5Tset_size(datatype, H5T_VARIABLE);
-    if (h5status < 0) {
-        ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed get XML header data type");
-    }
+static hid_t get_hdf5type_int(void) {
+    hid_t datatype = H5Tcopy(H5T_NATIVE_INT32);
     return datatype;
 }
 
@@ -132,6 +164,15 @@ static hid_t get_hdf5type_complexdouble(void) {
     h5status = H5Tinsert(datatype, "imag", sizeof(double), H5T_NATIVE_DOUBLE);
     if (h5status < 0) {
         ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed get complex double data type");
+    }
+    return datatype;
+}
+
+static hid_t get_hdf5type_xmlheader(void) {
+    hid_t datatype = H5Tcopy(H5T_C_S1);
+    herr_t h5status = H5Tset_size(datatype, H5T_VARIABLE);
+    if (h5status < 0) {
+        ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed get XML header data type");
     }
     return datatype;
 }
@@ -214,7 +255,7 @@ static hid_t get_hdf5type_acquisitionheader(void) {
     H5Tclose(vartype);
 
     if (h5status < 0) {
-        ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed get acquisition data type");
+        ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed get acquisitionheader data type");
     }
 
     return datatype;   
@@ -227,14 +268,124 @@ static hid_t get_hdf5type_acquisition(void) {
     datatype = H5Tcreate(H5T_COMPOUND, sizeof(HDF5_Acquisition));
     vartype = get_hdf5type_acquisitionheader();
     h5status = H5Tinsert(datatype, "head", HOFFSET(HDF5_Acquisition, head), vartype);
-
     vartype =  get_hdf5type_float();
     vlvartype = H5Tvlen_create(vartype);
     h5status = H5Tinsert(datatype, "traj", HOFFSET(HDF5_Acquisition, traj), vlvartype);
-    
     vartype = get_hdf5type_complexfloat();
     vlvartype = H5Tvlen_create(vartype);
     h5status = H5Tinsert(datatype, "data", HOFFSET(HDF5_Acquisition, data), vlvartype);
+    
+    H5Tclose(vartype);
+    H5Tclose(vlvartype);
+
+    if (h5status < 0) {
+        ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed get acquisition data type");
+    }
+
+    return datatype;
+}
+
+static hid_t get_hdf5type_imageheader(void) {
+    hid_t datatype;
+    herr_t h5status;
+    hsize_t arraydims[1];
+    hid_t vartype;
+    
+    datatype = H5Tcreate(H5T_COMPOUND, sizeof(ISMRMRD_ImageHeader));
+    h5status = H5Tinsert(datatype, "version", HOFFSET(ISMRMRD_ImageHeader, version), H5T_NATIVE_UINT16);
+    h5status = H5Tinsert(datatype, "data_type", HOFFSET(ISMRMRD_ImageHeader, data_type), H5T_NATIVE_UINT16);
+    h5status = H5Tinsert(datatype, "flags", HOFFSET(ISMRMRD_ImageHeader, flags), H5T_NATIVE_UINT64);
+    h5status = H5Tinsert(datatype, " measurement_uid", HOFFSET(ISMRMRD_ImageHeader,  measurement_uid), H5T_NATIVE_UINT32);
+    arraydims[0] = 3;
+    vartype = H5Tarray_create2(H5T_NATIVE_UINT16, 1, arraydims);
+    h5status = H5Tinsert(datatype, "matrix_size", HOFFSET(ISMRMRD_ImageHeader, matrix_size), vartype);
+    vartype = H5Tarray_create2(H5T_NATIVE_FLOAT, 1, arraydims);
+    h5status = H5Tinsert(datatype, "field_of_view", HOFFSET(ISMRMRD_ImageHeader, field_of_view), vartype);
+    h5status = H5Tinsert(datatype, "channels", HOFFSET(ISMRMRD_ImageHeader, channels), H5T_NATIVE_UINT16);
+    h5status = H5Tinsert(datatype, "position", HOFFSET(ISMRMRD_ImageHeader, position), vartype);
+    h5status = H5Tinsert(datatype, "read_dir", HOFFSET(ISMRMRD_ImageHeader, read_dir), vartype);
+    h5status = H5Tinsert(datatype, "phase_dir", HOFFSET(ISMRMRD_ImageHeader, phase_dir), vartype);
+    h5status = H5Tinsert(datatype, "slice_dir", HOFFSET(ISMRMRD_ImageHeader, slice_dir), vartype);
+    h5status = H5Tinsert(datatype, "patient_table_position", HOFFSET(ISMRMRD_ImageHeader, patient_table_position), vartype);
+    h5status = H5Tinsert(datatype, "average", HOFFSET(ISMRMRD_ImageHeader, average), H5T_NATIVE_UINT16);
+    h5status = H5Tinsert(datatype, "slice", HOFFSET(ISMRMRD_ImageHeader, slice), H5T_NATIVE_UINT16);
+    h5status = H5Tinsert(datatype, "contrast", HOFFSET(ISMRMRD_ImageHeader, contrast), H5T_NATIVE_UINT16);
+    h5status = H5Tinsert(datatype, "phase", HOFFSET(ISMRMRD_ImageHeader, phase), H5T_NATIVE_UINT16);
+    h5status = H5Tinsert(datatype, "repetition", HOFFSET(ISMRMRD_ImageHeader, repetition), H5T_NATIVE_UINT16);
+    h5status = H5Tinsert(datatype, "set", HOFFSET(ISMRMRD_ImageHeader, set), H5T_NATIVE_UINT16);
+    h5status = H5Tinsert(datatype, "acquisition_time_stamp", HOFFSET(ISMRMRD_ImageHeader, acquisition_time_stamp), H5T_NATIVE_UINT32);
+    arraydims[0] = ISMRMRD_PHYS_STAMPS;
+    vartype = H5Tarray_create2(H5T_NATIVE_UINT32, 1, arraydims);
+    h5status = H5Tinsert(datatype, "physiology_time_stamp", HOFFSET(ISMRMRD_ImageHeader, physiology_time_stamp), vartype);
+    h5status = H5Tinsert(datatype, "image_type", HOFFSET(ISMRMRD_ImageHeader, image_type), H5T_NATIVE_UINT16);
+    h5status = H5Tinsert(datatype, "image_index", HOFFSET(ISMRMRD_ImageHeader, image_index), H5T_NATIVE_UINT16);
+    h5status = H5Tinsert(datatype, "image_series_index", HOFFSET(ISMRMRD_ImageHeader, image_series_index), H5T_NATIVE_UINT16);
+
+    arraydims[0] = ISMRMRD_USER_INTS;
+    vartype = H5Tarray_create2(H5T_NATIVE_INT32, 1, arraydims);
+    h5status = H5Tinsert(datatype, "user_int", HOFFSET(ISMRMRD_ImageHeader, user_int), vartype);
+    arraydims[0] = ISMRMRD_USER_FLOATS;
+    vartype = H5Tarray_create2(H5T_NATIVE_FLOAT, 1, arraydims);
+    h5status = H5Tinsert(datatype, "user_float", HOFFSET(ISMRMRD_ImageHeader, user_float), vartype);
+    h5status = H5Tinsert(datatype, "attribute_string_len", HOFFSET(ISMRMRD_ImageHeader, attribute_string_len), H5T_NATIVE_UINT32);
+    
+    /* Clean up */
+    H5Tclose(vartype);
+
+    if (h5status < 0) {
+        ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed get imageheader data type");
+    }
+
+    return datatype;   
+}
+
+static hid_t get_hdf5type_image_attribute_string(void) {
+    hid_t datatype = H5Tcopy(H5T_C_S1);
+    herr_t h5status = H5Tset_size(datatype, H5T_VARIABLE);
+    if (h5status < 0) {
+        ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed get image attribute string data type");
+    }
+    return datatype;
+}
+
+static hid_t get_hdf5type_image(void) {
+    hid_t datatype, vartype, vlvartype;
+    herr_t h5status;
+
+    datatype = H5Tcreate(H5T_COMPOUND, sizeof(HDF5_Image));
+    vartype = get_hdf5type_imageheader();
+    h5status = H5Tinsert(datatype, "head", HOFFSET(HDF5_Image, head), vartype);
+    vartype = get_hdf5type_image_attribute_string();
+    vlvartype = H5Tvlen_create(vartype);
+    h5status = H5Tinsert(datatype, "attribute_string", HOFFSET(HDF5_Image, attribute_string), vlvartype);
+    vartype = get_hdf5type_char();
+    vlvartype = H5Tvlen_create(vartype);
+    h5status = H5Tinsert(datatype, "data", HOFFSET(HDF5_Image, data), vlvartype);
+    
+    H5Tclose(vartype);
+    H5Tclose(vlvartype);
+
+    if (h5status < 0) {
+        ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed get acquisition data type");
+    }
+
+    return datatype;
+}
+    
+static hid_t get_hdf5type_ndarray(void) {
+    hid_t datatype, vartype, vlvartype;
+    herr_t h5status;
+    hsize_t arraydims[1];
+
+    datatype = H5Tcreate(H5T_COMPOUND, sizeof(HDF5_NDArray));
+    h5status = H5Tinsert(datatype, "version", HOFFSET(ISMRMRD_NDArray, version), H5T_NATIVE_UINT16);
+    h5status = H5Tinsert(datatype, "data_type", HOFFSET(ISMRMRD_NDArray, data_type), H5T_NATIVE_UINT16);
+    arraydims[0] = ISMRMRD_NDARRAY_MAXDIM;
+    vartype = H5Tarray_create2(H5T_NATIVE_UINT16, 1, arraydims);
+    h5status = H5Tinsert(datatype, "dims", HOFFSET(ISMRMRD_NDArray, dims), vartype);
+    vartype = get_hdf5type_char();
+    vlvartype = H5Tvlen_create(vartype);
+    h5status = H5Tinsert(datatype, "data", HOFFSET(HDF5_NDArray, data), vlvartype);
     
     H5Tclose(vartype);
     H5Tclose(vlvartype);
@@ -605,6 +756,7 @@ int ismrmrd_read_acquisition(const ISMRMRD_Dataset *dset, unsigned long index, I
 
 int ismrmrd_append_image(const ISMRMRD_Dataset *dset, const char *varname,
                          const int block_mode, const ISMRMRD_Image *im) {
+    
     return ISMRMRD_NOERROR;
 };
 
@@ -635,27 +787,4 @@ int ismrmrd_get_number_of_arrays(const ISMRMRD_Dataset *dset, const char *varnam
 #ifdef __cplusplus
 } /* extern "C" */
 } /* ISMRMRD namespace */
-#endif
-
-
-
-#ifdef YOMAMA
-
-t = this->type_container_.get_type<float>();
-t = this->type_container_.get_type<double>();
-t = this->type_container_.get_type<std::complex<float> >();
-t = this->type_container_.get_type<std::complex<double> >();
-t = this->type_container_.get_type<EncodingCounters>();
-t = this->type_container_.get_type<AcquisitionHeader>();
-t = this->type_container_.get_type<AcquisitionHeader_with_data>();
-t = this->type_container_.get_type<ImageHeader>();
-t = this->type_container_.get_type<ImageHeader_with_data<float> >();
-t = this->type_container_.get_type<ImageHeader_with_data<double> >();
-t = this->type_container_.get_type<ImageHeader_with_data<unsigned short> >();
-t = this->type_container_.get_type<ImageHeader_with_data<ccomplex_t> >();
-t = this->type_container_.get_type<ImageHeader_with_data<cdouble_complex_t> >();
-t = this->type_container_.get_type<ImageHeader_with_data<std::complex<float> > >();
-t = this->type_container_.get_type<ImageHeader_with_data<std::complex<double> > >();
-t = this->type_container_.get_type<std::string>();
-
 #endif
