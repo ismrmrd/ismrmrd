@@ -192,9 +192,9 @@ namespace ISMRMRD
     }
 
     ///Return number of values of a particular parameter
-    size_t length(const char* name)
+    size_t length(const char* name) const
     {
-      map_t::iterator it = map_.find(std::string(name));
+      map_t::const_iterator it = map_.find(std::string(name));
       if (it != map_.end()) {
 	return it->second.size();
       }
@@ -202,26 +202,26 @@ namespace ISMRMRD
     }
 
     ///Return value number @index of the parameter @name as long
-    long as_long(const char* name, size_t index = 0)
+    long as_long(const char* name, size_t index = 0) const
     {
       return value(name,index).as_long();
     }
 
     ///Return value number @index of the parameter @name as double
-    double as_double(const char* name, size_t index = 0)
+    double as_double(const char* name, size_t index = 0) const
     {
       return value(name,index).as_double();
     }
     
     ///Return value number @index of the parameter @name as string
-    const char* as_str(const char* name, size_t index = 0)
+    const char* as_str(const char* name, size_t index = 0) const
     {
       return value(name,index).as_str();
     }
 
-    const MetaValue& value(const char* name, size_t index = 0)
+    const MetaValue& value(const char* name, size_t index = 0) const
     {
-      map_t::iterator it = map_.find(std::string(name));
+      map_t::const_iterator it = map_.find(std::string(name));
       if (it == map_.end()) {
 	throw std::runtime_error("Attempting to access unkown parameter");
       }
