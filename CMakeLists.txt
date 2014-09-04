@@ -40,9 +40,19 @@ set(ISMRMRD_VERSION_MAJOR 0)
 set(ISMRMRD_VERSION_MINOR 0)
 set(ISMRMRD_VERSION_PATCH 1) 
 
-set(ISMRMRD_XML_SCHEMA_SHA1 "62d277cee06c9971b08b20974425ccbf34c0a597")
-file(SHA1 ${CMAKE_SOURCE_DIR}/schema/ismrmrd.xsd ISMRMRD_CURRENT_XML_SCHEMA_SHA1)
+set(ISMRMRD_XML_SCHEMA_SHA1 "6f1ed6b9209075de481c02e66a37913d9a46b772")
 
+#Remove line breaks and white space that does not change the meaning of the schema
+file(STRINGS ${CMAKE_SOURCE_DIR}/schema/ismrmrd.xsd SCHEMA_STRINGS) #Read all strings from file 
+string(REPLACE ";" "" SCHEMA_NO_BREAKS  ${SCHEMA_STRINGS}) #Concatenate the list of strings
+string(REGEX REPLACE ">[ \t]+<" "><" SCHEMA_NO_SPACE ${SCHEMA_NO_BREAKS}) #Remove spaces and tabs
+string(STRIP ${SCHEMA_NO_SPACE} SCHEMA_NO_SPACE) #Strip any leading/trailing whitespace
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/ismrmrd_no_white_space.xsd ${SCHEMA_NO_SPACE}) #Write to file
+
+#Now hash the cleaned up file
+file(SHA1 ${CMAKE_CURRENT_BINARY_DIR}/ismrmrd_no_white_space.xsd ISMRMRD_CURRENT_XML_SCHEMA_SHA1)
+
+#Compare to last known hash
 if (NOT (${ISMRMRD_XML_SCHEMA_SHA1} STREQUAL ${ISMRMRD_CURRENT_XML_SCHEMA_SHA1}))
   message("")
   message("-----------------------------------------------")
