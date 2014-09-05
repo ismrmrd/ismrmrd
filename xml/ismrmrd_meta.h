@@ -247,12 +247,6 @@ namespace ISMRMRD
   template void MetaContainer::append<long>(const char* name, long value);
   template void MetaContainer::append<double>(const char* name, double);
   */
-<<<<<<< HEAD
-=======
-
-
-
->>>>>>> sf/development
 }
 
 #endif //ISMRMRDMETA_H

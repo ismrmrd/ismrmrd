@@ -130,8 +130,14 @@ find_package(XercesC REQUIRED)
 set(XSDS ${ISMRMRD_SCHEMA_DIR}/ismrmrd.xsd)
 set(XSD_ARGS cxx-tree --generate-serialization)
 if ( WIN32 )
-    SET(XSD_ARGS cxx-tree --generate-serialization)
-    # --export-symbol EXPORTISMRMRDXSD --hxx-prologue-file ${CMAKE_SOURCE_DIR}/ismrmrd_xsd_export.h)
+    set(XSD_ARGS cxx-tree --generate-serialization)
+    WRAP_XSD(XSDS_SOURCES XSD_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/schema ${XSDS} OPTIONS ${XSD_ARGS})
+    
+    # This dummy is required to trigger autogeneration of ${XSDS_SOURCES}
+    add_library(dummy SHARED ${XSDS_SOURCES})
+    target_link_libraries(dummy ${XERCESC_LIBRARIES})
+else (WIN32)
+    wrap_xsd(XSDS_SOURCES XSD_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/schema ${XSDS} OPTIONS ${XSD_ARGS})
 endif (WIN32)
 
 if ( WIN32 )
@@ -139,8 +145,6 @@ if ( WIN32 )
         ${XERCESC_INCLUDE_DIR} ${Boost_INCLUDE_DIR} ${HDF5_CXX_INCLUDE_DIR}
         ${HDF5_C_INCLUDE_DIR})
     link_directories(${Boost_LIBRARY_DIRS})
-    add_library(dummy SHARED ${XSDS_SOURCES})
-    target_link_libraries(dummy ${XERCESC_LIBRARIES})
 endif ( WIN32 )
 
 if ( NOT WIN32 )
