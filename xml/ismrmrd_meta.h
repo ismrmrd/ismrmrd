@@ -85,18 +85,21 @@ namespace ISMRMRD
     MetaValue& operator=(const char * s) 
     {
       set(s);
+      return *this;
     }
 
     ///Assignment operator for long
     MetaValue& operator=(long l) 
     {
       set(l);
+      return *this;
     }
 
     ///Assignment operator for double
     MetaValue& operator=(double d) 
     {
       set(d);
+      return *this;
     }
 
     ///Get the ingeter representation of the value
@@ -244,6 +247,12 @@ namespace ISMRMRD
   template void MetaContainer::append<long>(const char* name, long value);
   template void MetaContainer::append<double>(const char* name, double);
   */
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> sf/development
 }
 
 #endif //ISMRMRDMETA_H

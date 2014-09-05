@@ -3,6 +3,7 @@ project(ISMRMRD)
 
 enable_testing()
 
+
 #Set the build type to Release if not specified
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Release CACHE STRING
@@ -25,6 +26,56 @@ set(ISMRMRD_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(ISMRMRD_SCHEMA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/schema)
 set(ISMRMRD_SCHEMA_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/src/xsd)
 
+
+#  ---   VERSIONING  (begin) ----
+#The ISMRMRD convention is to use version numbers with the format:
+#   XX.YY.ZZ (major, minor, patch)
+#
+#The major number increaments when the binary compatibility of
+#the fixed memory layout strucs (e.g. AcquisitionHeader) is broken.
+#The minor number changes when there are changes to the XML schema for 
+#the flexible header. The micro number changes when there are small changes
+#in the utility libraries, that don't affect the data format itself.
+set(ISMRMRD_VERSION_MAJOR 0)
+set(ISMRMRD_VERSION_MINOR 0)
+set(ISMRMRD_VERSION_PATCH 1) 
+
+set(ISMRMRD_XML_SCHEMA_SHA1 "6f1ed6b9209075de481c02e66a37913d9a46b772")
+
+#Remove line breaks and white space that does not change the meaning of the schema
+file(STRINGS ${CMAKE_SOURCE_DIR}/schema/ismrmrd.xsd SCHEMA_STRINGS) #Read all strings from file 
+string(REPLACE ";" "" SCHEMA_NO_BREAKS  ${SCHEMA_STRINGS}) #Concatenate the list of strings
+string(REGEX REPLACE ">[ \t]+<" "><" SCHEMA_NO_SPACE ${SCHEMA_NO_BREAKS}) #Remove spaces and tabs
+string(STRIP ${SCHEMA_NO_SPACE} SCHEMA_NO_SPACE) #Strip any leading/trailing whitespace
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/ismrmrd_no_white_space.xsd ${SCHEMA_NO_SPACE}) #Write to file
+
+#Now hash the cleaned up file
+file(SHA1 ${CMAKE_CURRENT_BINARY_DIR}/ismrmrd_no_white_space.xsd ISMRMRD_CURRENT_XML_SCHEMA_SHA1)
+
+#Compare to last known hash
+if (NOT (${ISMRMRD_XML_SCHEMA_SHA1} STREQUAL ${ISMRMRD_CURRENT_XML_SCHEMA_SHA1}))
+  message("")
+  message("-----------------------------------------------")
+  message("            !!VERSION ERROR!!                  ")
+  message("                                               ")
+  message(" Expected SHA1 hash:                           ")
+  message("    ${ISMRMRD_XML_SCHEMA_SHA1}")
+  message(" Actual SHA1 hash:                             ")
+  message("    ${ISMRMRD_CURRENT_XML_SCHEMA_SHA1}")
+  message("                                               ")
+  message(" The XML Schema (ismrmrmd.xsd) has changed and ")
+  message(" the MINOR version number should be increased  ")
+  message(" and the SHA1 has should be updated in the     ")
+  message(" CMakelists.txt file.                          ")
+  message("                                               ")
+  message(" If you don't know what this message means, you")
+  message(" probably shouldn't be changing anything       ")
+  message("-----------------------------------------------")
+  message("")
+  message(FATAL_ERROR "     FATAL XML VERSION ERROR")
+endif()
+#  ---   VERSIONING  (end) ----
+ 
 # add project specific cmake find modules
 list(APPEND CMAKE_MODULE_PATH ${ISMRMRD_MODULE_DIR})
 
@@ -53,10 +104,13 @@ if(WIN32)
 endif(WIN32)
 
 add_library(ismrmrd SHARED ismrmrd_hdf5.cpp)
+set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
+
+set_target_properties(ismrmrd PROPERTIES VERSION ${ISMRMRD_VERSION_STRING} SOVERSION ${ISMRMRD_VERSION_MAJOR})
+
 include_directories(${HDF5_C_INCLUDE_DIR} ${HDF5_CXX_INCLUDE_DIR}
     ${Boost_INCLUDE_DIR})
 
-#The findHDF5.cmake does not work very well on Windows, let's help it out
 target_link_libraries(ismrmrd ${HDF5_LIBRARIES} ${Boost_THREAD_LIBRARY} ${Boost_SYSTEM_LIBRARY})
 
 install(TARGETS ismrmrd
@@ -76,14 +130,8 @@ find_package(XercesC REQUIRED)
 set(XSDS ${ISMRMRD_SCHEMA_DIR}/ismrmrd.xsd)
 set(XSD_ARGS cxx-tree --generate-serialization)
 if ( WIN32 )
-    set(XSD_ARGS cxx-tree --generate-serialization)
-    WRAP_XSD(XSDS_SOURCES XSD_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/schema ${XSDS} OPTIONS ${XSD_ARGS})
-    
-    # This dummy is required to trigger autogeneration of ${XSDS_SOURCES}
-    add_library(dummy SHARED ${XSDS_SOURCES})
-    target_link_libraries(dummy ${XERCESC_LIBRARIES})
-else (WIN32)
-    wrap_xsd(XSDS_SOURCES XSD_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/schema ${XSDS} OPTIONS ${XSD_ARGS})
+    SET(XSD_ARGS cxx-tree --generate-serialization)
+    # --export-symbol EXPORTISMRMRDXSD --hxx-prologue-file ${CMAKE_SOURCE_DIR}/ismrmrd_xsd_export.h)
 endif (WIN32)
 
 if ( WIN32 )
@@ -91,10 +139,13 @@ if ( WIN32 )
         ${XERCESC_INCLUDE_DIR} ${Boost_INCLUDE_DIR} ${HDF5_CXX_INCLUDE_DIR}
         ${HDF5_C_INCLUDE_DIR})
     link_directories(${Boost_LIBRARY_DIRS})
+    add_library(dummy SHARED ${XSDS_SOURCES})
+    target_link_libraries(dummy ${XERCESC_LIBRARIES})
 endif ( WIN32 )
 
 if ( NOT WIN32 )
     add_library(ismrmrd_xsd SHARED ${XSDS_SOURCES})
+    set_target_properties(ismrmrd_xsd PROPERTIES VERSION ${ISMRMRD_VERSION_STRING} SOVERSION ${ISMRMRD_VERSION_MAJOR})
     include_directories(${XERCESC_INCLUDE_DIR})
     target_link_libraries(ismrmrd_xsd ${XERCESC_LIBRARIES})
 endif ( NOT WIN32 )

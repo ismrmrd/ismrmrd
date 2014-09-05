@@ -6,6 +6,8 @@ add_library(ismrmrd_xml SHARED
   pugixml.cpp
   )
 
+set_target_properties(ismrmrd_xml PROPERTIES VERSION ${ISMRMRD_VERSION_STRING} SOVERSION ${ISMRMRD_VERSION_MAJOR})
+
 add_executable(test_ismrmrd_xml
   test_ismrmrd_xml.cpp
   pugixml.cpp
