@@ -99,7 +99,25 @@ int main(void)
     
     printf("Pointers 3: %p\t 2: %p\n", (void *) acq3.data, (void *) acq2.data);
     printf("Data 3: %f\t 2: %f\n", creal(acq3.data[4]), creal(acq2.data[4]));
-        
+
+    /* Create and store an image */
+    ISMRMRD_Image im;
+    ismrmrd_init_image(&im);
+    im.head.data_type = ISMRMRD_FLOAT;
+    im.head.matrix_size[0] = 256;
+    im.head.matrix_size[1] = 256;
+    im.head.matrix_size[2] = 4;
+    im.head.channels = 8;
+    /* Add an attribute string */
+    const char *attr_string = "Yo! This is some text for the attribute string.";
+    im.head.attribute_string_len = strlen(attr_string);
+    ismrmrd_make_consistent_image(&im);
+    memcpy(im.attribute_string, attr_string, im.head.attribute_string_len);
+    
+    printf("Image Version: %d\n", im.head.version);
+    printf("Image String: %s\n", im.attribute_string);
+    ismrmrd_append_image(&dataset2, "testimages", 1, &im);
+                         
     /* Clean up */
     /* This frees the internal memory of the acquisitions */
     ismrmrd_cleanup_acquisition(&acq);
@@ -109,10 +127,6 @@ int main(void)
 
     /* Close the dataset */
     status = ismrmrd_close_dataset(&dataset2);
-
-    //   Image im;
-    //initImage(&im);
-    //printf("Image Version: %d\n", im.head.version);
 
     //NDArray arr;
     //initNDArray(&arr);

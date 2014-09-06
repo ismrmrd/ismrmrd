@@ -132,8 +132,8 @@ void ismrmrd_free_image(ISMRMRD_Image *im) {
     
 void ismrmrd_init_image(ISMRMRD_Image *im) {
     ismrmrd_init_image_header(&im->head);
-    im->attribute_string = NULL;
-    im->data = NULL;
+    im->attribute_string = (char *) malloc(0); /* can be passed to free */
+    im->data = (void *) malloc(0);
 }
 
 void ismrmrd_cleanup_image(ISMRMRD_Image *im) {
