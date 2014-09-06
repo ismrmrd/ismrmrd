@@ -423,8 +423,8 @@ int append_to_vector(const ISMRMRD_Dataset * dset, const char * path, const hid_
 
     /* Write it */
     /* since this is a 1 element array we can just pass the pointer to the header */
-    h5status = H5Dwrite(dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, elem);
-
+    h5status = H5Dwrite(dataset, datatype, memspace, filespace, H5P_DEFAULT, elem);
+    
     /* Clean up */
     h5status = H5Sclose(dataspace);
     h5status = H5Sclose(filespace);
@@ -661,49 +661,11 @@ unsigned long ismrmrd_get_number_of_acquisitions(const ISMRMRD_Dataset *dset) {
 
 int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquisition *acq) {
 
-    hid_t dataset, dataspace, datatype, props, filespace, memspace;
-    hsize_t dims[1] = {1};
-    hsize_t maxdims[1] = {H5S_UNLIMITED};
-    hsize_t chunk_dims[] = {1};
-    hsize_t ext_dims[] = {1};
-    hsize_t offset[1] = {0};
-    herr_t h5status;
-    
     /* The path to the acqusition data */    
     char *path = make_path(dset, "data");
 
     /* The acquisition datatype */
-    datatype = get_hdf5type_acquisition();
-    
-    /* Check the path, extend or create if needed */
-    if (link_exists(dset, path)) {
-        /* open */
-        dataset = H5Dopen2(dset->fileid, path, H5P_DEFAULT);
-        /* TODO check that the dataset's datatype is correct */
-        dataspace = H5Dget_space(dataset);
-        h5status = H5Sget_simple_extent_dims(dataspace, dims, maxdims);
-        /* extend it by one */
-        dims[0] += 1;
-        h5status = H5Dset_extent(dataset, dims);
-    }
-    else {
-        /* create a new dataset for the data */
-        dims[0] = 1;
-        maxdims[0] = H5S_UNLIMITED;
-        dataspace = H5Screate_simple(1, dims, maxdims);
-        props = H5Pcreate(H5P_DATASET_CREATE);
-        /* enable chunking so that the dataset is extensible */
-        h5status = H5Pset_chunk (props, 1, chunk_dims);
-        /* create */
-        dataset = H5Dcreate2(dset->fileid, path, datatype, dataspace, H5P_DEFAULT, props,  H5P_DEFAULT);
-        h5status = H5Pclose(props);
-    }
-
-    /* Select the last block */
-    offset[0] = dims[0]-1;
-    filespace = H5Dget_space(dataset);
-    h5status  = H5Sselect_hyperslab (filespace, H5S_SELECT_SET, offset, NULL, ext_dims, NULL);
-    memspace = H5Screate_simple(1, ext_dims, NULL);
+    hid_t datatype = get_hdf5type_acquisition();
     
     /* Create the HDF5 version of the acquisition */
     HDF5_Acquisition hdf5acq[1];
@@ -714,21 +676,16 @@ int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquis
     hdf5acq[0].data.p = acq->data;
     
     /* Write it */
-    h5status = H5Dwrite (dataset, datatype, memspace, filespace, H5P_DEFAULT, hdf5acq);
-    
-    /* Clean up */
-    h5status = H5Tclose(datatype);
-    h5status = H5Sclose(dataspace);
-    h5status = H5Sclose(filespace);
-    h5status = H5Sclose(memspace);
-    h5status = H5Dclose(dataset);
-    free(path);
-    
-    if (h5status < 0) {
+    int status = append_to_vector(dset, path, datatype, hdf5acq);    
+    if (status != ISMRMRD_NOERROR) {
         ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed to append acquisition.");
-        return ISMRMRD_FILEERROR;
+        return status;
     }
 
+    /* Clean up */
+    H5Tclose(datatype);
+    free(path);
+    
     return ISMRMRD_NOERROR;
 };
 
