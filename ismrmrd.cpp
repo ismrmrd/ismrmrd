@@ -411,6 +411,10 @@ void *Image::getData() {
     return data;
 }
 
+size_t Image::getDataSize() {
+    return ismrmrd_size_of_image_data(this);
+}
+
 // Flag methods
 bool Image::isFlagSet(const uint64_t val) {
     return ismrmrd_is_flag_set(head.flags, val);

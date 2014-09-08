@@ -506,6 +506,7 @@ public:
     char *getAttributeString();
     void setAttributeString(std::string attr);
     void *getData();
+    size_t getDataSize();
 
     // Flag methods
     bool isFlagSet(const uint64_t val);
