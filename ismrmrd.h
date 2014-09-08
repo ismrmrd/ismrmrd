@@ -503,8 +503,8 @@ public:
     // Header and data accessors
     ImageHeader &getHead();
     void setHead(const ImageHeader other);
-    char *getAttributeString();
-    void setAttributeString(std::string attr);
+    void getAttributeString(std::string &atrr);
+    void setAttributeString(const std::string attr);
     void *getData();
     size_t getDataSize();
 

@@ -38,29 +38,11 @@ int Dataset::writeHeader(const std::string xmlstring)
     return status;
 }
 
-int Dataset::writeHeader(const char* xml)
-{
-    int status = ismrmrd_write_header(&dset_, xml);
-    return status;
-}
-
 int Dataset::readHeader(std::string& xmlstring){
     char * temp = ismrmrd_read_header(&dset_);
     xmlstring = std::string(temp);
     free(temp);
     return ISMRMRD_NOERROR;
-}
-
-char * Dataset::readHeader()
-{
-    // The C-API uses malloc.  In Cpp we expect pointers to have been created with new,
-    // so we make a copy.
-    char * temp = ismrmrd_read_header(&dset_);
-    size_t xmllength = strlen(temp);
-    char * xml = new char[xmllength];
-    memcpy(xml, temp, xmllength);
-    free(temp);
-    return xml;
 }
 
 // Acquisitions

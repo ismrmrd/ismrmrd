@@ -403,8 +403,14 @@ void Image::setHead(const ImageHeader other) {
     ismrmrd_make_consistent_image(this);
 }
 
-char *Image::getAttributeString() {
-    return attribute_string;
+void Image::setAttributeString(std::string attr) {
+    head.attribute_string_len = attr.length();
+    attribute_string = (char *)realloc(attribute_string, attr.length()+1);
+    strcpy(attribute_string, attr.c_str());
+}
+
+void Image::getAttributeString(std::string &attr) {
+    attr = std::string(attribute_string);
 }
 
 void *Image::getData() {
