@@ -80,16 +80,16 @@ int main(void)
     /* read the next to last one */
     ISMRMRD_Acquisition acq2;
     ismrmrd_init_acquisition(&acq2);
-    unsigned long index = 0;
+    uint32_t index = 0;
     if (nacq_read>1) {
         index = nacq_read - 1;
     }
     else {
         index = 0;
     }
-    printf("Acquisition index: %lu\n", index);
+    printf("Acquisition index: %u\n", index);
     ismrmrd_read_acquisition(&dataset2, index, &acq2);
-    printf("Number of samples: %hu\n", acq2.head.number_of_samples);
+    printf("Number of samples: %u\n", acq2.head.number_of_samples);
     printf("Flags: %llu\n", acq2.head.flags);
     printf("Data[4]: %f, %f\n", creal(acq2.data[4]), cimag(acq2.data[4]));
     
@@ -113,9 +113,14 @@ int main(void)
     im.head.attribute_string_len = strlen(attr_string);
     ismrmrd_make_consistent_image(&im);
     memcpy(im.attribute_string, attr_string, im.head.attribute_string_len);
+    memset(im.data, 0, 256*256*4*8*sizeof(float));
     
     printf("Image Version: %d\n", im.head.version);
     printf("Image String: %s\n", im.attribute_string);
+    ismrmrd_append_image(&dataset2, "testimages", 1, &im);
+    for (uint32_t loc=0; loc < 256*256*4*8; loc++) {
+        ((float*)im.data)[loc] = 2.0;
+    }
     ismrmrd_append_image(&dataset2, "testimages", 1, &im);
                          
     /* Clean up */

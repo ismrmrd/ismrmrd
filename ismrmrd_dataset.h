@@ -17,7 +17,7 @@ extern "C" {
  */
 enum ISMRMRD_BlockModes {
     ISMRMRD_BLOCKMODE_ARRAY,
-    ISMRMRD_BLOCKMODE_BLOBS
+    ISMRMRD_BLOCKMODE_BLOB
 };
     
 /**
@@ -79,12 +79,12 @@ int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquis
 /**
  *  Reads the acquisition with the specified index from the dataset.
  */
-int ismrmrd_read_acquisition(const ISMRMRD_Dataset *dset, unsigned long index, ISMRMRD_Acquisition *acq);
+int ismrmrd_read_acquisition(const ISMRMRD_Dataset *dset, uint32_t index, ISMRMRD_Acquisition *acq);
 
 /**
  *  Return the number of acquisitions in the dataset.
  */
-unsigned long ismrmrd_get_number_of_acquisitions(const ISMRMRD_Dataset *dset);
+uint32_t ismrmrd_get_number_of_acquisitions(const ISMRMRD_Dataset *dset);
 
 /**
  *  Appends an Image to the variable named varname in the dataset.
@@ -109,12 +109,12 @@ int ismrmrd_append_image(const ISMRMRD_Dataset *dset, const char *varname,
  *   The index indicates which image to read from the variable named varname.
  */
 int ismrmrd_read_image(const ISMRMRD_Dataset *dset, const char *varname,
-                       const unsigned long index, ISMRMRD_Image *im);
+                       const uint32_t index, ISMRMRD_Image *im);
 
 /**
  *  Return the number of images in the variable varname in the dataset.
  */
-int ismrmrd_get_number_of_images(const ISMRMRD_Dataset *dset, const char *varname);
+uint32_t ismrmrd_get_number_of_images(const ISMRMRD_Dataset *dset, const char *varname);
 
 /**
  *  Appends an NDArray to the variable named varname in the dataset.
@@ -137,12 +137,12 @@ int ismrmrd_append_array(const ISMRMRD_Dataset *dset, const char *varname,
  *  Reads an array from the data file.
  */
 int ismrmrd_read_array(const ISMRMRD_Dataset *dataset, const char *varname,
-                       const unsigned long index, ISMRMRD_NDArray *arr);
+                       const uint32_t index, ISMRMRD_NDArray *arr);
 
 /**
  *  Return the number of arrays in the variable varname in the dataset.
  */
-int ismrmrd_get_number_of_arrays(const ISMRMRD_Dataset *dset, const char *varname);
+uint32_t ismrmrd_get_number_of_arrays(const ISMRMRD_Dataset *dset, const char *varname);
 
     
 #ifdef __cplusplus
@@ -168,9 +168,19 @@ public:
     char * readHeader();
     // Acquisitions
     int appendAcquisition(const Acquisition acq);
-    Acquisition * readAcquisition(unsigned long index);
-    int readAcquisition(unsigned long index, Acquisition *acq);
-    unsigned long getNumberOfAcquisitions();
+    Acquisition * readAcquisition(uint32_t index);
+    int readAcquisition(uint32_t index, Acquisition *acq);
+    uint32_t getNumberOfAcquisitions();
+    // Images
+    int appendImage(const std::string var, const ISMRMRD_BlockModes blockmode, const Image im);
+    Image * readImage(const std::string var, uint32_t index);
+    int readImage(const std::string var, uint32_t index, Image *imptr);
+    uint32_t getNumberOfImages(const std::string var);
+    // NDArrays
+    int appendNDArray(const std::string var, const ISMRMRD_BlockModes blockmode, const NDArray arr);
+    NDArray * readNDArray(const std::string var, uint32_t index);
+    int readNDArray(const std::string var, uint32_t index, NDArray *arrptr);
+    uint32_t getNumberOfNDArrays(const std::string var);
 
 protected:
     ISMRMRD_Dataset dset_;

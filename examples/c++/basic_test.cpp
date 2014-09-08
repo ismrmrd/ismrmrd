@@ -59,9 +59,9 @@ int main (int args, char** argv) {
       }
   }
   ismrmrd_set_flag(&(c_acq.head.flags), ISMRMRD_ACQ_FIRST_IN_SLICE);
-  Acquisition acq3(&c_acq);
-  std::cout << "Acquisition nsamp: " << c_acq.head.number_of_samples << "    Acquisition wrapper nsamp: " << acq3.number_of_samples() << std::endl;
-  std::cout << "Acquisition data[4]: " << c_acq.data[4].real() << "      Acquisition wrapper data[4]: " << acq3.getData()[4].real() << std::endl;
+  Acquisition *acq3 = reinterpret_cast<Acquisition *>(&c_acq);
+  std::cout << "C Acquisition nsamp: " << c_acq.head.number_of_samples << "    C++ Acquisition wrapper nsamp: " << acq3->number_of_samples() << std::endl;
+  std::cout << "C Acquisition data[4]: " << c_acq.data[4].real() << "      C++ Acquisition wrapper data[4]: " << acq3->getData()[4].real() << std::endl;
 
   // Open an existing file
   Dataset dataset1 = Dataset("myfile.h5", "/dataset", false);
