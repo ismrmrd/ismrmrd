@@ -23,8 +23,7 @@ extern "C" {
 /******************************/
 static bool link_exists(const ISMRMRD_Dataset *dset, const char *link_path) {
 
-    htri_t val;
-    val = H5Lexists(dset->fileid, link_path, H5P_DEFAULT);
+    htri_t val = H5Lexists(dset->fileid, link_path, H5P_DEFAULT);
 
     if (val < 0 ) {
         return false;
@@ -42,12 +41,12 @@ static int create_link(const ISMRMRD_Dataset *dset, const char *link_path) {
         return ISMRMRD_NOERROR;
     }
     else {
-        hid_t lcpl_id;
-        lcpl_id = H5Pcreate(H5P_LINK_CREATE);
+        hid_t lcpl_id = H5Pcreate(H5P_LINK_CREATE);
         H5Pset_create_intermediate_group(lcpl_id, 1);
         hid_t gid = H5Gcreate2(dset->fileid, link_path, lcpl_id, H5P_DEFAULT, H5P_DEFAULT);
         H5Gclose(gid);
-        // TODO does this thing return error
+	H5Pclose(lcpl_id);
+        // TODO can this thing ever return an error?
         return ISMRMRD_NOERROR;
     }
 }
@@ -561,62 +560,46 @@ int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool create_if_needed) {
     // TODO add a mode for clobbering the dataset if it exists.
 
     hid_t       fileid;
-    herr_t      h5status;
 
-    // TODO Opening the dataset when it doesn't already exist causes spew in the error log.
-    /* Turn of HDF5 errors completely*/
-    /* This is bad.  Maybe have it compile time dependent */
-     /* or add to our error log */
-    //H5Eset_auto2(NULL, NULL, NULL);
-    
-    
-    /* Check if the file exists and is an HDF5 File */
-    h5status = H5Fis_hdf5(dset->filename);
-    
-    if (h5status > 0) {
-        /* Positive value for exists and is HDF5 */
-        /* Open it in readwrite mode */
+    /* Try opening the file */
+    /* Note the is_hdf5 function doesn't work well when trying to open multiple files */
+    /* Suppress errors with the try macro. */
+    H5E_BEGIN_TRY {
         fileid = H5Fopen(dset->filename, H5F_ACC_RDWR, H5P_DEFAULT);
-        if (fileid > 0) {
-            dset->fileid = fileid;
-        }
-        else {
-           /* Error opening the existing file */
-           // TODO raise error
-           return ISMRMRD_FILEERROR;
-        }
-    }
-    else if (h5status == 0) {
-       /* Zero value for exists and is NOT HDF5 */
-       //TODO raise error
-       return ISMRMRD_FILEERROR;
+    } H5E_END_TRY
+
+    if (fileid > 0) {
+        dset->fileid = fileid;
     }
     else {
-        /* Negative value for does NOT exist or other error */
+        /* Some sort of error opening the file */
+        /* Maybe it doesn't exist? */
         if (create_if_needed == false) {
-            ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed to open file.");
-            return ISMRMRD_FILEERROR;
-        }
-        else {
-            /* Create a new file using the default properties. */
+	    ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed to open file.");
+	    return ISMRMRD_FILEERROR;
+	}
+	else {
+	    /* Try creating a new file using the default properties. */
             /* this will be readwrite */
-            fileid = H5Fcreate(dset->filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-            if (fileid > 0) {
-                dset->fileid = fileid;
-            }
-            else {
-                /* Error creating file */
-                // TODO raise error
-                return ISMRMRD_FILEERROR;
-            }
-        }
+	    H5E_BEGIN_TRY {
+	        fileid = H5Fcreate(dset->filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+	    } H5E_END_TRY
+	    if (fileid > 0) {
+	        dset->fileid = fileid;
+	    }
+	    else {
+	        /* Error opening the file */
+	        ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed to open file.");
+		return ISMRMRD_FILEERROR;
+	    }
+	}
     }
 
     /* Open the existing dataset */
     /* insure that /groupname exists */
-    int val = create_link(dset, dset->groupname);
+    create_link(dset, dset->groupname);
 
-    return val;
+    return ISMRMRD_NOERROR;
 }
 
 int ismrmrd_close_dataset(ISMRMRD_Dataset *dset) {
@@ -829,7 +812,7 @@ int ismrmrd_append_image(const ISMRMRD_Dataset *dset, const char *varname,
     /* /groupname/varname */
     char *path = make_path(dset, varname);
     /* Make sure the path exists */
-    status = create_link(dset, path);        
+    create_link(dset, path);        
 
     /* Handle the header */
     char *headerpath = append_to_path(dset, path, "header");

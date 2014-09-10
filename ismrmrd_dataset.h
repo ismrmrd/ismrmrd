@@ -162,24 +162,20 @@ public:
     
     // Methods
     // XML Header
-    int writeHeader(const std::string xmlstring);
+    int writeHeader(const std::string &xmlstring);
     int readHeader(std::string& xmlstring);
-    char * readHeader();
     // Acquisitions
-    int appendAcquisition(const Acquisition acq);
-    Acquisition * readAcquisition(uint32_t index);
-    int readAcquisition(uint32_t index, Acquisition *acq);
+    int appendAcquisition(const Acquisition &acq);
+    int readAcquisition(uint32_t index, Acquisition &acq);
     uint32_t getNumberOfAcquisitions();
     // Images
-    int appendImage(const std::string var, const ISMRMRD_BlockModes blockmode, const Image im);
-    Image * readImage(const std::string var, uint32_t index);
-    int readImage(const std::string var, uint32_t index, Image *imptr);
-    uint32_t getNumberOfImages(const std::string var);
+    int appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const Image &im);
+    int readImage(const std::string &var, uint32_t index, Image &im);
+    uint32_t getNumberOfImages(const std::string &var);
     // NDArrays
-    int appendNDArray(const std::string var, const ISMRMRD_BlockModes blockmode, const NDArray arr);
-    NDArray * readNDArray(const std::string var, uint32_t index);
-    int readNDArray(const std::string var, uint32_t index, NDArray *arrptr);
-    uint32_t getNumberOfNDArrays(const std::string var);
+    int appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray &arr);
+    int readNDArray(const std::string &var, uint32_t index, NDArray &arr);
+    uint32_t getNumberOfNDArrays(const std::string &var);
 
 protected:
     ISMRMRD_Dataset dset_;
