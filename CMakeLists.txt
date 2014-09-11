@@ -1,31 +1,34 @@
 cmake_minimum_required(VERSION 2.8)
 project(ISMRMRD)
 
-enable_testing()
+# install into a named subdirectory
+set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/ismrmrd)
 
+# add project specific cmake find modules
+list(APPEND CMAKE_MODULE_PATH cmake)
 
-#Set the build type to Release if not specified
+# set the build type to Release if not specified
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Release CACHE STRING
       "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
       FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
-# define install paths globally
-set(ISMRMRD_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/ismrmrd)
-set(ISMRMRD_INSTALL_LIB_DIR ${ISMRMRD_INSTALL_PREFIX}/lib)
-set(ISMRMRD_INSTALL_INCLUDE_DIR ${ISMRMRD_INSTALL_PREFIX}/include)
-set(ISMRMRD_INSTALL_BIN_DIR ${ISMRMRD_INSTALL_PREFIX}/bin)
-set(ISMRMRD_INSTALL_MODULE_DIR ${ISMRMRD_INSTALL_PREFIX}/cmake)
-set(ISMRMRD_INSTALL_SCHEMA_DIR ${ISMRMRD_INSTALL_PREFIX}/schema)
-set(ISMRMRD_INSTALL_MATLAB_DIR ${ISMRMRD_INSTALL_PREFIX}/matlab)
-set(ISMRMRD_INSTALL_JAVA_DIR ${ISMRMRD_INSTALL_PREFIX}/java)
-set(ISMRMRD_INSTALL_PYTHON_DIR ${ISMRMRD_INSTALL_PREFIX}/python)
-set(ISMRMRD_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-set(ISMRMRD_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-set(ISMRMRD_SCHEMA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/schema)
-set(ISMRMRD_SCHEMA_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/src/xsd)
-
+# compiler flags
+if (WIN32)
+    add_definitions(-DWIN32 -D_WIN32 -D_WINDOWS)
+    add_definitions(-DUNICODE -D_UNICODE)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3")
+    set(CMAKE_EXE_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
+    set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
+    set(CMAKE_STATIC_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
+    set(CMAKE_MODULE_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
+else (WIN32)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wall")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+endif (WIN32)
 
 #  ---   VERSIONING  (begin) ----
 #The ISMRMRD convention is to use version numbers with the format:
@@ -74,104 +77,63 @@ if (NOT (${ISMRMRD_XML_SCHEMA_SHA1} STREQUAL ${ISMRMRD_CURRENT_XML_SCHEMA_SHA1})
   message("")
   message(FATAL_ERROR "     FATAL XML VERSION ERROR")
 endif()
+
+set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
 #  ---   VERSIONING  (end) ----
  
-# add project specific cmake find modules
-list(APPEND CMAKE_MODULE_PATH ${ISMRMRD_MODULE_DIR})
-
-if (WIN32)
-    add_definitions(-DWIN32 -D_WIN32 -D_WINDOWS)
-    add_definitions(-DUNICODE -D_UNICODE)
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3")
-    set(CMAKE_EXE_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
-    set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
-    set(CMAKE_STATIC_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
-    set(CMAKE_MODULE_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
-endif (WIN32)
-
+#  ---   Main Library  (begin) ----
 # required packages for main library
-find_package(Boost COMPONENTS thread system REQUIRED)
-find_package(HDF5 1.8 COMPONENTS C CXX HL REQUIRED)
+find_package(HDF5 1.8 COMPONENTS C REQUIRED)
 
-# necessary for Windows and RHEL <=6 systems
-set(Boost_NO_BOOST_CMAKE ON)
+# include directories for main library
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/xml 
+    ${HDF5_C_INCLUDE_DIR})
 
-if(WIN32)
-  add_definitions( -DBOOST_ALL_NO_LIB )
-  add_definitions( -DBOOST_ALL_DYN_LINK )
-endif(WIN32)
-
-add_library(ismrmrd SHARED ismrmrd_hdf5.cpp)
-set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
-
+# main library
+add_library(ismrmrd SHARED 
+                  ismrmrd.c
+                  ismrmrd.cpp
+                  ismrmrd_dataset.c
+                  ismrmrd_dataset.cpp
+                  xml/ismrmrd_xml.cpp
+                  xml/ismrmrd_meta.cpp
+                  xml/pugixml.cpp
+)
 set_target_properties(ismrmrd PROPERTIES VERSION ${ISMRMRD_VERSION_STRING} SOVERSION ${ISMRMRD_VERSION_MAJOR})
+target_link_libraries(ismrmrd ${HDF5_LIBRARIES})
 
-include_directories(${HDF5_C_INCLUDE_DIR} ${HDF5_CXX_INCLUDE_DIR}
-    ${Boost_INCLUDE_DIR})
+# install the main library
+install(TARGETS ismrmrd DESTINATION lib)
 
-target_link_libraries(ismrmrd ${HDF5_LIBRARIES} ${Boost_THREAD_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+# install the headers
+install(FILES ismrmrd.h
+                    ismrmrd_dataset.h
+                    xml/ismrmrd_xml.h
+                    xml/ismrmrd_meta.h
+                    ismrmrd_export.h
+           DESTINATION include)
 
-install(TARGETS ismrmrd
-    DESTINATION ${ISMRMRD_INSTALL_LIB_DIR})
+# install the schema file
+install(FILES schema/ismrmrd.xsd DESTINATION schema)
 
-install(FILES ${ISMRMRD_SOURCE_DIR}/ismrmrd.h
-    ${ISMRMRD_SOURCE_DIR}/ismrmrd_hdf5.h
-    ${ISMRMRD_SOURCE_DIR}/ismrmrd_hdf5_datatypes.h
-    ${ISMRMRD_SOURCE_DIR}/ismrmrd_export.h
-    DESTINATION ${ISMRMRD_INSTALL_INCLUDE_DIR})
+# install the cmake modules
+install(FILES cmake/FindIsmrmrd.cmake
+                    cmake/FindFFTW3.cmake
+                    cmake/FindNumPy.cmake
+    DESTINATION cmake)
 
-# required packages for support xsd library
-find_package(XSD REQUIRED)
-find_package(XercesC REQUIRED)
+#  ---   Main Library  (end) ----
 
-# process the XSD files
-set(XSDS ${ISMRMRD_SCHEMA_DIR}/ismrmrd.xsd)
-set(XSD_ARGS cxx-tree --generate-serialization)
-if ( WIN32 )
-    set(XSD_ARGS cxx-tree --generate-serialization)
-    WRAP_XSD(XSDS_SOURCES XSD_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/schema ${XSDS} OPTIONS ${XSD_ARGS})
-    
-    # This dummy is required to trigger autogeneration of ${XSDS_SOURCES}
-    add_library(dummy SHARED ${XSDS_SOURCES})
-    target_link_libraries(dummy ${XERCESC_LIBRARIES})
-else (WIN32)
-    wrap_xsd(XSDS_SOURCES XSD_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/schema ${XSDS} OPTIONS ${XSD_ARGS})
-endif (WIN32)
+# turn on testing
+enable_testing()
 
-if ( WIN32 )
-    include_directories(${ISMRMRD_SCHEMA_SOURCE_DIR} ${XSD_INCLUDE_DIR}
-        ${XERCESC_INCLUDE_DIR} ${Boost_INCLUDE_DIR} ${HDF5_CXX_INCLUDE_DIR}
-        ${HDF5_C_INCLUDE_DIR})
-    link_directories(${Boost_LIBRARY_DIRS})
-endif ( WIN32 )
-
-if ( NOT WIN32 )
-    add_library(ismrmrd_xsd SHARED ${XSDS_SOURCES})
-    set_target_properties(ismrmrd_xsd PROPERTIES VERSION ${ISMRMRD_VERSION_STRING} SOVERSION ${ISMRMRD_VERSION_MAJOR})
-    include_directories(${XERCESC_INCLUDE_DIR})
-    target_link_libraries(ismrmrd_xsd ${XERCESC_LIBRARIES})
-endif ( NOT WIN32 )
-
-install(FILES ${XSDS} ${XSDS_SOURCES}
-    DESTINATION ${ISMRMRD_INSTALL_SCHEMA_DIR})
-
-if ( NOT WIN32 )
-    install(TARGETS ismrmrd_xsd DESTINATION ${ISMRMRD_INSTALL_LIB_DIR})
-endif ( NOT WIN32 )
-
-install(FILES ${ISMRMRD_MODULE_DIR}/FindIsmrmrd.cmake
-    ${ISMRMRD_MODULE_DIR}/FindFFTW3.cmake
-    ${ISMRMRD_MODULE_DIR}/FindXSD.cmake
-    ${ISMRMRD_MODULE_DIR}/FindXercesC.cmake
-    ${ISMRMRD_MODULE_DIR}/FindNumPy.cmake
-    DESTINATION ${ISMRMRD_INSTALL_MODULE_DIR})
-
-add_subdirectory(examples/c++)
-add_subdirectory(utilities)
-add_subdirectory(tests)
-add_subdirectory(doc)
-add_subdirectory(matlab)
-add_subdirectory(bindings)
-add_subdirectory(xml)
+# process subdirectories
+#add_subdirectory(examples/c++)
+#add_subdirectory(examples/c)
+#add_subdirectory(utilities)
+#add_subdirectory(tests)
+#add_subdirectory(doc)
+#add_subdirectory(matlab)
+#add_subdirectory(bindings)

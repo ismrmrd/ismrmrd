@@ -8,6 +8,7 @@ namespace ISMRMRD
   {
     pugi::xml_document doc;
     pugi::xml_parse_result result = doc.load(xml);
+    //TODO should something be done with result?
     pugi::xml_node root = doc.child("ismrmrdMeta");
 
     if (!root) {
