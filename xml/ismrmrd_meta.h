@@ -1,7 +1,7 @@
 #ifndef ISMRMRDMETA_H
 #define ISMRMRDMETA_H
 
-#include "ismrmrd_export.h"
+#include "ismrmrd_xml_export.h"
 
 #include <string>
 #include <sstream>
@@ -152,6 +152,11 @@ namespace ISMRMRD
     }
   };
 
+  class MetaContainer;
+
+  EXPORTISMRMRDXML void deserialize(const char* xml, MetaContainer& h);
+  EXPORTISMRMRDXML void serialize(MetaContainer& h, std::ostream& o);
+
   class MetaContainer
   {
     typedef std::map< std::string, std::vector<MetaValue> > map_t;
@@ -190,9 +195,9 @@ namespace ISMRMRD
     }
 
     ///Return number of values of a particular parameter
-    size_t length(const char* name)
+    size_t length(const char* name) const
     {
-      map_t::iterator it = map_.find(std::string(name));
+      map_t::const_iterator it = map_.find(std::string(name));
       if (it != map_.end()) {
 	return it->second.size();
       }
@@ -200,26 +205,26 @@ namespace ISMRMRD
     }
 
     ///Return value number @index of the parameter @name as long
-    long as_long(const char* name, size_t index = 0)
+    long as_long(const char* name, size_t index = 0) const
     {
       return value(name,index).as_long();
     }
 
     ///Return value number @index of the parameter @name as double
-    double as_double(const char* name, size_t index = 0)
+    double as_double(const char* name, size_t index = 0) const
     {
       return value(name,index).as_double();
     }
     
     ///Return value number @index of the parameter @name as string
-    const char* as_str(const char* name, size_t index = 0)
+    const char* as_str(const char* name, size_t index = 0) const
     {
       return value(name,index).as_str();
     }
 
-    const MetaValue& value(const char* name, size_t index = 0)
+    const MetaValue& value(const char* name, size_t index = 0) const
     {
-      map_t::iterator it = map_.find(std::string(name));
+      map_t::const_iterator it = map_.find(std::string(name));
       if (it == map_.end()) {
 	throw std::runtime_error("Attempting to access unkown parameter");
       }
@@ -242,10 +247,6 @@ namespace ISMRMRD
   template void MetaContainer::append<long>(const char* name, long value);
   template void MetaContainer::append<double>(const char* name, double);
   */
-
-  EXPORTISMRMRD void deserialize(const char* xml, MetaContainer& h);
-  EXPORTISMRMRD void serialize(MetaContainer& h, std::ostream& o);
-
 }
 
 #endif //ISMRMRDMETA_H

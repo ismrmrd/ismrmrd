@@ -10,14 +10,7 @@ set_source_files_properties(ismrmrd_python.i PROPERTIES CPLUSPLUS ON)
 
 swig_add_module(ismrmrd python ismrmrd_python.i ${CMAKE_SOURCE_DIR}/ismrmrd_hdf5.cpp)
 
-IF(WIN32)
-    swig_link_libraries(ismrmrd optimized ${HDF5_hdf5_LIBRARY_RELEASE} optimized ${HDF5_hdf5_cpp_LIBRARY_RELEASE})
-    swig_link_libraries(ismrmrd debug ${HDF5_hdf5_LIBRARY_DEBUG} debug ${HDF5_hdf5_cpp_LIBRARY_DEBUG})
-    swig_link_libraries(ismrmrd ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
-ELSE (WIN32)
-    swig_link_libraries(ismrmrd ${HDF5_LIBRARIES} ${Boost_THREAD_LIBRARY}
-        ${Boost_SYSTEM_LIBRARY} ${PYTHON_LIBRARIES})
-ENDIF(WIN32)
+swig_link_libraries(ismrmrd ${HDF5_LIBRARIES} ${Boost_THREAD_LIBRARY} ${Boost_SYSTEM_LIBRARY} ${PYTHON_LIBRARIES})
 
 install(TARGETS ${SWIG_MODULE_ismrmrd_REAL_NAME}
     DESTINATION ${ISMRMRD_INSTALL_PYTHON_DIR})

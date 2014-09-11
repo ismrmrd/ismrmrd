@@ -156,6 +156,23 @@ namespace ISMRMRD
     {
 
     }
+    
+    MatrixSize(unsigned short x, unsigned short y)
+    : x(x)
+    , y(y)
+    , z(1)
+    {
+
+    }
+    
+    MatrixSize(unsigned short x, unsigned short y, unsigned short z)
+    : x(x)
+    , y(y)
+    , z(z)
+    {
+
+    }
+    
     unsigned short x;
     unsigned short y;
     unsigned short z;
@@ -181,6 +198,14 @@ namespace ISMRMRD
     : minimum(0)
     , maximum(0)
     , center(0)
+    {
+
+    }
+    
+    Limit(unsigned short minimum, unsigned short maximum, unsigned short center) 
+    : minimum(minimum)
+    , maximum(maximum)
+    , center(center)
     {
 
     }
