@@ -96,6 +96,7 @@ if (NOT (${ISMRMRD_XML_SCHEMA_SHA1} STREQUAL ${ISMRMRD_CURRENT_XML_SCHEMA_SHA1})
 endif()
 
 set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
+set(ISMRMRD_SOVERSION ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR})
 #  ---   VERSIONING  (end) ----
  
 #  ---   Main Library  (begin) ----
@@ -119,7 +120,10 @@ add_library(ismrmrd SHARED
   ${ISMRMRD_XML_SOURCE_DIR}/ismrmrd_meta.cpp
   ${ISMRMRD_XML_SOURCE_DIR}/pugixml.cpp
 )
-set_target_properties(ismrmrd PROPERTIES VERSION ${ISMRMRD_VERSION_STRING} SOVERSION ${ISMRMRD_VERSION_MAJOR})
+set_target_properties(ismrmrd PROPERTIES
+  VERSION ${ISMRMRD_VERSION_STRING}
+  SOVERSION ${ISMRMRD_SOVERSION}
+)
 target_link_libraries(ismrmrd ${HDF5_LIBRARIES})
 
 # install the main library
