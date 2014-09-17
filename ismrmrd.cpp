@@ -127,9 +127,15 @@ uint16_t &Acquisition::encoding_space_ref() {
     return head.encoding_space_ref;
 }
 
-uint16_t &Acquisition::trajectory_dimensions() {
+const uint16_t &Acquisition::trajectory_dimensions() {
     return head.trajectory_dimensions;
 }
+
+void Acquisition::trajectory_dimensions(uint16_t traj_dim) {
+    head.trajectory_dimensions =  traj_dim;
+    ismrmrd_make_consistent_acquisition(this);
+}
+
 
 float &Acquisition::sample_time_us() {
     return head.sample_time_us;

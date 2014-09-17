@@ -416,7 +416,8 @@ public:
     uint16_t &discard_post();
     uint16_t &center_sample();
     uint16_t &encoding_space_ref();
-    uint16_t &trajectory_dimensions();
+    const uint16_t &trajectory_dimensions();
+    void trajectory_dimensions(uint16_t traj_dim);
     float &sample_time_us();
     float (&position())[3];
     float (&read_dir())[3];
