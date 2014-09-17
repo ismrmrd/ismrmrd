@@ -1,7 +1,7 @@
 #ifndef ISMRMRDMETA_H
 #define ISMRMRDMETA_H
 
-#include "ismrmrd_export.h"
+#include "ismrmrd/export.h"
 
 #include <string>
 #include <sstream>

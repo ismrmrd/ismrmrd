@@ -21,7 +21,7 @@
 
 #endif /* __cplusplus */
 
-#include "ismrmrd.h"
+#include "ismrmrd/ismrmrd.h"
 
 #ifdef __cplusplus
 namespace ISMRMRD {

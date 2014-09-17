@@ -1,4 +1,4 @@
-#include "ismrmrd_xml.h"
+#include "ismrmrd/xml.h"
 #include "pugixml.hpp"
 #include <cstdlib>
 

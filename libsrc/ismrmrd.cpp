@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "ismrmrd.h"
+#include "ismrmrd/ismrmrd.h"
 
 namespace ISMRMRD {
 

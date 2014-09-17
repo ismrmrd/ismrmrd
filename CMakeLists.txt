@@ -11,26 +11,6 @@ IF(NOT CMAKE_BUILD_TYPE)
       FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
-# define install paths globally
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  set(ISMRMRD_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/ismrmrd" CACHE PATH
-    "Using default installation path" FORCE)
-else(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  set(ISMRMRD_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
-endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-set(ISMRMRD_INSTALL_LIB_DIR "${ISMRMRD_INSTALL_PREFIX}/lib")
-set(ISMRMRD_INSTALL_INCLUDE_DIR "${ISMRMRD_INSTALL_PREFIX}/include")
-set(ISMRMRD_INSTALL_BIN_DIR "${ISMRMRD_INSTALL_PREFIX}/bin")
-set(ISMRMRD_INSTALL_MODULE_DIR "${ISMRMRD_INSTALL_PREFIX}/cmake")
-set(ISMRMRD_INSTALL_SCHEMA_DIR "${ISMRMRD_INSTALL_PREFIX}/schema")
-set(ISMRMRD_INSTALL_MATLAB_DIR "${ISMRMRD_INSTALL_PREFIX}/matlab")
-set(ISMRMRD_INSTALL_JAVA_DIR "${ISMRMRD_INSTALL_PREFIX}/java")
-set(ISMRMRD_INSTALL_PYTHON_DIR "${ISMRMRD_INSTALL_PREFIX}/python")
-set(ISMRMRD_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-set(ISMRMRD_MODULE_SOURCE_DIR "${ISMRMRD_SOURCE_DIR}/cmake")
-set(ISMRMRD_SCHEMA_SOURCE_DIR "${ISMRMRD_SOURCE_DIR}/schema")
-set(ISMRMRD_XML_SOURCE_DIR "${ISMRMRD_SOURCE_DIR}/xml")
-
 # compiler flags
 if (WIN32)
     add_definitions(-DWIN32 -D_WIN32 -D_WINDOWS)
@@ -105,20 +85,19 @@ find_package(HDF5 1.8 COMPONENTS C REQUIRED)
 
 # include directories for main library
 include_directories(
-  ${ISMRMRD_SOURCE_DIR}
-  ${ISMRMRD_XML_SOURCE_DIR} 
+  include
   ${HDF5_C_INCLUDE_DIR}
 )
 
 # main library
 add_library(ismrmrd SHARED 
-  ${ISMRMRD_SOURCE_DIR}/ismrmrd.c
-  ${ISMRMRD_SOURCE_DIR}/ismrmrd.cpp
-  ${ISMRMRD_SOURCE_DIR}/ismrmrd_dataset.c
-  ${ISMRMRD_SOURCE_DIR}/ismrmrd_dataset.cpp
-  ${ISMRMRD_XML_SOURCE_DIR}/ismrmrd_xml.cpp
-  ${ISMRMRD_XML_SOURCE_DIR}/ismrmrd_meta.cpp
-  ${ISMRMRD_XML_SOURCE_DIR}/pugixml.cpp
+  libsrc/ismrmrd.c
+  libsrc/ismrmrd.cpp
+  libsrc/dataset.c
+  libsrc/dataset.cpp
+  libsrc/xml.cpp
+  libsrc/meta.cpp
+  libsrc/pugixml.cpp
 )
 set_target_properties(ismrmrd PROPERTIES
   VERSION ${ISMRMRD_VERSION_STRING}
@@ -127,30 +106,22 @@ set_target_properties(ismrmrd PROPERTIES
 target_link_libraries(ismrmrd ${HDF5_LIBRARIES})
 
 # install the main library
-install(TARGETS ismrmrd DESTINATION ${ISMRMRD_INSTALL_LIB_DIR})
+install(TARGETS ismrmrd DESTINATION lib)
 
 # install the headers
-install(FILES 
-  ${ISMRMRD_SOURCE_DIR}/ismrmrd.h
-  ${ISMRMRD_SOURCE_DIR}/ismrmrd_dataset.h
-  ${ISMRMRD_XML_SOURCE_DIR}/ismrmrd_xml.h
-  ${ISMRMRD_XML_SOURCE_DIR}/ismrmrd_meta.h
-  ${ISMRMRD_SOURCE_DIR}/ismrmrd_export.h
-DESTINATION
-  ${ISMRMRD_INSTALL_INCLUDE_DIR}
-)
+install(DIRECTORY include/ismrmrd  DESTINATION include)
 
 # install the schema file
-install(FILES ${ISMRMRD_SCHEMA_SOURCE_DIR}/ismrmrd.xsd
-  DESTINATION ${ISMRMRD_INSTALL_SCHEMA_DIR})
+install(FILES schema/ismrmrd.xsd
+  DESTINATION share/ismrmrd/schema)
 
 # install the cmake modules
 install(FILES
-  ${ISMRMRD_MODULE_SOURCE_DIR}/FindIsmrmrd.cmake
-  ${ISMRMRD_MODULE_SOURCE_DIR}/FindFFTW3.cmake
-  ${ISMRMRD_MODULE_SOURCE_DIR}/FindNumPy.cmake
+  cmake/FindIsmrmrd.cmake
+  cmake/FindFFTW3.cmake
+  cmake/FindNumPy.cmake
 DESTINATION
-  ${ISMRMRD_INSTALL_MODULE_DIR}
+  share/ismrmrd/cmake
 )
 
 #  ---   Main Library  (end) ----

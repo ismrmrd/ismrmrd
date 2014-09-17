@@ -1,4 +1,4 @@
-#include "ismrmrd_dataset.h"
+#include "ismrmrd/dataset.h"
 
 // for memcpy and free in older compilers
 #include <string.h>

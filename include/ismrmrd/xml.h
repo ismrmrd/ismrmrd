@@ -1,8 +1,7 @@
 #ifndef ISMRMRDXML_H
 #define ISMRMRDXML_H
 
-#include "ismrmrd_export.h"
-
+#include "ismrmrd/export.h"
 
 #include <cstddef>
 #include <new> //For std::badalloc
