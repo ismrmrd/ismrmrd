@@ -24,7 +24,7 @@ typedef __int64 int64_t;
 typedef unsigned __int64 uint64_t;
 #else /* non MS C or C++ compiler */
 #include <stdint.h>
-#endif
+#endif /* _MSC_VER */
 
 /* Complex numbers */
 #ifdef __cplusplus
@@ -45,6 +45,7 @@ typedef struct complex_double_t{
 #include <complex.h>
 typedef float complex complex_float_t;
 typedef double complex complex_double_t;
+#endif /* _MSC_VER */
 #endif /* __cplusplus */
 
 /* Booleans - part of C++ */
@@ -55,12 +56,16 @@ typedef int bool;
 #define true 1
 #else /* C99 compiler */
 #include <stdbool.h>
-#endif
+#endif /* _MSC_VER */
+#endif /* __cplusplus */
 
 /* Vectors */
 #ifdef __cplusplus
 #include <vector>
-#endif
+#endif /* __cplusplus */
+
+/* Exports needed for MS C++ */
+#include "ismrmrd/export.h"
 
 #pragma pack(push, 2) /* Use 2 byte alignment */
 
@@ -367,14 +372,11 @@ void ismrmrd_quaternion_to_directions(float quat[4], float read_dir[3], float ph
 //  ISMRMRD C++ Interface
 //
 
-// TODO:
-// - exports for all the classes
-
 // Some typedefs to beautify the namespace
 typedef  ISMRMRD_EncodingCounters EncodingCounters;
 
 // A convenience class for flags
-class FlagBit
+EXPORTISMRMRD class FlagBit
 {
 public:
  FlagBit(unsigned short b)
@@ -394,7 +396,7 @@ public:
   
 };
 
-class AcquisitionHeader: public ISMRMRD_AcquisitionHeader {
+EXPORTISMRMRD class AcquisitionHeader: public ISMRMRD_AcquisitionHeader {
 public:
     // Constructors
     AcquisitionHeader();
@@ -414,7 +416,7 @@ public:
 
 };
 
-class Acquisition: protected ISMRMRD_Acquisition {
+EXPORTISMRMRD class Acquisition: protected ISMRMRD_Acquisition {
 public:
     // Constructors, assignment, destructor
     Acquisition();
@@ -472,7 +474,7 @@ public:
 
 };
 
-class ImageHeader: public ISMRMRD_ImageHeader {
+EXPORTISMRMRD class ImageHeader: public ISMRMRD_ImageHeader {
 public:
     // Constructor
     ImageHeader();
@@ -485,7 +487,7 @@ public:
 
 };
 
-class Image : protected ISMRMRD_Image {
+EXPORTISMRMRD class Image : protected ISMRMRD_Image {
 public:
     // Constructors
     Image();
@@ -539,7 +541,7 @@ public:
     void clearAllFlags();
 };
 
-class NDArray: protected ISMRMRD_NDArray {
+EXPORTISMRMRD class NDArray: protected ISMRMRD_NDArray {
 public:
     // Constructors, destructor and copy
     NDArray();

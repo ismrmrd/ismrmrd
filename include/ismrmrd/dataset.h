@@ -154,7 +154,7 @@ uint32_t ismrmrd_get_number_of_arrays(const ISMRMRD_Dataset *dset, const char *v
 
 // TODO:
 // - exports as needed
-class Dataset {
+EXPORTISMRMRD class Dataset {
 public:
     // Constructor and destructor
     Dataset(const char* filename, const char* groupname, bool create_file_if_needed = true);
