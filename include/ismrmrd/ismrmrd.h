@@ -355,13 +355,13 @@ char *ismrmrd_strerror(int err);
 /* Rotations and Quaternions */
 /*****************************/
 /* Calculates the determinant of the matrix and return the sign */
-int ismrmrd_sign_of_directions(float read_dir[3], float phase_dir[3], float slice_dir[3]);
+EXPORTISMRMRD int ismrmrd_sign_of_directions(float read_dir[3], float phase_dir[3], float slice_dir[3]);
 
 /* Creates a normalized quaternion from a 3x3 rotation matrix */
-void ismrmrd_directions_to_quaternion(float read_dir[3], float phase_dir[3], float slice_dir[3], float quat[4]);
+EXPORTISMRMRD void ismrmrd_directions_to_quaternion(float read_dir[3], float phase_dir[3], float slice_dir[3], float quat[4]);
 
 /* Converts a quaternion of the form | a b c d | to a 3x3 rotation matrix */
-void ismrmrd_quaternion_to_directions(float quat[4], float read_dir[3], float phase_dir[3], float slice_dir[3]);
+EXPORTISMRMRD void ismrmrd_quaternion_to_directions(float quat[4], float read_dir[3], float phase_dir[3], float slice_dir[3]);
 
 #pragma pack(pop) // Restore old alignment
 
@@ -376,7 +376,7 @@ void ismrmrd_quaternion_to_directions(float quat[4], float read_dir[3], float ph
 typedef  ISMRMRD_EncodingCounters EncodingCounters;
 
 // A convenience class for flags
-EXPORTISMRMRD class FlagBit
+class EXPORTISMRMRD FlagBit
 {
 public:
  FlagBit(unsigned short b)
@@ -396,7 +396,7 @@ public:
   
 };
 
-EXPORTISMRMRD class AcquisitionHeader: public ISMRMRD_AcquisitionHeader {
+class EXPORTISMRMRD AcquisitionHeader: public ISMRMRD_AcquisitionHeader {
 public:
     // Constructors
     AcquisitionHeader();
@@ -416,7 +416,7 @@ public:
 
 };
 
-EXPORTISMRMRD class Acquisition: protected ISMRMRD_Acquisition {
+class EXPORTISMRMRD Acquisition: protected ISMRMRD_Acquisition {
 public:
     // Constructors, assignment, destructor
     Acquisition();
@@ -474,7 +474,7 @@ public:
 
 };
 
-EXPORTISMRMRD class ImageHeader: public ISMRMRD_ImageHeader {
+class EXPORTISMRMRD ImageHeader: public ISMRMRD_ImageHeader {
 public:
     // Constructor
     ImageHeader();
@@ -487,7 +487,7 @@ public:
 
 };
 
-EXPORTISMRMRD class Image : protected ISMRMRD_Image {
+class EXPORTISMRMRD Image : protected ISMRMRD_Image {
 public:
     // Constructors
     Image();
@@ -541,7 +541,7 @@ public:
     void clearAllFlags();
 };
 
-EXPORTISMRMRD class NDArray: protected ISMRMRD_NDArray {
+class EXPORTISMRMRD NDArray: protected ISMRMRD_NDArray {
 public:
     // Constructors, destructor and copy
     NDArray();

@@ -11,24 +11,24 @@ namespace ISMRMRD {
 // Constructors
 AcquisitionHeader::AcquisitionHeader() {
     ismrmrd_init_acquisition_header(this);
-};
+}
 
 // Flag methods
 bool AcquisitionHeader::isFlagSet(const ISMRMRD_AcquisitionFlags val) {
     return ismrmrd_is_flag_set(flags, val);
-};
+}
 
 void AcquisitionHeader::setFlag(const ISMRMRD_AcquisitionFlags val) {
     ismrmrd_set_flag(&flags, val);
-};
+}
 
 void AcquisitionHeader::clearFlag(const ISMRMRD_AcquisitionFlags val) {
     ismrmrd_clear_flag(&flags, val);
-};
+}
 
 void AcquisitionHeader::clearAllFlags() {
     ismrmrd_clear_all_flags(&flags);
-};
+}
 
 // TODO: Channel mask methods go here
 
