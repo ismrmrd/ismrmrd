@@ -14,30 +14,53 @@
 #define ISMRMRD_H
 
 /* Language and cross platform section for defining types */
-#ifdef __cplusplus
-
-#ifdef _MSC_VER /* MS C++ Compiler */
+/* integers */
+#ifdef _MSC_VER /* MS compiler */
 typedef __int16 int16_t;
 typedef unsigned __int16 uint16_t;
 typedef __int32 int32_t;
 typedef unsigned __int32 uint32_t;
 typedef __int64 int64_t;
 typedef unsigned __int64 uint64_t;
-#else /* non MS C++ compiler */
+#else /* non MS C or C++ compiler */
 #include <stdint.h>
 #endif
+
+/* Complex numbers */
+#ifdef __cplusplus
 #include <complex>
 typedef std::complex<float> complex_float_t;
 typedef std::complex<double> complex_double_t;
-#include <vector>
-
+#else
+#ifdef _MSC_VER /* MS C compiler */
+typedef struct complex_float_t{
+    float real;
+    float imag;
+}complex_float_r;
+typedef struct complex_double_t{
+    double real;
+    dobule imag;
+}complex_double_r;
 #else /* C99 compiler */
-#include <stdint.h>
 #include <complex.h>
-#include <stdbool.h>
 typedef float complex complex_float_t;
 typedef double complex complex_double_t;
 #endif /* __cplusplus */
+
+/* Booleans - part of C++ */
+#ifndef __cplusplus
+#ifdef _MSC_VER /* MS C compiler */
+typedef int bool;
+#define false 0
+#define true 1
+#else /* C99 compiler */
+#include <stdbool.h>
+#endif
+
+/* Vectors */
+#ifdef __cplusplus
+#include <vector>
+#endif
 
 #pragma pack(push, 2) /* Use 2 byte alignment */
 
