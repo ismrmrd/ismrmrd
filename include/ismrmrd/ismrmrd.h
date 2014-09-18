@@ -36,11 +36,11 @@ typedef std::complex<double> complex_double_t;
 typedef struct complex_float_t{
     float real;
     float imag;
-}complex_float_r;
+}complex_float_t;
 typedef struct complex_double_t{
     double real;
-    dobule imag;
-}complex_double_r;
+    double imag;
+}complex_double_t;
 #else /* C99 compiler */
 #include <complex.h>
 typedef float complex complex_float_t;

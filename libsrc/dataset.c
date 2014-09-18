@@ -37,13 +37,15 @@ static bool link_exists(const ISMRMRD_Dataset *dset, const char *link_path) {
 }
 
 static int create_link(const ISMRMRD_Dataset *dset, const char *link_path) {
+	hid_t lcpl_id, gid;
+
     if (link_exists(dset, link_path)) {
         return ISMRMRD_NOERROR;
     }
     else {
-        hid_t lcpl_id = H5Pcreate(H5P_LINK_CREATE);
+        lcpl_id = H5Pcreate(H5P_LINK_CREATE);
         H5Pset_create_intermediate_group(lcpl_id, 1);
-        hid_t gid = H5Gcreate2(dset->fileid, link_path, lcpl_id, H5P_DEFAULT, H5P_DEFAULT);
+        gid = H5Gcreate2(dset->fileid, link_path, lcpl_id, H5P_DEFAULT, H5P_DEFAULT);
         H5Gclose(gid);
 	H5Pclose(lcpl_id);
         // TODO can this thing ever return an error?
@@ -184,6 +186,8 @@ static hid_t get_hdf5type_xmlheader(void) {
 static hid_t get_hdf5type_encoding(void) {
     hid_t datatype;
     herr_t h5status;
+    hsize_t arraydims[] = {ISMRMRD_USER_INTS};
+    hid_t arraytype;
     datatype = H5Tcreate(H5T_COMPOUND, sizeof(ISMRMRD_EncodingCounters));
     h5status = H5Tinsert(datatype, "kspace_encode_step_1", HOFFSET(ISMRMRD_EncodingCounters, kspace_encode_step_1),  H5T_NATIVE_UINT16);
     h5status = H5Tinsert(datatype, "kspace_encode_step_2", HOFFSET(ISMRMRD_EncodingCounters, kspace_encode_step_2), H5T_NATIVE_UINT16);
@@ -194,8 +198,7 @@ static hid_t get_hdf5type_encoding(void) {
     h5status = H5Tinsert(datatype, "repetition", HOFFSET(ISMRMRD_EncodingCounters, repetition), H5T_NATIVE_UINT16);
     h5status = H5Tinsert(datatype, "set", HOFFSET(ISMRMRD_EncodingCounters, set), H5T_NATIVE_UINT16);
     h5status = H5Tinsert(datatype, "segment", HOFFSET(ISMRMRD_EncodingCounters, segment), H5T_NATIVE_UINT16);
-    hsize_t arraydims[] = {ISMRMRD_USER_INTS};
-    hid_t arraytype = H5Tarray_create2(H5T_NATIVE_UINT16, 1, arraydims);
+    arraytype = H5Tarray_create2(H5T_NATIVE_UINT16, 1, arraydims);
     h5status = H5Tinsert(datatype, "user", HOFFSET(ISMRMRD_EncodingCounters, user), arraytype);
     if (h5status < 0) {
         ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed get endoding data type");
@@ -418,13 +421,17 @@ uint32_t get_number_of_elements(const ISMRMRD_Dataset *dset, const char * path)
     uint32_t num;
     
     if (link_exists(dset, path)) {
-        hid_t dataset = H5Dopen2(dset->fileid, path, H5P_DEFAULT);
-        hid_t dataspace = H5Dget_space(dataset);
-        hsize_t rank = H5Sget_simple_extent_ndims(dataspace);
-        hsize_t dims[rank];        
-        hsize_t maxdims[rank];
+		hid_t dataset, dataspace;
+		hsize_t rank, *dims, *maxdims;
+        dataset = H5Dopen2(dset->fileid, path, H5P_DEFAULT);
+        dataspace = H5Dget_space(dataset);
+        rank = H5Sget_simple_extent_ndims(dataspace);
+        dims = (hsize_t *) malloc(rank*sizeof(hsize_t));
+        maxdims = (hsize_t *) malloc(rank*sizeof(hsize_t));
         h5status = H5Sget_simple_extent_dims(dataspace, dims, maxdims);
         num = dims[0];
+		free(dims);
+		free(maxdims);
         h5status = H5Sclose(dataspace);
         h5status= H5Dclose(dataset);
         if (h5status < 0) {
@@ -443,22 +450,24 @@ int append_element(const ISMRMRD_Dataset * dset, const char * path, void * elem,
 {
     hid_t dataset, dataspace, props, filespace, memspace;
     herr_t h5status;
+	int n;
 
     /* Check the path, extend or create if needed, and select the last block */
     if (link_exists(dset, path)) {
+        hsize_t rank, *hdfdims, *maxdims, *offset, *ext_dims;
         /* open */
         dataset = H5Dopen2(dset->fileid, path, H5P_DEFAULT);
         /* TODO check that the header dataset's datatype is correct */
         dataspace = H5Dget_space(dataset);
-        hsize_t rank = H5Sget_simple_extent_ndims(dataspace);
+        rank = H5Sget_simple_extent_ndims(dataspace);
         if (rank != (ndim+1)) {
             ISMRMRD_THROW(ISMRMRD_FILEERROR, "Dimensions are incorrect.");
             return ISMRMRD_FILEERROR;
         }
-        hsize_t hdfdims[rank];
-        hsize_t maxdims[rank];
+        hdfdims =(hsize_t *) malloc(rank*sizeof(hsize_t));
+        maxdims =(hsize_t *) malloc(rank*sizeof(hsize_t));
         h5status = H5Sget_simple_extent_dims(dataspace, hdfdims, maxdims);
-        for (int n = 0; n<ndim; n++) {
+        for (n = 0; n<ndim; n++) {
             if (dims[n] != hdfdims[n+1]) {
                 ISMRMRD_THROW(ISMRMRD_FILEERROR, "Dimensions are incorrect.");
                 return ISMRMRD_FILEERROR;
@@ -468,32 +477,38 @@ int append_element(const ISMRMRD_Dataset * dset, const char * path, void * elem,
         hdfdims[0] += 1;
         h5status = H5Dset_extent(dataset, hdfdims);
         /* Select the last block */
-        hsize_t offset[rank];
-        hsize_t ext_dims[rank];
+        offset = (hsize_t *) malloc(rank*sizeof(hsize_t));
+		ext_dims = (hsize_t *) malloc(rank*sizeof(hsize_t));
         offset[0] = hdfdims[0]-1;
         ext_dims[0] = 1;
-        for (int n = 0; n<ndim; n++) {
+        for (n = 0; n<ndim; n++) {
             offset[n+1] = 0;
             ext_dims[n+1] = dims[n];
         }
         filespace = H5Dget_space(dataset);
         h5status  = H5Sselect_hyperslab (filespace, H5S_SELECT_SET, offset, NULL, ext_dims, NULL);
         memspace = H5Screate_simple(rank, ext_dims, NULL);
+	    free(hdfdims);
+	    free(maxdims);
+		free(offset);
+		free(ext_dims);
     }
     else {
+		int rank;
+		hsize_t *hdfdims, *maxdims, *offset, *ext_dims, *chunk_dims;
         /* create a new dataset */
-        int rank = ndim+1;
-        hsize_t hdfdims[rank];
-        hsize_t maxdims[rank];
-        hsize_t offset[rank];
-        hsize_t ext_dims[rank];
-        hsize_t chunk_dims[rank];
+        rank = ndim+1;
+        hdfdims = (hsize_t *) malloc(rank*sizeof(hsize_t));
+        maxdims = (hsize_t *) malloc(rank*sizeof(hsize_t));
+        offset = (hsize_t *) malloc(rank*sizeof(hsize_t));
+        ext_dims = (hsize_t *) malloc(rank*sizeof(hsize_t));
+        chunk_dims = (hsize_t *) malloc(rank*sizeof(hsize_t));
         hdfdims[0] = 1;
         maxdims[0] = H5S_UNLIMITED;
         offset[0] = 1;
         ext_dims[0] = 1;
         chunk_dims[0] = 1;
-        for (int n = 0; n<ndim; n++) {
+        for (n = 0; n<ndim; n++) {
             hdfdims[n+1] = dims[n];
             maxdims[n+1] = dims[n];
             offset[n+1] = 0;
@@ -512,6 +527,11 @@ int append_element(const ISMRMRD_Dataset * dset, const char * path, void * elem,
         filespace = H5Dget_space(dataset);
         h5status  = H5Sselect_hyperslab (filespace, H5S_SELECT_SET, offset, NULL, ext_dims, NULL);
         memspace = H5Screate_simple(rank, ext_dims, NULL);
+		free(hdfdims);
+		free(maxdims);
+		free(offset);
+		free(ext_dims);
+		free(chunk_dims);
     }
 
     /* Write it */
@@ -624,9 +644,11 @@ int ismrmrd_write_header(const ISMRMRD_Dataset *dset, const char *xmlstring) {
     hid_t dataset, dataspace, datatype, props;
     hsize_t dims[] = {1};
     herr_t h5status;
+    void *buff[1];
+	char * path;
 
     /* The path to the xml header */
-    char *path = make_path(dset, "xml");
+    path = make_path(dset, "xml");
 
     /* Delete the old header if it exists */
     h5status = delete_var(dset, "xml");
@@ -640,7 +662,6 @@ int ismrmrd_write_header(const ISMRMRD_Dataset *dset, const char *xmlstring) {
 
     /* Write it out */
     /* We have to wrap the xmlstring in an array */
-    void *buff[1];
     buff[0] = (void *) xmlstring;  /* safe to get rid of const the type */
     h5status = H5Dwrite(dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, buff);
 
@@ -668,10 +689,10 @@ char * ismrmrd_read_header(const ISMRMRD_Dataset *dset) {
     char *path = make_path(dset, "xml");
 
     if (link_exists(dset, path)) {
+        void *buff[1];
         dataset = H5Dopen2(dset->fileid, path, H5P_DEFAULT);
         datatype = get_hdf5type_xmlheader();
         /* Read it into a 1D buffer*/
-        void *buff[1];
         h5status = H5Dread(dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, buff);
 
         /* Unpack */
@@ -712,15 +733,18 @@ uint32_t ismrmrd_get_number_of_acquisitions(const ISMRMRD_Dataset *dset) {
 }
 
 int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquisition *acq) {
+	int status;
+	char *path;
+	hid_t datatype;
+    HDF5_Acquisition hdf5acq[1];
 
     /* The path to the acqusition data */    
-    char *path = make_path(dset, "data");
+    path = make_path(dset, "data");
 
     /* The acquisition datatype */
-    hid_t datatype = get_hdf5type_acquisition();
+    datatype = get_hdf5type_acquisition();
     
     /* Create the HDF5 version of the acquisition */
-    HDF5_Acquisition hdf5acq[1];
     hdf5acq[0].head = acq->head;
     hdf5acq[0].traj.len = acq->head.number_of_samples * acq->head.trajectory_dimensions;
     hdf5acq[0].traj.p = acq->traj;
@@ -728,7 +752,7 @@ int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquis
     hdf5acq[0].data.p = acq->data;
     
     /* Write it */
-    int status = append_element(dset, path, hdf5acq, datatype, 0, NULL);    
+    status = append_element(dset, path, hdf5acq, datatype, 0, NULL);    
     if (status != ISMRMRD_NOERROR) {
         ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed to append acquisition.");
         return status;
@@ -807,15 +831,17 @@ int ismrmrd_append_image(const ISMRMRD_Dataset *dset, const char *varname,
 
     int status;
     hid_t datatype;
+	char *path, *headerpath, *attrpath, *datapath;
+    uint16_t dims[4];
 
     /* The group for this set of images */
     /* /groupname/varname */
-    char *path = make_path(dset, varname);
+    path = make_path(dset, varname);
     /* Make sure the path exists */
     create_link(dset, path);        
 
     /* Handle the header */
-    char *headerpath = append_to_path(dset, path, "header");
+    headerpath = append_to_path(dset, path, "header");
     datatype = get_hdf5type_imageheader();
     status = append_element(dset, headerpath, (void *) &im->head, datatype, 0, NULL);
     if (status != ISMRMRD_NOERROR) {
@@ -825,7 +851,7 @@ int ismrmrd_append_image(const ISMRMRD_Dataset *dset, const char *varname,
     free(headerpath);
     
     /* Handle the attribute string */
-    char *attrpath = append_to_path(dset, path, "attributes");
+    attrpath = append_to_path(dset, path, "attributes");
     datatype = get_hdf5type_image_attribute_string();
     status = append_element(dset, attrpath, (void *) &im->attribute_string, datatype, 0, NULL);
     if (status != ISMRMRD_NOERROR) {
@@ -835,9 +861,8 @@ int ismrmrd_append_image(const ISMRMRD_Dataset *dset, const char *varname,
     free(attrpath);
     
     /* Handle the data */
-    char *datapath = append_to_path(dset, path, "data");
+    datapath = append_to_path(dset, path, "data");
     datatype = get_hdf5type_ndarray(im->head.data_type);
-    uint16_t dims[4];
     dims[0] = im->head.matrix_size[0];
     dims[1] = im->head.matrix_size[1];
     dims[2] = im->head.matrix_size[2];
@@ -873,6 +898,8 @@ int ismrmrd_append_array(const ISMRMRD_Dataset *dset, const char *varname,
                          const int block_mode, const ISMRMRD_NDArray *arr) {
     int status;
     hid_t datatype;
+    uint16_t ndim, *dims;
+	int n;
 
     /* The group for this set */
     /* /groupname/varname */
@@ -880,9 +907,9 @@ int ismrmrd_append_array(const ISMRMRD_Dataset *dset, const char *varname,
 
     /* Handle the data */
     datatype = get_hdf5type_ndarray(arr->data_type);
-    uint16_t ndim = arr->ndim;
-    uint16_t dims[ndim];
-    for (int n=0; n<ndim; n++) {
+    ndim = arr->ndim;
+    dims = (uint16_t *) malloc(ndim*sizeof(uint16_t));
+    for (n=0; n<ndim; n++) {
         dims[n] = arr->dims[n];
     }
     status = append_element(dset, path, arr->data, datatype, ndim, dims);
@@ -892,6 +919,7 @@ int ismrmrd_append_array(const ISMRMRD_Dataset *dset, const char *varname,
     }
 
     /* Final cleanup */
+	free(dims);
     H5Tclose(datatype);
     free(path);
     

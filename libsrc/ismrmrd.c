@@ -70,11 +70,13 @@ void ismrmrd_copy_acquisition(ISMRMRD_Acquisition *acqdest, const ISMRMRD_Acquis
 }
 
 int ismrmrd_make_consistent_acquisition(ISMRMRD_Acquisition *acq) {
+	size_t traj_size, data_size;
+
     if (acq->head.available_channels < acq->head.active_channels) {
         acq->head.available_channels = acq->head.active_channels;
     }
 
-    size_t traj_size = ismrmrd_size_of_acquisition_traj(acq);
+	traj_size = ismrmrd_size_of_acquisition_traj(acq);
     if (traj_size > 0) {
         acq->traj = (float *)realloc(acq->traj, traj_size);
         if (acq->traj == NULL) {
@@ -84,7 +86,7 @@ int ismrmrd_make_consistent_acquisition(ISMRMRD_Acquisition *acq) {
         }
     }
 
-    size_t data_size = ismrmrd_size_of_acquisition_data(acq);
+    data_size = ismrmrd_size_of_acquisition_data(acq);
     if (data_size > 0) {
         acq->data = (complex_float_t *)realloc(acq->data, data_size);
         if (acq->data == NULL) {
@@ -150,7 +152,9 @@ void ismrmrd_copy_image(ISMRMRD_Image *imdest, const ISMRMRD_Image *imsource) {
 }
 
 int ismrmrd_make_consistent_image(ISMRMRD_Image *im) {
-    size_t attr_size = ismrmrd_size_of_image_attribute_string(im);
+    size_t attr_size, data_size;
+	
+	attr_size = ismrmrd_size_of_image_attribute_string(im);
     if (attr_size > 0) {
         im->attribute_string = (char *)realloc(im->attribute_string, attr_size);
         if (im->attribute_string == NULL) {
@@ -160,7 +164,7 @@ int ismrmrd_make_consistent_image(ISMRMRD_Image *im) {
         }
     }
 
-    size_t data_size = ismrmrd_size_of_image_data(im);
+    data_size = ismrmrd_size_of_image_data(im);
     if (data_size > 0) {
         im->data = realloc(im->data, data_size);
         if (im->data == NULL) {
@@ -227,10 +231,13 @@ void ismrmrd_free_ndarray(ISMRMRD_NDArray *arr) {
 }
 
 void ismrmrd_init_ndarray(ISMRMRD_NDArray *arr) {
-    arr->version = ISMRMRD_VERSION;
+	int n;
+
+	arr->version = ISMRMRD_VERSION;
     arr->data_type = 0; // no default data type
     arr->ndim = 0;
-    for (int n = 0; n < ISMRMRD_NDARRAY_MAXDIM; n++) {
+
+    for (n = 0; n < ISMRMRD_NDARRAY_MAXDIM; n++) {
         arr->dims[n] = 0;
     }
     arr->data = malloc(0);  /* Can be freed */
@@ -241,10 +248,13 @@ void ismrmrd_cleanup_ndarray(ISMRMRD_NDArray *arr) {
 }
 
 void ismrmrd_copy_ndarray(ISMRMRD_NDArray *arrdest, const ISMRMRD_NDArray *arrsource) {
+    int n;
+
     arrdest->version = arrsource->version;
     arrdest->data_type = arrsource->data_type;
     arrdest->ndim = arrsource->ndim;
-    for (int n = 0; n < ISMRMRD_NDARRAY_MAXDIM; n++) {
+
+	for (n = 0; n < ISMRMRD_NDARRAY_MAXDIM; n++) {
         arrdest->dims[n] = arrsource->dims[n];
     }
     ismrmrd_make_consistent_ndarray(arrdest);
@@ -272,7 +282,8 @@ int ismrmrd_make_consistent_ndarray(ISMRMRD_NDArray *arr) {
 size_t ismrmrd_size_of_ndarray_data(const ISMRMRD_NDArray *arr) {
     size_t data_size = 0;
     int num_data = 1;
-    for (int n = 0; n < arr->ndim; n++) {
+	int n;
+    for (n = 0; n < arr->ndim; n++) {
         num_data *= arr->dims[n];
     }
 
@@ -343,9 +354,6 @@ void ismrmrd_set_error_handler(ismrmrd_error_handler_t handler) {
 }
 
 char *ismrmrd_strerror(int err) {
-    assert(err > ISMRMRD_BEGINERROR);
-    assert(err < ISMRMRD_ENDERROR);
-
     /* Match the ISMRMRD_ErrorCodes */
     char *error_messages[] = {
         "No Error",
@@ -353,6 +361,9 @@ char *ismrmrd_strerror(int err) {
         "File Error"
     };
     
+    assert(err > ISMRMRD_BEGINERROR);
+    assert(err < ISMRMRD_ENDERROR);
+
     return error_messages[err];
 }
 
