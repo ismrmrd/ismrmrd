@@ -954,10 +954,11 @@ int ismrmrd_append_image(const ISMRMRD_Dataset *dset, const char *varname,
             /* Handle the data */
             datapath = append_to_path(dset, path, "data");
             datatype = get_hdf5type_ndarray(im->head.data_type);
-            dims[0] = im->head.matrix_size[0];
-            dims[1] = im->head.matrix_size[1];
-            dims[2] = im->head.matrix_size[2];
-            dims[3] = im->head.channels;
+            /* permute the dimensions in the hdf5 file */
+            dims[3] = im->head.matrix_size[0];
+            dims[2] = im->head.matrix_size[1];
+            dims[1] = im->head.matrix_size[2];
+            dims[0] = im->head.channels;
             status = append_element(dset, datapath, im->data, datatype, 4, dims);
             if (status != ISMRMRD_NOERROR) {
                 ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed to append image data.");
@@ -1015,8 +1016,9 @@ int ismrmrd_append_array(const ISMRMRD_Dataset *dset, const char *varname,
             datatype = get_hdf5type_ndarray(arr->data_type);
             ndim = arr->ndim;
             dims = (uint16_t *) malloc(ndim*sizeof(uint16_t));
+            /* permute the dimensions in the hdf5 file */
             for (n=0; n<ndim; n++) {
-                dims[n] = arr->dims[n];
+                dims[ndim-n-1] = arr->dims[n];
             }
             status = append_element(dset, path, arr->data, datatype, ndim, dims);
             if (status != ISMRMRD_NOERROR) {
