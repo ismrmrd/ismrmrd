@@ -1,9 +1,13 @@
 import ismrmrd
 
-f = ismrmrd.IsmrmrdDataset('./testdata.h5', '/dataset')
-xml = f.readHeader()
+acq = ismrmrd.Acquisition()
+# acq.version = 42
 
-a = f.readAcquisition(10)
+f = ismrmrd.Dataset('./testdata.h5', '/dataset', True)
+print f.filename
+# xml = f.readHeader()
 
-print(a.getPosition(0), a.getPosition(1), a.getPosition(2))
-print(a.getReadDirection(0), a.getReadDirection(1), a.getReadDirection(2))
+# a = f.readAcquisition(10)
+
+# print(a.getPosition(0), a.getPosition(1), a.getPosition(2))
+# print(a.getReadDirection(0), a.getReadDirection(1), a.getReadDirection(2))

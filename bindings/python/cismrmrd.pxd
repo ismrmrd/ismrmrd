@@ -56,3 +56,40 @@ cdef extern from "ismrmrd.h":
 
     cdef ISMRMRD_Acquisition ismrmrd_create_acquisition()
     cdef void ismrmrd_free_acquisition(ISMRMRD_Acquisition*)
+    cdef size_t ismrmrd_size_of_acquisition_data(const ISMRMRD_Acquisition *)
+
+    ctypedef struct ISMRMRD_Image:
+        pass
+
+    ctypedef struct ISMRMRD_NDArray:
+        pass
+
+
+cdef extern from "ismrmrd_dataset.h":
+    cdef enum BlockModes:
+        BLOCKMODE_ARRAY
+        BLOCKMODE_BLOB
+
+    ctypedef struct ISMRMRD_Dataset:
+        char *filename
+        char *groupname
+        int fileid
+
+    cdef int ismrmrd_init_dataset(ISMRMRD_Dataset*, const char*, const char*)
+    cdef int ismrmrd_open_dataset(ISMRMRD_Dataset*, const bint)
+    cdef int ismrmrd_close_dataset(ISMRMRD_Dataset*)
+    cdef char *ismrmrd_read_header(const ISMRMRD_Dataset *)
+    cdef int ismrmrd_write_header(ISMRMRD_Dataset *, const char *)
+    cdef uint32_t ismrmrd_get_number_of_acquisitions(const ISMRMRD_Dataset*)
+    cdef int ismrmrd_append_acquisition(ISMRMRD_Dataset *, const ISMRMRD_Acquisition *)
+    cdef int ismrmrd_read_acquisition(const ISMRMRD_Dataset *, uint32_t , ISMRMRD_Acquisition *)
+    cdef uint32_t ismrmrd_get_number_of_images(const ISMRMRD_Dataset *, const char *)
+    cdef int ismrmrd_append_image(ISMRMRD_Dataset *, const char *,
+                         const int, const ISMRMRD_Image *)
+    cdef int ismrmrd_read_image(const ISMRMRD_Dataset *, const char *,
+                       const uint32_t, ISMRMRD_Image *)
+    cdef uint32_t ismrmrd_get_number_of_arrays(const ISMRMRD_Dataset *, const char *)
+    cdef int ismrmrd_append_array(ISMRMRD_Dataset *dset, const char *varname,
+                            const int block_mode, const ISMRMRD_NDArray *)
+    cdef int ismrmrd_read_array(const ISMRMRD_Dataset *, const char *,
+                        const uint32_t, ISMRMRD_NDArray *)
