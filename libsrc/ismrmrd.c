@@ -28,6 +28,7 @@ namespace ISMRMRD {
 extern "C" {
 #endif
 
+/* Acquisition functions */
 void ismrmrd_init_acquisition_header(ISMRMRD_AcquisitionHeader *hdr) {
     memset(hdr, 0, sizeof(ISMRMRD_AcquisitionHeader));
     hdr->version = ISMRMRD_VERSION;
@@ -38,13 +39,13 @@ void ismrmrd_init_acquisition_header(ISMRMRD_AcquisitionHeader *hdr) {
 
 void ismrmrd_init_acquisition(ISMRMRD_Acquisition *acq) {
     ismrmrd_init_acquisition_header(&acq->head);
-    acq->traj = (float *)malloc(0); /* can be passed to free */
-    acq->data = (complex_float_t *)malloc(0);
+    acq->traj = NULL;
+    acq->data = NULL;
 }
 
 void ismrmrd_cleanup_acquisition(ISMRMRD_Acquisition *acq) {
-    free(acq->data);
-    free(acq->traj);
+    free(acq->data); acq->data = NULL;
+    free(acq->traj); acq->traj = NULL;
 }
     
 ISMRMRD_Acquisition * ismrmrd_create_acquisition() {
@@ -54,8 +55,7 @@ ISMRMRD_Acquisition * ismrmrd_create_acquisition() {
 }
 
 void ismrmrd_free_acquisition(ISMRMRD_Acquisition *acq) {
-    free(acq->data);
-    free(acq->traj);
+    ismrmrd_cleanup_acquisition(acq);
     free(acq);
 }
 
@@ -70,13 +70,13 @@ void ismrmrd_copy_acquisition(ISMRMRD_Acquisition *acqdest, const ISMRMRD_Acquis
 }
 
 int ismrmrd_make_consistent_acquisition(ISMRMRD_Acquisition *acq) {
-	size_t traj_size, data_size;
-
+    size_t traj_size, data_size;
+    
     if (acq->head.available_channels < acq->head.active_channels) {
         acq->head.available_channels = acq->head.active_channels;
     }
-
-	traj_size = ismrmrd_size_of_acquisition_traj(acq);
+    
+    traj_size = ismrmrd_size_of_acquisition_traj(acq);
     if (traj_size > 0) {
         acq->traj = (float *)realloc(acq->traj, traj_size);
         if (acq->traj == NULL) {
@@ -85,7 +85,7 @@ int ismrmrd_make_consistent_acquisition(ISMRMRD_Acquisition *acq) {
             return ISMRMRD_MEMORYERROR;
         }
     }
-
+    
     data_size = ismrmrd_size_of_acquisition_data(acq);
     if (data_size > 0) {
         acq->data = (complex_float_t *)realloc(acq->data, data_size);
@@ -95,7 +95,7 @@ int ismrmrd_make_consistent_acquisition(ISMRMRD_Acquisition *acq) {
             return ISMRMRD_MEMORYERROR;
         }
     }
-
+    
     return ISMRMRD_NOERROR;
 }
 
@@ -109,7 +109,7 @@ size_t ismrmrd_size_of_acquisition_data(const ISMRMRD_Acquisition *acq) {
     return num_data * sizeof(*acq->data);
 }
 
-/* ImageHeader functions */
+/* Image functions */
 void ismrmrd_init_image_header(ISMRMRD_ImageHeader *hdr) {
     memset(hdr, 0, sizeof(ISMRMRD_ImageHeader));
     hdr->version = ISMRMRD_VERSION;
@@ -119,30 +119,28 @@ void ismrmrd_init_image_header(ISMRMRD_ImageHeader *hdr) {
     hdr->channels = 1;
 }
 
-/* Image functions */
+void ismrmrd_init_image(ISMRMRD_Image *im) {
+    ismrmrd_init_image_header(&im->head);
+    im->attribute_string = NULL;
+    im->data = NULL;
+}
+
 ISMRMRD_Image * ismrmrd_create_image() {
     ISMRMRD_Image *im = (ISMRMRD_Image *) malloc(sizeof(ISMRMRD_Image));
     ismrmrd_init_image(im);
     return im;
 }
 
-void ismrmrd_free_image(ISMRMRD_Image *im) {
-    free(im->data);
-    free(im->attribute_string);
-    free(im);
-}
-    
-void ismrmrd_init_image(ISMRMRD_Image *im) {
-    ismrmrd_init_image_header(&im->head);
-    im->attribute_string = (char *) malloc(0); /* can be passed to free */
-    im->data = (void *) malloc(0);
+void ismrmrd_cleanup_image(ISMRMRD_Image *im) {
+    free(im->attribute_string); im->attribute_string = NULL;
+    free(im->data); im->data = NULL;
 }
 
-void ismrmrd_cleanup_image(ISMRMRD_Image *im) {
-    free(im->attribute_string);
-    free(im->data);
+void ismrmrd_free_image(ISMRMRD_Image *im) {
+    ismrmrd_cleanup_image(im);
+    free(im);
 }
-    
+
 void ismrmrd_copy_image(ISMRMRD_Image *imdest, const ISMRMRD_Image *imsource) {
     memcpy(&imdest->head, &imsource->head, sizeof(ISMRMRD_ImageHeader));
     ismrmrd_make_consistent_image(imdest);
@@ -153,8 +151,8 @@ void ismrmrd_copy_image(ISMRMRD_Image *imdest, const ISMRMRD_Image *imsource) {
 
 int ismrmrd_make_consistent_image(ISMRMRD_Image *im) {
     size_t attr_size, data_size;
-	
-	attr_size = ismrmrd_size_of_image_attribute_string(im);
+    
+    attr_size = ismrmrd_size_of_image_attribute_string(im);
     if (attr_size > 0) {
         im->attribute_string = (char *)realloc(im->attribute_string, attr_size);
         if (im->attribute_string == NULL) {
@@ -163,7 +161,7 @@ int ismrmrd_make_consistent_image(ISMRMRD_Image *im) {
             return ISMRMRD_MEMORYERROR;
         }
     }
-
+    
     data_size = ismrmrd_size_of_image_data(im);
     if (data_size > 0) {
         im->data = realloc(im->data, data_size);
@@ -173,7 +171,7 @@ int ismrmrd_make_consistent_image(ISMRMRD_Image *im) {
             return ISMRMRD_MEMORYERROR;
         }
     }
-
+    
     return ISMRMRD_NOERROR;
 }
 
@@ -181,7 +179,7 @@ size_t ismrmrd_size_of_image_data(const ISMRMRD_Image *im) {
     size_t data_size = 0;
     int num_data = im->head.matrix_size[0] * im->head.matrix_size[1] *
             im->head.matrix_size[2] * im->head.channels;
-
+    
     switch (im->head.data_type) {
     case ISMRMRD_USHORT:
         data_size = num_data * sizeof(uint16_t);
@@ -219,42 +217,42 @@ size_t ismrmrd_size_of_image_attribute_string(const ISMRMRD_Image *im) {
 }
 
 /* NDArray functions */
+void ismrmrd_init_ndarray(ISMRMRD_NDArray *arr) {
+    int n;
+    
+    arr->version = ISMRMRD_VERSION;
+    arr->data_type = 0; // no default data type
+    arr->ndim = 0;
+    
+    for (n = 0; n < ISMRMRD_NDARRAY_MAXDIM; n++) {
+        arr->dims[n] = 0;
+    }
+    arr->data = NULL;
+}
+
 ISMRMRD_NDArray * ismrmrd_create_ndarray() {
     ISMRMRD_NDArray *arr = (ISMRMRD_NDArray *) malloc(sizeof(ISMRMRD_NDArray));
     ismrmrd_init_ndarray(arr);
     return arr;
 }
 
-void ismrmrd_free_ndarray(ISMRMRD_NDArray *arr) {
-    free(arr->data);
-    free(arr);
-}
-
-void ismrmrd_init_ndarray(ISMRMRD_NDArray *arr) {
-	int n;
-
-	arr->version = ISMRMRD_VERSION;
-    arr->data_type = 0; // no default data type
-    arr->ndim = 0;
-
-    for (n = 0; n < ISMRMRD_NDARRAY_MAXDIM; n++) {
-        arr->dims[n] = 0;
-    }
-    arr->data = malloc(0);  /* Can be freed */
-}
-
 void ismrmrd_cleanup_ndarray(ISMRMRD_NDArray *arr) {
-    free(arr->data);
+    free(arr->data); arr->data = NULL;
+}
+
+void ismrmrd_free_ndarray(ISMRMRD_NDArray *arr) {
+    ismrmrd_cleanup_ndarray(arr);
+    free(arr);
 }
 
 void ismrmrd_copy_ndarray(ISMRMRD_NDArray *arrdest, const ISMRMRD_NDArray *arrsource) {
     int n;
-
+    
     arrdest->version = arrsource->version;
     arrdest->data_type = arrsource->data_type;
     arrdest->ndim = arrsource->ndim;
-
-	for (n = 0; n < ISMRMRD_NDARRAY_MAXDIM; n++) {
+    
+    for (n = 0; n < ISMRMRD_NDARRAY_MAXDIM; n++) {
         arrdest->dims[n] = arrsource->dims[n];
     }
     ismrmrd_make_consistent_ndarray(arrdest);
@@ -282,11 +280,11 @@ int ismrmrd_make_consistent_ndarray(ISMRMRD_NDArray *arr) {
 size_t ismrmrd_size_of_ndarray_data(const ISMRMRD_NDArray *arr) {
     size_t data_size = 0;
     int num_data = 1;
-	int n;
+    int n;
     for (n = 0; n < arr->ndim; n++) {
         num_data *= arr->dims[n];
     }
-
+    
     switch (arr->data_type) {
     case ISMRMRD_USHORT:
         data_size = num_data * sizeof(uint16_t);
@@ -316,10 +314,11 @@ size_t ismrmrd_size_of_ndarray_data(const ISMRMRD_NDArray *arr) {
         ISMRMRD_THROW(ISMRMRD_TYPEERROR, "Invalid NDArray data type");
         data_size = 0;
     }
-
+    
     return data_size;
 }
 
+/* Misc. functions */
 bool ismrmrd_is_flag_set(const uint64_t flags, const uint64_t val) {
     uint64_t bitmask = 1 << (val - 1);
     return (flags & bitmask) > 0;
@@ -363,7 +362,7 @@ char *ismrmrd_strerror(int err) {
     
     assert(err > ISMRMRD_BEGINERROR);
     assert(err < ISMRMRD_ENDERROR);
-
+    
     return error_messages[err];
 }
 
@@ -371,11 +370,11 @@ int ismrmrd_sign_of_directions(float read_dir[3], float phase_dir[3], float slic
     float r11 = read_dir[0], r12 = phase_dir[0], r13 = slice_dir[0];
     float r21 = read_dir[1], r22 = phase_dir[1], r23 = slice_dir[1];
     float r31 = read_dir[2], r32 = phase_dir[2], r33 = slice_dir[2];
-
+    
     /* Determinant should be 1 or -1 */
     float deti = (r11 * r22 * r33) + (r12 * r23 * r31) + (r21 * r32 * r13) -
                  (r13 * r22 * r31) - (r12 * r21 * r33) - (r11 * r23 * r32);
-
+    
     if (deti < 0) {
         return -1;
     } else {
@@ -388,11 +387,11 @@ void ismrmrd_directions_to_quaternion(float read_dir[3], float phase_dir[3],
     float r11 = read_dir[0], r12 = phase_dir[0], r13 = slice_dir[0];
     float r21 = read_dir[1], r22 = phase_dir[1], r23 = slice_dir[1];
     float r31 = read_dir[2], r32 = phase_dir[2], r33 = slice_dir[2];
-
+    
     double a = 1, b = 0, c = 0, d = 0, s = 0;
     double trace = 0;
     double xd, yd, zd;
-
+    
     /* verify the sign of the rotation*/
     if (ismrmrd_sign_of_directions(read_dir, phase_dir, slice_dir) < 0) {
         /* flip 3rd column */
@@ -400,7 +399,7 @@ void ismrmrd_directions_to_quaternion(float read_dir[3], float phase_dir[3],
         r23 = -r23;
         r33 = -r33;
     }
-
+    
     /* Compute quaternion parameters */
     /* http://www.cs.princeton.edu/~gewang/projects/darth/stuff/quat_faq.html#Q55 */
     trace = 1.0l + r11 + r22 + r33;
@@ -412,8 +411,8 @@ void ismrmrd_directions_to_quaternion(float read_dir[3], float phase_dir[3],
         d = 0.25l * s;
     } else {
         /* trickier case...
-		 * determine which major diagonal element has
-		 * the greatest value... */
+         * determine which major diagonal element has
+         * the greatest value... */
         xd = 1.0 + r11 - (r22 + r33); /* 4**b**b */
         yd = 1.0 + r22 - (r11 + r33); /* 4**c**c */
         zd = 1.0 + r33 - (r11 + r22); /* 4**d**d */
@@ -449,7 +448,7 @@ void ismrmrd_directions_to_quaternion(float read_dir[3], float phase_dir[3],
             a = -a;
         }
     }
-
+    
     quat[0] = (float)a;
     quat[1] = (float)b;
     quat[2] = (float)c;
@@ -460,15 +459,15 @@ void ismrmrd_directions_to_quaternion(float read_dir[3], float phase_dir[3],
 void ismrmrd_quaternion_to_directions(float quat[4], float read_dir[3],
                                       float phase_dir[3], float slice_dir[3]) {
     float a = quat[0], b = quat[1], c = quat[2], d = quat[3];
-
+    
     read_dir[0] = 1.0f - 2.0f * (b * b + c * c);
     phase_dir[0] = 2.0f * (a * b - c * d);
     slice_dir[0] = 2.0f * (a * c + b * d);
-
+    
     read_dir[1] = 2.0f * (a * b + c * d);
     phase_dir[1] = 1.0f - 2.0f * (a * a + c * c);
     slice_dir[1] = 2.0f * (b * c - a * d);
-
+    
     read_dir[2] = 2.0f * (a * c - b * d);
     phase_dir[2] = 2.0f * (b * c + a * d);
     slice_dir[2] = 1.0f - 2.0f * (a * a + b * b);
