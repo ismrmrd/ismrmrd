@@ -108,9 +108,11 @@ int ismrmrd_make_consistent_acquisition(ISMRMRD_Acquisition *acq) {
                 return ISMRMRD_MEMORYERROR;
             }
         }
+        return ISMRMRD_NOERROR;
     }
-    
-    return ISMRMRD_NOERROR;
+    else {
+        return ISMRMRD_RUNTIMEERROR;
+    }
 }
 
 size_t ismrmrd_size_of_acquisition_traj(const ISMRMRD_Acquisition *acq) {
@@ -204,9 +206,11 @@ int ismrmrd_make_consistent_image(ISMRMRD_Image *im) {
                 return ISMRMRD_MEMORYERROR;
             }
         }
+        return ISMRMRD_NOERROR;
     }
-    
-    return ISMRMRD_NOERROR;
+    else {
+        return ISMRMRD_RUNTIMEERROR;
+    }
 }
 
 size_t ismrmrd_size_of_image_data(const ISMRMRD_Image *im) {
@@ -325,8 +329,11 @@ int ismrmrd_make_consistent_ndarray(ISMRMRD_NDArray *arr) {
             /* the data type is invalid for some other reason */
             return ISMRMRD_MEMORYERROR;
         }
+        return ISMRMRD_NOERROR;
     }
-    return ISMRMRD_NOERROR;
+    else {
+        return ISMRMRD_RUNTIMEERROR;
+    }
 }
 
 size_t ismrmrd_size_of_ndarray_data(const ISMRMRD_NDArray *arr) {
@@ -418,7 +425,8 @@ char *ismrmrd_strerror(int err) {
     char *error_messages[] = {
         "No Error",
         "Memory Error",
-        "File Error"
+        "File Error",
+        "Runtime Error"
     };
     
     assert(err > ISMRMRD_BEGINERROR);
