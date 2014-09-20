@@ -1,8 +1,12 @@
 cmake_minimum_required(VERSION 2.8)
 project(ISMRMRD)
 
-# add project specific cmake find modules
-list(APPEND CMAKE_MODULE_PATH cmake)
+# set project specific cmake module path
+set (ISMRMRD_CMAKE_DIR ${PROJECT_SOURCE_DIR}/cmake CACHE PATH
+  "Location of CMake scripts")
+
+# and include it to the search list
+list(APPEND CMAKE_MODULE_PATH ${ISMRMRD_CMAKE_DIR})
 
 # set the build type to Release if not specified
 IF(NOT CMAKE_BUILD_TYPE)
@@ -138,3 +142,14 @@ enable_testing()
 #add_subdirectory(doc)
 #add_subdirectory(matlab)
 #add_subdirectory(bindings)
+
+# Create package
+string(TOLOWER ${PROJECT_NAME} PROJECT_NAME_LOWER)
+include(${ISMRMRD_CMAKE_DIR}/ismrmrd_cpack.cmake)
+if(CPACK_GENERATOR)
+  message(STATUS "Found CPack generators: ${CPACK_GENERATOR}")
+  configure_file("${ISMRMRD_CMAKE_DIR}/cpack_options.cmake.in"
+    ${ISMRMRD_CPACK_CFG_FILE} @ONLY)
+  set(CPACK_PROJECT_CONFIG_FILE ${ISMRMRD_CPACK_CFG_FILE})
+  include (CPack)
+endif()
