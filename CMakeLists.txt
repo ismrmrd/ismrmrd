@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 project(ISMRMRD)
 
+# command line options
+option(USE_GNUINSTALLDIRS "Use GnuInstallDirs" OFF)
+
 # add project specific cmake find modules
 list(APPEND CMAKE_MODULE_PATH cmake)
 
@@ -10,6 +13,29 @@ IF(NOT CMAKE_BUILD_TYPE)
       "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
       FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
+
+# set install paths
+string(TOLOWER ${PROJECT_NAME} PROJECT_NAME_LOWER)
+if(USE_GNUINSTALLDIRS)
+  include(GNUInstallDirs)
+  set(ISMRMRD_INSTALL_BINDIR "${CMAKE_INSTALL_BINDIR}")
+  set(ISMRMRD_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}")
+  set(ISMRMRD_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}")
+  set(ISMRMRD_INSTALL_DATADIR "${CMAKE_INSTALL_DATADIR}")
+  set(ISMRMRD_INSTALL_DOCDIR "${CMAKE_INSTALL_DOCDIR}")
+  set(ISMRMRD_INSTALL_CMAKEDIR
+    "${ISMRMRD_INSTALL_DATADIR}/${PROJECT_NAME_LOWER}/cmake")
+  set(ISMRMRD_INSTALL_SCHEMADIR
+    "${ISMRMRD_INSTALL_DATADIR}/${PROJECT_NAME_LOWER}/schema")
+else(USE_GNUINSTALLDIRS)
+  set(ISMRMRD_INSTALL_BINDIR bin)
+  set(ISMRMRD_INSTALL_LIBDIR lib)
+  set(ISMRMRD_INSTALL_INCLUDEDIR include)
+  set(ISMRMRD_INSTALL_DATADIR share)
+  set(ISMRMRD_INSTALL_DOCDIR doc)
+  set(ISMRMRD_INSTALL_CMAKEDIR cmake)
+  set(ISMRMRD_INSTALL_SCHEMADIR schema)
+endif(USE_GNUINSTALLDIRS)
 
 # compiler flags
 if (WIN32)
@@ -107,14 +133,14 @@ set_target_properties(ismrmrd PROPERTIES
 target_link_libraries(ismrmrd ${HDF5_LIBRARIES})
 
 # install the main library
-install(TARGETS ismrmrd DESTINATION lib)
+install(TARGETS ismrmrd DESTINATION "${ISMRMRD_INSTALL_LIBDIR}")
 
 # install the headers
-install(DIRECTORY include/ismrmrd  DESTINATION include)
+install(DIRECTORY include/ismrmrd  DESTINATION "${ISMRMRD_INSTALL_INCLUDEDIR}")
 
 # install the schema file
 install(FILES schema/ismrmrd.xsd
-  DESTINATION share/ismrmrd/schema)
+  DESTINATION "${ISMRMRD_INSTALL_SCHEMADIR}")
 
 # install the cmake modules
 install(FILES
@@ -122,7 +148,7 @@ install(FILES
   cmake/FindFFTW3.cmake
   cmake/FindNumPy.cmake
 DESTINATION
-  share/ismrmrd/cmake
+  "${ISMRMRD_INSTALL_CMAKEDIR}"
 )
 
 #  ---   Main Library  (end) ----
