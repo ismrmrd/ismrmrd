@@ -64,6 +64,12 @@ classdef AcquisitionHeader < handle
             'ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING', 21, ...
             'ACQ_IS_REVERSE',                          22, ...
             'ACQ_IS_NAVIGATION_DATA',                  23, ...
+            'ACQ_IS_PHASECORR_DATA',                   24, ...
+            'ACQ_LAST_IN_MEASUREMENT',                 25, ...
+            'ACQ_IS_HPFEEDBACK_DATA',                  26, ...
+            'ACQ_IS_DUMMYSCAN_DATA',                   27, ...
+            'ACQ_IS_RTFEEDBACK_DATA',                  28, ...
+            'ACQ_IS_SURFACECOILCORRECTIONSCAN_DATA',   29, ...
             'ACQ_USER1',                               57, ...
             'ACQ_USER2',                               58, ...
             'ACQ_USER3',                               59, ...
@@ -321,7 +327,7 @@ classdef AcquisitionHeader < handle
             % Convert from a byte array to an ISMRMRD AcquisitionHeader
             % This conforms to the memory layout of the C-struct
 
-            if size(bytearray,1) ~= 360
+            if size(bytearray,1) ~= 340
                 error('Wrong number of bytes for AcquisitionHeader.')
             end
             N = size(bytearray,2);
@@ -332,34 +338,33 @@ classdef AcquisitionHeader < handle
                 obj.scan_counter(p) =             typecast(bytearray( 15: 18,p), 'uint32'); ... % Current acquisition number in the measurement %
                 obj.acquisition_time_stamp(p) =   typecast(bytearray( 19: 22,p), 'uint32'); ... % Acquisition clock %
                 obj.physiology_time_stamp(:,p) =  typecast(bytearray( 23: 34,p), 'uint32'); ... % Physiology time stamps, e.g. ecg, breating, etc. %
-                                                                                            ... % C-Struct padding
-                obj.number_of_samples(p) =        typecast(bytearray( 55: 56,p), 'uint16'); ... % Number of samples acquired %
-                obj.available_channels(p) =       typecast(bytearray( 57: 58,p), 'uint16'); ... % Available coils %
-                obj.active_channels(p) =          typecast(bytearray( 59: 60,p), 'uint16'); ... % Active coils on current acquisiton %
-                obj.channel_mask(:,p) =           typecast(bytearray( 61:188,p), 'uint64'); ... % Mask to indicate which channels are active. Support for 1024 channels %
-                obj.discard_pre(p) =              typecast(bytearray(189:190,p), 'uint16'); ... % Samples to be discarded at the beginning of acquisition %
-                obj.discard_post(p) =             typecast(bytearray(191:192,p), 'uint16'); ... % Samples to be discarded at the end of acquisition %
-                obj.center_sample(p) =            typecast(bytearray(193:194,p), 'uint16'); ... % Sample at the center of k-space %
-                obj.encoding_space_ref(p) =       typecast(bytearray(195:196,p), 'uint16'); ... % Reference to an encoding space, typically only one per acquisition %
-                obj.trajectory_dimensions(p) =    typecast(bytearray(197:198,p), 'uint16'); ... % Indicates the dimensionality of the trajectory vector (0 means no trajectory) %
-                obj.sample_time_us(p) =           typecast(bytearray(199:202,p), 'single'); ... % Time between samples in micro seconds, sampling BW %
-                obj.position(:,p) =               typecast(bytearray(203:214,p), 'single'); ... % Three-dimensional spatial offsets from isocenter %
-                obj.read_dir(:,p) =               typecast(bytearray(215:226,p), 'single'); ... % Directional cosines of the readout/frequency encoding %
-                obj.phase_dir(:,p) =              typecast(bytearray(227:238,p), 'single'); ... % Directional cosines of the phase encoding %
-                obj.slice_dir(:,p) =              typecast(bytearray(239:250,p), 'single'); ... % Directional cosines of the slice %
-                obj.patient_table_position(:,p) = typecast(bytearray(251:262,p), 'single'); ... % Patient table off-center %
-                obj.idx.kspace_encode_step_1(p) = typecast(bytearray(263:264,p), 'uint16'); ... % phase encoding line number %
-                obj.idx.kspace_encode_step_2(p) = typecast(bytearray(265:266,p), 'uint16'); ... % partition encodning number %
-                obj.idx.average(p) =              typecast(bytearray(267:268,p), 'uint16'); ... % signal average number %
-                obj.idx.slice(p) =                typecast(bytearray(269:270,p), 'uint16'); ... % imaging slice number %
-                obj.idx.contrast(p) =             typecast(bytearray(271:272,p), 'uint16'); ... % echo number in multi-echo %
-                obj.idx.phase(p) =                typecast(bytearray(273:274,p), 'uint16'); ... % cardiac phase number %
-                obj.idx.repetition(p) =           typecast(bytearray(275:276,p), 'uint16'); ... % dynamic number for dynamic scanning %
-                obj.idx.set(p) =                  typecast(bytearray(277:278,p), 'uint16'); ... % flow encoding set %
-                obj.idx.segment(p) =              typecast(bytearray(279:280,p), 'uint16'); ... % segment number for segmented acquisition %
-                obj.idx.user(:,p) =               typecast(bytearray(281:296,p), 'uint16'); ... % Free user parameters %
-                obj.user_int(:,p) =               typecast(bytearray(297:328,p), 'int32');  ... % Free user parameters %
-                obj.user_float(:,p) =             typecast(bytearray(329:360,p), 'single'); ... % Free user parameters %
+                obj.number_of_samples(p) =        typecast(bytearray( 35: 36,p), 'uint16'); ... % Number of samples acquired %
+                obj.available_channels(p) =       typecast(bytearray( 37: 38,p), 'uint16'); ... % Available coils %
+                obj.active_channels(p) =          typecast(bytearray( 39: 40,p), 'uint16'); ... % Active coils on current acquisiton %
+                obj.channel_mask(:,p) =           typecast(bytearray( 41:168,p), 'uint64'); ... % Mask to indicate which channels are active. Support for 1024 channels %
+                obj.discard_pre(p) =              typecast(bytearray(169:170,p), 'uint16'); ... % Samples to be discarded at the beginning of acquisition %
+                obj.discard_post(p) =             typecast(bytearray(171:172,p), 'uint16'); ... % Samples to be discarded at the end of acquisition %
+                obj.center_sample(p) =            typecast(bytearray(173:174,p), 'uint16'); ... % Sample at the center of k-space %
+                obj.encoding_space_ref(p) =       typecast(bytearray(175:176,p), 'uint16'); ... % Reference to an encoding space, typically only one per acquisition %
+                obj.trajectory_dimensions(p) =    typecast(bytearray(177:178,p), 'uint16'); ... % Indicates the dimensionality of the trajectory vector (0 means no trajectory) %
+                obj.sample_time_us(p) =           typecast(bytearray(179:182,p), 'single'); ... % Time between samples in micro seconds, sampling BW %
+                obj.position(:,p) =               typecast(bytearray(183:194,p), 'single'); ... % Three-dimensional spatial offsets from isocenter %
+                obj.read_dir(:,p) =               typecast(bytearray(195:206,p), 'single'); ... % Directional cosines of the readout/frequency encoding %
+                obj.phase_dir(:,p) =              typecast(bytearray(207:218,p), 'single'); ... % Directional cosines of the phase encoding %
+                obj.slice_dir(:,p) =              typecast(bytearray(219:230,p), 'single'); ... % Directional cosines of the slice %
+                obj.patient_table_position(:,p) = typecast(bytearray(231:242,p), 'single'); ... % Patient table off-center %
+                obj.idx.kspace_encode_step_1(p) = typecast(bytearray(243:244,p), 'uint16'); ... % phase encoding line number %
+                obj.idx.kspace_encode_step_2(p) = typecast(bytearray(245:246,p), 'uint16'); ... % partition encodning number %
+                obj.idx.average(p) =              typecast(bytearray(247:248,p), 'uint16'); ... % signal average number %
+                obj.idx.slice(p) =                typecast(bytearray(249:250,p), 'uint16'); ... % imaging slice number %
+                obj.idx.contrast(p) =             typecast(bytearray(251:252,p), 'uint16'); ... % echo number in multi-echo %
+                obj.idx.phase(p) =                typecast(bytearray(253:254,p), 'uint16'); ... % cardiac phase number %
+                obj.idx.repetition(p) =           typecast(bytearray(255:256,p), 'uint16'); ... % dynamic number for dynamic scanning %
+                obj.idx.set(p) =                  typecast(bytearray(257:258,p), 'uint16'); ... % flow encoding set %
+                obj.idx.segment(p) =              typecast(bytearray(259:260,p), 'uint16'); ... % segment number for segmented acquisition %
+                obj.idx.user(:,p) =               typecast(bytearray(261:276,p), 'uint16'); ... % Free user parameters %
+                obj.user_int(:,p) =               typecast(bytearray(277:308,p), 'int32');  ... % Free user parameters %
+                obj.user_float(:,p) =             typecast(bytearray(309:340,p), 'single'); ... % Free user parameters %
             end              
         end
         
@@ -368,7 +373,7 @@ classdef AcquisitionHeader < handle
             % This conforms to the memory layout of the C-struct
 
             N = obj.getNumber;
-            bytes = zeros(360,N,'uint8');
+            bytes = zeros(340,N,'uint8');
             for p = 1:N
                 off = 1;
                 bytes(off:off+1,p)   = typecast(obj.version(p)               ,'uint8'); off=off+2;
@@ -378,7 +383,6 @@ classdef AcquisitionHeader < handle
                 bytes(off:off+3,p)   = typecast(obj.acquisition_time_stamp(p),'uint8'); off=off+4;
                 % The C struct has padding because of the 5 unused physio time stamps
                 bytes(off:off+11,p)  = typecast(obj.physiology_time_stamp(:,p) ,'uint8'); off=off+12;
-                off = off+20; % Discard 5*uint32;
                 bytes(off:off+1,p)   = typecast(obj.number_of_samples(p)     ,'uint8'); off=off+2;
                 bytes(off:off+1,p)   = typecast(obj.available_channels(p)    ,'uint8'); off=off+2;
                 bytes(off:off+1,p)   = typecast(obj.active_channels(p)       ,'uint8'); off=off+2;
