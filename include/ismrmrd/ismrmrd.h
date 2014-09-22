@@ -233,7 +233,7 @@ typedef struct ISMRMRD_AcquisitionHeader {
 } ISMRMRD_AcquisitionHeader;
 
 /* Initialize an Acquisition Header */
-void ismrmrd_init_acquisition_header(ISMRMRD_AcquisitionHeader *hdr);
+EXPORTISMRMRD void ismrmrd_init_acquisition_header(ISMRMRD_AcquisitionHeader *hdr);
 
 /**
    Individual MR acquisition.
@@ -244,14 +244,14 @@ typedef struct ISMRMRD_Acquisition {
     complex_float_t *data;
 } ISMRMRD_Acquisition;
 
-ISMRMRD_Acquisition * ismrmrd_create_acquisition();
-void ismrmrd_free_acquisition(ISMRMRD_Acquisition *acq);
-void ismrmrd_init_acquisition(ISMRMRD_Acquisition *acq);
-void ismrmrd_cleanup_acquisition(ISMRMRD_Acquisition *acq);
-void ismrmrd_copy_acquisition(ISMRMRD_Acquisition *acqdest, const ISMRMRD_Acquisition *acqsource);
-int ismrmrd_make_consistent_acquisition(ISMRMRD_Acquisition *acq);
-size_t ismrmrd_size_of_acquisition_traj(const ISMRMRD_Acquisition *acq);
-size_t ismrmrd_size_of_acquisition_data(const ISMRMRD_Acquisition *acq);
+EXPORTISMRMRD ISMRMRD_Acquisition * ismrmrd_create_acquisition();
+EXPORTISMRMRD void ismrmrd_free_acquisition(ISMRMRD_Acquisition *acq);
+EXPORTISMRMRD void ismrmrd_init_acquisition(ISMRMRD_Acquisition *acq);
+EXPORTISMRMRD void ismrmrd_cleanup_acquisition(ISMRMRD_Acquisition *acq);
+EXPORTISMRMRD void ismrmrd_copy_acquisition(ISMRMRD_Acquisition *acqdest, const ISMRMRD_Acquisition *acqsource);
+EXPORTISMRMRD int ismrmrd_make_consistent_acquisition(ISMRMRD_Acquisition *acq);
+EXPORTISMRMRD size_t ismrmrd_size_of_acquisition_traj(const ISMRMRD_Acquisition *acq);
+EXPORTISMRMRD size_t ismrmrd_size_of_acquisition_data(const ISMRMRD_Acquisition *acq);
     
 /**********/
 /* Images */
@@ -289,7 +289,7 @@ typedef struct ISMRMRD_ImageHeader {
     uint32_t attribute_string_len;                       /**< Length of attributes string */
 } ISMRMRD_ImageHeader;
 
-void ismrmrd_init_image_header(ISMRMRD_ImageHeader *hdr);
+EXPORTISMRMRD void ismrmrd_init_image_header(ISMRMRD_ImageHeader *hdr);
 
 /**
  *  An individual Image
@@ -301,14 +301,14 @@ typedef struct ISMRMRD_Image {
 } ISMRMRD_Image;
 
 
-ISMRMRD_Image * ismrmrd_create_image();
-void ismrmrd_free_image(ISMRMRD_Image *im);
-void ismrmrd_init_image(ISMRMRD_Image *im);
-void ismrmrd_cleanup_image(ISMRMRD_Image *im);
-void ismrmrd_copy_image(ISMRMRD_Image *imdest, const ISMRMRD_Image *imsource);
-int ismrmrd_make_consistent_image(ISMRMRD_Image *im);
-size_t ismrmrd_size_of_image_attribute_string(const ISMRMRD_Image *im);
-size_t ismrmrd_size_of_image_data(const ISMRMRD_Image *im);
+EXPORTISMRMRD ISMRMRD_Image * ismrmrd_create_image();
+EXPORTISMRMRD void ismrmrd_free_image(ISMRMRD_Image *im);
+EXPORTISMRMRD void ismrmrd_init_image(ISMRMRD_Image *im);
+EXPORTISMRMRD void ismrmrd_cleanup_image(ISMRMRD_Image *im);
+EXPORTISMRMRD void ismrmrd_copy_image(ISMRMRD_Image *imdest, const ISMRMRD_Image *imsource);
+EXPORTISMRMRD int ismrmrd_make_consistent_image(ISMRMRD_Image *im);
+EXPORTISMRMRD size_t ismrmrd_size_of_image_attribute_string(const ISMRMRD_Image *im);
+EXPORTISMRMRD size_t ismrmrd_size_of_image_data(const ISMRMRD_Image *im);
     
 /************/
 /* NDArrays */
@@ -325,21 +325,21 @@ typedef struct ISMRMRD_NDArray {
     void *data;                            /**< Pointer to data */
 } ISMRMRD_NDArray;
 
-ISMRMRD_NDArray * ismrmrd_create_ndarray();
-void ismrmrd_free_ndarray(ISMRMRD_NDArray *arr);
-void ismrmrd_init_ndarray(ISMRMRD_NDArray *arr);
-void ismrmrd_cleanup_ndarray(ISMRMRD_NDArray *arr);
-void ismrmrd_copy_ndarray(ISMRMRD_NDArray *arrdest, const ISMRMRD_NDArray *arrsource);
-int ismrmrd_make_consistent_ndarray(ISMRMRD_NDArray *arr);
-size_t ismrmrd_size_of_ndarray_data(const ISMRMRD_NDArray *arr);
+EXPORTISMRMRD ISMRMRD_NDArray * ismrmrd_create_ndarray();
+EXPORTISMRMRD void ismrmrd_free_ndarray(ISMRMRD_NDArray *arr);
+EXPORTISMRMRD void ismrmrd_init_ndarray(ISMRMRD_NDArray *arr);
+EXPORTISMRMRD void ismrmrd_cleanup_ndarray(ISMRMRD_NDArray *arr);
+EXPORTISMRMRD void ismrmrd_copy_ndarray(ISMRMRD_NDArray *arrdest, const ISMRMRD_NDArray *arrsource);
+EXPORTISMRMRD int ismrmrd_make_consistent_ndarray(ISMRMRD_NDArray *arr);
+EXPORTISMRMRD size_t ismrmrd_size_of_ndarray_data(const ISMRMRD_NDArray *arr);
 
 /*********/
 /* Flags */
 /*********/
-bool ismrmrd_is_flag_set(const uint64_t flags, const uint64_t val);
-void ismrmrd_set_flag(uint64_t *flags, const uint64_t val);
-void ismrmrd_clear_flag(uint64_t *flags, const uint64_t val);
-void ismrmrd_clear_all_flags(uint64_t *flags);
+EXPORTISMRMRD bool ismrmrd_is_flag_set(const uint64_t flags, const uint64_t val);
+EXPORTISMRMRD void ismrmrd_set_flag(uint64_t *flags, const uint64_t val);
+EXPORTISMRMRD void ismrmrd_clear_flag(uint64_t *flags, const uint64_t val);
+EXPORTISMRMRD void ismrmrd_clear_all_flags(uint64_t *flags);
 
 /* TODO add helper functions for channel mask */
 
@@ -350,8 +350,8 @@ typedef void (*ismrmrd_error_handler_t)(const char *file, int line, const char *
 extern ismrmrd_error_handler_t ismrmrd_error_handler;
 #define ISMRMRD_THROW(err, msg) ismrmrd_error_handler(__FILE__, __LINE__, __func__, (err), (msg))
 
-void ismrmrd_set_error_handler(ismrmrd_error_handler_t);
-char *ismrmrd_strerror(int err);
+EXPORTISMRMRD void ismrmrd_set_error_handler(ismrmrd_error_handler_t);
+EXPORTISMRMRD char *ismrmrd_strerror(int err);
 
 /*****************************/
 /* Rotations and Quaternions */
