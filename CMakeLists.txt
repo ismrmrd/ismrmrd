@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(ISMRMRD)
 
 # command line options
-option(USE_GNUINSTALLDIRS "Use GnuInstallDirs" ON)
+option(USE_GNUINSTALLDIRS "Use GnuInstallDirs" OFF)
 
 # add project specific cmake find modules
 list(APPEND CMAKE_MODULE_PATH cmake)
