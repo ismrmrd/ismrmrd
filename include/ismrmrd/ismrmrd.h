@@ -106,14 +106,14 @@ enum ISMRMRD_ErrorCodes {
  * Data Types
  */
 enum ISMRMRD_DataTypes {
-    ISMRMRD_USHORT = 1, /**< corresponds to uint16_t */
-    ISMRMRD_SHORT,      /**< corresponds to int16_t */
-    ISMRMRD_UINT,       /**< corresponds to uint32_t */
-    ISMRMRD_INT,        /**< corresponds to int32_t */
-    ISMRMRD_FLOAT,      /**< corresponds to float */
-    ISMRMRD_DOUBLE,     /**< corresponds to double */
-    ISMRMRD_CXFLOAT,    /**< corresponds to complex float */
-    ISMRMRD_CXDOUBLE,   /**< corresponds to complex double */
+    ISMRMRD_USHORT   = 1, /**< corresponds to uint16_t */
+    ISMRMRD_SHORT    = 2, /**< corresponds to int16_t */
+    ISMRMRD_UINT     = 3, /**< corresponds to uint32_t */
+    ISMRMRD_INT      = 4, /**< corresponds to int32_t */
+    ISMRMRD_FLOAT    = 5, /**< corresponds to float */
+    ISMRMRD_DOUBLE   = 6, /**< corresponds to double */
+    ISMRMRD_CXFLOAT  = 7, /**< corresponds to complex float */
+    ISMRMRD_CXDOUBLE = 8, /**< corresponds to complex double */
 };
 
 /**
@@ -165,10 +165,10 @@ enum ISMRMRD_AcquisitionFlags {
  */
 enum ISMRMRD_ImageTypes {
     ISMRMRD_IMTYPE_MAGNITUDE = 1,
-    ISMRMRD_IMTYPE_PHASE,
-    ISMRMRD_IMTYPE_REAL,
-    ISMRMRD_IMTYPE_IMAG,
-    ISMRMRD_IMTYPE_COMPLEX
+    ISMRMRD_IMTYPE_PHASE     = 2,
+    ISMRMRD_IMTYPE_REAL      = 3,
+    ISMRMRD_IMTYPE_IMAG      = 4,
+    ISMRMRD_IMTYPE_COMPLEX   = 5
 };
 
 /**
