@@ -1,3 +1,9 @@
+/**
+ * @file meta.h
+ * @defgroup meta Meta Attributes API
+ * @{
+ */
+
 #ifndef ISMRMRDMETA_H
 #define ISMRMRDMETA_H
 
@@ -54,9 +60,7 @@ namespace ISMRMRD
   {
 
   public:
-    /**
-       Default construtor
-     */
+    /** Default construtor */
     MetaValue()
     {
       set(0L);
@@ -157,6 +161,7 @@ namespace ISMRMRD
   EXPORTISMRMRD void deserialize(const char* xml, MetaContainer& h);
   EXPORTISMRMRD void serialize(MetaContainer& h, std::ostream& o);
 
+  /// Meta Container
   class MetaContainer
   {
     typedef std::map< std::string, std::vector<MetaValue> > map_t;
@@ -194,7 +199,7 @@ namespace ISMRMRD
       }
     }
 
-    ///Return number of values of a particular parameter
+    /// Return number of values of a particular parameter
     size_t length(const char* name) const
     {
       map_t::const_iterator it = map_.find(std::string(name));
@@ -204,19 +209,19 @@ namespace ISMRMRD
       return 0;
     }
 
-    ///Return value number @index of the parameter @name as long
+    /// Return value number @index of the parameter @name as long
     long as_long(const char* name, size_t index = 0) const
     {
       return value(name,index).as_long();
     }
 
-    ///Return value number @index of the parameter @name as double
+    /// Return value number @index of the parameter @name as double
     double as_double(const char* name, size_t index = 0) const
     {
       return value(name,index).as_double();
     }
     
-    ///Return value number @index of the parameter @name as string
+    /// Return value number @index of the parameter @name as string
     const char* as_str(const char* name, size_t index = 0) const
     {
       return value(name,index).as_str();
@@ -238,7 +243,7 @@ namespace ISMRMRD
     map_t map_; 
   };
 
-  //Template function instanciations
+  //Template function instantiations
   /*
   template void MetaContainer::set<const char*>(const char* name, const char* value);
   template void MetaContainer::set<long>(const char* name, long value);
@@ -248,5 +253,7 @@ namespace ISMRMRD
   template void MetaContainer::append<double>(const char* name, double);
   */
 }
+
+/** @} */
 
 #endif //ISMRMRDMETA_H

@@ -1,3 +1,9 @@
+/**
+ * @file xml.h
+ * @defgroup xml XML API
+ * @{
+ */
+
 #ifndef ISMRMRDXML_H
 #define ISMRMRDXML_H
 
@@ -12,7 +18,7 @@
 #include <string>
 #include <vector>
 
-/*
+/**
   TODO LIST
 
   - Add a date time class
@@ -314,4 +320,5 @@ namespace ISMRMRD
   EXPORTISMRMRD void serialize(const IsmrmrdHeader& h, std::ostream& o);
 }
 
+/** @} */
 #endif //ISMRMRDXML_H

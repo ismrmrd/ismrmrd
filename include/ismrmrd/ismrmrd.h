@@ -9,6 +9,12 @@
 /*    Souheil Inati     (souheil.inati@nih.gov)            */
 /*    Joseph Naegele    (joseph.naegele@nih.gov)           */
 
+/**
+ * @file ismrmrd.h
+ * @defgroup capi C API
+ * @defgroup cxxapi C++ API
+ */
+
 #pragma once
 #ifndef ISMRMRD_H
 #define ISMRMRD_H
@@ -88,7 +94,7 @@ enum ISMRMRD_Constants {
     ISMRMRD_DIRECTION_LENGTH = 3
 };
 
-    
+
 /**
  * Constants
  */
@@ -101,7 +107,7 @@ enum ISMRMRD_ErrorCodes {
     ISMRMRD_RUNTIMEERROR,
     ISMRMRD_ENDERROR
 };
-    
+
 /**
  * Data Types
  */
@@ -149,7 +155,7 @@ enum ISMRMRD_AcquisitionFlags {
     ISMRMRD_ACQ_IS_DUMMYSCAN_DATA                   = 27,
     ISMRMRD_ACQ_IS_RTFEEDBACK_DATA                  = 28,
     ISMRMRD_ACQ_IS_SURFACECOILCORRECTIONSCAN_DATA   = 29,
-    
+
     ISMRMRD_ACQ_USER1                               = 57,
     ISMRMRD_ACQ_USER2                               = 58,
     ISMRMRD_ACQ_USER3                               = 59,
@@ -173,7 +179,7 @@ enum ISMRMRD_ImageTypes {
 
 /**
  * Image Flags
- */ 
+ */
 enum ISMRMRD_ImageFlags {
     ISMRMRD_IMAGE_IS_NAVIGATION_DATA =  1,
     ISMRMRD_IMAGE_USER1              = 57,
@@ -203,8 +209,8 @@ typedef struct ISMRMRD_EncodingCounters {
 } ISMRMRD_EncodingCounters;
 
 /**
-   Header for each MR acquisition.
-*/
+ * Header for each MR acquisition.
+ */
 typedef struct ISMRMRD_AcquisitionHeader {
     uint16_t version;                                    /**< First unsigned int indicates the version */
     uint64_t flags;                                      /**< bit field with flags */
@@ -232,18 +238,23 @@ typedef struct ISMRMRD_AcquisitionHeader {
     float user_float[ISMRMRD_USER_FLOATS];               /**< Free user parameters */
 } ISMRMRD_AcquisitionHeader;
 
-/* Initialize an Acquisition Header */
+/**
+ * Initialize an Acquisition Header
+ * @ingroup capi
+ *
+ */
 EXPORTISMRMRD int ismrmrd_init_acquisition_header(ISMRMRD_AcquisitionHeader *hdr);
 
-/**
-   Individual MR acquisition.
-*/
+/** Individual MR acquisition. */
 typedef struct ISMRMRD_Acquisition {
     ISMRMRD_AcquisitionHeader head; /**< Header, see above */
     float *traj;
     complex_float_t *data;
 } ISMRMRD_Acquisition;
 
+/** @addtogroup capi
+ *  @{
+ */
 EXPORTISMRMRD ISMRMRD_Acquisition * ismrmrd_create_acquisition();
 EXPORTISMRMRD int ismrmrd_free_acquisition(ISMRMRD_Acquisition *acq);
 EXPORTISMRMRD int ismrmrd_init_acquisition(ISMRMRD_Acquisition *acq);
@@ -252,7 +263,8 @@ EXPORTISMRMRD int ismrmrd_copy_acquisition(ISMRMRD_Acquisition *acqdest, const I
 EXPORTISMRMRD int ismrmrd_make_consistent_acquisition(ISMRMRD_Acquisition *acq);
 EXPORTISMRMRD size_t ismrmrd_size_of_acquisition_traj(const ISMRMRD_Acquisition *acq);
 EXPORTISMRMRD size_t ismrmrd_size_of_acquisition_data(const ISMRMRD_Acquisition *acq);
-    
+/** @} */
+
 /**********/
 /* Images */
 /**********/
@@ -289,10 +301,12 @@ typedef struct ISMRMRD_ImageHeader {
     uint32_t attribute_string_len;                       /**< Length of attributes string */
 } ISMRMRD_ImageHeader;
 
+/** @ingroup capi */
 EXPORTISMRMRD int ismrmrd_init_image_header(ISMRMRD_ImageHeader *hdr);
 
 /**
  *  An individual Image
+ *  @ingroup capi
  */
 typedef struct ISMRMRD_Image {
     ISMRMRD_ImageHeader head;
@@ -301,6 +315,9 @@ typedef struct ISMRMRD_Image {
 } ISMRMRD_Image;
 
 
+/** @addtogroup capi
+ *  @{
+ */
 EXPORTISMRMRD ISMRMRD_Image * ismrmrd_create_image();
 EXPORTISMRMRD int ismrmrd_free_image(ISMRMRD_Image *im);
 EXPORTISMRMRD int ismrmrd_init_image(ISMRMRD_Image *im);
@@ -309,7 +326,8 @@ EXPORTISMRMRD int ismrmrd_copy_image(ISMRMRD_Image *imdest, const ISMRMRD_Image 
 EXPORTISMRMRD int ismrmrd_make_consistent_image(ISMRMRD_Image *im);
 EXPORTISMRMRD size_t ismrmrd_size_of_image_attribute_string(const ISMRMRD_Image *im);
 EXPORTISMRMRD size_t ismrmrd_size_of_image_data(const ISMRMRD_Image *im);
-    
+/** @} */
+
 /************/
 /* NDArrays */
 /************/
@@ -325,6 +343,9 @@ typedef struct ISMRMRD_NDArray {
     void *data;                            /**< Pointer to data */
 } ISMRMRD_NDArray;
 
+/** @addtogroup capi
+ *  @{
+ */
 EXPORTISMRMRD ISMRMRD_NDArray * ismrmrd_create_ndarray();
 EXPORTISMRMRD int ismrmrd_free_ndarray(ISMRMRD_NDArray *arr);
 EXPORTISMRMRD int ismrmrd_init_ndarray(ISMRMRD_NDArray *arr);
@@ -332,16 +353,21 @@ EXPORTISMRMRD int ismrmrd_cleanup_ndarray(ISMRMRD_NDArray *arr);
 EXPORTISMRMRD int ismrmrd_copy_ndarray(ISMRMRD_NDArray *arrdest, const ISMRMRD_NDArray *arrsource);
 EXPORTISMRMRD int ismrmrd_make_consistent_ndarray(ISMRMRD_NDArray *arr);
 EXPORTISMRMRD size_t ismrmrd_size_of_ndarray_data(const ISMRMRD_NDArray *arr);
+/** @} */
 
 /*********/
 /* Flags */
 /*********/
+/** @addtogroup capi
+ *  @{
+ */
 EXPORTISMRMRD bool ismrmrd_is_flag_set(const uint64_t flags, const uint64_t val);
 EXPORTISMRMRD int ismrmrd_set_flag(uint64_t *flags, const uint64_t val);
 EXPORTISMRMRD int ismrmrd_clear_flag(uint64_t *flags, const uint64_t val);
 EXPORTISMRMRD int ismrmrd_clear_all_flags(uint64_t *flags);
+/** @} */
 
-/* TODO add helper functions for channel mask */
+/** TODO: add helper functions for channel mask */
 
 /******************/
 /* Error Handling */
@@ -350,34 +376,46 @@ typedef void (*ismrmrd_error_handler_t)(const char *file, int line, const char *
 extern ismrmrd_error_handler_t ismrmrd_error_handler;
 #define ISMRMRD_THROW(err, msg) ismrmrd_error_handler(__FILE__, __LINE__, __func__, (err), (msg))
 
+/** @addtogroup capi
+ *  @{
+ */
+/** Sets a custom error handler */
 EXPORTISMRMRD void ismrmrd_set_error_handler(ismrmrd_error_handler_t);
+/** Returns message for corresponding error code */
 EXPORTISMRMRD char *ismrmrd_strerror(int err);
+/** @} */
 
 /*****************************/
 /* Rotations and Quaternions */
 /*****************************/
-/* Calculates the determinant of the matrix and return the sign */
+/** @addtogroup capi
+ *  @{
+ */
+/** Calculates the determinant of the matrix and return the sign */
 EXPORTISMRMRD int ismrmrd_sign_of_directions(float read_dir[3], float phase_dir[3], float slice_dir[3]);
 
-/* Creates a normalized quaternion from a 3x3 rotation matrix */
+/** Creates a normalized quaternion from a 3x3 rotation matrix */
 EXPORTISMRMRD void ismrmrd_directions_to_quaternion(float read_dir[3], float phase_dir[3], float slice_dir[3], float quat[4]);
 
-/* Converts a quaternion of the form | a b c d | to a 3x3 rotation matrix */
+/** Converts a quaternion of the form | a b c d | to a 3x3 rotation matrix */
 EXPORTISMRMRD void ismrmrd_quaternion_to_directions(float quat[4], float read_dir[3], float phase_dir[3], float slice_dir[3]);
+/** @} */
 
 #pragma pack(pop) // Restore old alignment
 
 #ifdef __cplusplus
 } // extern "C"
 
-//
-//  ISMRMRD C++ Interface
-//
+///  ISMRMRD C++ Interface
 
-// Some typedefs to beautify the namespace
+/// Some typedefs to beautify the namespace
 typedef  ISMRMRD_EncodingCounters EncodingCounters;
 
-// A convenience class for flags
+/** @addtogroup cxxapi
+ *  @{
+ */
+
+/// Convenience class for flags
 class EXPORTISMRMRD FlagBit
 {
 public:
@@ -389,20 +427,21 @@ public:
     bitmask_ = (bitmask_ << (b-1));
       }
     }
-  
+
   bool isSet(const uint64_t& m) const {
     return ((m & bitmask_)>0);
   }
-  
+
   uint64_t bitmask_;
-  
+
 };
 
+/// Header for MR Acquisition type
 class EXPORTISMRMRD AcquisitionHeader: public ISMRMRD_AcquisitionHeader {
 public:
     // Constructors
     AcquisitionHeader();
-    
+
     // Flag methods
     bool isFlagSet(const ISMRMRD_AcquisitionFlags val);
     void setFlag(const ISMRMRD_AcquisitionFlags val);
@@ -418,6 +457,7 @@ public:
 
 };
 
+/// MR Acquisition type
 class EXPORTISMRMRD Acquisition: protected ISMRMRD_Acquisition {
 public:
     // Constructors, assignment, destructor
@@ -476,6 +516,7 @@ public:
 
 };
 
+/// Header for MR Image type
 class EXPORTISMRMRD ImageHeader: public ISMRMRD_ImageHeader {
 public:
     // Constructor
@@ -489,6 +530,7 @@ public:
 
 };
 
+/// MR Image type
 class EXPORTISMRMRD Image : protected ISMRMRD_Image {
 public:
     // Constructors
@@ -543,6 +585,7 @@ public:
     void clearAllFlags();
 };
 
+/// N-Dimensional array type
 class EXPORTISMRMRD NDArray: protected ISMRMRD_NDArray {
 public:
     // Constructors, destructor and copy
@@ -561,8 +604,10 @@ public:
     void * getData();
 };
 
+/** @} */
 
 } // namespace ISMRMRD
+
 #endif
 
 #endif // ISMRMRD_H
