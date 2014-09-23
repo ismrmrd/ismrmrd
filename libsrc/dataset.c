@@ -749,7 +749,7 @@ int ismrmrd_write_header(const ISMRMRD_Dataset *dset, const char *xmlstring) {
 char * ismrmrd_read_header(const ISMRMRD_Dataset *dset) {
     hid_t dataset, datatype;
     herr_t h5status;
-    char * xmlstring;
+    char * xmlstring, *path;
         
     if (dset==NULL) {
         ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
@@ -757,7 +757,7 @@ char * ismrmrd_read_header(const ISMRMRD_Dataset *dset) {
     }
 
     /* The path to the xml header */
-    char *path = make_path(dset, "xml");
+    path = make_path(dset, "xml");
         
     if (link_exists(dset, path)) {
         void *buff[1];
