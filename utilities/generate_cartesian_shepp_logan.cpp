@@ -172,26 +172,19 @@ int main(int argc, char** argv)
         e.reconSpace.fieldOfView_mm.x = 300;
         e.reconSpace.fieldOfView_mm.y = 300;
         e.reconSpace.fieldOfView_mm.z = 6;
-        TrajectoryDescription td;
-        td.identifier = "cartesian";
-        e.trajectoryDescription = td;
-
-	//encodingLimitsType el;
-	//el.kspace_encoding_step_1(limitType(0,matrix_size-1,(matrix_size>>1)));
-	//el.repetition(limitType(0,repetitions*acc_factor,0));
-	//encoding e(es,rs,el,trajectoryType::cartesian);
-
-#ifdef YOMAMA
+        e.trajectory = "cartesian";
+        e.encodingLimits.kspace_encoding_step_1 = Limit(0, matrix_size-1,(matrix_size>>1));
+        e.encodingLimits.repetition = Limit(0, repetitions*acc_factor,0);
         
 	//e.g. parallel imaging
 	if (acc_factor > 1) {
-		ISMRMRD::parallelImagingType parallel(ISMRMRD::accelerationFactorType(acc_factor,1));
-		parallel.calibrationMode(ISMRMRD::calibrationModeType::interleaved);
-		e.parallelImaging(parallel);
+            ParallelImaging parallel;
+            parallel.accelerationFactor.kspace_encoding_step_1 = acc_factor;
+            parallel.accelerationFactor.kspace_encoding_step_2 = 1;
+            parallel.calibrationMode = "interleaved";
+            e.parallelImaging = parallel;
 	}
 
-#endif // YOMAMA
-        
 	//Add the encoding section to the header
 	h.encoding.push_back(e);
 
@@ -206,14 +199,34 @@ int main(int argc, char** argv)
 	//Write the header to the data file.
 	d.writeHeader(xml_header);
 
+        // Convert the NDArrayContainer to an ISMRMRD::NDArray before appending
+        // This requires a memcopy and is annoying
+        // TODO fix this
+        NDArray arr;
+        std::vector<uint16_t> arrdims;
+        arrdims.resize(phantom->ndims());
+        for (int n=0; n<phantom->ndims(); n++) {
+            arrdims[n] = phantom->dimensions_[n];
+        }
+        arr.setProperties(ISMRMRD_CXFLOAT, arrdims);
+        memcpy(arr.getData(), &(phantom->data_[0]), phantom->elements()*sizeof(complex_float_t));
+        d.appendNDArray("phantom", ISMRMRD_BLOCKMODE_ARRAY, arr);
+        
+        arrdims.resize(coils->ndims());
+        for (int n=0; n<coils->ndims(); n++) {
+            arrdims[n] = coils->dimensions_[n];
+        }
+        arr.setProperties(ISMRMRD_CXFLOAT, arrdims);
+        memcpy(arr.getData(), &(coils->data_[0]), coils->elements()*sizeof(complex_float_t));
+        d.appendNDArray("csm", ISMRMRD_BLOCKMODE_ARRAY, arr);
 
-	//d.appendArray(*phantom,"phantom");
-	//d.appendArray(*coils,"csm");
-	//d.appendArray(coil_images,"coil_images");
+        arrdims.resize(coil_images.ndims());
+        for (int n=0; n<coil_images.ndims(); n++) {
+            arrdims[n] = coil_images.dimensions_[n];
+        }
+        arr.setProperties(ISMRMRD_CXFLOAT, arrdims);
+        memcpy(arr.getData(), &(coil_images.data_[0]), coil_images.elements()*sizeof(complex_float_t));
+        d.appendNDArray("coil_images", ISMRMRD_BLOCKMODE_ARRAY, arr);
 
 	return 0;
 }
-
-
-
-
