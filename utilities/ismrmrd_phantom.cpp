@@ -130,8 +130,8 @@ int add_noise(ISMRMRD::Acquisition& a, float sd)
 	boost::variate_generator<boost::mt19937&,
 	                           boost::normal_distribution<float> > var_nor(get_noise_seed(), nd);
 
-	for (size_t i = 0; i < a.getData().size(); i++) {
-		a[i] += var_nor();
+	for (size_t i = 0; i < a.number_of_samples()*a.active_channels(); i++) {
+            a.getData()[i] += std::complex<float>(var_nor(), var_nor());
 	}
 
 	return 0;

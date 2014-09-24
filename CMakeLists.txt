@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(ISMRMRD)
 
 # add project specific cmake find modules
-list(APPEND CMAKE_MODULE_PATH cmake)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 # set the build type to Release if not specified
 IF(NOT CMAKE_BUILD_TYPE)
@@ -133,7 +133,7 @@ enable_testing()
 # process subdirectories
 #add_subdirectory(examples/c++)
 #add_subdirectory(examples/c)
-#add_subdirectory(utilities)
+add_subdirectory(utilities)
 #add_subdirectory(tests)
 #add_subdirectory(doc)
 #add_subdirectory(matlab)
