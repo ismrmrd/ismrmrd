@@ -1,5 +1,9 @@
 /* ISMRMRD Data Set */
 
+/**
+ * @file dataset.h
+ */
+
 #pragma once
 #ifndef ISMRMRD_DATASET_H
 #define ISMRMRD_DATASET_H
