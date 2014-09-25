@@ -111,14 +111,14 @@ template <typename T> int Dataset::appendNDArray(const std::string &var, const I
     return status;
 }
 // Specific instantiations
-template int EXPORTISMRMRD Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<uint16_t> &arr);
-template int EXPORTISMRMRD Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<int16_t> &arr);
-template int EXPORTISMRMRD Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<uint32_t> &arr);
-template int EXPORTISMRMRD Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<int32_t> &arr);
-template int EXPORTISMRMRD Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<float> &arr);
-template int EXPORTISMRMRD Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<double> &arr);
-template int EXPORTISMRMRD Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<complex_float_t> &arr);
-template int EXPORTISMRMRD Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<complex_double_t> &arr);
+template EXPORTISMRMRD int Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<uint16_t> &arr);
+template EXPORTISMRMRD int Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<int16_t> &arr);
+template EXPORTISMRMRD int Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<uint32_t> &arr);
+template EXPORTISMRMRD int Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<int32_t> &arr);
+template EXPORTISMRMRD int Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<float> &arr);
+template EXPORTISMRMRD int Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<double> &arr);
+template EXPORTISMRMRD int Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<complex_float_t> &arr);
+template EXPORTISMRMRD int Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<complex_double_t> &arr);
 
 int Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const ISMRMRD_NDArray *arr)
 {
