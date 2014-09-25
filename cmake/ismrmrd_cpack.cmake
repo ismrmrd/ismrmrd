@@ -15,6 +15,11 @@ if(UNIX)
   endif(EXISTS ${RPMBUILD_PROGRAM})
 endif(UNIX)
 
+if(WIN32)
+    # NSLS
+    list(APPEND CPACK_GENERATOR "NSIS")    
+endif(WIN32)
+
 list(APPEND CPACK_SOURCE_GENERATOR "TGZ")
 list(APPEND CPACK_SOURCE_GENERATOR "ZIP")
 list(APPEND CPACK_SOURCE_IGNORE_FILES ";.git;.gitignore;todo.txt;_clang-format;build/")

@@ -28,6 +28,11 @@ set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Implementation of the ISMRMRD format.")
 set(CPACK_RPM_PACKAGE_REQUIRES "@RPM_PACKAGE_DEPENDS@")
 set(CPACK_RPM_PACKAGE_DESCRIPTION "Implementation of the ISMRMRD format.")
 
+# NSIS specific
+set(CPACK_NSIS_HELP_LINK "http:\\\\\\\\ismrmrd.sourceforge.net")
+set(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\ismrmrd.sourceforge.net")
+set(CPACK_NSIS_MODIFY_PATH ON)
+
 # Output filename of the generated tarball / package
 set(CPACK_PACKAGE_FILE_NAME "@PROJECT_NAME_LOWER@-@ISMRMRD_VERSION_STRING@")
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "@PROJECT_NAME_LOWER@-@ISMRMRD_VERSION_STRING@")

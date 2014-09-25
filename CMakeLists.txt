@@ -8,6 +8,11 @@ set (ISMRMRD_CMAKE_DIR ${PROJECT_SOURCE_DIR}/cmake CACHE PATH
 # and include it to the search list
 list(APPEND CMAKE_MODULE_PATH ${ISMRMRD_CMAKE_DIR})
 
+# whether to install dependencies
+if (WIN32)
+    OPTION(ISMRMRD_INSTALL_DEPENDENCIES "Install ismrmrd dependencies in windows" Off)
+endif (WIN32)
+
 # set the build type to Release if not specified
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Release CACHE STRING
@@ -87,6 +92,21 @@ set(ISMRMRD_SOVERSION ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR})
 #  ---   Main Library  (begin) ----
 # required packages for main library
 find_package(HDF5 1.8 COMPONENTS C REQUIRED)
+
+# in windows, install the HDF5 dependencies
+if (WIN32)
+    if (ISMRMRD_INSTALL_DEPENDENCIES)
+        if ( HDF5_FOUND )
+            if(DEFINED ENV{HDF5_ROOT})
+                set(HDF5_BIN_DIR $ENV{HDF5_ROOT}/bin)
+            else (DEFINED ENV{HDF5_ROOT})
+                set(HDF5_BIN_DIR ${HDF5_C_INCLUDE_DIR}/../bin)
+            endif (DEFINED ENV{HDF5_ROOT})
+            message("Install hdf5 libraries from ${HDF5_BIN_DIR} ")
+            install( DIRECTORY ${HDF5_BIN_DIR} DESTINATION lib FILES_MATCHING PATTERN "*.dll" )
+        endif (HDF5_FOUND)
+    endif (ISMRMRD_INSTALL_DEPENDENCIES)
+endif (WIN32)
 
 # include directories for main library
 include_directories(
