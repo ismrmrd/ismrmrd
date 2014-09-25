@@ -5,6 +5,48 @@
 
 namespace ISMRMRD {
 
+// Internal function to control the allowed data types for NDArrays
+template <typename T>  ISMRMRD_DataTypes get_data_type();
+template <> ISMRMRD_DataTypes get_data_type<uint16_t>()
+{
+    return ISMRMRD_USHORT;
+}
+
+template <> inline ISMRMRD_DataTypes get_data_type<int16_t>()
+{
+    return ISMRMRD_SHORT;
+}
+
+template <> inline ISMRMRD_DataTypes get_data_type<uint32_t>()
+{
+    return ISMRMRD_UINT;
+}
+
+template <> inline ISMRMRD_DataTypes get_data_type<int32_t>()
+{
+    return ISMRMRD_INT;
+}
+
+template <> inline ISMRMRD_DataTypes get_data_type<float>()
+{
+    return ISMRMRD_FLOAT;
+}
+
+template <> inline ISMRMRD_DataTypes get_data_type<double>()
+{
+    return ISMRMRD_DOUBLE;
+}
+
+template <> inline ISMRMRD_DataTypes get_data_type<complex_float_t>()
+{
+    return ISMRMRD_CXFLOAT;
+}
+
+template <> inline ISMRMRD_DataTypes get_data_type<complex_double_t>()
+{
+    return ISMRMRD_CXDOUBLE;
+}
+
 //
 // AcquisitionHeader class implementation
 //
@@ -447,29 +489,31 @@ void Image::clearAllFlags() {
 //
 // Array class Implementation
 //
-NDArray::NDArray()
+template <typename T> NDArray<T>::NDArray()
 {
     ismrmrd_init_ndarray(this);
+    data_type = get_data_type<T>();
 }
 
-NDArray::NDArray(const ISMRMRD_DataTypes dtype, const std::vector<uint16_t> dimvec)
+template <typename T> NDArray<T>::NDArray(const std::vector<size_t> dimvec)
 {
     ismrmrd_init_ndarray(this);
-    setProperties(dtype, dimvec);    
+    data_type = get_data_type<T>();
+    resize(dimvec);
 }
 
-NDArray::NDArray(const NDArray &other)
+template <typename T> NDArray<T>::NDArray(const NDArray<T> &other)
 {
     ismrmrd_init_ndarray(this);
     ismrmrd_copy_ndarray(this, &other);
 }
 
-NDArray::~NDArray()
+template <typename T> NDArray<T>::~NDArray()
 {
     ismrmrd_cleanup_ndarray(this);
 }
 
-NDArray & NDArray::operator= (const NDArray &other)
+template <typename T> NDArray<T> & NDArray<T>::operator= (const NDArray<T> &other)
 {
     // Assignment makes a copy
     if (this != &other )
@@ -480,28 +524,27 @@ NDArray & NDArray::operator= (const NDArray &other)
     return *this;
 }
 
-const uint16_t NDArray::getVersion() {
+template <typename T> const uint16_t NDArray<T>::getVersion() {
     return version;
 };
 
-const ISMRMRD_DataTypes NDArray::getDataType() {
+template <typename T> const ISMRMRD_DataTypes NDArray<T>::getDataType() {
     return static_cast<ISMRMRD_DataTypes>( data_type );
 }
 
-const uint16_t NDArray::getNDim() {
+template <typename T> const uint16_t NDArray<T>::getNDim() {
     return  ndim;
 };
     
-const uint16_t (&NDArray::getDims())[ISMRMRD_NDARRAY_MAXDIM] {
+template <typename T> const size_t (&NDArray<T>::getDims())[ISMRMRD_NDARRAY_MAXDIM] {
     return dims;
 };
 
-int NDArray::setProperties(const ISMRMRD_DataTypes dtype, const std::vector<uint16_t> dimvec) {
+template <typename T> int NDArray<T>::resize(const std::vector<size_t> dimvec) {
     if (dimvec.size() > ISMRMRD_NDARRAY_MAXDIM) {
         // TODO throw exception
         return ISMRMRD_MEMORYERROR;
     }
-    data_type = dtype;
     ndim = dimvec.size();
     for (int n=0; n<ndim; n++) {
         dims[n] = dimvec[n];
@@ -510,8 +553,31 @@ int NDArray::setProperties(const ISMRMRD_DataTypes dtype, const std::vector<uint
     return status;
 }
 
-void * NDArray::getData() {
-    return data;
+template <typename T> T * NDArray<T>::getData() {
+    return static_cast<T*>(data);
 }
+
+template <typename T> const size_t NDArray<T>::getDataSize() {
+    return ismrmrd_size_of_ndarray_data(this);
+}
+
+template <typename T> const size_t NDArray<T>::getNumberOfElements() {
+    size_t num = 1;
+    for (int n = 0; n < ndim; n++) {
+        num *= dims[n];
+    }
+    return num;
+}
+
+
+// Specializations
+template class NDArray<uint16_t>;
+template class NDArray<int16_t>;
+template class NDArray<uint32_t>;
+template class NDArray<int32_t>;
+template class NDArray<float_t>;
+template class NDArray<double_t>;
+template class NDArray<complex_float_t>;
+template class NDArray<complex_double_t>;
 
 } // namespace ISMRMRD

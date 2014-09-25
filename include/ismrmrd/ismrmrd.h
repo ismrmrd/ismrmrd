@@ -339,8 +339,8 @@ typedef struct ISMRMRD_NDArray {
     uint16_t version;                      /**< First unsigned int indicates the version */
     uint16_t data_type;                    /**< e.g. unsigned short, float, complex float, etc. */
     uint16_t ndim;                         /**< Number of dimensions */
-    uint16_t dims[ISMRMRD_NDARRAY_MAXDIM]; /**< Dimensions */
-    void *data;                            /**< Pointer to data */
+    size_t   dims[ISMRMRD_NDARRAY_MAXDIM]; /**< Dimensions */
+    void     *data;                        /**< Pointer to data */
 } ISMRMRD_NDArray;
 
 /** @addtogroup capi
@@ -586,23 +586,28 @@ public:
 };
 
 /// N-Dimensional array type
-class EXPORTISMRMRD NDArray: protected ISMRMRD_NDArray {
+template <typename T> class EXPORTISMRMRD NDArray: protected ISMRMRD_NDArray {
+    friend class Dataset;
 public:
     // Constructors, destructor and copy
     NDArray();
-    NDArray(const ISMRMRD_DataTypes dtype, const std::vector<uint16_t> dimvec);
-    NDArray(const NDArray &other);
+    NDArray(const std::vector<size_t> dimvec);
+    NDArray(const NDArray<T> &other);
     ~NDArray();
-    NDArray & operator= (const NDArray &other);
+    NDArray<T> & operator= (const NDArray<T> &other);
 
     // Accessors and mutators
     const uint16_t getVersion();
     const ISMRMRD_DataTypes getDataType();
     const uint16_t getNDim();
-    const uint16_t (&getDims())[ISMRMRD_NDARRAY_MAXDIM];
-    int setProperties(const ISMRMRD_DataTypes dtype, const std::vector<uint16_t> dimvec);
-    void * getData();
+    const size_t (&getDims())[ISMRMRD_NDARRAY_MAXDIM];
+    const size_t getDataSize();
+    int resize(const std::vector<size_t> dimvec);
+    const size_t getNumberOfElements();
+    T * getData();
+
 };
+
 
 /** @} */
 

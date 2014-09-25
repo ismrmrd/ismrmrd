@@ -77,6 +77,15 @@ int Dataset::appendImage(const std::string &var, const ISMRMRD_BlockModes blockm
     return status;
 }
 
+int Dataset::appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const ISMRMRD_Image *im)
+{
+    int status = ismrmrd_append_image(&dset_, var.c_str(), blockmode, im);
+    if (status != ISMRMRD_NOERROR) {
+      //TODO throw an exception
+    }
+    return status;
+}
+
 int Dataset::readImage(const std::string &var, uint32_t index, Image &im) {
     int status = ismrmrd_read_image(&dset_, var.c_str(), index, reinterpret_cast<ISMRMRD_Image*>(&im));
     if (status != ISMRMRD_NOERROR) {
@@ -93,17 +102,35 @@ uint32_t Dataset::getNumberOfImages(const std::string &var)
 
 
 // NDArrays
-int Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray &arr)
+template <typename T> int Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<T> &arr)
 {
-    int status = ismrmrd_append_array(&dset_, var.c_str(), blockmode, reinterpret_cast<const ISMRMRD_NDArray*>(&arr));
+    int status = ismrmrd_append_array(&dset_, var.c_str(), blockmode, static_cast<const ISMRMRD_NDArray*>(&arr));
+    if (status != ISMRMRD_NOERROR) {
+      //TODO throw an exception
+    }
+    return status;
+}
+// Specific instantiations
+template int Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<uint16_t> &arr);
+template int Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<int16_t> &arr);
+template int Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<uint32_t> &arr);
+template int Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<int32_t> &arr);
+template int Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<float_t> &arr);
+template int Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<double_t> &arr);
+template int Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<complex_float_t> &arr);
+template int Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<complex_double_t> &arr);
+
+int Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const ISMRMRD_NDArray *arr)
+{
+    int status = ismrmrd_append_array(&dset_, var.c_str(), blockmode, arr);
     if (status != ISMRMRD_NOERROR) {
       //TODO throw an exception
     }
     return status;
 }
 
-int Dataset::readNDArray(const std::string &var, uint32_t index, NDArray &arr) {
-    int status = ismrmrd_read_array(&dset_, var.c_str(), index, reinterpret_cast<ISMRMRD_NDArray*>(&arr));
+template <typename T> int Dataset::readNDArray(const std::string &var, uint32_t index, NDArray<T> &arr) {
+    int status = ismrmrd_read_array(&dset_, var.c_str(), index, static_cast<ISMRMRD_NDArray*>(&arr));
     if (status != ISMRMRD_NOERROR) {
       //TODO throw an exception
     }
