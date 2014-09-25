@@ -586,8 +586,8 @@ template class NDArray<uint16_t>;
 template class NDArray<int16_t>;
 template class NDArray<uint32_t>;
 template class NDArray<int32_t>;
-template class NDArray<float_t>;
-template class NDArray<double_t>;
+template class NDArray<float>;
+template class NDArray<double>;
 template class NDArray<complex_float_t>;
 template class NDArray<complex_double_t>;
 
