@@ -12,11 +12,11 @@
 namespace ISMRMRD {
 
 
-boost::shared_ptr<NDArrayContainer< std::complex<float> > > phantom(std::vector<PhantomEllipse>& ellipses, unsigned int matrix_size)
+boost::shared_ptr<NDArray<complex_float_t> > phantom(std::vector<PhantomEllipse>& ellipses, unsigned int matrix_size)
 {
-	std::vector<unsigned int> dims(2,matrix_size);
-	boost::shared_ptr<NDArrayContainer<std::complex<float> > > out(new NDArrayContainer< std::complex<float> >(dims));
-	out->data_ = std::complex<float>(0.0,0.0);
+	std::vector<size_t> dims(2,matrix_size);
+	boost::shared_ptr<NDArray<complex_float_t> > out(new NDArray<complex_float_t>(dims));
+        memset(out->getData(), 0, out->getDataSize());
 	for (std::vector<PhantomEllipse>::iterator it = ellipses.begin(); it != ellipses.end(); it++) {
 		for (unsigned int y = 0; y < matrix_size; y++) {
 			float y_co = (1.0*y-(matrix_size>>1))/(matrix_size>>1);
@@ -24,7 +24,7 @@ boost::shared_ptr<NDArrayContainer< std::complex<float> > > phantom(std::vector<
 				size_t index = y*matrix_size + x;
 				float x_co = (1.0*x-(matrix_size>>1))/(matrix_size>>1);
 				if (it->isInside(x_co,y_co)) {
-					out->data_[index] += std::complex<float>(it->getAmplitude(),0.0);
+                                    out->getData()[index] += std::complex<float>(it->getAmplitude(),0.0);
 				}
 			}
 		}
@@ -33,7 +33,7 @@ boost::shared_ptr<NDArrayContainer< std::complex<float> > > phantom(std::vector<
 }
 
 
-boost::shared_ptr<NDArrayContainer< std::complex<float> > > shepp_logan_phantom(unsigned int matrix_size)
+boost::shared_ptr<NDArray<complex_float_t> > shepp_logan_phantom(unsigned int matrix_size)
 {
 	boost::shared_ptr< std::vector<PhantomEllipse> > e = modified_shepp_logan_ellipses();
 	return phantom(*e, matrix_size);
@@ -73,17 +73,17 @@ boost::shared_ptr< std::vector<PhantomEllipse> > modified_shepp_logan_ellipses()
 	return out;
 }
 
-boost::shared_ptr<NDArrayContainer< std::complex<float> > > generate_birdcage_sensititivies(unsigned int matrix_size, unsigned int ncoils, float relative_radius)
+boost::shared_ptr<NDArray<complex_float_t> > generate_birdcage_sensititivies(unsigned int matrix_size, unsigned int ncoils, float relative_radius)
 {
 	//This function is heavily inspired by the mri_birdcage.m Matlab script in Jeff Fessler's IRT packake
 	//http://web.eecs.umich.edu/~fessler/code/
 
-	std::vector<unsigned int> dims(2,matrix_size);
+	std::vector<size_t> dims(2,matrix_size);
 	dims.push_back(ncoils);
-	boost::shared_ptr<NDArrayContainer<std::complex<float> > > out(new NDArrayContainer< std::complex<float> >(dims));
-	out->data_ = std::complex<float>(0.0,0.0);
+	boost::shared_ptr<NDArray<complex_float_t> > out(new NDArray<complex_float_t>(dims));
+        memset(out->getData(), 0, out->getDataSize());
 
-	for (int c = 0; c < ncoils; c++) {
+	for (unsigned int c = 0; c < ncoils; c++) {
 		float coilx = relative_radius*std::cos(c*(2*3.14159265359/ncoils));
 		float coily = relative_radius*std::sin(c*(2*3.14159265359/ncoils));
 		float coil_phase = -c*(2*3.14159265359/ncoils);
@@ -94,7 +94,7 @@ boost::shared_ptr<NDArrayContainer< std::complex<float> > > generate_birdcage_se
 				float x_co = (1.0*x-(matrix_size>>1))/(matrix_size>>1)-coilx;
 				float rr = std::sqrt(x_co*x_co+y_co*y_co);
 				float phi = atan2(x_co, -y_co) + coil_phase;
-				out->data_[index] = std::polar(1 / rr, phi);
+				out->getData()[index] = std::polar(1 / rr, phi);
 			}
 		}
 	}
@@ -109,35 +109,31 @@ boost::mt19937& get_noise_seed()
 	return rng;
 }
 
-int add_noise(NDArrayContainer< std::complex<float> >& a, float sd)
+int add_noise(NDArray<complex_float_t> & a, float sd)
 {
 
 	boost::normal_distribution<float> nd(0.0, sd);
 	boost::variate_generator<boost::mt19937&,
 	                           boost::normal_distribution<float> > var_nor(get_noise_seed(), nd);
 
-	for (size_t i = 0; i < a.data_.size(); i++) {
-		a.data_[i] += std::complex<float>(var_nor(),var_nor());
+	for (size_t i = 0; i < a.getNumberOfElements(); i++) {
+            a.getData()[i] += std::complex<float>(var_nor(),var_nor());
 	}
 
 	return 0;
 }
 
-int add_noise(ISMRMRD::Acquisition& a, float sd)
+int add_noise(Acquisition& a, float sd)
 {
 
 	boost::normal_distribution<float> nd(0.0, sd);
 	boost::variate_generator<boost::mt19937&,
 	                           boost::normal_distribution<float> > var_nor(get_noise_seed(), nd);
 
-	for (size_t i = 0; i < a.number_of_samples()*a.active_channels(); i++) {
+	for (size_t i = 0; i < a.getNumberOfDataElements(); i++) {
             a.getData()[i] += std::complex<float>(var_nor(), var_nor());
 	}
 
 	return 0;
 }
 };
-
-
-
-

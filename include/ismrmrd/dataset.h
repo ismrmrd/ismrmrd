@@ -172,17 +172,18 @@ public:
     uint32_t getNumberOfAcquisitions();
     // Images
     int appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const Image &im);
+    int appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const ISMRMRD_Image *im);
     int readImage(const std::string &var, uint32_t index, Image &im);
     uint32_t getNumberOfImages(const std::string &var);
     // NDArrays
-    int appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray &arr);
-    int readNDArray(const std::string &var, uint32_t index, NDArray &arr);
+    template <typename T> int appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<T> &arr);
+    int appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const ISMRMRD_NDArray *arr);
+    template <typename T> int readNDArray(const std::string &var, uint32_t index, NDArray<T> &arr);
     uint32_t getNumberOfNDArrays(const std::string &var);
 
 protected:
     ISMRMRD_Dataset dset_;
 };
-
 
 } /* ISMRMRD namespace */
 #endif

@@ -66,16 +66,16 @@ int main(int argc, char** argv)
 	std::cout << "Generating Cartesian Shepp Logan Phantom!!!" << std::endl;
 	std::cout << "Acceleration: " << acc_factor << std::endl;
 
-	boost::shared_ptr<NDArrayContainer<std::complex<float> > > phantom = shepp_logan_phantom(matrix_size);
-	boost::shared_ptr<NDArrayContainer<std::complex<float> > > coils = generate_birdcage_sensititivies(matrix_size, ncoils, 1.5);
+	boost::shared_ptr<NDArray<complex_float_t> > phantom = shepp_logan_phantom(matrix_size);
+	boost::shared_ptr<NDArray<complex_float_t> > coils = generate_birdcage_sensititivies(matrix_size, ncoils, 1.5);
 
-	std::vector<unsigned int> dims;
+	std::vector<size_t> dims;
 	dims.push_back(matrix_size*ros); //oversampling in the readout direction
 	dims.push_back(matrix_size);
 	dims.push_back(ncoils);
 
-	NDArrayContainer<std::complex<float> > coil_images(dims);
-	coil_images.data_ = std::complex<float>(0.0,0.0);
+	NDArray<complex_float_t> coil_images(dims);
+	memset(coil_images.getData(), 0, coil_images.getDataSize());
 
 	for (unsigned int c = 0; c < ncoils; c++) {
 		for (unsigned int y = 0; y < matrix_size; y++) {
@@ -83,13 +83,12 @@ int main(int argc, char** argv)
 				size_t out_index = c*matrix_size*matrix_size*ros + y*matrix_size*ros + ((matrix_size*ros-matrix_size)>>1) + x;
 				size_t cindex = c*matrix_size*matrix_size + y*matrix_size + x;
 				size_t iindex = y*matrix_size + x;
-				coil_images.data_[out_index] = phantom->data_[iindex] * coils->data_[cindex];
+				coil_images.getData()[out_index] = phantom->getData()[iindex] * coils->getData()[cindex];
 			}
 		}
 	}
 
-
-	//Let's append the data to the file
+        //Let's append the data to the file
         //Create if needed
 	Dataset d(outfile.c_str(),dataset.c_str(), true);
 	Acquisition acq;
@@ -102,7 +101,7 @@ int main(int argc, char** argv)
 	if (noise_calibration) {
             acq.setFlag(ISMRMRD_ACQ_IS_NOISE_MEASUREMENT);
             acq.number_of_samples(readout);
-            for (uint64_t s = 0; s < acq.number_of_samples()*acq.active_channels(); s++) {
+            for (size_t s = 0; s < acq.getNumberOfDataElements(); s++) {
                 acq.getData()[s] = 0.0;
             }
             add_noise(acq,noise_level);
@@ -110,12 +109,21 @@ int main(int argc, char** argv)
             d.appendAcquisition(acq);
 	}
 
-	for (unsigned int r = 0; r < repetitions; r++) {
+        NDArray<complex_float_t> cm(dims);
+        std::cout << "FFT number 0" << std::endl;
+        for (unsigned int r = 0; r < repetitions; r++) {
             for (unsigned int a = 0; a < acc_factor; a++) {
-                NDArrayContainer<std::complex<float> > cm = coil_images;
+                //for (size_t n=0; n<coil_images.getNumberOfElements(); n++) {
+                //    cm.getData()[n] = coil_images.getData()[n];
+                //}
+                //NDArray<complex_float_t> cm = coil_images;
+                cm = coil_images;
                 fft2c(cm);
+                std::cout << "FFT number 1" << std::endl;
+        
+
                 add_noise(cm,noise_level);
-                for (int i = a; i < matrix_size; i+=acc_factor) {
+                for (size_t i = a; i < matrix_size; i+=acc_factor) {
                     acq.clearAllFlags();
                     acq.number_of_samples(readout);
                     
@@ -129,16 +137,16 @@ int main(int argc, char** argv)
                     acq.idx().kspace_encode_step_1 = i;
                     acq.idx().repetition = r*acc_factor + a;
                     acq.sample_time_us() = 5.0;
-                    for (unsigned int c = 0; c < ncoils; c++) {
+                    for (size_t c = 0; c < ncoils; c++) {
                         memcpy(&(acq.getData()[c*readout]),
-                               &(cm.data_[c*matrix_size*readout + i*readout]),
+                               &(cm.getData()[c*matrix_size*readout + i*readout]),
                                sizeof(complex_float_t)*readout);
                     }
                     
                     if (store_coordinates) {
                         acq.trajectory_dimensions(2);
                         float ky = (1.0*i-(matrix_size>>1))/(1.0*matrix_size);
-                        for (int x = 0; x < readout; x++) {
+                        for (size_t x = 0; x < readout; x++) {
                             float kx = (1.0*x-(readout>>1))/(1.0*readout);
                             acq.getTraj()[x*2  ] = kx;
                             acq.getTraj()[x*2+1] = ky;
@@ -148,6 +156,9 @@ int main(int argc, char** argv)
                 }
             }
 	}
+
+        std::cout << "Wrote acquisitions" << std::endl;
+        
 
 	//Let's create a header, we will use the C++ classes in ismrmrd/xml.h
 	IsmrmrdHeader h;
@@ -199,34 +210,13 @@ int main(int argc, char** argv)
 	//Write the header to the data file.
 	d.writeHeader(xml_header);
 
-        // Convert the NDArrayContainer to an ISMRMRD::NDArray before appending
-        // This requires a memcopy and is annoying
-        // TODO fix this
-        NDArray arr;
-        std::vector<uint16_t> arrdims;
-        arrdims.resize(phantom->ndims());
-        for (int n=0; n<phantom->ndims(); n++) {
-            arrdims[n] = phantom->dimensions_[n];
-        }
-        arr.setProperties(ISMRMRD_CXFLOAT, arrdims);
-        memcpy(arr.getData(), &(phantom->data_[0]), phantom->elements()*sizeof(complex_float_t));
-        d.appendNDArray("phantom", ISMRMRD_BLOCKMODE_ARRAY, arr);
+        std::cout << "Generating Cartesian Shepp Logan Phantom!!!" << std::endl;
+                
+
+        //Write out some arrays for convenience
+        d.appendNDArray("phantom", ISMRMRD_BLOCKMODE_ARRAY, *phantom);
+        d.appendNDArray("csm", ISMRMRD_BLOCKMODE_ARRAY, *coils);
+        d.appendNDArray("coil_images", ISMRMRD_BLOCKMODE_ARRAY, coil_images);
         
-        arrdims.resize(coils->ndims());
-        for (int n=0; n<coils->ndims(); n++) {
-            arrdims[n] = coils->dimensions_[n];
-        }
-        arr.setProperties(ISMRMRD_CXFLOAT, arrdims);
-        memcpy(arr.getData(), &(coils->data_[0]), coils->elements()*sizeof(complex_float_t));
-        d.appendNDArray("csm", ISMRMRD_BLOCKMODE_ARRAY, arr);
-
-        arrdims.resize(coil_images.ndims());
-        for (int n=0; n<coil_images.ndims(); n++) {
-            arrdims[n] = coil_images.dimensions_[n];
-        }
-        arr.setProperties(ISMRMRD_CXFLOAT, arrdims);
-        memcpy(arr.getData(), &(coil_images.data_[0]), coil_images.elements()*sizeof(complex_float_t));
-        d.appendNDArray("coil_images", ISMRMRD_BLOCKMODE_ARRAY, arr);
-
 	return 0;
 }
