@@ -582,13 +582,13 @@ template <typename T> const size_t NDArray<T>::getNumberOfElements() {
 
 
 // Specializations
-template class NDArray<uint16_t>;
-template class NDArray<int16_t>;
-template class NDArray<uint32_t>;
-template class NDArray<int32_t>;
-template class NDArray<float>;
-template class NDArray<double>;
-template class NDArray<complex_float_t>;
-template class NDArray<complex_double_t>;
+template class EXPORTISMRMRD NDArray<uint16_t>;
+template class EXPORTISMRMRD NDArray<int16_t>;
+template class EXPORTISMRMRD NDArray<uint32_t>;
+template class EXPORTISMRMRD NDArray<int32_t>;
+template class EXPORTISMRMRD NDArray<float>;
+template class EXPORTISMRMRD NDArray<double>;
+template class EXPORTISMRMRD NDArray<complex_float_t>;
+template class EXPORTISMRMRD NDArray<complex_double_t>;
 
 } // namespace ISMRMRD
