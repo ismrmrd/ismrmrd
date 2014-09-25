@@ -31,3 +31,6 @@ set(RPM_PACKAGE_DEPENDS "hdf5-devel")
 
 # where the package metadata are
 set(ISMRMRD_CPACK_CFG_FILE "${PROJECT_BINARY_DIR}/cpack_options.cmake")
+
+# where the package to be installed
+set(CPACK_PACKAGE_INSTALL_DIRECTORY ${CMAKE_INSTALL_PREFIX})
