@@ -6,6 +6,7 @@
  */
 
 #include "fftw3.h"
+#include "ismrmrd_ndarray.h"
 
 namespace ISMRMRD {
 
