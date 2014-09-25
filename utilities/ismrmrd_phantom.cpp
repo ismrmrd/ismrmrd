@@ -83,7 +83,7 @@ boost::shared_ptr<NDArray<complex_float_t> > generate_birdcage_sensititivies(uns
 	boost::shared_ptr<NDArray<complex_float_t> > out(new NDArray<complex_float_t>(dims));
         memset(out->getData(), 0, out->getDataSize());
 
-	for (int c = 0; c < ncoils; c++) {
+	for (unsigned int c = 0; c < ncoils; c++) {
 		float coilx = relative_radius*std::cos(c*(2*3.14159265359/ncoils));
 		float coily = relative_radius*std::sin(c*(2*3.14159265359/ncoils));
 		float coil_phase = -c*(2*3.14159265359/ncoils);
@@ -130,7 +130,7 @@ int add_noise(Acquisition& a, float sd)
 	boost::variate_generator<boost::mt19937&,
 	                           boost::normal_distribution<float> > var_nor(get_noise_seed(), nd);
 
-	for (size_t i = 0; i < a.number_of_samples()*a.active_channels(); i++) {
+	for (size_t i = 0; i < a.getNumberOfDataElements(); i++) {
             a.getData()[i] += std::complex<float>(var_nor(), var_nor());
 	}
 

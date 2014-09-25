@@ -215,6 +215,17 @@ float (&Acquisition::user_float()) [ISMRMRD_USER_FLOATS] {
     return head.user_float;
 }
 
+// Sizes
+const size_t Acquisition::getNumberOfDataElements() {
+    size_t num = head.number_of_samples * head.active_channels;
+    return num;
+}
+
+const size_t Acquisition::getNumberOfTrajElements() {
+    size_t num = head.number_of_samples * head.trajectory_dimensions;
+    return num;
+}
+
 // Data and Trajectory accessors
 AcquisitionHeader & Acquisition::getHead() {
     // This returns a reference

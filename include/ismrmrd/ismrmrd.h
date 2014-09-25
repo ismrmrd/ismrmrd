@@ -495,6 +495,10 @@ public:
     int32_t (&user_int())[ISMRMRD_USER_INTS];
     float (&user_float())[ISMRMRD_USER_FLOATS];
 
+    // Sizes
+    const size_t getNumberOfDataElements();
+    const size_t getNumberOfTrajElements();
+
     // Header, data and trajectory accessors
     AcquisitionHeader &getHead();
     void setHead(const AcquisitionHeader other);

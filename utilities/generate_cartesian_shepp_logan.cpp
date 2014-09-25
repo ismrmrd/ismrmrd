@@ -101,7 +101,7 @@ int main(int argc, char** argv)
 	if (noise_calibration) {
             acq.setFlag(ISMRMRD_ACQ_IS_NOISE_MEASUREMENT);
             acq.number_of_samples(readout);
-            for (uint64_t s = 0; s < acq.number_of_samples()*acq.active_channels(); s++) {
+            for (size_t s = 0; s < acq.getNumberOfDataElements(); s++) {
                 acq.getData()[s] = 0.0;
             }
             add_noise(acq,noise_level);
@@ -109,20 +109,21 @@ int main(int argc, char** argv)
             d.appendAcquisition(acq);
 	}
 
-        //NDArray<complex_float_t> cm(dims);
+        NDArray<complex_float_t> cm(dims);
         std::cout << "FFT number 0" << std::endl;
         for (unsigned int r = 0; r < repetitions; r++) {
             for (unsigned int a = 0; a < acc_factor; a++) {
                 //for (size_t n=0; n<coil_images.getNumberOfElements(); n++) {
                 //    cm.getData()[n] = coil_images.getData()[n];
                 //}
-                NDArray<complex_float_t> cm = coil_images;
+                //NDArray<complex_float_t> cm = coil_images;
+                cm = coil_images;
                 fft2c(cm);
                 std::cout << "FFT number 1" << std::endl;
         
 
                 add_noise(cm,noise_level);
-                for (int i = a; i < matrix_size; i+=acc_factor) {
+                for (size_t i = a; i < matrix_size; i+=acc_factor) {
                     acq.clearAllFlags();
                     acq.number_of_samples(readout);
                     
@@ -136,7 +137,7 @@ int main(int argc, char** argv)
                     acq.idx().kspace_encode_step_1 = i;
                     acq.idx().repetition = r*acc_factor + a;
                     acq.sample_time_us() = 5.0;
-                    for (unsigned int c = 0; c < ncoils; c++) {
+                    for (size_t c = 0; c < ncoils; c++) {
                         memcpy(&(acq.getData()[c*readout]),
                                &(cm.getData()[c*matrix_size*readout + i*readout]),
                                sizeof(complex_float_t)*readout);
@@ -145,7 +146,7 @@ int main(int argc, char** argv)
                     if (store_coordinates) {
                         acq.trajectory_dimensions(2);
                         float ky = (1.0*i-(matrix_size>>1))/(1.0*matrix_size);
-                        for (int x = 0; x < readout; x++) {
+                        for (size_t x = 0; x < readout; x++) {
                             float kx = (1.0*x-(readout>>1))/(1.0*readout);
                             acq.getTraj()[x*2  ] = kx;
                             acq.getTraj()[x*2+1] = ky;
