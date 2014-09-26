@@ -109,18 +109,10 @@ int main(int argc, char** argv)
             d.appendAcquisition(acq);
 	}
 
-        NDArray<complex_float_t> cm(dims);
-        std::cout << "FFT number 0" << std::endl;
         for (unsigned int r = 0; r < repetitions; r++) {
             for (unsigned int a = 0; a < acc_factor; a++) {
-                //for (size_t n=0; n<coil_images.getNumberOfElements(); n++) {
-                //    cm.getData()[n] = coil_images.getData()[n];
-                //}
-                //NDArray<complex_float_t> cm = coil_images;
-                cm = coil_images;
+                NDArray<complex_float_t> cm = coil_images;
                 fft2c(cm);
-                std::cout << "FFT number 1" << std::endl;
-        
 
                 add_noise(cm,noise_level);
                 for (size_t i = a; i < matrix_size; i+=acc_factor) {
@@ -156,9 +148,6 @@ int main(int argc, char** argv)
                 }
             }
 	}
-
-        std::cout << "Wrote acquisitions" << std::endl;
-        
 
 	//Let's create a header, we will use the C++ classes in ismrmrd/xml.h
 	IsmrmrdHeader h;
@@ -205,13 +194,10 @@ int main(int argc, char** argv)
         std::stringstream str;
         ISMRMRD::serialize( h, str);
         std::string xml_header = str.str();
-        std::cout << xml_header << std::endl;
+        //std::cout << xml_header << std::endl;
         
 	//Write the header to the data file.
 	d.writeHeader(xml_header);
-
-        std::cout << "Generating Cartesian Shepp Logan Phantom!!!" << std::endl;
-                
 
         //Write out some arrays for convenience
         d.appendNDArray("phantom", ISMRMRD_BLOCKMODE_ARRAY, *phantom);

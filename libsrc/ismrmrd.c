@@ -258,9 +258,9 @@ int ismrmrd_copy_image(ISMRMRD_Image *imdest, const ISMRMRD_Image *imsource) {
         ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Failed to make image consistent.");
         return ISMRMRD_RUNTIMEERROR;
     }
-    memcpy(&imdest->attribute_string, &imsource->attribute_string,
+    memcpy(imdest->attribute_string, imsource->attribute_string,
            ismrmrd_size_of_image_attribute_string(imdest));
-    memcpy(&imdest->data, &imsource->data, ismrmrd_size_of_image_data(imdest));
+    memcpy(imdest->data, imsource->data, ismrmrd_size_of_image_data(imdest));
     return ISMRMRD_NOERROR;
 }
 
@@ -424,7 +424,7 @@ int ismrmrd_copy_ndarray(ISMRMRD_NDArray *arrdest, const ISMRMRD_NDArray *arrsou
         ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Failed to make ndarray consistent.");
         return ISMRMRD_RUNTIMEERROR;        
     }
-    memcpy(&arrdest->data, &arrsource->data, ismrmrd_size_of_ndarray_data(arrdest));
+    memcpy(arrdest->data, arrsource->data, ismrmrd_size_of_ndarray_data(arrdest));
     return ISMRMRD_NOERROR;
 }
 
