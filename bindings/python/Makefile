@@ -5,3 +5,5 @@ LDFLAGS = -I$(ISMRMRD_HOME)/lib
 
 ismrmrd: ismrmrd.pyx cismrmrd.pxd setup.py
 	python setup.py build_ext -i
+clean:
+	rm ismrmrd.c ismrmrd.so

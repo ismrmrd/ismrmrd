@@ -1,28 +1,31 @@
-include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(${PYTHON_INCLUDE_PATH} ${NUMPY_INCLUDE_DIRS})
-include_directories(${HDF5_INCLUDE_DIR} ${HDF5_INCLUDE_DIR}/cpp ${Boost_INCLUDE_DIR})
+include_directories(${HDF5_INCLUDE_DIR} ${HDF5_INCLUDE_DIR}/cpp)
 
 if ( WIN32 )
     add_definitions(-Dismrmrd_EXPORTS)
 endif ( WIN32 )
 
-set_source_files_properties(ismrmrd_python.i PROPERTIES CPLUSPLUS ON)
+swig_add_module(ismrmrd python ismrmrd_python.i
+    ${CMAKE_SOURCE_DIR}/libsrc/ismrmrd.c
+    ${CMAKE_SOURCE_DIR}/libsrc/dataset.c
+)
 
-swig_add_module(ismrmrd python ismrmrd_python.i ${CMAKE_SOURCE_DIR}/ismrmrd_hdf5.cpp)
+swig_link_libraries(ismrmrd ${HDF5_LIBRARIES} ${PYTHON_LIBRARIES})
 
-swig_link_libraries(ismrmrd ${HDF5_LIBRARIES} ${Boost_THREAD_LIBRARY} ${Boost_SYSTEM_LIBRARY} ${PYTHON_LIBRARIES})
+set(PYTHON_INSTALL_DIR share/ismrmrd/python)
 
 install(TARGETS ${SWIG_MODULE_ismrmrd_REAL_NAME}
-    DESTINATION ${ISMRMRD_INSTALL_PYTHON_DIR})
+    DESTINATION ${PYTHON_INSTALL_DIR})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ismrmrd.py
-    DESTINATION ${ISMRMRD_INSTALL_PYTHON_DIR})
+    DESTINATION ${PYTHON_INSTALL_DIR})
 
 find_program(PYXBGEN pyxbgen
     HINTS ${PYTHON_HOME} ${PYTHON_LIBRARY}/..
     PATH_SUFFIXES bin)
 
 if(PYXBGEN)
-    set(SCHEMA "${ISMRMRD_SCHEMA_DIR}/ismrmrd.xsd")
+    set(SCHEMA "${CMAKE_SOURCE_DIR}/schema/ismrmrd.xsd")
     set(XSD_PY_FILE "${CMAKE_CURRENT_BINARY_DIR}/ismrmrd_xsd.py")
     set(XSD_PY_DIR "${CMAKE_CURRENT_BINARY_DIR}/raw")
 
@@ -36,9 +39,9 @@ if(PYXBGEN)
     add_custom_target(pyismrmrd_xsd ALL DEPENDS ${XSD_PY_FILE})
 
     install(FILES ${XSD_PY_FILE}
-        DESTINATION ${ISMRMRD_INSTALL_PYTHON_DIR})
+        DESTINATION ${PYTHON_INSTALL_DIR})
     install(DIRECTORY ${XSD_PY_DIR}
-        DESTINATION ${ISMRMRD_INSTALL_PYTHON_DIR})
+        DESTINATION ${PYTHON_INSTALL_DIR})
 else(PYXBGEN)
     message("Can't find pyxbgen executable. Not building ismrmrd_xsd.py")
 endif(PYXBGEN)
