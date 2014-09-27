@@ -68,7 +68,7 @@ static char * make_path(const ISMRMRD_Dataset *dset, const char * var) {
             size_t len = strlen(dset->groupname) + strlen(var) + 2;
             char *path = (char *) malloc(len);
             if (path == NULL) {
-                ISMRMRD_THROW(ISMRMRD_MEMORYERROR, "Failed to malloc path");
+                ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to malloc path");
                 return NULL;
             }
             memset(path, 0, len);
@@ -93,7 +93,7 @@ static char * append_to_path(const ISMRMRD_Dataset *dset, const char * path, con
                 size_t len = strlen(path) + strlen(var) + 2;
                 char *newpath = (char *) malloc(len);
                 if (newpath == NULL) {
-                    ISMRMRD_THROW(ISMRMRD_MEMORYERROR, "Failed to realloc newpath");
+                    ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to realloc newpath");
                     return NULL;
                 }
                 memset(newpath, 0, len);
@@ -123,8 +123,7 @@ static int delete_var(const ISMRMRD_Dataset *dset, const char *var) {
         if (link_exists(dset, path)) {
             h5status = H5Ldelete(dset->fileid, path, H5P_DEFAULT);
             if (h5status < 0) {
-                status = ISMRMRD_FILEERROR;
-                ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed to delete H5 path");
+                status = ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to delete H5 path");
             }
         }
         free(path);
@@ -196,7 +195,7 @@ static hid_t get_hdf5type_complexfloat(void) {
     h5status = H5Tinsert(datatype, "real", 0, H5T_NATIVE_FLOAT);
     h5status = H5Tinsert(datatype, "imag", sizeof(float), H5T_NATIVE_FLOAT);
     if (h5status < 0) {
-        ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed get complex float data type");
+        ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get complex float data type");
     }
     return datatype;
 }
@@ -208,7 +207,7 @@ static hid_t get_hdf5type_complexdouble(void) {
     h5status = H5Tinsert(datatype, "real", 0, H5T_NATIVE_DOUBLE);
     h5status = H5Tinsert(datatype, "imag", sizeof(double), H5T_NATIVE_DOUBLE);
     if (h5status < 0) {
-        ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed get complex double data type");
+        ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get complex double data type");
     }
     return datatype;
 }
@@ -217,7 +216,7 @@ static hid_t get_hdf5type_xmlheader(void) {
     hid_t datatype = H5Tcopy(H5T_C_S1);
     herr_t h5status = H5Tset_size(datatype, H5T_VARIABLE);
     if (h5status < 0) {
-        ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed get XML header data type");
+        ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get XML header data type");
     }
     return datatype;
 }
@@ -240,7 +239,7 @@ static hid_t get_hdf5type_encoding(void) {
     arraytype = H5Tarray_create2(H5T_NATIVE_UINT16, 1, arraydims);
     h5status = H5Tinsert(datatype, "user", HOFFSET(ISMRMRD_EncodingCounters, user), arraytype);
     if (h5status < 0) {
-        ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed get endoding data type");
+        ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get endoding data type");
     }
     H5Tclose(arraytype);
     return datatype;
@@ -301,7 +300,7 @@ static hid_t get_hdf5type_acquisitionheader(void) {
     H5Tclose(vartype);
     
     if (h5status < 0) {
-        ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed get acquisitionheader data type");
+        ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get acquisitionheader data type");
     }
     
     return datatype;   
@@ -325,7 +324,7 @@ static hid_t get_hdf5type_acquisition(void) {
     H5Tclose(vlvartype);
     
     if (h5status < 0) {
-        ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed get acquisition data type");
+        ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get acquisition data type");
     }
     
     return datatype;
@@ -379,7 +378,7 @@ static hid_t get_hdf5type_imageheader(void) {
     H5Tclose(vartype);
 
     if (h5status < 0) {
-        ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed get imageheader data type");
+        ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get imageheader data type");
     }
     
     return datatype;   
@@ -389,7 +388,7 @@ static hid_t get_hdf5type_image_attribute_string(void) {
     hid_t datatype = H5Tcopy(H5T_C_S1);
     herr_t h5status = H5Tset_size(datatype, H5T_VARIABLE);
     if (h5status < 0) {
-        ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed get image attribute string data type");
+        ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get image attribute string data type");
     }
     return datatype;
 }
@@ -413,7 +412,7 @@ static hid_t get_hdf5type_ndarrayblob(void) {
     H5Tclose(vlvartype);
     
     if (h5status < 0) {
-        ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed get NDArrayBlob data type");
+        ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get NDArrayBlob data type");
     }
     
     return datatype;
@@ -448,7 +447,7 @@ static hid_t get_hdf5type_ndarray(uint16_t data_type) {
             hdfdatatype = get_hdf5type_complexdouble();
             break;
         default :
-            ISMRMRD_THROW(ISMRMRD_TYPEERROR, "Failed to get HDF5 data type.");
+            ISMRMRD_PUSH_ERR(ISMRMRD_TYPEERROR, "Failed to get HDF5 data type.");
     }
     return hdfdatatype;
 }
@@ -474,7 +473,7 @@ uint32_t get_number_of_elements(const ISMRMRD_Dataset *dset, const char * path)
             h5status = H5Sclose(dataspace);
             h5status= H5Dclose(dataset);
             if (h5status < 0) {
-                ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed to get number of elements in vector.");
+                ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to get number of elements in vector.");
             }
         }
         else {
@@ -505,16 +504,14 @@ int append_element(const ISMRMRD_Dataset * dset, const char * path, void * elem,
             dataspace = H5Dget_space(dataset);
             rank = H5Sget_simple_extent_ndims(dataspace);
             if (rank != (ndim+1)) {
-                ISMRMRD_THROW(ISMRMRD_FILEERROR, "Dimensions are incorrect.");
-                return ISMRMRD_FILEERROR;
+                return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Dimensions are incorrect.");
             }
             hdfdims =(hsize_t *) malloc(rank*sizeof(hsize_t));
             maxdims =(hsize_t *) malloc(rank*sizeof(hsize_t));
             h5status = H5Sget_simple_extent_dims(dataspace, hdfdims, maxdims);
             for (n = 0; n<ndim; n++) {
                 if (dims[n] != hdfdims[n+1]) {
-                    ISMRMRD_THROW(ISMRMRD_FILEERROR, "Dimensions are incorrect.");
-                    return ISMRMRD_FILEERROR;
+                    return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Dimensions are incorrect.");
                 }
             }
             /* extend it by one */
@@ -589,8 +586,7 @@ int append_element(const ISMRMRD_Dataset * dset, const char * path, void * elem,
         h5status = H5Dclose(dataset);
 
         if (h5status < 0) {
-            ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed to get number of acquisitions.");
-            return ISMRMRD_FILEERROR;
+            return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to get number of acquisitions.");
         }
         
         return ISMRMRD_NOERROR;
@@ -607,15 +603,13 @@ int ismrmrd_init_dataset(ISMRMRD_Dataset *dset, const char *filename, const char
     if (dset) {
         dset->filename = (char *) malloc(strlen(filename) + 1);
         if (dset->filename == NULL) {
-            ISMRMRD_THROW(ISMRMRD_MEMORYERROR, "Failed to malloc dataset groupname");
-            return ISMRMRD_MEMORYERROR;
+            return ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to malloc dataset groupname");
         }
         strcpy(dset->filename, filename);
         
         dset->groupname = (char *) malloc(strlen(groupname) + 1);
         if (dset->groupname == NULL) {
-            ISMRMRD_THROW(ISMRMRD_MEMORYERROR, "Failed to malloc dataset groupname");
-            return ISMRMRD_MEMORYERROR;
+            return ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to malloc dataset groupname");
         }
         strcpy(dset->groupname, groupname);
         dset->fileid = 0;
@@ -645,8 +639,7 @@ int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool create_if_needed) {
             /* Some sort of error opening the file */
             /* Maybe it doesn't exist? */
             if (create_if_needed == false) {
-            ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed to open file.");
-            return ISMRMRD_FILEERROR;
+            return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to open file.");
         }
         else {
             /* Try creating a new file using the default properties. */
@@ -659,8 +652,7 @@ int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool create_if_needed) {
             }
             else {
             /* Error opening the file */
-                ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed to open file.");
-                return ISMRMRD_FILEERROR;
+                return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to open file.");
             }
         }
         }
@@ -685,8 +677,7 @@ int ismrmrd_close_dataset(ISMRMRD_Dataset *dset) {
             h5status = H5Fclose (dset->fileid);
             dset->fileid = 0;
             if (h5status < 0) {
-                ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed to close dataset.");
-                return ISMRMRD_FILEERROR;
+                return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to close dataset.");
             }
         }
         
@@ -705,13 +696,11 @@ int ismrmrd_write_header(const ISMRMRD_Dataset *dset, const char *xmlstring) {
     char * path;
 
     if (dset==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL.");
     }
 
     if (xmlstring==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "xmlstring should not be NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "xmlstring should not be NULL.");
     }
 
     /* The path to the xml header */
@@ -739,8 +728,7 @@ int ismrmrd_write_header(const ISMRMRD_Dataset *dset, const char *xmlstring) {
     h5status = H5Dclose(dataset);
     
     if (h5status < 0) {
-        ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed to write header.");
-        return ISMRMRD_FILEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to write header.");
     }
         
     return ISMRMRD_NOERROR;
@@ -752,7 +740,7 @@ char * ismrmrd_read_header(const ISMRMRD_Dataset *dset) {
     char * xmlstring, *path;
         
     if (dset==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
         return NULL;
     }
 
@@ -769,7 +757,7 @@ char * ismrmrd_read_header(const ISMRMRD_Dataset *dset) {
         /* Unpack */
         xmlstring = (char *) malloc(strlen(buff[0])+1);
         if (xmlstring == NULL) {
-            ISMRMRD_THROW(ISMRMRD_MEMORYERROR, "Failed to malloc xmlstring");
+            ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to malloc xmlstring");
         } else {
             memcpy(xmlstring, buff[0], strlen(buff[0])+1);
         }
@@ -780,7 +768,7 @@ char * ismrmrd_read_header(const ISMRMRD_Dataset *dset) {
         free(path);
         
         if (h5status < 0) {
-            ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed to read header.");
+            ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to read header.");
             return NULL;
         }
             
@@ -788,7 +776,7 @@ char * ismrmrd_read_header(const ISMRMRD_Dataset *dset) {
     }
     else {
         // No XML String found
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "No XML Header found.");
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "No XML Header found.");
         free(path);
         return NULL;
     }
@@ -799,7 +787,7 @@ uint32_t ismrmrd_get_number_of_acquisitions(const ISMRMRD_Dataset *dset) {
     uint32_t numacq;
     
     if (dset==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
         return 0;
     }
     /* The path to the acqusition data */    
@@ -816,12 +804,10 @@ int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquis
     HDF5_Acquisition hdf5acq[1];
             
     if (dset==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL.");
     }
     if (acq==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Acquisition pointer should not be NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Acquisition pointer should not be NULL.");
     }
     
     /* The path to the acqusition data */    
@@ -840,8 +826,7 @@ int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquis
     /* Write it */
     status = append_element(dset, path, hdf5acq, datatype, 0, NULL);
     if (status != ISMRMRD_NOERROR) {
-        ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed to append acquisition.");
-        return ISMRMRD_FILEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to append acquisition.");
     }
 
     /* Clean up */
@@ -862,12 +847,10 @@ int ismrmrd_read_acquisition(const ISMRMRD_Dataset *dset, uint32_t index, ISMRMR
     char *path;        
 
     if (dset==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL.");
     }
     if (acq==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Acquisition pointer should not be NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Acquisition pointer should not be NULL.");
     }
 
     /* The path to the acqusition data */    
@@ -903,20 +886,17 @@ int ismrmrd_read_acquisition(const ISMRMRD_Dataset *dset, uint32_t index, ISMRMR
             h5status = H5Sclose(memspace);
             h5status = H5Dclose(dataset);
             if (h5status < 0) {
-                ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed to read acquisition.");
-                return ISMRMRD_FILEERROR;
+                return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to read acquisition.");
             }
         }
         else {
             /* index out of range */
-            ISMRMRD_THROW(ISMRMRD_FILEERROR, "Acquisition index out of range.");
-            return ISMRMRD_FILEERROR;
+            return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Acquisition index out of range.");
         }
     }
     else {
         /* No data */
-        ISMRMRD_THROW(ISMRMRD_FILEERROR, "Data not found.");
-        return ISMRMRD_FILEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Data not found.");
     }
     
     return ISMRMRD_NOERROR;
@@ -930,16 +910,13 @@ int ismrmrd_append_image(const ISMRMRD_Dataset *dset, const char *varname,
     uint16_t dims[4];
 
     if (dset==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL.");
     }
     if (varname==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Varname should not be NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Varname should not be NULL.");
     }
     if (im==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Image pointer should not be NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Image pointer should not be NULL.");
     }
 
     /* The group for this set of images */
@@ -953,8 +930,7 @@ int ismrmrd_append_image(const ISMRMRD_Dataset *dset, const char *varname,
     datatype = get_hdf5type_imageheader();
     status = append_element(dset, headerpath, (void *) &im->head, datatype, 0, NULL);
     if (status != ISMRMRD_NOERROR) {
-        ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed to append image header.");
-        return ISMRMRD_FILEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to append image header.");
     }
     free(headerpath);
             
@@ -963,8 +939,7 @@ int ismrmrd_append_image(const ISMRMRD_Dataset *dset, const char *varname,
     datatype = get_hdf5type_image_attribute_string();
     status = append_element(dset, attrpath, (void *) &im->attribute_string, datatype, 0, NULL);
     if (status != ISMRMRD_NOERROR) {
-        ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed to append image attribute string.");
-        return ISMRMRD_FILEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to append image attribute string.");
     }
     free(attrpath);
             
@@ -978,8 +953,7 @@ int ismrmrd_append_image(const ISMRMRD_Dataset *dset, const char *varname,
     dims[0] = im->head.channels;
     status = append_element(dset, datapath, im->data, datatype, 4, dims);
     if (status != ISMRMRD_NOERROR) {
-        ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed to append image data.");
-        return ISMRMRD_FILEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to append image data.");
     }
     free(datapath);
             
@@ -996,11 +970,11 @@ uint32_t ismrmrd_get_number_of_images(const ISMRMRD_Dataset *dset, const char *v
     uint32_t numimages;
     
     if (dset==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL.");
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL.");
         return 0;
     }
     if (varname==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Varname should not be NULL.");
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Varname should not be NULL.");
         return 0;
     }
     /* The group for this set of images */
@@ -1023,16 +997,13 @@ int ismrmrd_append_array(const ISMRMRD_Dataset *dset, const char *varname,
     char *path;
     
     if (dset==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL.");
-        return 0;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL.");
     }
     if (varname==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Varname should not be NULL.");
-        return 0;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Varname should not be NULL.");
     }
     if (arr==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Array pointer should not be NULL.");
-        return 0;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Array pointer should not be NULL.");
     }
     
     /* The group for this set */
@@ -1049,8 +1020,7 @@ int ismrmrd_append_array(const ISMRMRD_Dataset *dset, const char *varname,
     }
     status = append_element(dset, path, arr->data, datatype, ndim, dims);
     if (status != ISMRMRD_NOERROR) {
-        ISMRMRD_THROW(ISMRMRD_FILEERROR, "Failed to append array.");
-        return ISMRMRD_FILEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to append array.");
     }
     
     /* Final cleanup */
@@ -1066,11 +1036,11 @@ uint32_t ismrmrd_get_number_of_arrays(const ISMRMRD_Dataset *dset, const char *v
     uint32_t numarrays;
     
     if (dset==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL.");
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL.");
         return 0;
     }
     if (varname==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Varname should not be NULL.");
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Varname should not be NULL.");
         return 0;
     }
 
@@ -1088,16 +1058,13 @@ uint32_t ismrmrd_get_number_of_arrays(const ISMRMRD_Dataset *dset, const char *v
 int ismrmrd_read_image(const ISMRMRD_Dataset *dset, const char *varname,
                        const uint32_t index, ISMRMRD_Image *im) {
     if (dset==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL.");
-        return 0;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL.");
     }
     if (varname==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Varname should not be NULL.");
-        return 0;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Varname should not be NULL.");
     }
     if (im==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Image should not be NULL.");
-        return 0;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Image should not be NULL.");
     }
 
     return ISMRMRD_NOERROR;
@@ -1106,16 +1073,13 @@ int ismrmrd_read_image(const ISMRMRD_Dataset *dset, const char *varname,
 int ismrmrd_read_array(const ISMRMRD_Dataset *dset, const char *varname,
                        const uint32_t index, ISMRMRD_NDArray *arr) {
     if (dset==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL.");
-        return 0;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL.");
     }
     if (varname==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Varname should not be NULL.");
-        return 0;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Varname should not be NULL.");
     }
     if (arr==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Array pointer should not be NULL.");
-        return 0;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Array pointer should not be NULL.");
     }
 
     return ISMRMRD_NOERROR;

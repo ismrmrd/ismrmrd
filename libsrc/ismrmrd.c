@@ -4,13 +4,11 @@
 /* Language and Cross platform section for defining types */
 #ifdef __cplusplus
 #include <cmath>
-#include <cassert>
 #include <cstdio>
 
 #else
 /* C99 compiler */
 #include <math.h>
-#include <assert.h>
 #include <stdio.h>
 
 #endif /* __cplusplus */
@@ -22,11 +20,26 @@ namespace ISMRMRD {
 extern "C" {
 #endif
 
+/* Error handling prototypes */
+typedef struct ISMRMRD_error_node {
+    struct ISMRMRD_error_node *next;
+    char *file;
+    char *func;
+    char *msg;
+    int line;
+    int code;
+} ISMRMRD_error_node_t;
+
+static void ismrmrd_error_default(const char *file, int line,
+        const char *func, int code, const char *msg);
+static ISMRMRD_error_node_t *error_stack_head = NULL;
+static ismrmrd_error_handler_t ismrmrd_error_handler = ismrmrd_error_default;
+
+
 /* Acquisition functions */
 int ismrmrd_init_acquisition_header(ISMRMRD_AcquisitionHeader *hdr) {
     if (hdr == NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
     }
 
     memset(hdr, 0, sizeof(ISMRMRD_AcquisitionHeader));
@@ -39,8 +52,7 @@ int ismrmrd_init_acquisition_header(ISMRMRD_AcquisitionHeader *hdr) {
 
 int ismrmrd_init_acquisition(ISMRMRD_Acquisition *acq) {
     if (acq == NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
     }
     ismrmrd_init_acquisition_header(&acq->head);
     acq->traj = NULL;
@@ -50,8 +62,7 @@ int ismrmrd_init_acquisition(ISMRMRD_Acquisition *acq) {
 
 int ismrmrd_cleanup_acquisition(ISMRMRD_Acquisition *acq) {
     if (acq == NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
     }
     
     free(acq->data);
@@ -64,12 +75,12 @@ int ismrmrd_cleanup_acquisition(ISMRMRD_Acquisition *acq) {
 ISMRMRD_Acquisition * ismrmrd_create_acquisition() {
     ISMRMRD_Acquisition *acq = (ISMRMRD_Acquisition *) malloc(sizeof(ISMRMRD_Acquisition));
     if (acq == NULL) {
-        ISMRMRD_THROW(ISMRMRD_MEMORYERROR, "Failed to malloc new ISMRMRD_Acquistion.");
+        ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to malloc new ISMRMRD_Acquistion.");
         return NULL;
     }
     if (ismrmrd_init_acquisition(acq) != ISMRMRD_NOERROR)
     {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Failed to initialize acquistion.");
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Failed to initialize acquistion.");
         return NULL;
     }
     return acq;
@@ -78,13 +89,11 @@ ISMRMRD_Acquisition * ismrmrd_create_acquisition() {
 int ismrmrd_free_acquisition(ISMRMRD_Acquisition *acq) {
 
     if (acq == NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Pointer should not NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not NULL.");
     }
     
     if (ismrmrd_cleanup_acquisition(acq)!=ISMRMRD_NOERROR) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Failed to cleanup acquisition.");
-        return ISMRMRD_RUNTIMEERROR;        
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Failed to cleanup acquisition.");
     }
     free(acq);
     return ISMRMRD_NOERROR;
@@ -93,12 +102,10 @@ int ismrmrd_free_acquisition(ISMRMRD_Acquisition *acq) {
 int ismrmrd_copy_acquisition(ISMRMRD_Acquisition *acqdest, const ISMRMRD_Acquisition *acqsource) {
 
     if (acqsource==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Source pointer should not NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Source pointer should not NULL.");
     }
     if (acqdest==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Destination pointer should not NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Destination pointer should not NULL.");
     }
 
     /* Copy the header */
@@ -116,8 +123,7 @@ int ismrmrd_make_consistent_acquisition(ISMRMRD_Acquisition *acq) {
     size_t traj_size, data_size;
         
     if (acq==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Pointer should not NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not NULL.");
     }
 
     if (acq->head.available_channels < acq->head.active_channels) {
@@ -128,9 +134,8 @@ int ismrmrd_make_consistent_acquisition(ISMRMRD_Acquisition *acq) {
     if (traj_size > 0) {
         acq->traj = (float *)realloc(acq->traj, traj_size);
         if (acq->traj == NULL) {
-            ISMRMRD_THROW(ISMRMRD_MEMORYERROR,
+            return ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR,
                           "Failed to realloc acquisition trajectory array");
-            return ISMRMRD_MEMORYERROR;
         }
     }
         
@@ -138,9 +143,8 @@ int ismrmrd_make_consistent_acquisition(ISMRMRD_Acquisition *acq) {
     if (data_size > 0) {
         acq->data = (complex_float_t *)realloc(acq->data, data_size);
         if (acq->data == NULL) {
-            ISMRMRD_THROW(ISMRMRD_MEMORYERROR,
+            return ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR,
                           "Failed to realloc acquisition data array");
-            return ISMRMRD_MEMORYERROR;
         }
     }
 
@@ -152,7 +156,7 @@ size_t ismrmrd_size_of_acquisition_traj(const ISMRMRD_Acquisition *acq) {
     int num_traj;
     
     if (acq==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Pointer should not NULL.");
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not NULL.");
         return 0;
     }
 
@@ -165,7 +169,7 @@ size_t ismrmrd_size_of_acquisition_data(const ISMRMRD_Acquisition *acq) {
     int num_data;
     
     if (acq==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Pointer should not NULL.");
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not NULL.");
         return 0;
     }
 
@@ -177,8 +181,7 @@ size_t ismrmrd_size_of_acquisition_data(const ISMRMRD_Acquisition *acq) {
 /* Image functions */
 int ismrmrd_init_image_header(ISMRMRD_ImageHeader *hdr) {
     if (hdr==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Pointer should not NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not NULL.");
     }
     memset(hdr, 0, sizeof(ISMRMRD_ImageHeader));
     hdr->version = ISMRMRD_VERSION;
@@ -192,13 +195,11 @@ int ismrmrd_init_image_header(ISMRMRD_ImageHeader *hdr) {
 /* ImageHeader functions */
 int ismrmrd_init_image(ISMRMRD_Image *im) {
     if (im==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Pointer should not NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not NULL.");
     }
 
     if (ismrmrd_init_image_header(&im->head) != ISMRMRD_NOERROR) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Failed to initialize image header.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Failed to initialize image header.");
     }
     im->attribute_string = NULL;
     im->data = NULL;
@@ -208,12 +209,12 @@ int ismrmrd_init_image(ISMRMRD_Image *im) {
 ISMRMRD_Image * ismrmrd_create_image() {
     ISMRMRD_Image *im = (ISMRMRD_Image *) malloc(sizeof(ISMRMRD_Image));
     if (im==NULL) {
-        ISMRMRD_THROW(ISMRMRD_MEMORYERROR, "Failed to allocate new Image.");
+        ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to allocate new Image.");
         return NULL;
     }
     
     if (ismrmrd_init_image(im) != ISMRMRD_NOERROR) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Failed to initialize image.");
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Failed to initialize image.");
         return NULL;
     }
     return im;
@@ -221,8 +222,7 @@ ISMRMRD_Image * ismrmrd_create_image() {
 
 int ismrmrd_cleanup_image(ISMRMRD_Image *im) {
     if (im==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Pointer should not NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not NULL.");
     }
     free(im->attribute_string);
     im->attribute_string = NULL;
@@ -233,12 +233,10 @@ int ismrmrd_cleanup_image(ISMRMRD_Image *im) {
 
 int ismrmrd_free_image(ISMRMRD_Image *im) {
     if (im==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Pointer should not NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not NULL.");
     }        
     if (ismrmrd_cleanup_image(im) != ISMRMRD_NOERROR) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Failed to clean up image.");
-        return ISMRMRD_RUNTIMEERROR;        
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Failed to clean up image.");
     }
     free(im);
     return ISMRMRD_NOERROR;
@@ -246,17 +244,14 @@ int ismrmrd_free_image(ISMRMRD_Image *im) {
 
 int ismrmrd_copy_image(ISMRMRD_Image *imdest, const ISMRMRD_Image *imsource) {
     if (imsource==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Source pointer should not NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Source pointer should not NULL.");
     }
     if (imdest==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Destination pointer should not NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Destination pointer should not NULL.");
     }
     memcpy(&imdest->head, &imsource->head, sizeof(ISMRMRD_ImageHeader));
     if (ismrmrd_make_consistent_image(imdest) != ISMRMRD_NOERROR) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Failed to make image consistent.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Failed to make image consistent.");
     }
     memcpy(imdest->attribute_string, imsource->attribute_string,
            ismrmrd_size_of_image_attribute_string(imdest));
@@ -267,16 +262,14 @@ int ismrmrd_copy_image(ISMRMRD_Image *imdest, const ISMRMRD_Image *imsource) {
 int ismrmrd_make_consistent_image(ISMRMRD_Image *im) {
     size_t attr_size, data_size;
     if (im==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Pointer should not NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not NULL.");
     }
    
     attr_size = ismrmrd_size_of_image_attribute_string(im);
     if (attr_size > 0) {
         im->attribute_string = (char *)realloc(im->attribute_string, attr_size);
         if (im->attribute_string == NULL) {
-            ISMRMRD_THROW(ISMRMRD_MEMORYERROR, "Failed to realloc image attribute string");
-            return ISMRMRD_MEMORYERROR;
+            return ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to realloc image attribute string");
         }
     }
         
@@ -284,8 +277,7 @@ int ismrmrd_make_consistent_image(ISMRMRD_Image *im) {
     if (data_size > 0) {
         im->data = realloc(im->data, data_size);
         if (im->data == NULL) {
-            ISMRMRD_THROW(ISMRMRD_MEMORYERROR, "Failed to realloc image data array");
-            return ISMRMRD_MEMORYERROR;
+            return ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to realloc image data array");
         }
     }
     return ISMRMRD_NOERROR;
@@ -295,7 +287,7 @@ size_t ismrmrd_size_of_image_data(const ISMRMRD_Image *im) {
     size_t data_size = 0;
     int num_data;
     if (im==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Pointer should not NULL.");
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not NULL.");
         return 0;
     }
 
@@ -328,7 +320,7 @@ size_t ismrmrd_size_of_image_data(const ISMRMRD_Image *im) {
             data_size = num_data * sizeof(complex_double_t);
             break;
         default:
-            ISMRMRD_THROW(ISMRMRD_TYPEERROR, "Invalid image data type");
+            ISMRMRD_PUSH_ERR(ISMRMRD_TYPEERROR, "Invalid image data type");
             data_size = 0;
     }
     return data_size;
@@ -336,7 +328,7 @@ size_t ismrmrd_size_of_image_data(const ISMRMRD_Image *im) {
 
 size_t ismrmrd_size_of_image_attribute_string(const ISMRMRD_Image *im) {
     if (im==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
         return 0;
     }
     return im->head.attribute_string_len * sizeof(*im->attribute_string);
@@ -347,7 +339,7 @@ int ismrmrd_init_ndarray(ISMRMRD_NDArray *arr) {
     int n;
 
     if (arr==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
         return ISMRMRD_RUNTIMEERROR;
     }
 
@@ -365,12 +357,12 @@ int ismrmrd_init_ndarray(ISMRMRD_NDArray *arr) {
 ISMRMRD_NDArray * ismrmrd_create_ndarray() {
     ISMRMRD_NDArray *arr = (ISMRMRD_NDArray *) malloc(sizeof(ISMRMRD_NDArray));
     if (arr==NULL) {
-        ISMRMRD_THROW(ISMRMRD_MEMORYERROR, "Failed to malloc new ISMRMRD_NDArray.");
+        ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to malloc new ISMRMRD_NDArray.");
         return NULL;
     }
         
     if (ismrmrd_init_ndarray(arr)!=ISMRMRD_NOERROR) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Failed to initialize ndarray.");
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Failed to initialize ndarray.");
         return NULL;
     }
     return arr;
@@ -378,8 +370,7 @@ ISMRMRD_NDArray * ismrmrd_create_ndarray() {
 
 int ismrmrd_cleanup_ndarray(ISMRMRD_NDArray *arr) {
     if (arr==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
     }
 
     free(arr->data);
@@ -389,13 +380,11 @@ int ismrmrd_cleanup_ndarray(ISMRMRD_NDArray *arr) {
 
 int ismrmrd_free_ndarray(ISMRMRD_NDArray *arr) {
     if (arr==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
     }
 
     if (ismrmrd_cleanup_ndarray(arr)!=ISMRMRD_NOERROR) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Failed to cleanup ndarray.");
-        return ISMRMRD_RUNTIMEERROR;        
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Failed to cleanup ndarray.");
     }
     free(arr);
     return ISMRMRD_NOERROR;
@@ -405,12 +394,10 @@ int ismrmrd_copy_ndarray(ISMRMRD_NDArray *arrdest, const ISMRMRD_NDArray *arrsou
     int n;
 
     if (arrsource==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Source pointer should not be NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Source pointer should not be NULL.");
     }
     if (arrdest==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Destination pointer should not be NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Destination pointer should not be NULL.");
     }
             
     arrdest->version = arrsource->version;
@@ -421,8 +408,7 @@ int ismrmrd_copy_ndarray(ISMRMRD_NDArray *arrdest, const ISMRMRD_NDArray *arrsou
         arrdest->dims[n] = arrsource->dims[n];
     }
     if (ismrmrd_make_consistent_ndarray(arrdest)!=ISMRMRD_NOERROR) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Failed to make ndarray consistent.");
-        return ISMRMRD_RUNTIMEERROR;        
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Failed to make ndarray consistent.");
     }
     memcpy(arrdest->data, arrsource->data, ismrmrd_size_of_ndarray_data(arrdest));
     return ISMRMRD_NOERROR;
@@ -432,16 +418,14 @@ int ismrmrd_make_consistent_ndarray(ISMRMRD_NDArray *arr) {
     size_t data_size;
     
     if (arr==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
     }
 
     data_size = ismrmrd_size_of_ndarray_data(arr);
     if (data_size > 0) {
         arr->data = realloc(arr->data, data_size);
         if (arr->data == NULL) {
-            ISMRMRD_THROW(ISMRMRD_MEMORYERROR, "Failed to realloc NDArray data array");
-            return ISMRMRD_MEMORYERROR;
+            return ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to realloc NDArray data array");
         }
     }
     return ISMRMRD_NOERROR;
@@ -453,7 +437,7 @@ size_t ismrmrd_size_of_ndarray_data(const ISMRMRD_NDArray *arr) {
     int n;
     
     if (arr==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
         return 0;
     }
 
@@ -487,7 +471,7 @@ size_t ismrmrd_size_of_ndarray_data(const ISMRMRD_NDArray *arr) {
             data_size = num_data * sizeof(complex_double_t);
             break;
         default:
-            ISMRMRD_THROW(ISMRMRD_TYPEERROR, "Invalid NDArray data type");
+            ISMRMRD_PUSH_ERR(ISMRMRD_TYPEERROR, "Invalid NDArray data type");
             data_size = 0;
     }
         
@@ -503,8 +487,7 @@ bool ismrmrd_is_flag_set(const uint64_t flags, const uint64_t val) {
 int ismrmrd_set_flag(uint64_t *flags, const uint64_t val) {
     uint64_t bitmask;
     if (flags==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
     }
     bitmask = 1 << (val - 1);
     *flags |= bitmask;
@@ -514,8 +497,7 @@ int ismrmrd_set_flag(uint64_t *flags, const uint64_t val) {
 int ismrmrd_clear_flag(uint64_t *flags, const uint64_t val) {
     uint64_t bitmask;
     if (flags==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
     }
     bitmask = 1 << (val - 1);
     *flags &= ~bitmask;
@@ -524,38 +506,10 @@ int ismrmrd_clear_flag(uint64_t *flags, const uint64_t val) {
 
 int ismrmrd_clear_all_flags(uint64_t *flags) {
     if (flags==NULL) {
-        ISMRMRD_THROW(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
     }
     *flags = 0;
     return ISMRMRD_NOERROR;
-}
-
-static void ismrmrd_error_default(const char *file, int line, const char *func, int err, char *msg)
-{
-    char *msgtype = ismrmrd_strerror(err);
-    fprintf(stderr, "ERROR: %s in %s, line %d: %s\n", msgtype, file, line, msg);
-}
-
-ismrmrd_error_handler_t ismrmrd_error_handler = ismrmrd_error_default;
-
-void ismrmrd_set_error_handler(ismrmrd_error_handler_t handler) {
-    ismrmrd_error_handler = handler;
-}
-
-char *ismrmrd_strerror(int err) {
-    /* Match the ISMRMRD_ErrorCodes */
-    char *error_messages[] = {
-        "No Error",
-        "Memory Error",
-        "File Error",
-        "Runtime Error"
-    };
-    
-    assert(err > ISMRMRD_BEGINERROR);
-    assert(err < ISMRMRD_ENDERROR);
-    
-    return error_messages[err];
 }
 
 int ismrmrd_sign_of_directions(float read_dir[3], float phase_dir[3], float slice_dir[3]) {
@@ -663,6 +617,94 @@ void ismrmrd_quaternion_to_directions(float quat[4], float read_dir[3],
     read_dir[2] = 2.0f * (a * c - b * d);
     phase_dir[2] = 2.0f * (b * c + a * d);
     slice_dir[2] = 1.0f - 2.0f * (a * a + b * b);
+}
+
+/**
+ * Saves error information on the error stack
+ * @returns error code
+ */
+int ismrmrd_push_error(const char *file, const int line, const char *func,
+        const int code, const char *msg)
+{
+    ISMRMRD_error_node_t *node = NULL;
+
+    /* Call user-defined error handler if it exists */
+    if (ismrmrd_error_handler != NULL) {
+        ismrmrd_error_handler(file, line, func, code, msg);
+    }
+
+    /* Save error information on error stack */
+    node = (ISMRMRD_error_node_t*)calloc(1, sizeof(*node));
+    if (node == NULL) {
+        /* TODO: how to handle this? */
+        return ISMRMRD_MEMORYERROR;
+    }
+
+    node->next = error_stack_head;
+    error_stack_head = node;
+
+    node->file = (char*)file;
+    node->line = line;
+    node->func = (char*)func;
+    node->code = code;
+    node->msg = (char*)msg;
+
+    return code;
+}
+
+bool ismrmrd_pop_error(char **file, int *line, char **func,
+        int *code, char **msg)
+{
+    ISMRMRD_error_node_t *node = error_stack_head;
+    if (node == NULL) {
+        /* nothing to pop */
+        return false;
+    }
+
+    /* pop head off stack */
+    error_stack_head = node->next;
+
+    if (file != NULL) {
+        *file = node->file;
+    }
+    if (line != NULL) {
+        *line = node->line;
+    }
+    if (func != NULL) {
+        *func = node->func;
+    }
+    if (code != NULL) {
+        *code = node->code;
+    }
+    if (msg != NULL) {
+        *msg = node->msg;
+    }
+
+    free(node);
+    return true;
+}
+
+void ismrmrd_set_error_handler(ismrmrd_error_handler_t handler) {
+    ismrmrd_error_handler = handler;
+}
+
+char *ismrmrd_strerror(int code) {
+    /* Match the ISMRMRD_ErrorCodes */
+    static char * const error_messages []= {
+        "No Error",
+        "Memory Error",
+        "File Error",
+        "Type Error",
+        "Runtime Error"
+    };
+    return error_messages[code];
+}
+
+static void ismrmrd_error_default(const char *file, int line,
+        const char *func, int code, const char *msg)
+{
+    char *msgtype = ismrmrd_strerror(code);
+    fprintf(stderr, "ERROR: %s in %s, line %d: %s\n", msgtype, file, line, msg);
 }
 
 #ifdef __cplusplus
