@@ -30,7 +30,6 @@ typedef __int64 int64_t;
 typedef unsigned __int64 uint64_t;
 #else /* non MS C or C++ compiler */
 #include <stdint.h>
-#include <stddef.h>     /* for size_t */
 #endif /* _MSC_VER */
 
 /* Complex numbers */
@@ -373,25 +372,18 @@ EXPORTISMRMRD int ismrmrd_clear_all_flags(uint64_t *flags);
 /******************/
 /* Error Handling */
 /******************/
+typedef void (*ismrmrd_error_handler_t)(const char *file, int line, const char *function, int err, char *msg);
+extern ismrmrd_error_handler_t ismrmrd_error_handler;
+#define ISMRMRD_THROW(err, msg) ismrmrd_error_handler(__FILE__, __LINE__, __func__, (err), (msg))
+
 /** @addtogroup capi
  *  @{
  */
-typedef void (*ismrmrd_error_handler_t)(const char *file, int line,
-        const char *function, int code, const char *msg);
-#define ISMRMRD_PUSH_ERR(code, msg) ismrmrd_push_error(__FILE__, __LINE__, \
-        __func__, (code), (msg))
-int ismrmrd_push_error(const char *file, const int line, const char *func,
-        const int code, const char *msg);
 /** Sets a custom error handler */
 EXPORTISMRMRD void ismrmrd_set_error_handler(ismrmrd_error_handler_t);
 /** Returns message for corresponding error code */
-EXPORTISMRMRD char *ismrmrd_strerror(int code);
+EXPORTISMRMRD char *ismrmrd_strerror(int err);
 /** @} */
-
-/** Populates parameters (if non-NULL) with error information
- * @returns true if there was error information to return, false otherwise */
-bool ismrmrd_pop_error(char **file, int *line, char **func,
-        int *code, char **msg);
 
 /*****************************/
 /* Rotations and Quaternions */

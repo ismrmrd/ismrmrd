@@ -8,7 +8,7 @@
 #ifndef ISMRMRD_DATASET_H
 #define ISMRMRD_DATASET_H
 
-#include "ismrmrd/ismrmrd.h"
+#include "ismrmrd.h"
 
 #ifdef __cplusplus
 #include <string>
