@@ -601,17 +601,16 @@ int append_element(const ISMRMRD_Dataset * dset, const char * path, void * elem,
 /********************/
 int ismrmrd_init_dataset(ISMRMRD_Dataset *dset, const char *filename, const char *groupname) {
     if (dset) {
-        dset->filename = (char *) malloc(strlen(filename) + 1);
+        dset->filename = strdup(filename);
         if (dset->filename == NULL) {
             return ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to malloc dataset groupname");
         }
-        strcpy(dset->filename, filename);
         
-        dset->groupname = (char *) malloc(strlen(groupname) + 1);
+        dset->groupname = strdup(groupname);
         if (dset->groupname == NULL) {
             return ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to malloc dataset groupname");
         }
-        strcpy(dset->groupname, groupname);
+
         dset->fileid = 0;
         return ISMRMRD_NOERROR;
     }
@@ -635,10 +634,9 @@ int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool create_if_needed) {
         if (fileid > 0) {
             dset->fileid = fileid;
         }
-        else {
+        else if (create_if_needed == false) {
             /* Some sort of error opening the file */
             /* Maybe it doesn't exist? */
-            if (create_if_needed == false) {
             return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to open file.");
         }
         else {
@@ -655,10 +653,8 @@ int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool create_if_needed) {
                 return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to open file.");
             }
         }
-        }
-        
         /* Open the existing dataset */
-        /* insure that /groupname exists */
+        /* ensure that /groupname exists */
         create_link(dset, dset->groupname);
         
         return ISMRMRD_NOERROR;

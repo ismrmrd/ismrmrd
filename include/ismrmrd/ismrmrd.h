@@ -416,6 +416,9 @@ EXPORTISMRMRD void ismrmrd_quaternion_to_directions(float quat[4], float read_di
 
 ///  ISMRMRD C++ Interface
 
+/// Construct exception message from ISMRMRD error stack
+std::string build_exception_string(void);
+
 /// Some typedefs to beautify the namespace
 typedef  ISMRMRD_EncodingCounters EncodingCounters;
 
