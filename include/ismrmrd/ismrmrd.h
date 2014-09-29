@@ -423,6 +423,9 @@ typedef  ISMRMRD_EncodingCounters EncodingCounters;
  *  @{
  */
 
+/// Allowed data types for Images and NDArrays
+EXPORTISMRMRD template <typename T>  ISMRMRD_DataTypes get_data_type();
+
 /// Convenience class for flags
 class EXPORTISMRMRD FlagBit
 {

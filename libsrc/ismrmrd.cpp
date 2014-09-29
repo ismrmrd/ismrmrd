@@ -5,48 +5,6 @@
 
 namespace ISMRMRD {
 
-// Internal function to control the allowed data types for NDArrays
-template <typename T>  ISMRMRD_DataTypes get_data_type();
-template <> ISMRMRD_DataTypes get_data_type<uint16_t>()
-{
-    return ISMRMRD_USHORT;
-}
-
-template <> inline ISMRMRD_DataTypes get_data_type<int16_t>()
-{
-    return ISMRMRD_SHORT;
-}
-
-template <> inline ISMRMRD_DataTypes get_data_type<uint32_t>()
-{
-    return ISMRMRD_UINT;
-}
-
-template <> inline ISMRMRD_DataTypes get_data_type<int32_t>()
-{
-    return ISMRMRD_INT;
-}
-
-template <> inline ISMRMRD_DataTypes get_data_type<float>()
-{
-    return ISMRMRD_FLOAT;
-}
-
-template <> inline ISMRMRD_DataTypes get_data_type<double>()
-{
-    return ISMRMRD_DOUBLE;
-}
-
-template <> inline ISMRMRD_DataTypes get_data_type<complex_float_t>()
-{
-    return ISMRMRD_CXFLOAT;
-}
-
-template <> inline ISMRMRD_DataTypes get_data_type<complex_double_t>()
-{
-    return ISMRMRD_CXDOUBLE;
-}
-
 //
 // AcquisitionHeader class implementation
 //
@@ -292,17 +250,20 @@ void ImageHeader::clearAllFlags() {
 //
 
 // Constructors
-Image::Image() {
+template <typename T> Image<T>::Image()
+{
     ismrmrd_init_image(this);
+    data_type = get_data_type<T>();
 };
 
-Image::Image(const Image &other) {
+template <typename T> Image<T>::Image(const Image<T> &other) {
     // This is a deep copy
     ismrmrd_init_image(this);
     ismrmrd_copy_image(this, &other);
 }
 
-Image & Image::operator= (const Image &other) {
+template <typename T> Image<T> & Image<T>::operator= (const Image<T> &other)
+{
     // Assignment makes a copy
     if (this != &other )
     {
@@ -312,38 +273,38 @@ Image & Image::operator= (const Image &other) {
     return *this;
 }
 
-Image::~Image() {
+template <typename T> Image<T>::~Image() {
     ismrmrd_cleanup_image(this);
 }
 
 // Accessors and mutators
-const uint16_t &Image::version() {
+template <typename T> const uint16_t & Image<T>::version() {
     return head.version;
 };
 
-const uint16_t &Image::data_type() {
+template <typename T> const uint16_t &Image<T>::data_type() {
     return head.data_type;
 };
 
-void Image::data_type(uint16_t dtype) {
+template <typename T> void Image<T>::data_type(uint16_t dtype) {
     // TODO function to check if type is valid
     head.data_type = dtype;
     ismrmrd_make_consistent_image(this);
 };
 
-const uint64_t &Image::flags() {
+template <typename T> const uint64_t &Image<T>::flags() {
     return head.flags;
 };
 
-uint32_t &Image::measurement_uid() {
+template <typename T> uint32_t &Image<T>::measurement_uid() {
     return head.measurement_uid;
 };
 
-const uint16_t (&Image::matrix_size())[3] {
+template <typename T> const uint16_t (&Image<T>::matrix_size())[3] {
     return head.matrix_size;
 };
 
-void Image::matrix_size(const uint16_t msize[3]) {
+template <typename T> void Image<T>::matrix_size(const uint16_t msize[3]) {
     head.matrix_size[0] = msize[0];
     if (msize[1] > 1) {
         head.matrix_size[1] = msize[1];
@@ -358,15 +319,15 @@ void Image::matrix_size(const uint16_t msize[3]) {
     ismrmrd_make_consistent_image(this);
 };
 
-float (&Image::field_of_view())[3] {
+template <typename T> float (&Image<T>::field_of_view())[3] {
     return head.field_of_view;
 };
 
-const uint16_t &Image::channels() {
+template <typename T> const uint16_t &Image<T>::channels() {
     return head.channels;
 };
 
-void Image::channels(const uint16_t num_channels) {
+template <typename T> void Image<T>::channels(const uint16_t num_channels) {
     if (num_channels > 1) {
         head.channels = num_channels;
     } else {
@@ -375,38 +336,39 @@ void Image::channels(const uint16_t num_channels) {
     ismrmrd_make_consistent_image(this);
 };
 
-float (&Image::position())[3] {
+template <typename T> float (&Image<T>::position())[3] {
     return head.position;
 };
 
-float (&Image::read_dir())[3] {
+template <typename T> float (&Image<T>::read_dir())[3] {
     return head.read_dir;
 };
 
-float (&Image::phase_dir())[3] {
+template <typename T> float (&Image<T>::phase_dir())[3] {
     return head.phase_dir;
 };
 
-float (&Image::slice_dir())[3] {
+template <typename T> float (&Image<T>::slice_dir())[3] {
     return head.slice_dir;
 };
 
-float (&Image::patient_table_position())[3] {
+template <typename T> float (&Image<T>::patient_table_position())[3] {
     return head.patient_table_position;
 };
 
-uint16_t &Image::average() {
+template <typename T> uint16_t &Image<T>::average() {
     return head.average;
 };
 
-uint16_t &Image::slice() {
+template <typename T> uint16_t &Image<T>::slice() {
     return head.slice;
 };
 
-uint16_t &Image::contrast() {
+template <typename T> uint16_t &Image<T>::contrast() {
     return head.contrast;
 };
 
+######YOU ARE HERE ########
 uint16_t &Image::phase() {
     return head.repetition;
 };
@@ -582,6 +544,58 @@ template <typename T> const size_t NDArray<T>::getNumberOfElements() {
 
 
 // Specializations
+// Allowed data types for Images and NDArrays
+EXPORTISMRMRD template <> ISMRMRD_DataTypes get_data_type<uint16_t>()
+{
+    return ISMRMRD_USHORT;
+}
+
+EXPORTISMRMRD template <> inline ISMRMRD_DataTypes get_data_type<int16_t>()
+{
+    return ISMRMRD_SHORT;
+}
+
+EXPORTISMRMRD template <> inline ISMRMRD_DataTypes get_data_type<uint32_t>()
+{
+    return ISMRMRD_UINT;
+}
+
+EXPORTISMRMRD template <> inline ISMRMRD_DataTypes get_data_type<int32_t>()
+{
+    return ISMRMRD_INT;
+}
+
+EXPORTISMRMRD template <> inline ISMRMRD_DataTypes get_data_type<float>()
+{
+    return ISMRMRD_FLOAT;
+}
+
+EXPORTISMRMRD template <> inline ISMRMRD_DataTypes get_data_type<double>()
+{
+    return ISMRMRD_DOUBLE;
+}
+
+EXPORTISMRMRD template <> inline ISMRMRD_DataTypes get_data_type<complex_float_t>()
+{
+    return ISMRMRD_CXFLOAT;
+}
+
+EXPORTISMRMRD template <> inline ISMRMRD_DataTypes get_data_type<complex_double_t>()
+{
+    return ISMRMRD_CXDOUBLE;
+}
+
+// Images
+template EXPORTISMRMRD class Image<uint16_t>;
+template EXPORTISMRMRD class Image<int16_t>;
+template EXPORTISMRMRD class Image<uint32_t>;
+template EXPORTISMRMRD class Image<int32_t>;
+template EXPORTISMRMRD class Image<float>;
+template EXPORTISMRMRD class Image<double>;
+template EXPORTISMRMRD class Image<complex_float_t>;
+template EXPORTISMRMRD class Image<complex_double_t>;
+
+// NDArrays
 template EXPORTISMRMRD class NDArray<uint16_t>;
 template EXPORTISMRMRD class NDArray<int16_t>;
 template EXPORTISMRMRD class NDArray<uint32_t>;
