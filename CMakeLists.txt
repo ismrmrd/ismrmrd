@@ -5,6 +5,9 @@ project(ISMRMRD)
 set (ISMRMRD_CMAKE_DIR ${PROJECT_SOURCE_DIR}/cmake CACHE PATH
   "Location of CMake scripts")
 
+# command line options
+option(USE_SYSTEM_PUGIXML "Use pugixml installed on the system" OFF)
+
 # and include it to the search list
 list(APPEND CMAKE_MODULE_PATH ${ISMRMRD_CMAKE_DIR})
 
@@ -109,26 +112,48 @@ if (WIN32)
 endif (WIN32)
 
 # include directories for main library
-include_directories(
+set(ISMRMRD_TARGET_INCLUDE_DIRS
   include
   ${HDF5_C_INCLUDE_DIR}
 )
 
-# main library
-add_library(ismrmrd SHARED 
+set(ISMRMRD_TARGET_SOURCES
   libsrc/ismrmrd.c
   libsrc/ismrmrd.cpp
   libsrc/dataset.c
   libsrc/dataset.cpp
   libsrc/xml.cpp
   libsrc/meta.cpp
-  libsrc/pugixml.cpp
 )
+
+set(ISMRMRD_TARGET_LINK_LIBS ${HDF5_LIBRARIES})
+
+# optional handling of system-installed pugixml
+if(USE_SYSTEM_PUGIXML)
+  find_package(PugiXML)
+  if(PugiXML_FOUND)
+    message("Found system pugixml: ${PugiXML_INCLUDE_DIR} ${PugiXML_LIBRARY}")
+    list(APPEND ISMRMRD_TARGET_INCLUDE_DIRS ${PugiXML_INCLUDE_DIR})
+    list(APPEND ISMRMRD_TARGET_LINK_LIBS ${PugiXML_LIBRARY})
+  else(PugiXML_FOUND)
+    message(FATAL_ERROR "Pugixml library not found on the system, try without "
+    "setting USE_SYSTEM_PUGIXML to use the version provided in the source "
+    "tree.")
+  endif(PugiXML_FOUND)
+  list(APPEND ISMRMRD_TARGET_INCLUDE_DIRS ${PugiXML_INCLUDE_DIR})
+  list(APPEND ISMRMRD_TARGET_LINK_LIBS ${PugiXML_LIBRARY})
+else(USE_SYSTEM_PUGIXML)
+  list(APPEND ISMRMRD_TARGET_SOURCES libsrc/pugixml.cpp)
+endif(USE_SYSTEM_PUGIXML)
+
+# main library
+include_directories(${ISMRMRD_TARGET_INCLUDE_DIRS})
+add_library(ismrmrd SHARED ${ISMRMRD_TARGET_SOURCES})
 set_target_properties(ismrmrd PROPERTIES
   VERSION ${ISMRMRD_VERSION_STRING}
   SOVERSION ${ISMRMRD_SOVERSION}
 )
-target_link_libraries(ismrmrd ${HDF5_LIBRARIES})
+target_link_libraries(ismrmrd ${ISMRMRD_TARGET_LINK_LIBS})
 
 # install the main library
 install(TARGETS ismrmrd DESTINATION lib)

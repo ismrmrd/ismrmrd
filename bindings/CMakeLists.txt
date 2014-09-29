@@ -16,11 +16,4 @@ if(SWIG_FOUND)
         message("PythonLibs not found. Not building Python bindings")
     endif(PYTHONLIBS_FOUND)
 
-    find_package(JNI)
-    if(JNI_FOUND)
-        add_subdirectory(java)
-    else(JNI_FOUND)
-        message("Java Native Interface not found. Not building Java bindings")
-    endif(JNI_FOUND)
-
 endif(SWIG_FOUND)
