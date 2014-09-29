@@ -601,15 +601,17 @@ int append_element(const ISMRMRD_Dataset * dset, const char * path, void * elem,
 /********************/
 int ismrmrd_init_dataset(ISMRMRD_Dataset *dset, const char *filename, const char *groupname) {
     if (dset) {
-        dset->filename = strdup(filename);
+        dset->filename = (char *) malloc(strlen(filename) + 1);
         if (dset->filename == NULL) {
             return ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to malloc dataset groupname");
         }
+        strcpy(dset->filename, filename);
         
-        dset->groupname = strdup(groupname);
+        dset->groupname = (char *) malloc(strlen(groupname) + 1);
         if (dset->groupname == NULL) {
             return ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to malloc dataset groupname");
         }
+        strcpy(dset->groupname, groupname);
 
         dset->fileid = 0;
         return ISMRMRD_NOERROR;
