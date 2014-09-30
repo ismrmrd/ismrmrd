@@ -1,16 +1,32 @@
 #include <string.h>
 #include <stdlib.h>
+#include <sstream>
+#include <stdexcept>
 
 #include "ismrmrd/ismrmrd.h"
 
 namespace ISMRMRD {
+
+std::string build_exception_string(void)
+{
+    char *file = NULL, *func = NULL, *msg = NULL;
+    int line = 0, code = 0;
+    std::stringstream stream;
+    while (ismrmrd_pop_error(&file, &line, &func, &code, &msg)) {
+        stream << "ISMRMRD " << ismrmrd_strerror(code) << " in " << func <<
+                " (" << file << ":" << line << ": " << msg << std::endl;
+    }
+    return stream.str();
+}
 
 //
 // AcquisitionHeader class implementation
 //
 // Constructors
 AcquisitionHeader::AcquisitionHeader() {
-    ismrmrd_init_acquisition_header(this);
+    if (ismrmrd_init_acquisition_header(this) != ISMRMRD_NOERROR) {
+        throw std::runtime_error(build_exception_string());
+    }
 }
 
 // Flag methods
@@ -37,27 +53,45 @@ void AcquisitionHeader::clearAllFlags() {
 //
 // Constructors, assignment operator, destructor
 Acquisition::Acquisition() {
-    ismrmrd_init_acquisition(this);
+    if (ismrmrd_init_acquisition(this) != ISMRMRD_NOERROR) {
+        throw std::runtime_error(build_exception_string());
+    }
 }
 
 Acquisition::Acquisition(const Acquisition &other) {
+    int err = 0;
     // This is a deep copy
-    ismrmrd_init_acquisition(this);
-    ismrmrd_copy_acquisition(this, &other);
+    err = ismrmrd_init_acquisition(this);
+    if (err) {
+        throw std::runtime_error(build_exception_string());
+    }
+    err = ismrmrd_copy_acquisition(this, &other);
+    if (err) {
+        throw std::runtime_error(build_exception_string());
+    }
 }
 
 Acquisition & Acquisition::operator= (const Acquisition &other) {
     // Assignment makes a copy
+    int err = 0;
     if (this != &other )
     {
-        ismrmrd_init_acquisition(this);
-        ismrmrd_copy_acquisition(this, &other);
+        err = ismrmrd_init_acquisition(this);
+        if (err) {
+            throw std::runtime_error(build_exception_string());
+        }
+        err = ismrmrd_copy_acquisition(this, &other);
+        if (err) {
+            throw std::runtime_error(build_exception_string());
+        }
     }
     return *this;
 }
 
 Acquisition::~Acquisition() {
-    ismrmrd_cleanup_acquisition(this);
+    if (ismrmrd_cleanup_acquisition(this) != ISMRMRD_NOERROR) {
+        throw std::runtime_error(build_exception_string());
+    }
 }
 
 // Accessors and mutators
@@ -91,7 +125,9 @@ const uint16_t &Acquisition::number_of_samples() {
 
 void Acquisition::number_of_samples(uint16_t num_samples) {
     head.number_of_samples = num_samples;
-    ismrmrd_make_consistent_acquisition(this);
+    if (ismrmrd_make_consistent_acquisition(this) != ISMRMRD_NOERROR) {
+        throw std::runtime_error(build_exception_string());
+    }
 }
 
 uint16_t &Acquisition::available_channels() {
@@ -104,7 +140,9 @@ const uint16_t &Acquisition::active_channels() {
 
 void Acquisition::active_channels(uint16_t num_channels) {
     head.active_channels = num_channels;
-    ismrmrd_make_consistent_acquisition(this);
+    if (ismrmrd_make_consistent_acquisition(this) != ISMRMRD_NOERROR) {
+        throw std::runtime_error(build_exception_string());
+    }
 }
 
 const uint64_t (&Acquisition::channel_mask()) [ISMRMRD_CHANNEL_MASKS] {
@@ -133,7 +171,9 @@ const uint16_t &Acquisition::trajectory_dimensions() {
 
 void Acquisition::trajectory_dimensions(uint16_t traj_dim) {
     head.trajectory_dimensions =  traj_dim;
-    ismrmrd_make_consistent_acquisition(this);
+    if (ismrmrd_make_consistent_acquisition(this) != ISMRMRD_NOERROR) {
+        throw std::runtime_error(build_exception_string());
+    }
 }
 
 
@@ -192,7 +232,9 @@ AcquisitionHeader & Acquisition::getHead() {
 
 void Acquisition::setHead(const AcquisitionHeader other) {
     memcpy(&head, &other, sizeof(AcquisitionHeader));
-    ismrmrd_make_consistent_acquisition(this);
+    if (ismrmrd_make_consistent_acquisition(this) != ISMRMRD_NOERROR) {
+        throw std::runtime_error(build_exception_string());
+    }
 }
 
 complex_float_t * Acquisition::getData() {
@@ -225,7 +267,9 @@ void Acquisition::clearAllFlags() {
 
 // Constructor
 ImageHeader::ImageHeader() {
-    ismrmrd_init_image_header(this);
+    if (ismrmrd_init_image_header(this) != ISMRMRD_NOERROR) {
+        throw std::runtime_error(build_exception_string());
+    }
 };
 
 // Flag methods
@@ -255,30 +299,48 @@ template <typename T> Image<T>::Image(uint16_t matrix_size_x,
                                       uint16_t matrix_size_z,
                                       uint16_t channels)
 {
-    ismrmrd_init_image(this);
+    if (ismrmrd_init_image(this) != ISMRMRD_NOERROR) {
+        throw std::runtime_error(build_exception_string());
+    }
     this->head.data_type = get_data_type<T>();
     this->resize(matrix_size_x, matrix_size_y, matrix_size_z, channels);
 }
 
 template <typename T> Image<T>::Image(const Image<T> &other) {
+    int err = 0;
     // This is a deep copy
-    ismrmrd_init_image(this);
-    ismrmrd_copy_image(this, &other);
+    err = ismrmrd_init_image(this);
+    if (err) {
+        throw std::runtime_error(build_exception_string());
+    }
+    err = ismrmrd_copy_image(this, &other);
+    if (err) {
+        throw std::runtime_error(build_exception_string());
+    }
 }
 
 template <typename T> Image<T> & Image<T>::operator= (const Image<T> &other)
 {
+    int err = 0;
     // Assignment makes a copy
     if (this != &other )
     {
-        ismrmrd_init_image(this);
-        ismrmrd_copy_image(this, &other);
+        err = ismrmrd_init_image(this);
+        if (err) {
+            throw std::runtime_error(build_exception_string());
+        }
+        err = ismrmrd_copy_image(this, &other);
+        if (err) {
+            throw std::runtime_error(build_exception_string());
+        }
     }
     return *this;
 }
 
 template <typename T> Image<T>::~Image() {
-    ismrmrd_cleanup_image(this);
+    if (ismrmrd_cleanup_image(this) != ISMRMRD_NOERROR) {
+        throw std::runtime_error(build_exception_string());
+    }
 }
 
 // Image dimensions
@@ -302,7 +364,9 @@ template <typename T> void Image<T>::resize(uint16_t matrix_size_x,
     this->head.matrix_size[1] = matrix_size_y;
     this->head.matrix_size[2] = matrix_size_z;
     this->head.channels = channels;
-    ismrmrd_make_consistent_image(this);    
+    if (ismrmrd_make_consistent_image(this) != ISMRMRD_NOERROR) {
+        throw std::runtime_error(build_exception_string());
+    }
 }
 
 template <typename T> uint16_t Image<T>::getMatrixSizeX() const
@@ -314,7 +378,9 @@ template <typename T> void Image<T>::setMatrixSizeX(uint16_t matrix_size_x)
 {
     // TODO what if matrix_size_x = 0?
     this->head.matrix_size[0] = matrix_size_x;
-    ismrmrd_make_consistent_image(this);    
+    if (ismrmrd_make_consistent_image(this) != ISMRMRD_NOERROR) {
+        throw std::runtime_error(build_exception_string());
+    }
 }
 
 template <typename T> uint16_t Image<T>::getMatrixSizeY() const
@@ -328,7 +394,9 @@ template <typename T> void Image<T>::setMatrixSizeY(uint16_t matrix_size_y)
         matrix_size_y = 1;
     }
     this->head.matrix_size[1] = matrix_size_y;
-    ismrmrd_make_consistent_image(this);    
+    if (ismrmrd_make_consistent_image(this) != ISMRMRD_NOERROR) {
+        throw std::runtime_error(build_exception_string());
+    }
 }
 
 template <typename T> uint16_t Image<T>::getMatrixSizeZ() const
@@ -342,7 +410,9 @@ template <typename T> void Image<T>::setMatrixSizeZ(uint16_t matrix_size_z)
         matrix_size_z = 1;
     }
     this->head.matrix_size[2] = matrix_size_z;
-    ismrmrd_make_consistent_image(this);    
+    if (ismrmrd_make_consistent_image(this) != ISMRMRD_NOERROR) {
+        throw std::runtime_error(build_exception_string());
+    }
 }
 
 template <typename T> uint16_t Image<T>::getNumberOfChannels() const
@@ -355,8 +425,11 @@ template <typename T> void Image<T>::setNumberOfChannels(uint16_t channels)
     if (channels == 0) {
         channels = 1;
     }
+
     this->head.channels = channels;
-    ismrmrd_make_consistent_image(this);    
+    if (ismrmrd_make_consistent_image(this) != ISMRMRD_NOERROR) {
+        throw std::runtime_error(build_exception_string());
+    }
 }
 
 
@@ -662,7 +735,9 @@ template <typename T> ImageHeader &Image<T>::getHead() {
 
 template <typename T> void Image::setHead<T>(const ImageHeader other) {
     memcpy(&head, &other, sizeof(ImageHeader));
-    ismrmrd_make_consistent_image(this);
+    if (ismrmrd_make_consistent_image(this) != ISMRMRD_NOERROR) {
+        throw std::runtime_error(build_exception_string());
+    }
 }
 
 template <typename T> void Image<T>::setAttributeString(std::string attr) {
@@ -709,35 +784,55 @@ template <typename T> void Image<T>::clearAllFlags() {
 //
 template <typename T> NDArray<T>::NDArray()
 {
-    ismrmrd_init_ndarray(this);
+    if (ismrmrd_init_ndarray(this) != ISMRMRD_NOERROR) {
+        throw std::runtime_error(build_exception_string());
+    }
     data_type = get_data_type<T>();
 }
 
 template <typename T> NDArray<T>::NDArray(const std::vector<size_t> dimvec)
 {
-    ismrmrd_init_ndarray(this);
+    if (ismrmrd_init_ndarray(this) != ISMRMRD_NOERROR) {
+        throw std::runtime_error(build_exception_string());
+    }
     data_type = get_data_type<T>();
     resize(dimvec);
 }
 
 template <typename T> NDArray<T>::NDArray(const NDArray<T> &other)
 {
-    ismrmrd_init_ndarray(this);
-    ismrmrd_copy_ndarray(this, &other);
+    int err = 0;
+    err = ismrmrd_init_ndarray(this);
+    if (err) {
+        throw std::runtime_error(build_exception_string());
+    }
+    err = ismrmrd_copy_ndarray(this, &other);
+    if (err) {
+        throw std::runtime_error(build_exception_string());
+    }
 }
 
 template <typename T> NDArray<T>::~NDArray()
 {
-    ismrmrd_cleanup_ndarray(this);
+    if (ismrmrd_cleanup_ndarray(this) != ISMRMRD_NOERROR) {
+        throw std::runtime_error(build_exception_string());
+    }
 }
 
 template <typename T> NDArray<T> & NDArray<T>::operator= (const NDArray<T> &other)
 {
+    int err = 0;
     // Assignment makes a copy
     if (this != &other )
     {
-        ismrmrd_init_ndarray(this);
-        ismrmrd_copy_ndarray(this, &other);
+        err = ismrmrd_init_ndarray(this);
+        if (err) {
+            throw std::runtime_error(build_exception_string());
+        }
+        err = ismrmrd_copy_ndarray(this, &other);
+        if (err) {
+            throw std::runtime_error(build_exception_string());
+        }
     }
     return *this;
 }
@@ -758,17 +853,17 @@ template <typename T> const size_t (&NDArray<T>::getDims())[ISMRMRD_NDARRAY_MAXD
     return dims;
 };
 
-template <typename T> int NDArray<T>::resize(const std::vector<size_t> dimvec) {
+template <typename T> void NDArray<T>::resize(const std::vector<size_t> dimvec) {
     if (dimvec.size() > ISMRMRD_NDARRAY_MAXDIM) {
-        // TODO throw exception
-        return ISMRMRD_MEMORYERROR;
+        throw std::runtime_error("Input vector dimvec is too long.");
     }
     ndim = dimvec.size();
     for (int n=0; n<ndim; n++) {
         dims[n] = dimvec[n];
     }
-    int status=ismrmrd_make_consistent_ndarray(this);
-    return status;
+    if (ismrmrd_make_consistent_ndarray(this) != ISMRMRD_NOERROR) {
+        throw std::runtime_error(build_exception_string());
+    }
 }
 
 template <typename T> T * NDArray<T>::getData() {

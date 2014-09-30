@@ -416,6 +416,9 @@ EXPORTISMRMRD void ismrmrd_quaternion_to_directions(float quat[4], float read_di
 
 ///  ISMRMRD C++ Interface
 
+/// Construct exception message from ISMRMRD error stack
+std::string build_exception_string(void);
+
 /// Some typedefs to beautify the namespace
 typedef  ISMRMRD_EncodingCounters EncodingCounters;
 
@@ -707,7 +710,7 @@ public:
     const uint16_t getNDim();
     const size_t (&getDims())[ISMRMRD_NDARRAY_MAXDIM];
     const size_t getDataSize();
-    int resize(const std::vector<size_t> dimvec);
+    void resize(const std::vector<size_t> dimvec);
     const size_t getNumberOfElements();
     T * getData();
 
