@@ -8,7 +8,11 @@ namespace ISMRMRD
   {
     pugi::xml_document doc;
     pugi::xml_parse_result result = doc.load(xml);
-    //TODO should something be done with result?
+    
+    if (!result) {
+      throw std::runtime_error("Unable to load ISMRMRD Meta XML document");
+    }
+
     pugi::xml_node root = doc.child("ismrmrdMeta");
 
     if (!root) {
