@@ -302,8 +302,8 @@ template <typename T> Image<T>::Image(uint16_t matrix_size_x,
     if (ismrmrd_init_image(this) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
-    this->head.data_type = get_data_type<T>();
-    this->resize(matrix_size_x, matrix_size_y, matrix_size_z, channels);
+    head.data_type = get_data_type<T>();
+    resize(matrix_size_x, matrix_size_y, matrix_size_z, channels);
 }
 
 template <typename T> Image<T>::Image(const Image<T> &other) {
@@ -360,10 +360,10 @@ template <typename T> void Image<T>::resize(uint16_t matrix_size_x,
         channels = 1;
     }
     
-    this->head.matrix_size[0] = matrix_size_x;
-    this->head.matrix_size[1] = matrix_size_y;
-    this->head.matrix_size[2] = matrix_size_z;
-    this->head.channels = channels;
+    head.matrix_size[0] = matrix_size_x;
+    head.matrix_size[1] = matrix_size_y;
+    head.matrix_size[2] = matrix_size_z;
+    head.channels = channels;
     if (ismrmrd_make_consistent_image(this) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
@@ -371,13 +371,13 @@ template <typename T> void Image<T>::resize(uint16_t matrix_size_x,
 
 template <typename T> uint16_t Image<T>::getMatrixSizeX() const
 {
-    return this->head.matrix_size[0];
+    return head.matrix_size[0];
 }
 
 template <typename T> void Image<T>::setMatrixSizeX(uint16_t matrix_size_x)
 {
     // TODO what if matrix_size_x = 0?
-    this->head.matrix_size[0] = matrix_size_x;
+    head.matrix_size[0] = matrix_size_x;
     if (ismrmrd_make_consistent_image(this) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
@@ -385,7 +385,7 @@ template <typename T> void Image<T>::setMatrixSizeX(uint16_t matrix_size_x)
 
 template <typename T> uint16_t Image<T>::getMatrixSizeY() const
 {
-    return this->head.matrix_size[1];
+    return head.matrix_size[1];
 }
 
 template <typename T> void Image<T>::setMatrixSizeY(uint16_t matrix_size_y)
@@ -393,7 +393,7 @@ template <typename T> void Image<T>::setMatrixSizeY(uint16_t matrix_size_y)
     if (matrix_size_y == 0) {
         matrix_size_y = 1;
     }
-    this->head.matrix_size[1] = matrix_size_y;
+    head.matrix_size[1] = matrix_size_y;
     if (ismrmrd_make_consistent_image(this) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
@@ -401,7 +401,7 @@ template <typename T> void Image<T>::setMatrixSizeY(uint16_t matrix_size_y)
 
 template <typename T> uint16_t Image<T>::getMatrixSizeZ() const
 {
-    return this->head.matrix_size[2];
+    return head.matrix_size[2];
 }
 
 template <typename T> void Image<T>::setMatrixSizeZ(uint16_t matrix_size_z)
@@ -409,7 +409,7 @@ template <typename T> void Image<T>::setMatrixSizeZ(uint16_t matrix_size_z)
     if (matrix_size_z == 0) {
         matrix_size_z = 1;
     }
-    this->head.matrix_size[2] = matrix_size_z;
+    head.matrix_size[2] = matrix_size_z;
     if (ismrmrd_make_consistent_image(this) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
@@ -417,7 +417,7 @@ template <typename T> void Image<T>::setMatrixSizeZ(uint16_t matrix_size_z)
 
 template <typename T> uint16_t Image<T>::getNumberOfChannels() const
 {
-    return this->head.channels;
+    return head.channels;
 }
 
 template <typename T> void Image<T>::setNumberOfChannels(uint16_t channels)
@@ -426,7 +426,7 @@ template <typename T> void Image<T>::setNumberOfChannels(uint16_t channels)
         channels = 1;
     }
 
-    this->head.channels = channels;
+    head.channels = channels;
     if (ismrmrd_make_consistent_image(this) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
@@ -435,334 +435,390 @@ template <typename T> void Image<T>::setNumberOfChannels(uint16_t channels)
 
 template <typename T> void Image<T>::setFieldOfView(float fov_x, float fov_y, float fov_z)
 {
-    this->head.field_of_view[0] = fov_x;
-    this->head.field_of_view[1] = fov_y;
-    this->head.field_of_view[2] = fov_z;
+    head.field_of_view[0] = fov_x;
+    head.field_of_view[1] = fov_y;
+    head.field_of_view[2] = fov_z;
 }
 
 template <typename T> void Image<T>::setFieldOfViewX(float fov_x)
 {
-    this->head.field_of_view[0] = fov_x;
+    head.field_of_view[0] = fov_x;
 }
 
 template <typename T> float Image<T>::getFieldOfViewX() const
 {
-    return this->head.field_of_view[0];
+    return head.field_of_view[0];
 }
 
 template <typename T> void Image<T>::setFieldOfViewY(float fov_y)
 {
-    this->head.field_of_view[1] = fov_y;
+    head.field_of_view[1] = fov_y;
 }
 
 template <typename T> float Image<T>::getFieldOfViewY() const
 {
-    return this->head.field_of_view[1];
+    return head.field_of_view[1];
 }
 
 template <typename T> void Image<T>::setFieldOfViewZ(float fov_z)
 {
-    this->head.field_of_view[2] = fov_z;
+    head.field_of_view[2] = fov_z;
 }
 
 template <typename T> float Image<T>::getFieldOfViewZ() const
 {
-    return this->head.field_of_view[2];
+    return head.field_of_view[2];
 }
 
 
 // Positions and orientations
 template <typename T> void Image<T>::setPosition(float x, float y, float z)
 {
-    this->head.position[0] = x;
-    this->head.position[1] = y;
-    this->head.position[2] = z;
+    head.position[0] = x;
+    head.position[1] = y;
+    head.position[2] = z;
 }
 
 template <typename T> float Image<T>::getPositionX() const
 {
-    return this->head.position[0];
+    return head.position[0];
 }
 
 template <typename T> void Image<T>::setPositionX(float x)
 {
-    this->head.position[0] = x;
+    head.position[0] = x;
 }
 
 template <typename T> float Image<T>::getPositionY() const
 {
-    return this->head.position[1];
+    return head.position[1];
 }
 
 template <typename T> void Image<T>::setPositionY(float y)
 {
-    this->head.position[1] = y;
+    head.position[1] = y;
 }
 
 template <typename T> float Image<T>::getPositionZ() const
 {
-    return this->head.position[2];
+    return head.position[2];
 }
 
 template <typename T> void Image<T>::setPositionZ(float z)
 {
-    this->head.position[2] = z;
+    head.position[2] = z;
 }
 
 
 template <typename T> void Image<T>::setReadDirection(float x, float y, float z)
 {
-    this->head.read_dir[0] = x;
-    this->head.read_dir[1] = y;
-    this->head.read_dir[2] = z;
+    head.read_dir[0] = x;
+    head.read_dir[1] = y;
+    head.read_dir[2] = z;
 }
 
 template <typename T> float Image<T>::getReadDirectionX() const
 {
-    return this->head.read_dir[0];
+    return head.read_dir[0];
 }
 
 template <typename T> void Image<T>::setReadDirectionX(float x)
 {
-    this->head.read_dir[0] = x;
+    head.read_dir[0] = x;
 }
 
 template <typename T> float Image<T>::getReadDirectionY() const
 {
-    return this->head.read_dir[1];
+    return head.read_dir[1];
 }
 
 template <typename T> void Image<T>::setReadDirectionY(float y)
 {
-    this->head.read_dir[1] = y;
+    head.read_dir[1] = y;
 }
 
 template <typename T> float Image<T>::getReadDirectionZ() const
 {
-    return this->head.read_dir[2];
+    return head.read_dir[2];
 }
 
 template <typename T> void Image<T>::setReadDirectionZ(float z)
 {
-    this->head.read_dir[2] = z;    
+    head.read_dir[2] = z;    
 }
 
     
 template <typename T> void Image<T>::setPhaseDirection(float x, float y, float z)
 {
-    this->head.phase_dir[0] = x;
-    this->head.phase_dir[1] = y;
-    this->head.phase_dir[2] = z;
+    head.phase_dir[0] = x;
+    head.phase_dir[1] = y;
+    head.phase_dir[2] = z;
 }
 
 template <typename T> float Image<T>::getPhaseDirectionX() const
 {
-    return this->head.phase_dir[0];
+    return head.phase_dir[0];
 }
 
 template <typename T> void Image<T>::setPhaseDirectionX(float x)
 {
-    this->head.phase_dir[0] = x;
+    head.phase_dir[0] = x;
 }
 
 template <typename T> float Image<T>::getPhaseDirectionY() const
 {
-    return this->head.phase_dir[1];
+    return head.phase_dir[1];
 }
 
 template <typename T> void Image<T>::setPhaseDirectionY(float y)
 {
-    this->head.phase_dir[1] = y;
+    head.phase_dir[1] = y;
 }
 
 template <typename T> float Image<T>::getPhaseDirectionZ() const
 {
-    return this->head.phase_dir[2];
+    return head.phase_dir[2];
 }
 
 template <typename T> void Image<T>::setPhaseDirectionZ(float z)
 {
-    this->head.phase_dir[2] = z;
+    head.phase_dir[2] = z;
 }
 
 template <typename T> void Image<T>::setSliceDirection(float x, float y, float z)
 {
-    this->head.slice_dir[0] = x;
-    this->head.slice_dir[1] = y;
-    this->head.slice_dir[2] = z;
+    head.slice_dir[0] = x;
+    head.slice_dir[1] = y;
+    head.slice_dir[2] = z;
 }
 
 template <typename T> float Image<T>::getSliceDirectionX() const
 {
-    return this->head.slice_dir[0];
+    return head.slice_dir[0];
 }
 
 template <typename T> void Image<T>::setSliceDirectionX(float x)
 {
-    this->head.slice_dir[0] = x;
+    head.slice_dir[0] = x;
 }
 
 template <typename T> float Image<T>::getSliceDirectionY() const
 {
-    return this->head.slice_dir[1];
+    return head.slice_dir[1];
 }
 
 template <typename T> void Image<T>::setSliceDirectionY(float y)
 {
-    this->head.slice_dir[1] = y;
+    head.slice_dir[1] = y;
 }
 
 template <typename T> float Image<T>::getSliceDirectionZ() const
 {
-    return this->head.slice_dir[2];
+    return head.slice_dir[2];
 }
 
 template <typename T> void Image<T>::setSliceDirectionZ(float z)
 {
-    this->head.slice_dir[2] = z;
+    head.slice_dir[2] = z;
 }
     
 template <typename T> void Image<T>::setPatientTablePosition(float x, float y, float z)
 {
-    this->head.patient_table_position[0] = x;
-    this->head.patient_table_position[1] = y;
-    this->head.patient_table_position[2] = z;
+    head.patient_table_position[0] = x;
+    head.patient_table_position[1] = y;
+    head.patient_table_position[2] = z;
 }
 
 template <typename T> float Image<T>::getPatientTablePositionX() const
 {
-    return this->head.patient_table_position[0];
+    return head.patient_table_position[0];
 }
 
 template <typename T> void Image<T>::setPatientTablePositionX(float x)
 {
-    this->head.patient_table_position[0] = x;
+    head.patient_table_position[0] = x;
 }
 
 template <typename T> float Image<T>::getPatientTablePositionY() const
 {
-    return this->head.patient_table_position[1];
+    return head.patient_table_position[1];
 }
 
 template <typename T> void Image<T>::setPatientTablePositionY(float y)
 {
-    this->head.patient_table_position[1] = y;
+    head.patient_table_position[1] = y;
 }
 
 template <typename T> float Image<T>::getPatientTablePositionZ() const
 {
-    return this->head.patient_table_position[2];
+    return head.patient_table_position[2];
 }
 
 template <typename T> void Image<T>::setPatientTablePositionZ(float z)
 {
-    this->head.patient_table_position[2] = z;
+    head.patient_table_position[2] = z;
 }
 
+template <typename T> uint16_t Image<T>::getVersion() const
+{
+    return head.version;
+}
 
-#ifdef YOMAMA
+template <typename T> ISMRMRD_DataTypes Image<T>::getDataType() const
+{
+    return static_cast<ISMRMRD_DataTypes>(head.data_type);
+}
 
-// Accessors and mutators
-template <typename T> const uint64_t &Image<T>::flags() {
-    return head.flags;
-};
-
-template <typename T> uint32_t &Image<T>::measurement_uid() {
+template <typename T> uint32_t Image<T>::getMeasurementUid() const
+{
     return head.measurement_uid;
-};
+}
 
-template <typename T> uint16_t &Image<T>::average() {
+template <typename T> void Image<T>::setMeasurementUid(uint32_t measurement_uid)
+{
+    head.measurement_uid = measurement_uid;
+}
+
+
+template <typename T> uint16_t Image<T>::getAverage() const
+{
     return head.average;
-};
+}
 
-template <typename T> uint16_t &Image<T>::slice() {
+template <typename T> void  Image<T>::setAverage(uint16_t average)
+{
+    head.average = average;
+}
+
+template <typename T> uint16_t Image<T>::getSlice() const
+{
     return head.slice;
-};
+}
 
-template <typename T> uint16_t &Image<T>::contrast() {
+template <typename T> void  Image<T>::setSlice(uint16_t slice)
+{
+    head.slice = slice;
+}
+
+template <typename T> uint16_t Image<T>::getContrast() const
+{
     return head.contrast;
-};
+}
 
-template <typename T> uint16_t &Image<T>::phase() {
+template <typename T> void  Image<T>::setContrast(uint16_t contrast)
+{
+    head.contrast = contrast;
+}
+
+template <typename T> uint16_t Image<T>::getPhase() const
+{
+    return head.phase;
+}
+
+template <typename T> void  Image<T>::setPhase(uint16_t phase)
+{
+    head.phase = phase;
+}
+    
+template <typename T> uint16_t Image<T>::getRepetition() const
+{
     return head.repetition;
-};
+}
 
-template <typename T> uint16_t &Image<T>::repetition() {
-    return head.repetition;
-};
+template <typename T> void  Image<T>::setRepetition(uint16_t repetition)
+{
+    head.repetition = repetition;
+}
 
-template <typename T> uint16_t &Image<T>::set() {
+template <typename T> uint16_t Image<T>::getSet() const
+{
     return head.set;
-};
+}
 
-template <typename T> uint32_t &Image<T>::acquisition_time_stamp() {
+template <typename T> void  Image<T>::setSet(uint16_t set)
+{
+    head.set = set;
+}
+
+template <typename T> uint32_t Image<T>::getAcquisitionTimeStamp() const
+{
     return head.acquisition_time_stamp;
-};
+}
 
-template <typename T> uint32_t (&Image<T>::physiology_time_stamp()) [ISMRMRD_PHYS_STAMPS] { 
-    return head.physiology_time_stamp;
-};
+template <typename T> void  Image<T>::setAcquisitionTimeStamp(uint32_t acquisition_time_stamp)
+{
+    head.acquisition_time_stamp = acquisition_time_stamp;
+}
 
-template <typename T> uint16_t &Image<T>::image_type() {
+template <typename T> uint32_t Image<T>::getPhysiologyTimeStamp(unsigned int stamp_id) const
+{
+    return head.physiology_time_stamp[stamp_id];
+}
+
+template <typename T> void  Image<T>::setPhysiologyTimeStamp(unsigned int stamp_id, uint32_t value)
+{
+    head.physiology_time_stamp[stamp_id] = value;
+}
+
+template <typename T> uint16_t Image<T>::getImageType() const
+{
     return head.image_type;
-};
+}
 
-template <typename T> uint16_t &Image<T>::image_index() {
+template <typename T> void Image<T>::setImageType(uint16_t image_type)
+{
+    head.image_type = image_type;
+}
+
+template <typename T> uint16_t Image<T>::getImageIndex() const
+{
     return head.image_index;
-};
+}
 
-template <typename T> uint16_t &Image<T>::image_series_index() {
+template <typename T> void Image<T>::setImageIndex(uint16_t image_index)
+{
+    head.image_index = image_index;
+}
+
+template <typename T> uint16_t Image<T>::getImageSeriesIndex() const
+{
     return head.image_series_index;
-};
-
-template <typename T> int32_t (&Image<T>::user_int()) [ISMRMRD_USER_INTS] { 
-    return head.user_int;
-};
-
-template <typename T> float (&Image<T>::user_float()) [ISMRMRD_USER_FLOATS] {
-    return head.user_float;
-};
-
-template <typename T> const uint32_t &Image<T>::attribute_string_len() {
-    return head.attribute_string_len;
-};
-
-// Header and data accessors
-template <typename T> ImageHeader &Image<T>::getHead() {
-    // This returns a reference
-    return *static_cast<ImageHeader *>(&head);
 }
 
-template <typename T> void Image::setHead<T>(const ImageHeader other) {
-    memcpy(&head, &other, sizeof(ImageHeader));
-    if (ismrmrd_make_consistent_image(this) != ISMRMRD_NOERROR) {
-        throw std::runtime_error(build_exception_string());
-    }
+template <typename T> void Image<T>::setImageSeriesIndex(uint16_t image_series_index)
+{
+    head.image_series_index = image_series_index;
 }
 
-template <typename T> void Image<T>::setAttributeString(std::string attr) {
-    head.attribute_string_len = attr.length();
-    attribute_string = (char *)realloc(attribute_string, attr.length()+1);
-    strcpy(attribute_string, attr.c_str());
+    
+// User parameters
+template <typename T> float Image<T>::getUserFloat(unsigned int index) const
+{
+    return head.user_float[index];
 }
 
-template <typename T> void Image<T>::getAttributeString(std::string &attr) {
-    attr = std::string(attribute_string);
+template <typename T> void Image<T>::setUserFloat(unsigned int index, float value)
+{
+    head.user_float[index] = value;
 }
 
-template <typename T> T * const Image<T>::getData() {
-     return static_cast<T*>(data);
+template <typename T> int32_t Image<T>::getUserInt(unsigned int index) const
+{
+    return head.user_int[index];
 }
 
-template <typename T> size_t Image<T>::getDataSize() {
-    return ismrmrd_size_of_image_data(this);
+template <typename T> void Image<T>::setUserInt(unsigned int index, int32_t value)
+{
+    head.user_int[index] = value;
 }
-
-#endif  // YOMAMA
 
 
 // Flag methods
-template <typename T> bool Image<T>::isFlagSet(const uint64_t val) {
+template <typename T> uint64_t Image<T>::getFlags() const {
+    return head.flags;
+}
+
+template <typename T> bool Image<T>::isFlagSet(const uint64_t val) const {
     return ismrmrd_is_flag_set(head.flags, val);
 }
 
@@ -776,6 +832,60 @@ template <typename T> void Image<T>::clearFlag(const uint64_t val) {
 
 template <typename T> void Image<T>::clearAllFlags() {
     ismrmrd_clear_all_flags(&(head.flags));
+}
+
+// Header
+template <typename T> ImageHeader &Image<T>::getHead() {
+    // This returns a reference
+    return *static_cast<ImageHeader *>(&head);
+}
+
+template <typename T> void Image<T>::setHead(const ImageHeader &other) {
+    if (other.data_type != head.data_type) {
+        throw std::runtime_error("Cannot assign a header of a different data type.");
+    }
+    
+    memcpy(&head, &other, sizeof(ImageHeader));
+    if (ismrmrd_make_consistent_image(this) != ISMRMRD_NOERROR) {
+        throw std::runtime_error(build_exception_string());
+    }
+}
+
+// Attribute string
+template <typename T> void Image<T>::getAttributeString(std::string &attr) const
+{
+    attr = std::string(attribute_string);
+}
+
+template <typename T> void Image<T>::setAttributeString(const std::string attr)
+{
+    head.attribute_string_len = attr.length();
+    attribute_string = (char *)realloc(attribute_string, attr.length()+1);
+    // TODO error check?
+    strcpy(attribute_string, attr.c_str());
+}
+
+template <typename T> const size_t Image<T>::getAttributeStringLength()
+{
+    return head.attribute_string_len;
+}
+
+// Data
+template <typename T> T * const Image<T>::getData() const {
+     return static_cast<T*>(data);
+}
+
+template <typename T> size_t Image<T>::getNumberOfDataElements() const {
+    size_t num = 1;
+    num *= head.matrix_size[0];
+    num *= head.matrix_size[1];
+    num *= head.matrix_size[2];
+    num *= head.channels;
+    return ismrmrd_size_of_image_data(this);
+}
+
+template <typename T> size_t Image<T>::getDataSize() const {
+    return ismrmrd_size_of_image_data(this);
 }
 
 

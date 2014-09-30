@@ -621,8 +621,8 @@ public:
 
     
     // Attributes
-    const uint16_t getVersion() const;
-    const uint16_t getDataType() const;
+    uint16_t getVersion() const;
+    ISMRMRD_DataTypes getDataType() const;
 
     // Counters and labels
     uint32_t getMeasurementUid() const;
@@ -671,26 +671,24 @@ public:
     // Flags
     uint64_t getFlags() const;
     void setFlags(const uint64_t flags);
-    bool isFlagSet(const uint64_t val);
+    bool isFlagSet(const uint64_t val) const;
     void setFlag(const uint64_t val);
     void clearFlag(const uint64_t val);
     void clearAllFlags();
 
     // Header
-    const ImageHeader & getHead() const;
+    ImageHeader & getHead();
     void setHead(const ImageHeader& head);
     
     // Attribute string
-    char const * getAttributString() const;
-    void setAttributString(const char * attr);
     void getAttributeString(std::string &atrr) const;
     void setAttributeString(const std::string attr);
     const size_t getAttributeStringLength();
     
     // Data
     T * const getData() const;
-    const size_t getNumberOfDataElements() const;
-    const size_t getDataSize() const;
+    size_t getNumberOfDataElements() const;
+    size_t getDataSize() const;
 };
 
 /// N-Dimensional array type
