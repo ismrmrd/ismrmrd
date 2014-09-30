@@ -7,18 +7,6 @@
 
 namespace ISMRMRD {
 
-std::string build_exception_string(void)
-{
-    char *file = NULL, *func = NULL, *msg = NULL;
-    int line = 0, code = 0;
-    std::stringstream stream;
-    while (ismrmrd_pop_error(&file, &line, &func, &code, &msg)) {
-        stream << "ISMRMRD " << ismrmrd_strerror(code) << " in " << func <<
-                " (" << file << ":" << line << ": " << msg << std::endl;
-    }
-    return stream.str();
-}
-
 //
 // AcquisitionHeader class implementation
 //
@@ -1054,5 +1042,23 @@ template EXPORTISMRMRD class NDArray<float>;
 template EXPORTISMRMRD class NDArray<double>;
 template EXPORTISMRMRD class NDArray<complex_float_t>;
 template EXPORTISMRMRD class NDArray<complex_double_t>;
+
+
+// Helper function for generating exception message from ISMRMRD error stack
+std::string build_exception_string(void)
+{
+    char *file = NULL, *func = NULL, *msg = NULL;
+    int line = 0, code = 0;
+    std::stringstream stream;
+    for (int i = 0; ismrmrd_pop_error(&file, &line, &func, &code, &msg); ++i) {
+        if (i > 0) {
+            stream << std::endl;
+        }
+        stream << "ISMRMRD " << ismrmrd_strerror(code) << " in " << func <<
+                " (" << file << ":" << line << ": " << msg;
+    }
+    return stream.str();
+}
+
 
 } // namespace ISMRMRD

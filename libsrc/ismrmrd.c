@@ -695,7 +695,8 @@ char *ismrmrd_strerror(int code) {
         "Memory Error",
         "File Error",
         "Type Error",
-        "Runtime Error"
+        "Runtime Error",
+        "HDF5 Error",
     };
     return error_messages[code];
 }

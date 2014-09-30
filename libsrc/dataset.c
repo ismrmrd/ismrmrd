@@ -451,7 +451,15 @@ static hid_t get_hdf5type_ndarray(uint16_t data_type) {
     }
     return hdfdatatype;
 }
-    
+
+static herr_t walk_hdf5_errors(unsigned int n, const H5E_error2_t *desc, void *client_data)
+{
+    (void)n;
+    (void)client_data;
+    ismrmrd_push_error(desc->file_name, desc->line, desc->func_name, ISMRMRD_HDF5ERROR, desc->desc);
+    return 0;
+}
+
 uint32_t get_number_of_elements(const ISMRMRD_Dataset *dset, const char * path)
 {
     if (dset) {
@@ -600,6 +608,8 @@ int append_element(const ISMRMRD_Dataset * dset, const char * path, void * elem,
 /* Public functions */
 /********************/
 int ismrmrd_init_dataset(ISMRMRD_Dataset *dset, const char *filename, const char *groupname) {
+    /* Disable HDF5 automatic error printing */
+    H5Eset_auto2(H5E_DEFAULT, NULL, NULL);
     if (dset) {
         dset->filename = (char *) malloc(strlen(filename) + 1);
         if (dset->filename == NULL) {
@@ -617,7 +627,7 @@ int ismrmrd_init_dataset(ISMRMRD_Dataset *dset, const char *filename, const char
         return ISMRMRD_NOERROR;
     }
     else {
-        return ISMRMRD_RUNTIMEERROR;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL");
     }
 }
 
@@ -629,14 +639,15 @@ int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool create_if_needed) {
         /* Try opening the file */
         /* Note the is_hdf5 function doesn't work well when trying to open multiple files */
         /* Suppress errors with the try macro. */
-        H5E_BEGIN_TRY {
+        /* H5E_BEGIN_TRY { */
             fileid = H5Fopen(dset->filename, H5F_ACC_RDWR, H5P_DEFAULT);
-        } H5E_END_TRY
+        /* } H5E_END_TRY */
     
         if (fileid > 0) {
             dset->fileid = fileid;
         }
         else if (create_if_needed == false) {
+            H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
             /* Some sort of error opening the file */
             /* Maybe it doesn't exist? */
             return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to open file.");
@@ -746,11 +757,16 @@ char * ismrmrd_read_header(const ISMRMRD_Dataset *dset) {
     path = make_path(dset, "xml");
         
     if (link_exists(dset, path)) {
-        void *buff[1];
+        void *buff[1] = { NULL };
         dataset = H5Dopen2(dset->fileid, path, H5P_DEFAULT);
         datatype = get_hdf5type_xmlheader();
         /* Read it into a 1D buffer*/
         h5status = H5Dread(dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, buff);
+        if (h5status < 0 || buff[0] == NULL) {
+            ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to read header.");
+            free(path);
+            return NULL;
+        }
         
         /* Unpack */
         xmlstring = (char *) malloc(strlen(buff[0])+1);
@@ -762,14 +778,17 @@ char * ismrmrd_read_header(const ISMRMRD_Dataset *dset) {
         
         /* Clean up */
         h5status = H5Tclose(datatype);
-        h5status = H5Dclose(dataset);
-        free(path);
-        
         if (h5status < 0) {
-            ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to read header.");
+            ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to close XML header HDF5 datatype.");
             return NULL;
         }
-            
+        h5status = H5Dclose(dataset);
+        if (h5status < 0) {
+            ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to close XML header HDF5 dataset.");
+            return NULL;
+        }
+
+        free(path);
         return xmlstring;
     }
     else {
