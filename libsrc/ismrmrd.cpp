@@ -250,11 +250,15 @@ void ImageHeader::clearAllFlags() {
 //
 
 // Constructors
-template <typename T> Image<T>::Image()
+template <typename T> Image<T>::Image(uint16_t matrix_size_x,
+                                      uint16_t matrix_size_y,
+                                      uint16_t matrix_size_z,
+                                      uint16_t channels)
 {
     ismrmrd_init_image(this);
-    data_type = get_data_type<T>();
-};
+    this->head.data_type = get_data_type<T>();
+    this->resize(matrix_size_x, matrix_size_y, matrix_size_z, channels);
+}
 
 template <typename T> Image<T>::Image(const Image<T> &other) {
     // This is a deep copy
@@ -277,83 +281,321 @@ template <typename T> Image<T>::~Image() {
     ismrmrd_cleanup_image(this);
 }
 
+// Image dimensions
+template <typename T> void Image<T>::resize(uint16_t matrix_size_x,
+                                            uint16_t matrix_size_y,
+                                            uint16_t matrix_size_z,
+                                            uint16_t channels)
+{
+    // TODO what if matrix_size_x = 0?
+    if (matrix_size_y == 0) {
+        matrix_size_y = 1;
+    }
+    if (matrix_size_z == 0) {
+        matrix_size_z = 1;
+    }
+    if (channels == 0) {
+        channels = 1;
+    }
+    
+    this->head.matrix_size[0] = matrix_size_x;
+    this->head.matrix_size[1] = matrix_size_y;
+    this->head.matrix_size[2] = matrix_size_z;
+    this->head.channels = channels;
+    ismrmrd_make_consistent_image(this);    
+}
+
+template <typename T> uint16_t Image<T>::getMatrixSizeX() const
+{
+    return this->head.matrix_size[0];
+}
+
+template <typename T> void Image<T>::setMatrixSizeX(uint16_t matrix_size_x)
+{
+    // TODO what if matrix_size_x = 0?
+    this->head.matrix_size[0] = matrix_size_x;
+    ismrmrd_make_consistent_image(this);    
+}
+
+template <typename T> uint16_t Image<T>::getMatrixSizeY() const
+{
+    return this->head.matrix_size[1];
+}
+
+template <typename T> void Image<T>::setMatrixSizeY(uint16_t matrix_size_y)
+{
+    if (matrix_size_y == 0) {
+        matrix_size_y = 1;
+    }
+    this->head.matrix_size[1] = matrix_size_y;
+    ismrmrd_make_consistent_image(this);    
+}
+
+template <typename T> uint16_t Image<T>::getMatrixSizeZ() const
+{
+    return this->head.matrix_size[2];
+}
+
+template <typename T> void Image<T>::setMatrixSizeZ(uint16_t matrix_size_z)
+{
+    if (matrix_size_z == 0) {
+        matrix_size_z = 1;
+    }
+    this->head.matrix_size[2] = matrix_size_z;
+    ismrmrd_make_consistent_image(this);    
+}
+
+template <typename T> uint16_t Image<T>::getNumberOfChannels() const
+{
+    return this->head.channels;
+}
+
+template <typename T> void Image<T>::setNumberOfChannels(uint16_t channels)
+{
+    if (channels == 0) {
+        channels = 1;
+    }
+    this->head.channels = channels;
+    ismrmrd_make_consistent_image(this);    
+}
+
+
+template <typename T> void Image<T>::setFieldOfView(float fov_x, float fov_y, float fov_z)
+{
+    this->head.field_of_view[0] = fov_x;
+    this->head.field_of_view[1] = fov_y;
+    this->head.field_of_view[2] = fov_z;
+}
+
+template <typename T> void Image<T>::setFieldOfViewX(float fov_x)
+{
+    this->head.field_of_view[0] = fov_x;
+}
+
+template <typename T> float Image<T>::getFieldOfViewX() const
+{
+    return this->head.field_of_view[0];
+}
+
+template <typename T> void Image<T>::setFieldOfViewY(float fov_y)
+{
+    this->head.field_of_view[1] = fov_y;
+}
+
+template <typename T> float Image<T>::getFieldOfViewY() const
+{
+    return this->head.field_of_view[1];
+}
+
+template <typename T> void Image<T>::setFieldOfViewZ(float fov_z)
+{
+    this->head.field_of_view[2] = fov_z;
+}
+
+template <typename T> float Image<T>::getFieldOfViewZ() const
+{
+    return this->head.field_of_view[2];
+}
+
+
+// Positions and orientations
+template <typename T> void Image<T>::setPosition(float x, float y, float z)
+{
+    this->head.position[0] = x;
+    this->head.position[1] = y;
+    this->head.position[2] = z;
+}
+
+template <typename T> float Image<T>::getPositionX() const
+{
+    return this->head.position[0];
+}
+
+template <typename T> void Image<T>::setPositionX(float x)
+{
+    this->head.position[0] = x;
+}
+
+template <typename T> float Image<T>::getPositionY() const
+{
+    return this->head.position[1];
+}
+
+template <typename T> void Image<T>::setPositionY(float y)
+{
+    this->head.position[1] = y;
+}
+
+template <typename T> float Image<T>::getPositionZ() const
+{
+    return this->head.position[2];
+}
+
+template <typename T> void Image<T>::setPositionZ(float z)
+{
+    this->head.position[2] = z;
+}
+
+
+template <typename T> void Image<T>::setReadDirection(float x, float y, float z)
+{
+    this->head.read_dir[0] = x;
+    this->head.read_dir[1] = y;
+    this->head.read_dir[2] = z;
+}
+
+template <typename T> float Image<T>::getReadDirectionX() const
+{
+    return this->head.read_dir[0];
+}
+
+template <typename T> void Image<T>::setReadDirectionX(float x)
+{
+    this->head.read_dir[0] = x;
+}
+
+template <typename T> float Image<T>::getReadDirectionY() const
+{
+    return this->head.read_dir[1];
+}
+
+template <typename T> void Image<T>::setReadDirectionY(float y)
+{
+    this->head.read_dir[1] = y;
+}
+
+template <typename T> float Image<T>::getReadDirectionZ() const
+{
+    return this->head.read_dir[2];
+}
+
+template <typename T> void Image<T>::setReadDirectionZ(float z)
+{
+    this->head.read_dir[2] = z;    
+}
+
+    
+template <typename T> void Image<T>::setPhaseDirection(float x, float y, float z)
+{
+    this->head.phase_dir[0] = x;
+    this->head.phase_dir[1] = y;
+    this->head.phase_dir[2] = z;
+}
+
+template <typename T> float Image<T>::getPhaseDirectionX() const
+{
+    return this->head.phase_dir[0];
+}
+
+template <typename T> void Image<T>::setPhaseDirectionX(float x)
+{
+    this->head.phase_dir[0] = x;
+}
+
+template <typename T> float Image<T>::getPhaseDirectionY() const
+{
+    return this->head.phase_dir[1];
+}
+
+template <typename T> void Image<T>::setPhaseDirectionY(float y)
+{
+    this->head.phase_dir[1] = y;
+}
+
+template <typename T> float Image<T>::getPhaseDirectionZ() const
+{
+    return this->head.phase_dir[2];
+}
+
+template <typename T> void Image<T>::setPhaseDirectionZ(float z)
+{
+    this->head.phase_dir[2] = z;
+}
+
+template <typename T> void Image<T>::setSliceDirection(float x, float y, float z)
+{
+    this->head.slice_dir[0] = x;
+    this->head.slice_dir[1] = y;
+    this->head.slice_dir[2] = z;
+}
+
+template <typename T> float Image<T>::getSliceDirectionX() const
+{
+    return this->head.slice_dir[0];
+}
+
+template <typename T> void Image<T>::setSliceDirectionX(float x)
+{
+    this->head.slice_dir[0] = x;
+}
+
+template <typename T> float Image<T>::getSliceDirectionY() const
+{
+    return this->head.slice_dir[1];
+}
+
+template <typename T> void Image<T>::setSliceDirectionY(float y)
+{
+    this->head.slice_dir[1] = y;
+}
+
+template <typename T> float Image<T>::getSliceDirectionZ() const
+{
+    return this->head.slice_dir[2];
+}
+
+template <typename T> void Image<T>::setSliceDirectionZ(float z)
+{
+    this->head.slice_dir[2] = z;
+}
+    
+template <typename T> void Image<T>::setPatientTablePosition(float x, float y, float z)
+{
+    this->head.patient_table_position[0] = x;
+    this->head.patient_table_position[1] = y;
+    this->head.patient_table_position[2] = z;
+}
+
+template <typename T> float Image<T>::getPatientTablePositionX() const
+{
+    return this->head.patient_table_position[0];
+}
+
+template <typename T> void Image<T>::setPatientTablePositionX(float x)
+{
+    this->head.patient_table_position[0] = x;
+}
+
+template <typename T> float Image<T>::getPatientTablePositionY() const
+{
+    return this->head.patient_table_position[1];
+}
+
+template <typename T> void Image<T>::setPatientTablePositionY(float y)
+{
+    this->head.patient_table_position[1] = y;
+}
+
+template <typename T> float Image<T>::getPatientTablePositionZ() const
+{
+    return this->head.patient_table_position[2];
+}
+
+template <typename T> void Image<T>::setPatientTablePositionZ(float z)
+{
+    this->head.patient_table_position[2] = z;
+}
+
+
+#ifdef YOMAMA
+
 // Accessors and mutators
-template <typename T> const uint16_t & Image<T>::version() {
-    return head.version;
-};
-
-template <typename T> const uint16_t &Image<T>::data_type() {
-    return head.data_type;
-};
-
-template <typename T> void Image<T>::data_type(uint16_t dtype) {
-    // TODO function to check if type is valid
-    head.data_type = dtype;
-    ismrmrd_make_consistent_image(this);
-};
-
 template <typename T> const uint64_t &Image<T>::flags() {
     return head.flags;
 };
 
 template <typename T> uint32_t &Image<T>::measurement_uid() {
     return head.measurement_uid;
-};
-
-template <typename T> const uint16_t (&Image<T>::matrix_size())[3] {
-    return head.matrix_size;
-};
-
-template <typename T> void Image<T>::matrix_size(const uint16_t msize[3]) {
-    head.matrix_size[0] = msize[0];
-    if (msize[1] > 1) {
-        head.matrix_size[1] = msize[1];
-    } else {
-        head.matrix_size[1] = 1;
-    }
-    if (msize[2] > 0) {
-        head.matrix_size[2] = msize[2];
-    } else {
-        head.matrix_size[2] = 1;
-    }
-    ismrmrd_make_consistent_image(this);
-};
-
-template <typename T> float (&Image<T>::field_of_view())[3] {
-    return head.field_of_view;
-};
-
-template <typename T> const uint16_t &Image<T>::channels() {
-    return head.channels;
-};
-
-template <typename T> void Image<T>::channels(const uint16_t num_channels) {
-    if (num_channels > 1) {
-        head.channels = num_channels;
-    } else {
-        head.channels = 1;
-    }
-    ismrmrd_make_consistent_image(this);
-};
-
-template <typename T> float (&Image<T>::position())[3] {
-    return head.position;
-};
-
-template <typename T> float (&Image<T>::read_dir())[3] {
-    return head.read_dir;
-};
-
-template <typename T> float (&Image<T>::phase_dir())[3] {
-    return head.phase_dir;
-};
-
-template <typename T> float (&Image<T>::slice_dir())[3] {
-    return head.slice_dir;
-};
-
-template <typename T> float (&Image<T>::patient_table_position())[3] {
-    return head.patient_table_position;
 };
 
 template <typename T> uint16_t &Image<T>::average() {
@@ -368,96 +610,99 @@ template <typename T> uint16_t &Image<T>::contrast() {
     return head.contrast;
 };
 
-######YOU ARE HERE ########
-uint16_t &Image::phase() {
+template <typename T> uint16_t &Image<T>::phase() {
     return head.repetition;
 };
 
-uint16_t &Image::repetition() {
+template <typename T> uint16_t &Image<T>::repetition() {
     return head.repetition;
 };
 
-uint16_t &Image::set() {
+template <typename T> uint16_t &Image<T>::set() {
     return head.set;
 };
 
-uint32_t &Image::acquisition_time_stamp() {
+template <typename T> uint32_t &Image<T>::acquisition_time_stamp() {
     return head.acquisition_time_stamp;
 };
 
-uint32_t (&Image::physiology_time_stamp()) [ISMRMRD_PHYS_STAMPS] { 
+template <typename T> uint32_t (&Image<T>::physiology_time_stamp()) [ISMRMRD_PHYS_STAMPS] { 
     return head.physiology_time_stamp;
 };
 
-uint16_t &Image::image_type() {
+template <typename T> uint16_t &Image<T>::image_type() {
     return head.image_type;
 };
 
-uint16_t &Image::image_index() {
+template <typename T> uint16_t &Image<T>::image_index() {
     return head.image_index;
 };
 
-uint16_t &Image::image_series_index() {
+template <typename T> uint16_t &Image<T>::image_series_index() {
     return head.image_series_index;
 };
 
-int32_t (&Image::user_int()) [ISMRMRD_USER_INTS] { 
+template <typename T> int32_t (&Image<T>::user_int()) [ISMRMRD_USER_INTS] { 
     return head.user_int;
 };
 
-float (&Image::user_float()) [ISMRMRD_USER_FLOATS] {
+template <typename T> float (&Image<T>::user_float()) [ISMRMRD_USER_FLOATS] {
     return head.user_float;
 };
 
-const uint32_t &Image::attribute_string_len() {
+template <typename T> const uint32_t &Image<T>::attribute_string_len() {
     return head.attribute_string_len;
 };
 
 // Header and data accessors
-ImageHeader &Image::getHead() {
+template <typename T> ImageHeader &Image<T>::getHead() {
     // This returns a reference
     return *static_cast<ImageHeader *>(&head);
 }
 
-void Image::setHead(const ImageHeader other) {
+template <typename T> void Image::setHead<T>(const ImageHeader other) {
     memcpy(&head, &other, sizeof(ImageHeader));
     ismrmrd_make_consistent_image(this);
 }
 
-void Image::setAttributeString(std::string attr) {
+template <typename T> void Image<T>::setAttributeString(std::string attr) {
     head.attribute_string_len = attr.length();
     attribute_string = (char *)realloc(attribute_string, attr.length()+1);
     strcpy(attribute_string, attr.c_str());
 }
 
-void Image::getAttributeString(std::string &attr) {
+template <typename T> void Image<T>::getAttributeString(std::string &attr) {
     attr = std::string(attribute_string);
 }
 
-void *Image::getData() {
-    return data;
+template <typename T> T * const Image<T>::getData() {
+     return static_cast<T*>(data);
 }
 
-size_t Image::getDataSize() {
+template <typename T> size_t Image<T>::getDataSize() {
     return ismrmrd_size_of_image_data(this);
 }
 
+#endif  // YOMAMA
+
+
 // Flag methods
-bool Image::isFlagSet(const uint64_t val) {
+template <typename T> bool Image<T>::isFlagSet(const uint64_t val) {
     return ismrmrd_is_flag_set(head.flags, val);
-};
+}
 
-void Image::setFlag(const uint64_t val) {
+template <typename T> void Image<T>::setFlag(const uint64_t val) {
     ismrmrd_set_flag(&(head.flags), val);
-};
+}
 
-void Image::clearFlag(const uint64_t val) {
+template <typename T> void Image<T>::clearFlag(const uint64_t val) {
     ismrmrd_clear_flag(&(head.flags), val);
-};
+}
 
-void Image::clearAllFlags() {
+template <typename T> void Image<T>::clearAllFlags() {
     ismrmrd_clear_all_flags(&(head.flags));
-};
+}
+
 
 //
 // Array class Implementation

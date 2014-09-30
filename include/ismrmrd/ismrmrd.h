@@ -546,58 +546,148 @@ public:
 };
 
 /// MR Image type
-class EXPORTISMRMRD Image : protected ISMRMRD_Image {
+template <typename T> class EXPORTISMRMRD Image : protected ISMRMRD_Image {
 public:
     // Constructors
-    Image();
+    Image(uint16_t matrix_size_x = 0, uint16_t matrix_size_y = 1,
+          uint16_t matrix_size_z = 1, uint16_t channels = 1);
     Image(const Image &other);
     Image & operator= (const Image &other);
     ~Image();
 
-    // Accessors and mutators
-    const uint16_t &version();
-    const uint16_t &data_type();
-    void data_type(uint16_t dtype);
-    const uint64_t &flags();
-    uint32_t &measurement_uid();
-    const uint16_t (&matrix_size())[3];
-    void matrix_size(const uint16_t msize[3]);
-    float (&field_of_view())[3];
-    const uint16_t &channels();
-    void channels(const uint16_t num_channels);
-    float (&position())[3];
-    float (&read_dir())[3];
-    float (&phase_dir())[3];
-    float (&slice_dir())[3];
-    float (&patient_table_position())[3];
-    uint16_t &average();
-    uint16_t &slice();
-    uint16_t &contrast();
-    uint16_t &phase();
-    uint16_t &repetition();
-    uint16_t &set();
-    uint32_t &acquisition_time_stamp();
-    uint32_t (&physiology_time_stamp())[ISMRMRD_PHYS_STAMPS];
-    uint16_t &image_type();
-    uint16_t &image_index();
-    uint16_t &image_series_index();
-    int32_t (&user_int())[ISMRMRD_USER_INTS];
-    float (&user_float())[ISMRMRD_USER_FLOATS];
-    const uint32_t &attribute_string_len();
+    // Image dimensions
+    void resize(uint16_t matrix_size_x, uint16_t matrix_size_y, uint16_t matrix_size_z, uint16_t channels);
+    uint16_t getMatrixSizeX() const;
+    void setMatrixSizeX(uint16_t matrix_size_x);
+    uint16_t getMatrixSizeY() const;
+    void setMatrixSizeY(uint16_t matrix_size_y);
+    uint16_t getMatrixSizeZ() const;
+    void setMatrixSizeZ(uint16_t matrix_size_z);
+    uint16_t getNumberOfChannels() const;
+    void setNumberOfChannels(uint16_t channels);
 
-    // Header and data accessors
-    ImageHeader &getHead();
-    void setHead(const ImageHeader other);
-    void getAttributeString(std::string &atrr);
-    void setAttributeString(const std::string attr);
-    void *getData();
-    size_t getDataSize();
+    // Field of view
+    void setFieldOfView(float fov_x, float fov_y, float fov_z);
+    float getFieldOfViewX() const;
+    void setFieldOfViewX(float f);
+    float getFieldOfViewY() const;
+    void setFieldOfViewY(float f);
+    float getFieldOfViewZ() const;
+    void setFieldOfViewZ(float f);
 
-    // Flag methods
+    // Positions and orientations
+    void setPosition(float x, float y, float z);    
+    float getPositionX() const;
+    void setPositionX(float x);
+    float getPositionY() const;
+    void setPositionY(float y);
+    float getPositionZ() const;
+    void setPositionZ(float z);
+
+    void setReadDirection(float x, float y, float z);
+    float getReadDirectionX() const;
+    void setReadDirectionX(float x);
+    float getReadDirectionY() const;
+    void setReadDirectionY(float y);
+    float getReadDirectionZ() const;
+    void setReadDirectionZ(float z);
+    
+    void setPhaseDirection(float x, float y, float z);
+    float getPhaseDirectionX() const;
+    void setPhaseDirectionX(float x);
+    float getPhaseDirectionY() const;
+    void setPhaseDirectionY(float y);
+    float getPhaseDirectionZ() const;
+    void setPhaseDirectionZ(float z);
+
+    void setSliceDirection(float x, float y, float z);
+    float getSliceDirectionX() const;
+    void setSliceDirectionX(float x);
+    float getSliceDirectionY() const;
+    void setSliceDirectionY(float y);
+    float getSliceDirectionZ() const;
+    void setSliceDirectionZ(float z);
+    
+    void setPatientTablePosition(float x, float y, float z);
+    float getPatientTablePositionX() const;
+    void setPatientTablePositionX(float x);
+    float getPatientTablePositionY() const;
+    void setPatientTablePositionY(float y);
+    float getPatientTablePositionZ() const;
+    void setPatientTablePositionZ(float z);
+
+    
+    // Attributes
+    const uint16_t getVersion() const;
+    const uint16_t getDataType() const;
+
+    // Counters and labels
+    uint32_t getMeasurementUid() const;
+    void setMeasurementUid(uint32_t measurement_uid);
+
+    uint16_t getAverage() const;
+    void setAverage(uint16_t average);
+
+    uint16_t getSlice() const;
+    void setSlice(uint16_t slice);
+    
+    uint16_t getContrast() const;
+    void setContrast(uint16_t contrast);
+
+    uint16_t getPhase() const;
+    void setPhase(uint16_t phase);
+    
+    uint16_t getRepetition() const;
+    void setRepetition(uint16_t repetition);
+
+    uint16_t getSet() const;
+    void setSet(uint16_t set);
+
+    uint32_t getAcquisitionTimeStamp() const;
+    void setAcquisitionTimeStamp(uint32_t acquisition_time_stamp);
+
+    uint32_t getPhysiologyTimeStamp(unsigned int stamp_id) const;
+    void setPhysiologyTimeStamp(unsigned int stamp_id, uint32_t value);
+    
+    uint16_t getImageType() const;
+    void setImageType(uint16_t image_type);
+
+    uint16_t getImageIndex() const;
+    void setImageIndex(uint16_t image_index);
+
+    uint16_t getImageSeriesIndex() const;
+    void setImageSeriesIndex(uint16_t image_series_index);
+    
+    // User parameters
+    float getUserFloat(unsigned int index) const;
+    void setUserFloat(unsigned int index, float value);
+
+    int32_t getUserInt(unsigned int index) const;
+    void setUserInt(unsigned int index, int32_t value);
+
+    // Flags
+    uint64_t getFlags() const;
+    void setFlags(const uint64_t flags);
     bool isFlagSet(const uint64_t val);
     void setFlag(const uint64_t val);
     void clearFlag(const uint64_t val);
     void clearAllFlags();
+
+    // Header
+    const ImageHeader & getHead() const;
+    void setHead(const ImageHeader& head);
+    
+    // Attribute string
+    char const * getAttributString() const;
+    void setAttributString(const char * attr);
+    void getAttributeString(std::string &atrr) const;
+    void setAttributeString(const std::string attr);
+    const size_t getAttributeStringLength();
+    
+    // Data
+    T * const getData() const;
+    const size_t getNumberOfDataElements() const;
+    const size_t getDataSize() const;
 };
 
 /// N-Dimensional array type

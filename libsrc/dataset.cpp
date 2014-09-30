@@ -68,7 +68,7 @@ uint32_t Dataset::getNumberOfAcquisitions()
 }
 
 // Images
-int Dataset::appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const Image &im)
+template <typename T>int Dataset::appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const Image<T> &im)
 {
     int status = ismrmrd_append_image(&dset_, var.c_str(), blockmode, reinterpret_cast<const ISMRMRD_Image*>(&im));
     if (status != ISMRMRD_NOERROR) {
@@ -85,8 +85,18 @@ int Dataset::appendImage(const std::string &var, const ISMRMRD_BlockModes blockm
     }
     return status;
 }
+// Specific instantiations
+template EXPORTISMRMRD int Dataset::appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const Image<uint16_t> &im);
+template EXPORTISMRMRD int Dataset::appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const Image<int16_t> &im);
+template EXPORTISMRMRD int Dataset::appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const Image<uint32_t> &im);
+template EXPORTISMRMRD int Dataset::appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const Image<int32_t> &im);
+template EXPORTISMRMRD int Dataset::appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const Image<float> &im);
+template EXPORTISMRMRD int Dataset::appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const Image<double> &im);
+template EXPORTISMRMRD int Dataset::appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const Image<complex_float_t> &im);
+template EXPORTISMRMRD int Dataset::appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const Image<complex_double_t> &im);
 
-int Dataset::readImage(const std::string &var, uint32_t index, Image &im) {
+
+template <typename T> int Dataset::readImage(const std::string &var, uint32_t index, Image<T> &im) {
     int status = ismrmrd_read_image(&dset_, var.c_str(), index, reinterpret_cast<ISMRMRD_Image*>(&im));
     if (status != ISMRMRD_NOERROR) {
       //TODO throw an exception
@@ -110,6 +120,7 @@ template <typename T> int Dataset::appendNDArray(const std::string &var, const I
     }
     return status;
 }
+
 // Specific instantiations
 template EXPORTISMRMRD int Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<uint16_t> &arr);
 template EXPORTISMRMRD int Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<int16_t> &arr);
