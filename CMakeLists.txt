@@ -44,12 +44,12 @@ endif (WIN32)
 #The ISMRMRD convention is to use version numbers with the format:
 #   XX.YY.ZZ (major, minor, patch)
 #
-#The major number increaments when the binary compatibility of
-#the fixed memory layout strucs (e.g. AcquisitionHeader) is broken.
+#The major number increments when the binary compatibility of
+#the fixed memory layout struts (e.g. AcquisitionHeader) is broken.
 #The minor number changes when there are changes to the XML schema for 
 #the flexible header. The micro number changes when there are small changes
 #in the utility libraries, that don't affect the data format itself.
-set(ISMRMRD_VERSION_MAJOR 0)
+set(ISMRMRD_VERSION_MAJOR 1)
 set(ISMRMRD_VERSION_MINOR 0)
 set(ISMRMRD_VERSION_PATCH 1) 
 
