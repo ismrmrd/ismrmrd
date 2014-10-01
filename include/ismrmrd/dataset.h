@@ -171,9 +171,9 @@ public:
     int readAcquisition(uint32_t index, Acquisition &acq);
     uint32_t getNumberOfAcquisitions();
     // Images
-    int appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const Image &im);
+    template <typename T> int appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const Image<T> &im);
     int appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const ISMRMRD_Image *im);
-    int readImage(const std::string &var, uint32_t index, Image &im);
+    template <typename T> int readImage(const std::string &var, uint32_t index, Image<T> &im);
     uint32_t getNumberOfImages(const std::string &var);
     // NDArrays
     template <typename T> int appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<T> &arr);

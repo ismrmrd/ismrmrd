@@ -196,6 +196,10 @@ namespace ISMRMRD
   {
     pugi::xml_document doc;
     pugi::xml_parse_result result = doc.load(xml);
+    
+    if (!result) {
+      throw std::runtime_error("Unable to load ISMRMRD XML header");
+    }
 
     pugi::xml_node root = doc.child("ismrmrdHeader");
 

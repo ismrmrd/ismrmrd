@@ -116,31 +116,22 @@ int main(int argc, char** argv)
     fftwf_free(tmp);
 
     //Allocate an image
-    ISMRMRD::Image img_out;
-    img_out.data_type(ISMRMRD::ISMRMRD_FLOAT);
-    uint16_t matrix_size[3];
-    matrix_size[0] = r_space.matrixSize.x;
-    matrix_size[1] = r_space.matrixSize.y;
-    matrix_size[2] = 1;
-    img_out.matrix_size(matrix_size);
-    img_out.channels(1);
+    ISMRMRD::Image<float> img_out(r_space.matrixSize.x, r_space.matrixSize.y, 1, 1);
 
     //f there is oversampling in the readout direction remove it
     //Take the magnitude
     size_t offset = ((e_space.matrixSize.x - r_space.matrixSize.x)>>1);
-    for (unsigned int y = 0; y < matrix_size[1]; y++) {
-        for (unsigned int x = 0; x < matrix_size[0]; x++) {
-            static_cast<float*>(img_out.getData())[y*matrix_size[0]+x] =
+    for (unsigned int y = 0; y < r_space.matrixSize.y; y++) {
+        for (unsigned int x = 0; x < r_space.matrixSize.x; x++) {
+            static_cast<float*>(img_out.getData())[y*r_space.matrixSize.x+x] =
                     std::abs(buffer.getData()[y*dims[0] + x + offset]);
         }
     }
     
     // The following are extra guidance we can put in the image header
-    img_out.image_type() = ISMRMRD::ISMRMRD_IMTYPE_MAGNITUDE;
-    img_out.slice() = 0;
-    img_out.field_of_view()[0] = r_space.fieldOfView_mm.x;
-    img_out.field_of_view()[1] = r_space.fieldOfView_mm.y;
-    img_out.field_of_view()[2] = r_space.fieldOfView_mm.z;
+    img_out.setImageType(ISMRMRD::ISMRMRD_IMTYPE_MAGNITUDE);
+    img_out.setSlice(0);
+    img_out.setFieldOfView(r_space.fieldOfView_mm.x, r_space.fieldOfView_mm.y, r_space.fieldOfView_mm.z);
     //And so on
     
     //Let's write the reconstructed image into the same data file
