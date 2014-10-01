@@ -995,42 +995,42 @@ template <typename T> const size_t NDArray<T>::getNumberOfElements() {
 
 // Specializations
 // Allowed data types for Images and NDArrays
-EXPORTISMRMRD template <> ISMRMRD_DataTypes get_data_type<uint16_t>()
+template <> EXPORTISMRMRD ISMRMRD_DataTypes get_data_type<uint16_t>()
 {
     return ISMRMRD_USHORT;
 }
 
-EXPORTISMRMRD template <> inline ISMRMRD_DataTypes get_data_type<int16_t>()
+template <> EXPORTISMRMRD inline ISMRMRD_DataTypes get_data_type<int16_t>()
 {
     return ISMRMRD_SHORT;
 }
 
-EXPORTISMRMRD template <> inline ISMRMRD_DataTypes get_data_type<uint32_t>()
+template <> EXPORTISMRMRD inline ISMRMRD_DataTypes get_data_type<uint32_t>()
 {
     return ISMRMRD_UINT;
 }
 
-EXPORTISMRMRD template <> inline ISMRMRD_DataTypes get_data_type<int32_t>()
+template <> EXPORTISMRMRD inline ISMRMRD_DataTypes get_data_type<int32_t>()
 {
     return ISMRMRD_INT;
 }
 
-EXPORTISMRMRD template <> inline ISMRMRD_DataTypes get_data_type<float>()
+template <> EXPORTISMRMRD inline ISMRMRD_DataTypes get_data_type<float>()
 {
     return ISMRMRD_FLOAT;
 }
 
-EXPORTISMRMRD template <> inline ISMRMRD_DataTypes get_data_type<double>()
+template <> EXPORTISMRMRD inline ISMRMRD_DataTypes get_data_type<double>()
 {
     return ISMRMRD_DOUBLE;
 }
 
-EXPORTISMRMRD template <> inline ISMRMRD_DataTypes get_data_type<complex_float_t>()
+template <> EXPORTISMRMRD inline ISMRMRD_DataTypes get_data_type<complex_float_t>()
 {
     return ISMRMRD_CXFLOAT;
 }
 
-EXPORTISMRMRD template <> inline ISMRMRD_DataTypes get_data_type<complex_double_t>()
+template <> EXPORTISMRMRD inline ISMRMRD_DataTypes get_data_type<complex_double_t>()
 {
     return ISMRMRD_CXDOUBLE;
 }
