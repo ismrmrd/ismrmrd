@@ -514,15 +514,15 @@ int append_element(const ISMRMRD_Dataset * dset, const char * path,
         void * elem, const hid_t datatype,
         const uint16_t ndim, const uint16_t *dims)
 {
-    if (NULL == dset) {
-        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
-    }
-
     hid_t dataset, dataspace, props, filespace, memspace;
     herr_t h5status = 0;
     hsize_t *hdfdims = NULL, *ext_dims = NULL, *offset = NULL, *maxdims = NULL, *chunk_dims = NULL;
     int n = 0, rank = 0;
     
+    if (NULL == dset) {
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
+    }
+
     /* Check the path and find rank */
     if (link_exists(dset, path)) {
         /* open dataset */
@@ -587,7 +587,6 @@ int append_element(const ISMRMRD_Dataset * dset, const char * path,
             H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
             return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to close property list");
         }
-        /* Select the last block */
     }
 
     /* Select the last block */
@@ -630,6 +629,73 @@ int append_element(const ISMRMRD_Dataset * dset, const char * path,
     if (h5status < 0) {
         H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
         return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to close dataset");
+    }
+
+    return ISMRMRD_NOERROR;
+}
+
+int read_element(const ISMRMRD_Dataset *dset, const char *path, void *elem,
+        const hid_t datatype, uint32_t index)
+{
+    hid_t dataset, filespace, memspace;
+    hsize_t *hdfdims = NULL, *offset = NULL, *count = NULL;
+    herr_t h5status = 0;
+    int rank = 0;
+
+    if (NULL == dset) {
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL.");
+    }
+
+    path = make_path(dset, "data");
+
+    /* Check path existence */
+    if (!link_exists(dset, path)) {
+        return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Data not found.");
+    }
+
+    /* open dataset */
+    dataset = H5Dopen2(dset->fileid, path, H5P_DEFAULT);
+
+    /* TODO check that the dataset's datatype is correct */
+    filespace = H5Dget_space(dataset);
+
+    rank = H5Sget_simple_extent_ndims(filespace);
+
+    hdfdims = (hsize_t *)malloc(rank * sizeof(*hdfdims));
+    offset = (hsize_t *)malloc(rank * sizeof(*offset));
+    count = (hsize_t *)malloc(rank * sizeof(*count));
+
+    h5status = H5Sget_simple_extent_dims(filespace, hdfdims, NULL);
+
+    if (index >= hdfdims[0]) {
+        return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Index out of range.");
+    }
+
+    offset[0] = index;
+    count[0] = 1;
+    h5status = H5Sselect_hyperslab(filespace, H5S_SELECT_SET, offset, NULL, count, NULL);
+    memspace = H5Screate_simple(1, count, NULL);
+
+    h5status = H5Dread(dataset, datatype, memspace, filespace, H5P_DEFAULT, elem);
+    if (h5status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to read from dataset.");
+    }
+
+    h5status = H5Sclose(filespace);
+    if (h5status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to close filespace.");
+    }
+    h5status = H5Sclose(memspace);
+    if (h5status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to close memspace.");
+    }
+    h5status = H5Dclose(dataset);
+    if (h5status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to close dataset.");
     }
 
     return ISMRMRD_NOERROR;
@@ -908,11 +974,8 @@ int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquis
 
 int ismrmrd_read_acquisition(const ISMRMRD_Dataset *dset, uint32_t index, ISMRMRD_Acquisition *acq)
 {
-    hid_t dataset, datatype, filespace, memspace;
-    hsize_t dims[1];
-    hsize_t offset[1];
-    hsize_t dimsr[1] = {1};
-    herr_t h5status;
+    hid_t datatype;
+    herr_t status;
     HDF5_Acquisition hdf5acq;
     char *path;
 
@@ -923,66 +986,26 @@ int ismrmrd_read_acquisition(const ISMRMRD_Dataset *dset, uint32_t index, ISMRMR
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Acquisition pointer should not be NULL.");
     }
 
-    /* The path to the acqusition data */    
+    /* The path to the acquisition data */
     path = make_path(dset, "data");
-            
-    /* Check the path, extend or create if needed */
-    if (!link_exists(dset, path)) {
-        /* No data */
-        return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Data not found.");
-    }
 
-    /* open */
-    dataset = H5Dopen2(dset->fileid, path, H5P_DEFAULT);
-    
     /* The acquisition datatype */
     datatype = get_hdf5type_acquisition();
-    /* TODO check that the dataset's datatype is correct */
-            
-    filespace = H5Dget_space(dataset);
-    h5status = H5Sget_simple_extent_dims(filespace, dims, NULL);
-            
-    if (index >= dims[0]) {
-        /* index out of range */
-        return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR,
-                "Acquisition index out of range.");
-    }
 
-    offset[0] = index;
-    h5status = H5Sselect_hyperslab (filespace, H5S_SELECT_SET, offset, NULL, dimsr, NULL);
-    memspace = H5Screate_simple(1, dimsr, NULL);
-    h5status = H5Dread(dataset, datatype, memspace, filespace, H5P_DEFAULT, (void *) &hdf5acq);
-    if (h5status < 0) {
-        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
-        return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to read from dataset.");
-    }
+    status = read_element(dset, path, &hdf5acq, datatype, index);
     memcpy(&acq->head, &hdf5acq.head, sizeof(ISMRMRD_AcquisitionHeader));
     ismrmrd_make_consistent_acquisition(acq);
     memcpy(acq->traj, hdf5acq.traj.p, ismrmrd_size_of_acquisition_traj(acq));
     memcpy(acq->data, hdf5acq.data.p, ismrmrd_size_of_acquisition_data(acq));
-            
+
     /* clean up */
     free(hdf5acq.traj.p);
     free(hdf5acq.data.p);
-    h5status = H5Tclose(datatype);
-    if (h5status < 0) {
+
+    status = H5Tclose(datatype);
+    if (status < 0) {
         H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
         return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to close datatype.");
-    }
-    h5status = H5Sclose(filespace);
-    if (h5status < 0) {
-        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
-        return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to close filespace.");
-    }
-    h5status = H5Sclose(memspace);
-    if (h5status < 0) {
-        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
-        return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to close memspace.");
-    }
-    h5status = H5Dclose(dataset);
-    if (h5status < 0) {
-        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
-        return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to close dataset.");
     }
 
     return ISMRMRD_NOERROR;
