@@ -31,13 +31,13 @@ static herr_t walk_hdf5_errors(unsigned int n, const H5E_error2_t *desc, void *c
 }
 
 static bool link_exists(const ISMRMRD_Dataset *dset, const char *link_path) {
+    htri_t val = H5Lexists(dset->fileid, link_path, H5P_DEFAULT);
+
     if (NULL == dset) {
         ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
         return false;
     }
 
-    htri_t val = H5Lexists(dset->fileid, link_path, H5P_DEFAULT);
-    
     if (val < 0 ) {
         return false;
     }
@@ -51,6 +51,7 @@ static bool link_exists(const ISMRMRD_Dataset *dset, const char *link_path) {
 
 static int create_link(const ISMRMRD_Dataset *dset, const char *link_path) {
     hid_t lcpl_id, gid;
+
     if (NULL == dset) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
     }
@@ -70,6 +71,9 @@ static int create_link(const ISMRMRD_Dataset *dset, const char *link_path) {
 }
 
 static char * make_path(const ISMRMRD_Dataset *dset, const char * var) {
+    char *path = NULL;
+    size_t len = 0;
+
     if (NULL == dset) {
         ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
         return NULL;
@@ -79,8 +83,8 @@ static char * make_path(const ISMRMRD_Dataset *dset, const char * var) {
         return NULL;
     }
 
-    size_t len = strlen(dset->groupname) + strlen(var) + 2;
-    char *path = (char *) malloc(len);
+    len = strlen(dset->groupname) + strlen(var) + 2;
+    path = (char *)malloc(len);
     if (path == NULL) {
         ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to malloc path");
         return NULL;
@@ -95,6 +99,9 @@ static char * make_path(const ISMRMRD_Dataset *dset, const char * var) {
 static char * append_to_path(const ISMRMRD_Dataset *dset,
         const char * path, const char * var)
 {
+    size_t len = 0;
+    char *newpath = NULL;
+
     if (NULL == dset) {
         ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
         return NULL;
@@ -108,8 +115,8 @@ static char * append_to_path(const ISMRMRD_Dataset *dset,
         return NULL;
     }
 
-    size_t len = strlen(path) + strlen(var) + 2;
-    char *newpath = (char *) malloc(len);
+    len = strlen(path) + strlen(var) + 2;
+    newpath = (char *) malloc(len);
     if (newpath == NULL) {
         ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to realloc newpath");
         return NULL;
@@ -122,13 +129,15 @@ static char * append_to_path(const ISMRMRD_Dataset *dset,
 }
 
 static int delete_var(const ISMRMRD_Dataset *dset, const char *var) {
+    int status = ISMRMRD_NOERROR;
+    herr_t h5status;
+    char *path = NULL;
+
     if (NULL == dset) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
     }
 
-    int status = ISMRMRD_NOERROR;
-    herr_t h5status;
-    char *path = make_path(dset, var);
+    path = make_path(dset, var);
     if (link_exists(dset, path)) {
         h5status = H5Ldelete(dset->fileid, path, H5P_DEFAULT);
         if (h5status < 0) {
@@ -474,14 +483,14 @@ static hid_t get_hdf5type_ndarray(uint16_t data_type) {
 
 uint32_t get_number_of_elements(const ISMRMRD_Dataset *dset, const char * path)
 {
+    herr_t h5status;
+    uint32_t num;
+
     if (NULL == dset) {
         ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
         return 0;
     }
 
-    herr_t h5status;
-    uint32_t num;
-    
     if (link_exists(dset, path)) {
         hid_t dataset, dataspace;
         hsize_t rank, *dims, *maxdims;
@@ -732,13 +741,13 @@ int ismrmrd_init_dataset(ISMRMRD_Dataset *dset, const char *filename,
 
 int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool create_if_needed) {
     /* TODO add a mode for clobbering the dataset if it exists. */
+    hid_t fileid;
+
     if (NULL == dset) {
         ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
         return false;
     }
 
-    hid_t fileid;
-    
     /* Try opening the file */
     /* Note the is_hdf5 function doesn't work well when trying to open multiple files */
     fileid = H5Fopen(dset->filename, H5F_ACC_RDWR, H5P_DEFAULT);
@@ -772,13 +781,13 @@ int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool create_if_needed) {
 }
 
 int ismrmrd_close_dataset(ISMRMRD_Dataset *dset) {
+    herr_t h5status;
+
     if (NULL == dset) {
         ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
         return false;
     }
 
-    herr_t h5status;
-    
     /* Check for a valid fileid before trying to close the file */
     if (dset->fileid > 0) {
         h5status = H5Fclose (dset->fileid);
