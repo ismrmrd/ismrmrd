@@ -519,22 +519,32 @@ int append_element(const ISMRMRD_Dataset * dset, const char * path,
     }
 
     hid_t dataset, dataspace, props, filespace, memspace;
-    herr_t h5status;
-    int n;
+    herr_t h5status = 0;
+    hsize_t *hdfdims = NULL, *ext_dims = NULL, *offset = NULL, *maxdims = NULL, *chunk_dims = NULL;
+    int n = 0, rank = 0;
     
-    /* Check the path, extend or create if needed, and select the last block */
+    /* Check the path and find rank */
     if (link_exists(dset, path)) {
-        hsize_t rank, *hdfdims, *maxdims, *offset, *ext_dims;
-        /* open */
+        /* open dataset */
         dataset = H5Dopen2(dset->fileid, path, H5P_DEFAULT);
         /* TODO check that the header dataset's datatype is correct */
         dataspace = H5Dget_space(dataset);
         rank = H5Sget_simple_extent_ndims(dataspace);
-        if (rank != (ndim+1)) {
+        if (rank != ndim + 1) {
             return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Dimensions are incorrect.");
         }
-        hdfdims =(hsize_t *) malloc(rank*sizeof(hsize_t));
-        maxdims =(hsize_t *) malloc(rank*sizeof(hsize_t));
+    } else {
+        rank = ndim + 1;
+    }
+
+    hdfdims = (hsize_t *) malloc(rank * sizeof(hsize_t));
+    maxdims = (hsize_t *) malloc(rank * sizeof(hsize_t));
+    offset = (hsize_t *) malloc(rank * sizeof(hsize_t));
+    ext_dims = (hsize_t *) malloc(rank * sizeof(hsize_t));
+    chunk_dims = (hsize_t *) malloc(rank * sizeof(hsize_t));
+
+    /* extend or create if needed, and select the last block */
+    if (link_exists(dset, path)) {
         h5status = H5Sget_simple_extent_dims(dataspace, hdfdims, maxdims);
         for (n = 0; n<ndim; n++) {
             if (dims[n] != hdfdims[n+1]) {
@@ -545,43 +555,22 @@ int append_element(const ISMRMRD_Dataset * dset, const char * path,
         hdfdims[0] += 1;
         h5status = H5Dset_extent(dataset, hdfdims);
         /* Select the last block */
-        offset = (hsize_t *) malloc(rank*sizeof(hsize_t));
-        ext_dims = (hsize_t *) malloc(rank*sizeof(hsize_t));
-        offset[0] = hdfdims[0]-1;
         ext_dims[0] = 1;
-        for (n = 0; n<ndim; n++) {
-            offset[n+1] = 0;
-            ext_dims[n+1] = dims[n];
+        for (n = 0; n < ndim; n++) {
+            offset[n + 1] = 0;
+            ext_dims[n + 1] = dims[n];
         }
-        filespace = H5Dget_space(dataset);
-        h5status  = H5Sselect_hyperslab (filespace, H5S_SELECT_SET, offset, NULL, ext_dims, NULL);
-        memspace = H5Screate_simple(rank, ext_dims, NULL);
-        free(hdfdims);
-        free(maxdims);
-        free(offset);
-        free(ext_dims);
-    }
-    else {
-        int rank;
-        hsize_t *hdfdims, *maxdims, *offset, *ext_dims, *chunk_dims;
-        /* create a new dataset */
-        rank = ndim+1;
-        hdfdims = (hsize_t *) malloc(rank*sizeof(hsize_t));
-        maxdims = (hsize_t *) malloc(rank*sizeof(hsize_t));
-        offset = (hsize_t *) malloc(rank*sizeof(hsize_t));
-        ext_dims = (hsize_t *) malloc(rank*sizeof(hsize_t));
-        chunk_dims = (hsize_t *) malloc(rank*sizeof(hsize_t));
+    } else {
         hdfdims[0] = 1;
         maxdims[0] = H5S_UNLIMITED;
-        offset[0] = 1;
         ext_dims[0] = 1;
         chunk_dims[0] = 1;
-        for (n = 0; n<ndim; n++) {
-            hdfdims[n+1] = dims[n];
-            maxdims[n+1] = dims[n];
-            offset[n+1] = 0;
-            ext_dims[n+1] = dims[n];
-            chunk_dims[n+1] = dims[n];
+        for (n = 0; n < ndim; n++) {
+            hdfdims[n + 1] = dims[n];
+            maxdims[n + 1] = dims[n];
+            offset[n + 1] = 0;
+            ext_dims[n + 1] = dims[n];
+            chunk_dims[n + 1] = dims[n];
         }
         dataspace = H5Screate_simple(rank, hdfdims, maxdims);
         props = H5Pcreate(H5P_DATASET_CREATE);
@@ -589,18 +578,29 @@ int append_element(const ISMRMRD_Dataset * dset, const char * path,
         h5status = H5Pset_chunk (props, rank, chunk_dims);
         /* create */
         dataset = H5Dcreate2(dset->fileid, path, datatype, dataspace, H5P_DEFAULT, props,  H5P_DEFAULT);
+        if (dataset < 0) {
+            H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+            return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to create dataset");
+        }
         h5status = H5Pclose(props);
+        if (h5status < 0) {
+            H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+            return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to close property list");
+        }
         /* Select the last block */
-        offset[0] = hdfdims[0]-1;
-        filespace = H5Dget_space(dataset);
-        h5status  = H5Sselect_hyperslab (filespace, H5S_SELECT_SET, offset, NULL, ext_dims, NULL);
-        memspace = H5Screate_simple(rank, ext_dims, NULL);
-        free(hdfdims);
-        free(maxdims);
-        free(offset);
-        free(ext_dims);
-        free(chunk_dims);
     }
+
+    /* Select the last block */
+    offset[0] = hdfdims[0]-1;
+    filespace = H5Dget_space(dataset);
+    h5status  = H5Sselect_hyperslab (filespace, H5S_SELECT_SET, offset, NULL, ext_dims, NULL);
+    memspace = H5Screate_simple(rank, ext_dims, NULL);
+
+    free(hdfdims);
+    free(ext_dims);
+    free(offset);
+    free(maxdims);
+    free(chunk_dims);
 
     /* Write it */
     /* since this is a 1 element array we can just pass the pointer to the header */
