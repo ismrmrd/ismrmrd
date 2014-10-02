@@ -344,7 +344,7 @@ int ismrmrd_init_ndarray(ISMRMRD_NDArray *arr) {
     }
 
     arr->version = ISMRMRD_VERSION;
-    arr->data_type = 0; // no default data type
+    arr->data_type = 0; /* no default data type */
     arr->ndim = 0;
     
     for (n = 0; n < ISMRMRD_NDARRAY_MAXDIM; n++) {
