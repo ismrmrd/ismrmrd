@@ -8,6 +8,7 @@
 #include "ismrmrd_phantom.h"
 #include <boost/random.hpp>
 #include <boost/random/normal_distribution.hpp>
+#include <cstring>
 
 namespace ISMRMRD {
 
