@@ -17,24 +17,32 @@
 namespace ISMRMRD {
 extern "C" {
 #endif
-    
+
 /******************************/
 /* Private (Static) Functions */
 /******************************/
+
+static herr_t walk_hdf5_errors(unsigned int n, const H5E_error2_t *desc, void *client_data)
+{
+    (void)n;
+    (void)client_data;
+    ismrmrd_push_error(desc->file_name, desc->line, desc->func_name, ISMRMRD_HDF5ERROR, desc->desc);
+    return 0;
+}
+
 static bool link_exists(const ISMRMRD_Dataset *dset, const char *link_path) {
-    if (dset) {
-        
-        htri_t val = H5Lexists(dset->fileid, link_path, H5P_DEFAULT);
-        
-        if (val < 0 ) {
-            return false;
-        }
-        else if (val) {
-            return true;
-        }
-        else {
-            return false;
-        }
+    htri_t val = H5Lexists(dset->fileid, link_path, H5P_DEFAULT);
+
+    if (NULL == dset) {
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
+        return false;
+    }
+
+    if (val < 0 ) {
+        return false;
+    }
+    else if (val) {
+        return true;
     }
     else {
         return false;
@@ -43,95 +51,102 @@ static bool link_exists(const ISMRMRD_Dataset *dset, const char *link_path) {
 
 static int create_link(const ISMRMRD_Dataset *dset, const char *link_path) {
     hid_t lcpl_id, gid;
-    if (dset) {
-        if (link_exists(dset, link_path)) {
-            return ISMRMRD_NOERROR;
-        }
-        else {
-            lcpl_id = H5Pcreate(H5P_LINK_CREATE);
-            H5Pset_create_intermediate_group(lcpl_id, 1);
-            gid = H5Gcreate2(dset->fileid, link_path, lcpl_id, H5P_DEFAULT, H5P_DEFAULT);
-            H5Gclose(gid);
-            H5Pclose(lcpl_id);
-            // TODO can this thing ever return an error?
-            return ISMRMRD_NOERROR;
-        }
+
+    if (NULL == dset) {
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
+    }
+
+    if (link_exists(dset, link_path)) {
+        return ISMRMRD_NOERROR;
     }
     else {
-        return ISMRMRD_RUNTIMEERROR;
+        lcpl_id = H5Pcreate(H5P_LINK_CREATE);
+        H5Pset_create_intermediate_group(lcpl_id, 1);
+        gid = H5Gcreate2(dset->fileid, link_path, lcpl_id, H5P_DEFAULT, H5P_DEFAULT);
+        H5Gclose(gid);
+        H5Pclose(lcpl_id);
+        /* TODO can this thing ever return an error? */
+        return ISMRMRD_NOERROR;
     }
 }
 
 static char * make_path(const ISMRMRD_Dataset *dset, const char * var) {
-    if (dset) {
-        if (var) {
-            size_t len = strlen(dset->groupname) + strlen(var) + 2;
-            char *path = (char *) malloc(len);
-            if (path == NULL) {
-                ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to malloc path");
-                return NULL;
-            }
-            memset(path, 0, len);
-            strcat(path, dset->groupname);
-            strcat(path, "/");
-            strcat(path, var);
-            return path;
-        }
-        else {
-            return NULL;
-        }
-    }
-    else {
+    char *path = NULL;
+    size_t len = 0;
+
+    if (NULL == dset) {
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
         return NULL;
     }
+    if (NULL == var) {
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL var parameter");
+        return NULL;
+    }
+
+    len = strlen(dset->groupname) + strlen(var) + 2;
+    path = (char *)malloc(len);
+    if (path == NULL) {
+        ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to malloc path");
+        return NULL;
+    }
+    memset(path, 0, len);
+    strcat(path, dset->groupname);
+    strcat(path, "/");
+    strcat(path, var);
+    return path;
 }
 
-static char * append_to_path(const ISMRMRD_Dataset *dset, const char * path, const char * var) {
-    if (dset) {
-        if (path) {
-            if (var) {
-                size_t len = strlen(path) + strlen(var) + 2;
-                char *newpath = (char *) malloc(len);
-                if (newpath == NULL) {
-                    ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to realloc newpath");
-                    return NULL;
-                }
-                memset(newpath, 0, len);
-                strcat(newpath, path);
-                strcat(newpath, "/");
-                strcat(newpath, var);
-                return newpath;
-            }
-            else {
-                return NULL;
-            }
-        }
-        else {
-            return NULL;
-        }
-    }
-    else {
+static char * append_to_path(const ISMRMRD_Dataset *dset,
+        const char * path, const char * var)
+{
+    size_t len = 0;
+    char *newpath = NULL;
+
+    if (NULL == dset) {
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
         return NULL;
     }
+    if (NULL == path) {
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL path parameter");
+        return NULL;
+    }
+    if (NULL == var) {
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL var parameter");
+        return NULL;
+    }
+
+    len = strlen(path) + strlen(var) + 2;
+    newpath = (char *) malloc(len);
+    if (newpath == NULL) {
+        ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to realloc newpath");
+        return NULL;
+    }
+    memset(newpath, 0, len);
+    strcat(newpath, path);
+    strcat(newpath, "/");
+    strcat(newpath, var);
+    return newpath;
 }
 
 static int delete_var(const ISMRMRD_Dataset *dset, const char *var) {
-    if (dset) {
-        int status = ISMRMRD_NOERROR;
-        herr_t h5status;
-        char *path = make_path(dset, var);
-        if (link_exists(dset, path)) {
-            h5status = H5Ldelete(dset->fileid, path, H5P_DEFAULT);
-            if (h5status < 0) {
-                status = ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to delete H5 path");
-            }
+    int status = ISMRMRD_NOERROR;
+    herr_t h5status;
+    char *path = NULL;
+
+    if (NULL == dset) {
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
+    }
+
+    path = make_path(dset, var);
+    if (link_exists(dset, path)) {
+        h5status = H5Ldelete(dset->fileid, path, H5P_DEFAULT);
+        if (h5status < 0) {
+            H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+            status = ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to delete H5 path");
         }
-        free(path);
-        return status;
     }
-    else {
-        return ISMRMRD_RUNTIMEERROR;
-    }
+    free(path);
+    return status;
 }
 
 /*********************************************/
@@ -188,13 +203,21 @@ static hid_t get_hdf5type_double(void) {
     return datatype;
 }
 
+/* TODO for all get_hdf5type_xxx functions:
+ *      Check return code of each H5Tinsert call */
+
 static hid_t get_hdf5type_complexfloat(void) {
     hid_t datatype;
     herr_t h5status;
     datatype = H5Tcreate(H5T_COMPOUND, sizeof(complex_float_t));
     h5status = H5Tinsert(datatype, "real", 0, H5T_NATIVE_FLOAT);
+    if (h5status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get complex float data type");
+    }
     h5status = H5Tinsert(datatype, "imag", sizeof(float), H5T_NATIVE_FLOAT);
     if (h5status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
         ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get complex float data type");
     }
     return datatype;
@@ -205,8 +228,13 @@ static hid_t get_hdf5type_complexdouble(void) {
     herr_t h5status;
     datatype = H5Tcreate(H5T_COMPOUND, sizeof(complex_double_t));
     h5status = H5Tinsert(datatype, "real", 0, H5T_NATIVE_DOUBLE);
+    if (h5status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get complex double data type");
+    }
     h5status = H5Tinsert(datatype, "imag", sizeof(double), H5T_NATIVE_DOUBLE);
     if (h5status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
         ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get complex double data type");
     }
     return datatype;
@@ -216,6 +244,7 @@ static hid_t get_hdf5type_xmlheader(void) {
     hid_t datatype = H5Tcopy(H5T_C_S1);
     herr_t h5status = H5Tset_size(datatype, H5T_VARIABLE);
     if (h5status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
         ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get XML header data type");
     }
     return datatype;
@@ -451,239 +480,325 @@ static hid_t get_hdf5type_ndarray(uint16_t data_type) {
     }
     return hdfdatatype;
 }
-    
+
 uint32_t get_number_of_elements(const ISMRMRD_Dataset *dset, const char * path)
 {
-    if (dset) {
-        herr_t h5status;
-        uint32_t num;
-        
-        if (link_exists(dset, path)) {
-            hid_t dataset, dataspace;
-            hsize_t rank, *dims, *maxdims;
-            dataset = H5Dopen2(dset->fileid, path, H5P_DEFAULT);
-            dataspace = H5Dget_space(dataset);
-            rank = H5Sget_simple_extent_ndims(dataspace);
-            dims = (hsize_t *) malloc(rank*sizeof(hsize_t));
-            maxdims = (hsize_t *) malloc(rank*sizeof(hsize_t));
-            h5status = H5Sget_simple_extent_dims(dataspace, dims, maxdims);
-            num = dims[0];
-            free(dims);
-            free(maxdims);
-            h5status = H5Sclose(dataspace);
-            h5status= H5Dclose(dataset);
-            if (h5status < 0) {
-                ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to get number of elements in vector.");
-            }
-        }
-        else {
-            /* none */
-            num = 0;
-        }
-        
-        return num;
-    }
-    else {
+    herr_t h5status;
+    uint32_t num;
+
+    if (NULL == dset) {
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
         return 0;
     }
-}
 
-int append_element(const ISMRMRD_Dataset * dset, const char * path, void * elem, const hid_t datatype, const uint16_t ndim, const uint16_t *dims)
-{
-    if (dset) {
-        hid_t dataset, dataspace, props, filespace, memspace;
-        herr_t h5status;
-        int n;
-        
-        /* Check the path, extend or create if needed, and select the last block */
-        if (link_exists(dset, path)) {
-            hsize_t rank, *hdfdims, *maxdims, *offset, *ext_dims;
-            /* open */
-            dataset = H5Dopen2(dset->fileid, path, H5P_DEFAULT);
-            /* TODO check that the header dataset's datatype is correct */
-            dataspace = H5Dget_space(dataset);
-            rank = H5Sget_simple_extent_ndims(dataspace);
-            if (rank != (ndim+1)) {
-                return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Dimensions are incorrect.");
-            }
-            hdfdims =(hsize_t *) malloc(rank*sizeof(hsize_t));
-            maxdims =(hsize_t *) malloc(rank*sizeof(hsize_t));
-            h5status = H5Sget_simple_extent_dims(dataspace, hdfdims, maxdims);
-            for (n = 0; n<ndim; n++) {
-                if (dims[n] != hdfdims[n+1]) {
-                    return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Dimensions are incorrect.");
-                }
-            }
-            /* extend it by one */
-            hdfdims[0] += 1;
-            h5status = H5Dset_extent(dataset, hdfdims);
-            /* Select the last block */
-            offset = (hsize_t *) malloc(rank*sizeof(hsize_t));
-            ext_dims = (hsize_t *) malloc(rank*sizeof(hsize_t));
-            offset[0] = hdfdims[0]-1;
-            ext_dims[0] = 1;
-            for (n = 0; n<ndim; n++) {
-                offset[n+1] = 0;
-                ext_dims[n+1] = dims[n];
-            }
-            filespace = H5Dget_space(dataset);
-            h5status  = H5Sselect_hyperslab (filespace, H5S_SELECT_SET, offset, NULL, ext_dims, NULL);
-            memspace = H5Screate_simple(rank, ext_dims, NULL);
-            free(hdfdims);
-            free(maxdims);
-            free(offset);
-            free(ext_dims);
-        }
-        else {
-            int rank;
-            hsize_t *hdfdims, *maxdims, *offset, *ext_dims, *chunk_dims;
-            /* create a new dataset */
-            rank = ndim+1;
-            hdfdims = (hsize_t *) malloc(rank*sizeof(hsize_t));
-            maxdims = (hsize_t *) malloc(rank*sizeof(hsize_t));
-            offset = (hsize_t *) malloc(rank*sizeof(hsize_t));
-            ext_dims = (hsize_t *) malloc(rank*sizeof(hsize_t));
-            chunk_dims = (hsize_t *) malloc(rank*sizeof(hsize_t));
-            hdfdims[0] = 1;
-            maxdims[0] = H5S_UNLIMITED;
-            offset[0] = 1;
-            ext_dims[0] = 1;
-            chunk_dims[0] = 1;
-            for (n = 0; n<ndim; n++) {
-                hdfdims[n+1] = dims[n];
-                maxdims[n+1] = dims[n];
-                offset[n+1] = 0;
-                ext_dims[n+1] = dims[n];
-                chunk_dims[n+1] = dims[n];
-            }
-            dataspace = H5Screate_simple(rank, hdfdims, maxdims);
-            props = H5Pcreate(H5P_DATASET_CREATE);
-            /* enable chunking so that the dataset is extensible */
-            h5status = H5Pset_chunk (props, rank, chunk_dims);
-            /* create */
-            dataset = H5Dcreate2(dset->fileid, path, datatype, dataspace, H5P_DEFAULT, props,  H5P_DEFAULT);
-            h5status = H5Pclose(props);
-            /* Select the last block */
-            offset[0] = hdfdims[0]-1;
-            filespace = H5Dget_space(dataset);
-            h5status  = H5Sselect_hyperslab (filespace, H5S_SELECT_SET, offset, NULL, ext_dims, NULL);
-            memspace = H5Screate_simple(rank, ext_dims, NULL);
-            free(hdfdims);
-            free(maxdims);
-            free(offset);
-            free(ext_dims);
-            free(chunk_dims);
-        }
-
-        /* Write it */
-        /* since this is a 1 element array we can just pass the pointer to the header */
-        h5status = H5Dwrite(dataset, datatype, memspace, filespace, H5P_DEFAULT, elem);
-        
-        /* Clean up */
+    if (link_exists(dset, path)) {
+        hid_t dataset, dataspace;
+        hsize_t rank, *dims, *maxdims;
+        dataset = H5Dopen2(dset->fileid, path, H5P_DEFAULT);
+        dataspace = H5Dget_space(dataset);
+        rank = H5Sget_simple_extent_ndims(dataspace);
+        dims = (hsize_t *) malloc(rank*sizeof(hsize_t));
+        maxdims = (hsize_t *) malloc(rank*sizeof(hsize_t));
+        h5status = H5Sget_simple_extent_dims(dataspace, dims, maxdims);
+        num = dims[0];
+        free(dims);
+        free(maxdims);
         h5status = H5Sclose(dataspace);
-        h5status = H5Sclose(filespace);
-        h5status = H5Sclose(memspace);
-        h5status = H5Dclose(dataset);
-
+        h5status= H5Dclose(dataset);
         if (h5status < 0) {
-            return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to get number of acquisitions.");
+            H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+            ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR,
+                    "Failed to get number of elements in vector.");
         }
-        
-        return ISMRMRD_NOERROR;
     }
     else {
-        return ISMRMRD_RUNTIMEERROR;
+        /* none */
+        num = 0;
     }
+    
+    return num;
+}
+
+int append_element(const ISMRMRD_Dataset * dset, const char * path,
+        void * elem, const hid_t datatype,
+        const uint16_t ndim, const uint16_t *dims)
+{
+    hid_t dataset, dataspace, props, filespace, memspace;
+    herr_t h5status = 0;
+    hsize_t *hdfdims = NULL, *ext_dims = NULL, *offset = NULL, *maxdims = NULL, *chunk_dims = NULL;
+    int n = 0, rank = 0;
+    
+    if (NULL == dset) {
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
+    }
+
+    /* Check the path and find rank */
+    if (link_exists(dset, path)) {
+        /* open dataset */
+        dataset = H5Dopen2(dset->fileid, path, H5P_DEFAULT);
+        /* TODO check that the header dataset's datatype is correct */
+        dataspace = H5Dget_space(dataset);
+        rank = H5Sget_simple_extent_ndims(dataspace);
+        if (rank != ndim + 1) {
+            return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Dimensions are incorrect.");
+        }
+    } else {
+        rank = ndim + 1;
+    }
+
+    hdfdims = (hsize_t *) malloc(rank * sizeof(hsize_t));
+    maxdims = (hsize_t *) malloc(rank * sizeof(hsize_t));
+    offset = (hsize_t *) malloc(rank * sizeof(hsize_t));
+    ext_dims = (hsize_t *) malloc(rank * sizeof(hsize_t));
+    chunk_dims = (hsize_t *) malloc(rank * sizeof(hsize_t));
+
+    /* extend or create if needed, and select the last block */
+    if (link_exists(dset, path)) {
+        h5status = H5Sget_simple_extent_dims(dataspace, hdfdims, maxdims);
+        for (n = 0; n<ndim; n++) {
+            if (dims[n] != hdfdims[n+1]) {
+                return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Dimensions are incorrect.");
+            }
+        }
+        /* extend it by one */
+        hdfdims[0] += 1;
+        h5status = H5Dset_extent(dataset, hdfdims);
+        /* Select the last block */
+        ext_dims[0] = 1;
+        for (n = 0; n < ndim; n++) {
+            offset[n + 1] = 0;
+            ext_dims[n + 1] = dims[n];
+        }
+    } else {
+        hdfdims[0] = 1;
+        maxdims[0] = H5S_UNLIMITED;
+        ext_dims[0] = 1;
+        chunk_dims[0] = 1;
+        for (n = 0; n < ndim; n++) {
+            hdfdims[n + 1] = dims[n];
+            maxdims[n + 1] = dims[n];
+            offset[n + 1] = 0;
+            ext_dims[n + 1] = dims[n];
+            chunk_dims[n + 1] = dims[n];
+        }
+        dataspace = H5Screate_simple(rank, hdfdims, maxdims);
+        props = H5Pcreate(H5P_DATASET_CREATE);
+        /* enable chunking so that the dataset is extensible */
+        h5status = H5Pset_chunk (props, rank, chunk_dims);
+        /* create */
+        dataset = H5Dcreate2(dset->fileid, path, datatype, dataspace, H5P_DEFAULT, props,  H5P_DEFAULT);
+        if (dataset < 0) {
+            H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+            return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to create dataset");
+        }
+        h5status = H5Pclose(props);
+        if (h5status < 0) {
+            H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+            return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to close property list");
+        }
+    }
+
+    /* Select the last block */
+    offset[0] = hdfdims[0]-1;
+    filespace = H5Dget_space(dataset);
+    h5status  = H5Sselect_hyperslab (filespace, H5S_SELECT_SET, offset, NULL, ext_dims, NULL);
+    memspace = H5Screate_simple(rank, ext_dims, NULL);
+
+    free(hdfdims);
+    free(ext_dims);
+    free(offset);
+    free(maxdims);
+    free(chunk_dims);
+
+    /* Write it */
+    /* since this is a 1 element array we can just pass the pointer to the header */
+    h5status = H5Dwrite(dataset, datatype, memspace, filespace, H5P_DEFAULT, elem);
+    if (h5status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to write dataset");
+    }
+    
+    /* Clean up */
+    h5status = H5Sclose(dataspace);
+    if (h5status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to close dataspace");
+    }
+    h5status = H5Sclose(filespace);
+    if (h5status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to close filespace");
+    }
+    h5status = H5Sclose(memspace);
+    if (h5status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to close memspace");
+    }
+    h5status = H5Dclose(dataset);
+    if (h5status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to close dataset");
+    }
+
+    return ISMRMRD_NOERROR;
+}
+
+int read_element(const ISMRMRD_Dataset *dset, const char *path, void *elem,
+        const hid_t datatype, uint32_t index)
+{
+    hid_t dataset, filespace, memspace;
+    hsize_t *hdfdims = NULL, *offset = NULL, *count = NULL;
+    herr_t h5status = 0;
+    int rank = 0;
+
+    if (NULL == dset) {
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL.");
+    }
+
+    path = make_path(dset, "data");
+
+    /* Check path existence */
+    if (!link_exists(dset, path)) {
+        return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Data not found.");
+    }
+
+    /* open dataset */
+    dataset = H5Dopen2(dset->fileid, path, H5P_DEFAULT);
+
+    /* TODO check that the dataset's datatype is correct */
+    filespace = H5Dget_space(dataset);
+
+    rank = H5Sget_simple_extent_ndims(filespace);
+
+    hdfdims = (hsize_t *)malloc(rank * sizeof(*hdfdims));
+    offset = (hsize_t *)malloc(rank * sizeof(*offset));
+    count = (hsize_t *)malloc(rank * sizeof(*count));
+
+    h5status = H5Sget_simple_extent_dims(filespace, hdfdims, NULL);
+
+    if (index >= hdfdims[0]) {
+        return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Index out of range.");
+    }
+
+    offset[0] = index;
+    count[0] = 1;
+    h5status = H5Sselect_hyperslab(filespace, H5S_SELECT_SET, offset, NULL, count, NULL);
+    memspace = H5Screate_simple(1, count, NULL);
+
+    h5status = H5Dread(dataset, datatype, memspace, filespace, H5P_DEFAULT, elem);
+    if (h5status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to read from dataset.");
+    }
+
+    h5status = H5Sclose(filespace);
+    if (h5status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to close filespace.");
+    }
+    h5status = H5Sclose(memspace);
+    if (h5status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to close memspace.");
+    }
+    h5status = H5Dclose(dataset);
+    if (h5status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to close dataset.");
+    }
+
+    return ISMRMRD_NOERROR;
 }
 
 /********************/
 /* Public functions */
 /********************/
-int ismrmrd_init_dataset(ISMRMRD_Dataset *dset, const char *filename, const char *groupname) {
-    if (dset) {
-        dset->filename = (char *) malloc(strlen(filename) + 1);
-        if (dset->filename == NULL) {
-            return ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to malloc dataset groupname");
-        }
-        strcpy(dset->filename, filename);
-        
-        dset->groupname = (char *) malloc(strlen(groupname) + 1);
-        if (dset->groupname == NULL) {
-            return ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to malloc dataset groupname");
-        }
-        strcpy(dset->groupname, groupname);
+int ismrmrd_init_dataset(ISMRMRD_Dataset *dset, const char *filename,
+        const char *groupname)
+{
+    if (NULL == dset) {
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
+    }
 
-        dset->fileid = 0;
-        return ISMRMRD_NOERROR;
+    /* Disable HDF5 automatic error printing */
+    H5Eset_auto2(H5E_DEFAULT, NULL, NULL);
+
+    dset->filename = (char *) malloc(strlen(filename) + 1);
+    if (dset->filename == NULL) {
+        return ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to malloc dataset groupname");
     }
-    else {
-        return ISMRMRD_RUNTIMEERROR;
+    strcpy(dset->filename, filename);
+    
+    dset->groupname = (char *) malloc(strlen(groupname) + 1);
+    if (dset->groupname == NULL) {
+        return ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to malloc dataset groupname");
     }
+    strcpy(dset->groupname, groupname);
+
+    dset->fileid = 0;
+    return ISMRMRD_NOERROR;
 }
 
 int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool create_if_needed) {
-    // TODO add a mode for clobbering the dataset if it exists.
-    if (dset) {
-        hid_t fileid;
-        
-        /* Try opening the file */
-        /* Note the is_hdf5 function doesn't work well when trying to open multiple files */
-        /* Suppress errors with the try macro. */
-        H5E_BEGIN_TRY {
-            fileid = H5Fopen(dset->filename, H5F_ACC_RDWR, H5P_DEFAULT);
-        } H5E_END_TRY
-    
+    /* TODO add a mode for clobbering the dataset if it exists. */
+    hid_t fileid;
+
+    if (NULL == dset) {
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
+        return false;
+    }
+
+    /* Try opening the file */
+    /* Note the is_hdf5 function doesn't work well when trying to open multiple files */
+    fileid = H5Fopen(dset->filename, H5F_ACC_RDWR, H5P_DEFAULT);
+
+    if (fileid > 0) {
+        dset->fileid = fileid;
+    }
+    else if (create_if_needed == false) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        /* Some sort of error opening the file - Maybe it doesn't exist? */
+        return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to open file.");
+    }
+    else {
+        /* Try creating a new file using the default properties. */
+        /* this will be readwrite */
+        fileid = H5Fcreate(dset->filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
         if (fileid > 0) {
             dset->fileid = fileid;
         }
-        else if (create_if_needed == false) {
-            /* Some sort of error opening the file */
-            /* Maybe it doesn't exist? */
+        else {
+            /* Error opening the file */
+            H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
             return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to open file.");
         }
-        else {
-            /* Try creating a new file using the default properties. */
-            /* this will be readwrite */
-            H5E_BEGIN_TRY {
-                fileid = H5Fcreate(dset->filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-            } H5E_END_TRY
-            if (fileid > 0) {
-                dset->fileid = fileid;
-            }
-            else {
-            /* Error opening the file */
-                return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to open file.");
-            }
-        }
-        /* Open the existing dataset */
-        /* ensure that /groupname exists */
-        create_link(dset, dset->groupname);
-        
-        return ISMRMRD_NOERROR;
     }
-    else {
-        return ISMRMRD_RUNTIMEERROR;
-    }
+    /* Open the existing dataset */
+    /* ensure that /groupname exists */
+    create_link(dset, dset->groupname);
+    
+    return ISMRMRD_NOERROR;
 }
 
 int ismrmrd_close_dataset(ISMRMRD_Dataset *dset) {
-    if (dset) {
-        herr_t h5status;
-        
-        /* Check for a valid fileid before trying to close the file */
-        if (dset->fileid > 0) {
-            h5status = H5Fclose (dset->fileid);
-            dset->fileid = 0;
-            if (h5status < 0) {
-                return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to close dataset.");
-            }
+    herr_t h5status;
+
+    if (NULL == dset) {
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
+        return false;
+    }
+
+    /* Check for a valid fileid before trying to close the file */
+    if (dset->fileid > 0) {
+        h5status = H5Fclose (dset->fileid);
+        dset->fileid = 0;
+        if (h5status < 0) {
+            H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+            return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to close dataset.");
         }
-        
-        return ISMRMRD_NOERROR;
     }
-    else {
-        return ISMRMRD_RUNTIMEERROR;
-    }
+    
+    return ISMRMRD_NOERROR;
 }
 
 int ismrmrd_write_header(const ISMRMRD_Dataset *dset, const char *xmlstring) {
@@ -718,17 +833,33 @@ int ismrmrd_write_header(const ISMRMRD_Dataset *dset, const char *xmlstring) {
     /* We have to wrap the xmlstring in an array */
     buff[0] = (void *) xmlstring;  /* safe to get rid of const the type */
     h5status = H5Dwrite(dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, buff);
+    if (h5status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to write xml string to dataset");
+    }
     
     /* Clean up */
     h5status = H5Pclose(props);
-    h5status = H5Tclose(datatype);
-    h5status = H5Sclose(dataspace);
-    h5status = H5Dclose(dataset);
-    
     if (h5status < 0) {
-        return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to write header.");
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to close property list.");
     }
-        
+    h5status = H5Tclose(datatype);
+    if (h5status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to close datatype.");
+    }
+    h5status = H5Sclose(dataspace);
+    if (h5status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to close dataspace.");
+    }
+    h5status = H5Dclose(dataset);
+    if (h5status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to close dataset.");
+    }
+
     return ISMRMRD_NOERROR;
 }
 
@@ -746,11 +877,17 @@ char * ismrmrd_read_header(const ISMRMRD_Dataset *dset) {
     path = make_path(dset, "xml");
         
     if (link_exists(dset, path)) {
-        void *buff[1];
+        void *buff[1] = { NULL };
         dataset = H5Dopen2(dset->fileid, path, H5P_DEFAULT);
         datatype = get_hdf5type_xmlheader();
         /* Read it into a 1D buffer*/
         h5status = H5Dread(dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, buff);
+        if (h5status < 0 || buff[0] == NULL) {
+            H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+            ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to read header.");
+            free(path);
+            return NULL;
+        }
         
         /* Unpack */
         xmlstring = (char *) malloc(strlen(buff[0])+1);
@@ -762,18 +899,23 @@ char * ismrmrd_read_header(const ISMRMRD_Dataset *dset) {
         
         /* Clean up */
         h5status = H5Tclose(datatype);
-        h5status = H5Dclose(dataset);
-        free(path);
-        
         if (h5status < 0) {
-            ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to read header.");
+            H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+            ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to close XML header HDF5 datatype.");
             return NULL;
         }
-            
+        h5status = H5Dclose(dataset);
+        if (h5status < 0) {
+            H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+            ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to close XML header HDF5 dataset.");
+            return NULL;
+        }
+
+        free(path);
         return xmlstring;
     }
     else {
-        // No XML String found
+        /* No XML String found */
         ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "No XML Header found.");
         free(path);
         return NULL;
@@ -827,22 +969,24 @@ int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquis
         return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to append acquisition.");
     }
 
-    /* Clean up */
-    H5Tclose(datatype);
     free(path);
+
+    /* Clean up */
+    status = H5Tclose(datatype);
+    if (status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to close datatype.");
+    }
     
     return ISMRMRD_NOERROR;
 }
 
 int ismrmrd_read_acquisition(const ISMRMRD_Dataset *dset, uint32_t index, ISMRMRD_Acquisition *acq)
 {
-    hid_t dataset, datatype, filespace, memspace;
-    hsize_t dims[1];
-    hsize_t offset[1];
-    hsize_t dimsr[1] = {1};
-    herr_t h5status;
+    hid_t datatype;
+    herr_t status;
     HDF5_Acquisition hdf5acq;
-    char *path;        
+    char *path;
 
     if (dset==NULL) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL.");
@@ -851,52 +995,28 @@ int ismrmrd_read_acquisition(const ISMRMRD_Dataset *dset, uint32_t index, ISMRMR
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Acquisition pointer should not be NULL.");
     }
 
-    /* The path to the acqusition data */    
+    /* The path to the acquisition data */
     path = make_path(dset, "data");
-            
-    /* Check the path, extend or create if needed */
-    if (link_exists(dset, path)) {
-        /* open */
-        dataset = H5Dopen2(dset->fileid, path, H5P_DEFAULT);
-        
-        /* The acquisition datatype */
-        datatype = get_hdf5type_acquisition();
-        /* TODO check that the dataset's datatype is correct */
-                
-        filespace = H5Dget_space(dataset);
-        h5status = H5Sget_simple_extent_dims(filespace, dims, NULL);
-                
-        if (index < dims[0]) {
-            offset[0] = index;
-            h5status = H5Sselect_hyperslab (filespace, H5S_SELECT_SET, offset, NULL, dimsr, NULL);
-            memspace = H5Screate_simple(1, dimsr, NULL);
-            h5status = H5Dread(dataset, datatype, memspace, filespace, H5P_DEFAULT, (void *) &hdf5acq);
-            memcpy(&acq->head, &hdf5acq.head, sizeof(ISMRMRD_AcquisitionHeader));
-            ismrmrd_make_consistent_acquisition(acq);
-            memcpy(acq->traj, hdf5acq.traj.p, ismrmrd_size_of_acquisition_traj(acq));
-            memcpy(acq->data, hdf5acq.data.p, ismrmrd_size_of_acquisition_data(acq));
-                    
-            /* clean up */
-            free(hdf5acq.traj.p);
-            free(hdf5acq.data.p);
-            h5status = H5Tclose(datatype);
-            h5status = H5Sclose(filespace);
-            h5status = H5Sclose(memspace);
-            h5status = H5Dclose(dataset);
-            if (h5status < 0) {
-                return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to read acquisition.");
-            }
-        }
-        else {
-            /* index out of range */
-            return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Acquisition index out of range.");
-        }
+
+    /* The acquisition datatype */
+    datatype = get_hdf5type_acquisition();
+
+    status = read_element(dset, path, &hdf5acq, datatype, index);
+    memcpy(&acq->head, &hdf5acq.head, sizeof(ISMRMRD_AcquisitionHeader));
+    ismrmrd_make_consistent_acquisition(acq);
+    memcpy(acq->traj, hdf5acq.traj.p, ismrmrd_size_of_acquisition_traj(acq));
+    memcpy(acq->data, hdf5acq.data.p, ismrmrd_size_of_acquisition_data(acq));
+
+    /* clean up */
+    free(hdf5acq.traj.p);
+    free(hdf5acq.data.p);
+
+    status = H5Tclose(datatype);
+    if (status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to close datatype.");
     }
-    else {
-        /* No data */
-        return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Data not found.");
-    }
-    
+
     return ISMRMRD_NOERROR;
 }
 
@@ -956,7 +1076,11 @@ int ismrmrd_append_image(const ISMRMRD_Dataset *dset, const char *varname,
     free(datapath);
             
     /* Final cleanup */
-    H5Tclose(datatype);
+    status = H5Tclose(datatype);
+    if (status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to close datatype.");
+    }
     free(path);
     
     return ISMRMRD_NOERROR;
@@ -1023,7 +1147,11 @@ int ismrmrd_append_array(const ISMRMRD_Dataset *dset, const char *varname,
     
     /* Final cleanup */
     free(dims);
-    H5Tclose(datatype);
+    status = H5Tclose(datatype);
+    if (status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to close datatype.");
+    }
     free(path);
     
     return ISMRMRD_NOERROR;

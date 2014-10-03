@@ -106,6 +106,7 @@ enum ISMRMRD_ErrorCodes {
     ISMRMRD_FILEERROR,
     ISMRMRD_TYPEERROR,
     ISMRMRD_RUNTIMEERROR,
+    ISMRMRD_HDF5ERROR,
     ISMRMRD_ENDERROR
 };
 
@@ -409,7 +410,7 @@ EXPORTISMRMRD void ismrmrd_directions_to_quaternion(float read_dir[3], float pha
 EXPORTISMRMRD void ismrmrd_quaternion_to_directions(float quat[4], float read_dir[3], float phase_dir[3], float slice_dir[3]);
 /** @} */
 
-#pragma pack(pop) // Restore old alignment
+#pragma pack(pop) /* Restore old alignment */
 
 #ifdef __cplusplus
 } // extern "C"
@@ -721,4 +722,4 @@ public:
 
 #endif
 
-#endif // ISMRMRD_H
+#endif /* ISMRMRD_H */
