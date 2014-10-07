@@ -1,12 +1,13 @@
 find_package(Boost COMPONENTS program_options)
 find_package(FFTW3 COMPONENTS single)
 
-if(WIN32)
-    link_directories(${Boost_LIBRARY_DIRS})
-endif(WIN32)
+if(FFTW3_FOUND AND Boost_FOUND)
+    message("FFTW3 and Boost Found, building utilities")
+    
+    if(WIN32)
+        link_directories(${Boost_LIBRARY_DIRS})
+    endif(WIN32)
 
-if(FFTW3_FOUND)
-    message("FFTW3 Found, building utilities")
     include_directories(
         ${CMAKE_SOURCE_DIR/include}
         ${Boost_INCLUDE_DIR}
@@ -45,6 +46,6 @@ if(FFTW3_FOUND)
     install(TARGETS ismrmrd_recon_cartesian_2d
 			DESTINATION bin)
 
-else(FFTW3_FOUND)
-	message("FFTW3 NOT Found, cannot build utilities")
-endif(FFTW3_FOUND)
+else(FFTW3_FOUND AND Boost_FOUND)
+	message("FFTW3 or Boost NOT Found, cannot build utilities")
+endif(FFTW3_FOUND AND Boost_FOUND)
