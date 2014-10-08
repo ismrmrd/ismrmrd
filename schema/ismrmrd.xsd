@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<xs:schema xmlns="http://www.ismrm.org/ISMRMRD" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.ismrm.org/ISMRMRD">
+<xs:schema xmlns="http://www.ismrm.org/ISMRMRD" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.ismrm.org/ISMRMRD" version="1">
 
     <xs:element name="ismrmrdHeader" type="ismrmrdHeader"/>
 
     <xs:complexType name="ismrmrdHeader">
       <xs:sequence>
+        <xs:element maxOccurs="1" minOccurs="0" name="version" type="xs:long"/>
         <xs:element maxOccurs="1" minOccurs="0" name="subjectInformation" type="subjectInformationType"/>
         <xs:element maxOccurs="1" minOccurs="0" name="studyInformation" type="studyInformationType"/>
         <xs:element maxOccurs="1" minOccurs="0" name="measurementInformation" type="measurementInformationType"/>

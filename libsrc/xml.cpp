@@ -212,6 +212,9 @@ namespace ISMRMRD
       pugi::xml_node encoding = root.child("encoding");
       pugi::xml_node sequenceParameters = root.child("sequenceParameters");
       pugi::xml_node userParameters = root.child("userParameters");
+
+      // Parsing version
+      h.version = parse_optional_long(root, "version");
       
       //Parsing experimentalConditions
       if (!experimentalConditions) {
@@ -221,7 +224,6 @@ namespace ISMRMRD
 	e.H1resonanceFrequency_Hz = std::atoi(experimentalConditions.child_value("H1resonanceFrequency_Hz"));
 	h.experimentalConditions = e;
       }
-
       
       //Parsing encoding section
       if (!encoding) {
@@ -517,6 +519,13 @@ namespace ISMRMRD
     a = root.append_attribute("xsi:schemaLocation");
     a.set_value("http://www.ismrm.org/ISMRMRD ismrmrd.xsd");
 
+    a = root.append_attribute("version");
+    a.set_value("1");  // TODO how should this come from a definition in the header?
+
+    if (h.version) {
+      append_optional_node(root,"version",h.version);
+    }
+    
     if (h.subjectInformation) {
       n1 = root.append_child();
       n1.set_name("subjectInformation");

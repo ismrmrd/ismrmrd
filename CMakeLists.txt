@@ -50,10 +50,10 @@ endif (WIN32)
 #the flexible header. The micro number changes when there are small changes
 #in the utility libraries, that don't affect the data format itself.
 set(ISMRMRD_VERSION_MAJOR 1)
-set(ISMRMRD_VERSION_MINOR 0)
-set(ISMRMRD_VERSION_PATCH 1) 
+set(ISMRMRD_VERSION_MINOR 1)
+set(ISMRMRD_VERSION_PATCH 0) 
 
-set(ISMRMRD_XML_SCHEMA_SHA1 "6f1ed6b9209075de481c02e66a37913d9a46b772")
+set(ISMRMRD_XML_SCHEMA_SHA1 "5aa55db3d67187febb1b8bb8da54e67fc745ebd0")
 
 #Remove line breaks and white space that does not change the meaning of the schema
 file(STRINGS ${CMAKE_SOURCE_DIR}/schema/ismrmrd.xsd SCHEMA_STRINGS) #Read all strings from file 

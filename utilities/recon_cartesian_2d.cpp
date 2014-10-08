@@ -54,6 +54,13 @@ int main(int argc, char** argv)
     ISMRMRD::deserialize(xml.c_str(),hdr);
 
     //Let's print some information from the header
+    if (hdr.version) {
+        std::cout << "XML Header version: " << hdr.version << std::endl;
+    }
+    else {
+        std::cout << "XML Header unspecified version." << std::endl;
+    }
+    
     if (hdr.encoding.size() != 1) {
         std::cout << "Number of encoding spaces: " << hdr.encoding.size() << std::endl;
         std::cout << "This simple reconstruction application only supports one encoding space" << std::endl;

@@ -304,6 +304,7 @@ namespace ISMRMRD
 
   struct IsmrmrdHeader
   {
+    Optional<long> version;
     Optional<SubjectInformation> subjectInformation;
     Optional<StudyInformation> studyInformation;
     Optional<MeasurementInformation> measurementInformation;

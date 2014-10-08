@@ -151,6 +151,7 @@ int main(int argc, char** argv)
 
 	//Let's create a header, we will use the C++ classes in ismrmrd/xml.h
 	IsmrmrdHeader h;
+        h.version = 1;
 	h.experimentalConditions.H1resonanceFrequency_Hz = 63500000; //~1.5T        
 
 	AcquisitionSystemInformation sys;
