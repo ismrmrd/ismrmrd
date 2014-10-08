@@ -90,6 +90,20 @@ endif()
 
 set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
 set(ISMRMRD_SOVERSION ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR})
+
+# Generate the version.h header file
+find_package(Git)
+if (GIT_FOUND)
+  execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse HEAD WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE ISMRMRD_GIT_SHA1)
+  string(STRIP ${ISMRMRD_GIT_SHA1} ISMRMRD_GIT_SHA1)
+else()
+  set(ISMRMRD_GIT_SHA1 "NA")
+endif()
+configure_file(include/version.in ${CMAKE_BINARY_DIR}/include/ismrmrd/version.h)
+install(FILES ${CMAKE_BINARY_DIR}/include/ismrmrd/version.h DESTINATION include/ismrmrd)
+# note: for the utilities in this project that need ismrmrd/version.h
+# remember to add ${CMAKE_BINARY_DIR}/include to the include path
+
 #  ---   VERSIONING  (end) ----
  
 #  ---   Main Library  (begin) ----
@@ -114,6 +128,7 @@ endif (WIN32)
 # include directories for main library
 set(ISMRMRD_TARGET_INCLUDE_DIRS
   include
+  ${CMAKE_BINARY_DIR}/include
   ${HDF5_C_INCLUDE_DIR}
 )
 
@@ -173,8 +188,6 @@ install(FILES
 DESTINATION
   share/ismrmrd/cmake
 )
-
-add_subdirectory(info)
 
 #  ---   Main Library  (end) ----
 

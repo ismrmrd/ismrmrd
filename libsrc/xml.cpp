@@ -1,4 +1,5 @@
 #include "ismrmrd/xml.h"
+#include "ismrmrd/version.h"
 #include "pugixml.hpp"
 #include <cstdlib>
 
@@ -520,7 +521,7 @@ namespace ISMRMRD
     a.set_value("http://www.ismrm.org/ISMRMRD ismrmrd.xsd");
 
     a = root.append_attribute("version");
-    a.set_value("1");  // TODO how should this come from a definition in the header?
+    a.set_value(ISMRMRD_XMLHDR_VERSION);
 
     if (h.version) {
       append_optional_node(root,"version",h.version);

@@ -10,6 +10,7 @@
 #include "ismrmrd/ismrmrd.h"
 #include "ismrmrd/xml.h"
 #include "ismrmrd/dataset.h"
+#include "ismrmrd/version.h"
 #include "ismrmrd_phantom.h"
 #include "ismrmrd_fftw.h"
 
@@ -151,7 +152,7 @@ int main(int argc, char** argv)
 
 	//Let's create a header, we will use the C++ classes in ismrmrd/xml.h
 	IsmrmrdHeader h;
-        h.version = 1;
+        h.version = ISMRMRD_XMLHDR_VERSION;
 	h.experimentalConditions.H1resonanceFrequency_Hz = 63500000; //~1.5T        
 
 	AcquisitionSystemInformation sys;

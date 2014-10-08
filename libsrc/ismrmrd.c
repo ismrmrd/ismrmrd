@@ -14,6 +14,7 @@
 #endif /* __cplusplus */
 
 #include "ismrmrd/ismrmrd.h"
+#include "ismrmrd/version.h"
 
 #ifdef __cplusplus
 namespace ISMRMRD {
@@ -43,7 +44,7 @@ int ismrmrd_init_acquisition_header(ISMRMRD_AcquisitionHeader *hdr) {
     }
 
     memset(hdr, 0, sizeof(ISMRMRD_AcquisitionHeader));
-    hdr->version = ISMRMRD_VERSION;
+    hdr->version = ISMRMRD_VERSION_MAJOR;
     hdr->number_of_samples = 0;
     hdr->available_channels = 1;
     hdr->active_channels = 1;
@@ -184,7 +185,7 @@ int ismrmrd_init_image_header(ISMRMRD_ImageHeader *hdr) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not NULL.");
     }
     memset(hdr, 0, sizeof(ISMRMRD_ImageHeader));
-    hdr->version = ISMRMRD_VERSION;
+    hdr->version = ISMRMRD_VERSION_MAJOR;
     hdr->matrix_size[0] = 0;
     hdr->matrix_size[1] = 1;
     hdr->matrix_size[2] = 1;
@@ -343,7 +344,7 @@ int ismrmrd_init_ndarray(ISMRMRD_NDArray *arr) {
         return ISMRMRD_RUNTIMEERROR;
     }
 
-    arr->version = ISMRMRD_VERSION;
+    arr->version = ISMRMRD_VERSION_MAJOR;
     arr->data_type = 0; /* no default data type */
     arr->ndim = 0;
     

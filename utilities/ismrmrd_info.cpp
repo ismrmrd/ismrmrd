@@ -1,5 +1,5 @@
 #include <iostream>
-#include "ismrmrd_version.h"
+#include "ismrmrd/version.h"
 
 int main(int argc, char** argv)
 {

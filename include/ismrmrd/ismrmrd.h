@@ -85,7 +85,6 @@ extern "C" {
  * Constants
  */
 enum ISMRMRD_Constants {
-    ISMRMRD_VERSION = 1,
     ISMRMRD_USER_INTS = 8,
     ISMRMRD_USER_FLOATS = 8,
     ISMRMRD_PHYS_STAMPS = 3,
