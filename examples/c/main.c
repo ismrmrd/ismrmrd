@@ -23,7 +23,7 @@ int main(void)
     ISMRMRD_Image im;
     uint32_t index;
     uint64_t loc;
-    uint64_t nacq_read;
+    uint32_t nacq_read;
     const char *filename = "myfile.h5";
     const char *groupname = "/dataset";
     const char *xmlhdr = "Yo! This is some text for the header.";
@@ -55,7 +55,13 @@ int main(void)
         ismrmrd_make_consistent_acquisition(&acq);
         for (k=0; k<acq.head.number_of_samples; k++) {
             for (c=0; c<acq.head.active_channels; c++) {
+#ifdef _MSC_VER
+                /* Windows C compilers don't have a good complex type */
+                acq.data[k*acq.head.active_channels + c].real = n;
+                acq.data[k*acq.head.active_channels + c].imag = n;
+#else
                 acq.data[k*acq.head.active_channels + c] = n + I*n;
+#endif
             }
         }
         if (n == 0) {
@@ -83,7 +89,7 @@ int main(void)
 
     /* Get the number of acquisitions */
     nacq_read = ismrmrd_get_number_of_acquisitions(&dataset2);
-    printf("Number of Acquisitions: %lu\n", nacq_read);
+    printf("Number of Acquisitions: %u\n", nacq_read);
 
     /* read the next to last one */
     ismrmrd_init_acquisition(&acq2);
@@ -97,14 +103,24 @@ int main(void)
     printf("Acquisition index: %u\n", index);
     ismrmrd_read_acquisition(&dataset2, index, &acq2);
     printf("Number of samples: %u\n", acq2.head.number_of_samples);
-    printf("Flags: %lu\n", acq2.head.flags);
+    printf("Flags: %llu\n", acq2.head.flags);
+#ifdef _MSC_VER
+    /* Windows C compilers don't have a good complex type */
+    printf("Data 3: %f\t 2: %f\n", acq2.data[4].real, acq2.data[4].imag);
+#else
     printf("Data[4]: %f, %f\n", creal(acq2.data[4]), cimag(acq2.data[4]));
+#endif
     
     ismrmrd_init_acquisition(&acq3);
     ismrmrd_copy_acquisition(&acq3, &acq2);
     
     printf("Pointers 3: %p\t 2: %p\n", (void *) acq3.data, (void *) acq2.data);
+#ifdef _MSC_VER
+    /* Windows C compilers don't have a good complex type */
+    printf("Data 3: %f\t 2: %f\n", acq3.data[4].real, acq2.data[4].real);
+#else
     printf("Data 3: %f\t 2: %f\n", creal(acq3.data[4]), creal(acq2.data[4]));
+#endif
 
     /* Create and store an image */
     ismrmrd_init_image(&im);
