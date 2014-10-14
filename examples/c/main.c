@@ -13,8 +13,6 @@ void myerror(const char *file, int line, const char *func, int code, const char 
 
 int main(void)
 {
-    int status;
-
     /* Set the error handler */
     ismrmrd_set_error_handler(myerror);
 
@@ -26,11 +24,11 @@ int main(void)
     const char *filename = "myfile.h5";
     const char *groupname = "/dataset";
     ismrmrd_init_dataset(&dataset1, filename, groupname);
-    status = ismrmrd_open_dataset(&dataset1, true);
+    ismrmrd_open_dataset(&dataset1, true);
 
     /* Write an XML header */
     const char *xmlhdr = "Yo! This is some text for the header.";
-    status = ismrmrd_write_header(&dataset1, xmlhdr);
+    ismrmrd_write_header(&dataset1, xmlhdr);
 
     /* Append some acquisitions */
     ISMRMRD_Acquisition acq;
@@ -59,7 +57,7 @@ int main(void)
     }
     
     /* Close the dataset */
-    status = ismrmrd_close_dataset(&dataset1);
+    ismrmrd_close_dataset(&dataset1);
 
     /************/
     /* Old File */
@@ -67,7 +65,7 @@ int main(void)
     /* Reopen the file as a different dataset */
     ISMRMRD_Dataset dataset2;
     ismrmrd_init_dataset(&dataset2, filename, groupname);
-    status = ismrmrd_open_dataset(&dataset2, false);
+    ismrmrd_open_dataset(&dataset2, false);
 
     /* Read the header */
     char *xmlstring = ismrmrd_read_header(&dataset2);
@@ -90,7 +88,7 @@ int main(void)
     printf("Acquisition index: %u\n", index);
     ismrmrd_read_acquisition(&dataset2, index, &acq2);
     printf("Number of samples: %u\n", acq2.head.number_of_samples);
-    printf("Flags: %llu\n", acq2.head.flags);
+    printf("Flags: %lu\n", acq2.head.flags);
     printf("Data[4]: %f, %f\n", creal(acq2.data[4]), cimag(acq2.data[4]));
     
     ISMRMRD_Acquisition acq3;
@@ -131,7 +129,7 @@ int main(void)
     free(xmlstring);
 
     /* Close the dataset */
-    status = ismrmrd_close_dataset(&dataset2);
+    ismrmrd_close_dataset(&dataset2);
 
     //NDArray arr;
     //initNDArray(&arr);

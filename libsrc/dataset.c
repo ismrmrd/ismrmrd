@@ -543,6 +543,8 @@ int append_element(const ISMRMRD_Dataset * dset, const char * path,
             return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Dimensions are incorrect.");
         }
     } else {
+        dataset   = -1; /* will be initialized below */
+        dataspace = -1; /* will be initialized below */
         rank = ndim + 1;
     }
 
