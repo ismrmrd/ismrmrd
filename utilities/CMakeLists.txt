@@ -1,10 +1,15 @@
 # Build the info application
 message("Building info application")
 include_directories(${CMAKE_BINARY_DIR}/include
-                               ${CMAKE_SOURCE_DIR}/include)
+                    ${CMAKE_SOURCE_DIR}/include)
+
 add_executable(ismrmrd_info ismrmrd_info.cpp)
 target_link_libraries(ismrmrd_info ismrmrd)
- install(TARGETS ismrmrd_info DESTINATION bin)
+install(TARGETS ismrmrd_info DESTINATION bin)
+
+add_executable(ismrmrd_read_timing_test read_timing_test.cpp)
+target_link_libraries(ismrmrd_read_timing_test ismrmrd)
+install(TARGETS ismrmrd_read_timing_test DESTINATION bin)
 
 find_package(Boost COMPONENTS program_options)
 find_package(FFTW3 COMPONENTS single)

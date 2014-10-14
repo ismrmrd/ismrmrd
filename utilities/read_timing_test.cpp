@@ -7,7 +7,8 @@
 #include <iostream>
 #include <string>
 
-#include "ismrmrd_hdf5.h"
+#include "ismrmrd/ismrmrd.h"
+#include "ismrmrd/dataset.h"
 
 
 class Timer
@@ -71,12 +72,12 @@ int main(int argc, char** argv)
 
   {
     Timer t("READ TIMER");
-    ISMRMRD::IsmrmrdDataset d(argv[1],"dataset");
-    unsigned int number_of_acquisitions = d.getNumberOfAcquisitions();
-    boost::shared_ptr<ISMRMRD::Acquisition> acq;
-    for (unsigned int i = 0; i < number_of_acquisitions; i++) {
-        acq = d.readAcquisition(i);
-      //We'll just throw the data away here. 
+    ISMRMRD::Dataset d(argv[1],"dataset", false);
+    uint32_t number_of_acquisitions = d.getNumberOfAcquisitions();
+    ISMRMRD::Acquisition acq;
+    for (uint32_t i = 0; i < number_of_acquisitions; i++) {
+        d.readAcquisition(i, acq);
+        //We'll just throw the data away here. 
     }
   }
   
