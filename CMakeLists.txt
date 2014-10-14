@@ -198,7 +198,6 @@ enable_testing()
 add_subdirectory(doc)
 add_subdirectory(examples/c)
 add_subdirectory(utilities)
-#add_subdirectory(tests)
 #add_subdirectory(matlab)
 #add_subdirectory(bindings)
 
