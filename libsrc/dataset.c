@@ -1086,7 +1086,7 @@ int ismrmrd_append_image(const ISMRMRD_Dataset *dset, const char *varname,
     free(path);
     
     return ISMRMRD_NOERROR;
-};
+}
 
 uint32_t ismrmrd_get_number_of_images(const ISMRMRD_Dataset *dset, const char *varname)
 {

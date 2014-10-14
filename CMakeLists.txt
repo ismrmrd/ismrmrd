@@ -36,7 +36,7 @@ if (WIN32)
     set(CMAKE_MODULE_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
     add_definitions(-D__func__=__FUNCTION__)
 else (WIN32)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wall")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c89 -pedantic -Wall")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 endif (WIN32)
 
@@ -196,7 +196,7 @@ enable_testing()
 
 # process subdirectories
 add_subdirectory(doc)
-#add_subdirectory(examples/c)
+add_subdirectory(examples/c)
 add_subdirectory(utilities)
 #add_subdirectory(matlab)
 #add_subdirectory(bindings)

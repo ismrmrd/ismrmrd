@@ -13,6 +13,22 @@ void myerror(const char *file, int line, const char *func, int code, const char 
 
 int main(void)
 {
+
+    /* Declarations */
+    int nacq_write, n, k, c;
+    ISMRMRD_Dataset dataset1;
+    ISMRMRD_Acquisition acq, acq2, acq3;
+    ISMRMRD_Dataset dataset2;
+    char *xmlstring;
+    ISMRMRD_Image im;
+    uint32_t index;
+    uint64_t loc;
+    uint64_t nacq_read;
+    const char *filename = "myfile.h5";
+    const char *groupname = "/dataset";
+    const char *xmlhdr = "Yo! This is some text for the header.";
+    const char *attr_string = "Yo! This is some text for the attribute string.";
+
     /* Set the error handler */
     ismrmrd_set_error_handler(myerror);
 
@@ -20,30 +36,25 @@ int main(void)
     /* New File */
     /************/
     /* Create a data set */
-    ISMRMRD_Dataset dataset1;
-    const char *filename = "myfile.h5";
-    const char *groupname = "/dataset";
     ismrmrd_init_dataset(&dataset1, filename, groupname);
     ismrmrd_open_dataset(&dataset1, true);
 
     /* Write an XML header */
-    const char *xmlhdr = "Yo! This is some text for the header.";
     ismrmrd_write_header(&dataset1, xmlhdr);
 
     /* Append some acquisitions */
-    ISMRMRD_Acquisition acq;
-    // must initialize an acquisition before you can use it
+    /* must initialize an acquisition before you can use it */
     ismrmrd_init_acquisition(&acq);
-    int nacq_write = 5;
-    for (int n=0; n < nacq_write; n++) {
-        // must free an acquisition before you can reinitialize it
+    nacq_write = 5;
+    for (n=0; n < nacq_write; n++) {
+        /* must free an acquisition before you can reinitialize it */
         ismrmrd_init_acquisition(&acq);
         ismrmrd_init_acquisition(&acq);
         acq.head.number_of_samples = 128;
         acq.head.active_channels = 4;
         ismrmrd_make_consistent_acquisition(&acq);
-        for (int k=0; k<acq.head.number_of_samples; k++) {
-            for (int c=0; c<acq.head.active_channels; c++) {
+        for (k=0; k<acq.head.number_of_samples; k++) {
+            for (c=0; c<acq.head.active_channels; c++) {
                 acq.data[k*acq.head.active_channels + c] = n + I*n;
             }
         }
@@ -63,22 +74,20 @@ int main(void)
     /* Old File */
     /************/
     /* Reopen the file as a different dataset */
-    ISMRMRD_Dataset dataset2;
     ismrmrd_init_dataset(&dataset2, filename, groupname);
     ismrmrd_open_dataset(&dataset2, false);
 
     /* Read the header */
-    char *xmlstring = ismrmrd_read_header(&dataset2);
+    xmlstring = ismrmrd_read_header(&dataset2);
     printf("Header: %s\n", xmlstring);
 
     /* Get the number of acquisitions */
-    unsigned long nacq_read = ismrmrd_get_number_of_acquisitions(&dataset2);
+    nacq_read = ismrmrd_get_number_of_acquisitions(&dataset2);
     printf("Number of Acquisitions: %lu\n", nacq_read);
 
     /* read the next to last one */
-    ISMRMRD_Acquisition acq2;
     ismrmrd_init_acquisition(&acq2);
-    uint32_t index = 0;
+    index = 0;
     if (nacq_read>1) {
         index = nacq_read - 1;
     }
@@ -91,7 +100,6 @@ int main(void)
     printf("Flags: %lu\n", acq2.head.flags);
     printf("Data[4]: %f, %f\n", creal(acq2.data[4]), cimag(acq2.data[4]));
     
-    ISMRMRD_Acquisition acq3;
     ismrmrd_init_acquisition(&acq3);
     ismrmrd_copy_acquisition(&acq3, &acq2);
     
@@ -99,7 +107,6 @@ int main(void)
     printf("Data 3: %f\t 2: %f\n", creal(acq3.data[4]), creal(acq2.data[4]));
 
     /* Create and store an image */
-    ISMRMRD_Image im;
     ismrmrd_init_image(&im);
     im.head.data_type = ISMRMRD_FLOAT;
     im.head.matrix_size[0] = 256;
@@ -107,7 +114,6 @@ int main(void)
     im.head.matrix_size[2] = 4;
     im.head.channels = 8;
     /* Add an attribute string */
-    const char *attr_string = "Yo! This is some text for the attribute string.";
     im.head.attribute_string_len = strlen(attr_string);
     ismrmrd_make_consistent_image(&im);
     memcpy(im.attribute_string, attr_string, im.head.attribute_string_len);
@@ -116,7 +122,7 @@ int main(void)
     printf("Image Version: %d\n", im.head.version);
     printf("Image String: %s\n", im.attribute_string);
     ismrmrd_append_image(&dataset2, "testimages", 1, &im);
-    for (uint32_t loc=0; loc < 256*256*4*8; loc++) {
+    for (loc=0; loc < 256*256*4*8; loc++) {
         ((float*)im.data)[loc] = 2.0;
     }
     ismrmrd_append_image(&dataset2, "testimages", 1, &im);
@@ -130,11 +136,6 @@ int main(void)
 
     /* Close the dataset */
     ismrmrd_close_dataset(&dataset2);
-
-    //NDArray arr;
-    //initNDArray(&arr);
-    //printf("Array ndim: %d\n", arr.ndim);
-    //printf("Array dim[0]: %d\n", arr.dims[0]);
 
     return 0;
 }

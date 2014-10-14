@@ -120,7 +120,7 @@ enum ISMRMRD_DataTypes {
     ISMRMRD_FLOAT    = 5, /**< corresponds to float */
     ISMRMRD_DOUBLE   = 6, /**< corresponds to double */
     ISMRMRD_CXFLOAT  = 7, /**< corresponds to complex float */
-    ISMRMRD_CXDOUBLE = 8, /**< corresponds to complex double */
+    ISMRMRD_CXDOUBLE = 8  /**< corresponds to complex double */
 };
 
 /**
