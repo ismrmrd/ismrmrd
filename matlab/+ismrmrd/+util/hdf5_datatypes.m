@@ -3,7 +3,7 @@ classdef hdf5_datatypes
 % ISMRMRD HDF5 file
 
 % The names, types, layout and offsets consistent with that generated
-% by the C++ API.  See the note at the bottom of the file for how to
+% by the C API.  See the note at the bottom of the file for how to
 % do this.
 
     properties
@@ -83,31 +83,31 @@ classdef hdf5_datatypes
         end
 
         function b = getType_AcquisitionHeader()
-            b = H5T.create ('H5T_COMPOUND', 360);
+            b = H5T.create ('H5T_COMPOUND', 340);
             H5T.insert(b, 'version', 0, 'H5T_NATIVE_UINT16');
             H5T.insert(b, 'flags', 2, 'H5T_NATIVE_UINT64');
             H5T.insert(b, 'measurement_uid', 10, 'H5T_NATIVE_UINT32');
             H5T.insert(b, 'scan_counter', 14, 'H5T_NATIVE_UINT32');
             H5T.insert(b, 'acquisition_time_stamp', 18, 'H5T_NATIVE_UINT32');
             H5T.insert(b, 'physiology_time_stamp', 22, H5T.array_create('H5T_NATIVE_UINT32',[3]));
-            H5T.insert(b, 'number_of_samples', 54, 'H5T_NATIVE_UINT16');
-            H5T.insert(b, 'available_channels', 56, 'H5T_NATIVE_UINT16');
-            H5T.insert(b, 'active_channels', 58, 'H5T_NATIVE_UINT16');
-            H5T.insert(b, 'channel_mask', 60, H5T.array_create('H5T_NATIVE_UINT64',[16]));
-            H5T.insert(b, 'discard_pre', 188, 'H5T_NATIVE_UINT16');
-            H5T.insert(b, 'discard_post', 190, 'H5T_NATIVE_UINT16');
-            H5T.insert(b, 'center_sample', 192, 'H5T_NATIVE_UINT16');
-            H5T.insert(b, 'encoding_space_ref', 194, 'H5T_NATIVE_UINT16');
-            H5T.insert(b, 'trajectory_dimensions', 196, 'H5T_NATIVE_UINT16');
-            H5T.insert(b, 'sample_time_us', 198, 'H5T_NATIVE_FLOAT');
-            H5T.insert(b, 'position', 202, H5T.array_create('H5T_NATIVE_FLOAT',[3]));
-            H5T.insert(b, 'read_dir', 214, H5T.array_create('H5T_NATIVE_FLOAT',[3]));
-            H5T.insert(b, 'phase_dir', 226, H5T.array_create('H5T_NATIVE_FLOAT',[3]));
-            H5T.insert(b, 'slice_dir', 238, H5T.array_create('H5T_NATIVE_FLOAT',[3]));
-            H5T.insert(b, 'patient_table_position', 250, H5T.array_create('H5T_NATIVE_FLOAT',[3]));
-            H5T.insert(b, 'idx', 262, ismrmrd.util.hdf5_datatypes.getType_EncodingCounters);
-            H5T.insert(b, 'user_int', 296, H5T.array_create('H5T_NATIVE_INT32',[8]));
-            H5T.insert(b, 'user_float', 328, H5T.array_create('H5T_NATIVE_FLOAT',[8]));
+            H5T.insert(b, 'number_of_samples', 34, 'H5T_NATIVE_UINT16');
+            H5T.insert(b, 'available_channels', 36, 'H5T_NATIVE_UINT16');
+            H5T.insert(b, 'active_channels', 38, 'H5T_NATIVE_UINT16');
+            H5T.insert(b, 'channel_mask', 40, H5T.array_create('H5T_NATIVE_UINT64',[16]));
+            H5T.insert(b, 'discard_pre', 168, 'H5T_NATIVE_UINT16');
+            H5T.insert(b, 'discard_post', 170, 'H5T_NATIVE_UINT16');
+            H5T.insert(b, 'center_sample', 172, 'H5T_NATIVE_UINT16');
+            H5T.insert(b, 'encoding_space_ref', 174, 'H5T_NATIVE_UINT16');
+            H5T.insert(b, 'trajectory_dimensions', 176, 'H5T_NATIVE_UINT16');
+            H5T.insert(b, 'sample_time_us', 178, 'H5T_NATIVE_FLOAT');
+            H5T.insert(b, 'position', 182, H5T.array_create('H5T_NATIVE_FLOAT',[3]));
+            H5T.insert(b, 'read_dir', 194, H5T.array_create('H5T_NATIVE_FLOAT',[3]));
+            H5T.insert(b, 'phase_dir', 206, H5T.array_create('H5T_NATIVE_FLOAT',[3]));
+            H5T.insert(b, 'slice_dir', 218, H5T.array_create('H5T_NATIVE_FLOAT',[3]));
+            H5T.insert(b, 'patient_table_position', 230, H5T.array_create('H5T_NATIVE_FLOAT',[3]));
+            H5T.insert(b, 'idx', 242, ismrmrd.util.hdf5_datatypes.getType_EncodingCounters);
+            H5T.insert(b, 'user_int', 276, H5T.array_create('H5T_NATIVE_INT32',[8]));
+            H5T.insert(b, 'user_float', 308, H5T.array_create('H5T_NATIVE_FLOAT',[8]));
         end
 
         function b = getType_Acquisition()
@@ -116,56 +116,61 @@ classdef hdf5_datatypes
             traj = H5T.vlen_create(ismrmrd.util.hdf5_datatypes.getType_float());
             data = H5T.vlen_create(ismrmrd.util.hdf5_datatypes.getType_float());
 
-            b = H5T.create ('H5T_COMPOUND', 392);
+            b = H5T.create ('H5T_COMPOUND', 376);
             H5T.insert(b, 'head', 0, head);
-            H5T.insert(b, 'traj', 360, traj);
-            H5T.insert(b, 'data', 376, data);
+            H5T.insert(b, 'traj', 344, traj);
+            H5T.insert(b, 'data', 360, data);
 
         end
     end % Methods (Static)
 
 end
 
-% Generate a dataset using the C++ utilities and run
+% Generate a dataset using the C utilities and run
 % h5ls -a -v testdata/dataset/data
 % This produces something the following output
-%"head"             +0    struct {
-%  "version"          +0    native unsigned short
-%  "flags"            +2    native unsigned long
-%  "measurement_uid"  +10   native unsigned int
-%  "scan_counter"     +14   native unsigned int
-%  "acquisition_time_stamp" +18   native unsigned int
-%  "physiology_time_stamp" +22   [3] native unsigned int
-%  "number_of_samples" +54   native unsigned short
-%  "available_channels" +56   native unsigned short
-%  "active_channels"  +58   native unsigned short
-%  "channel_mask"     +60   [16] native unsigned long
-%  "discard_pre"      +188  native unsigned short
-%  "discard_post"     +190  native unsigned short
-%  "center_sample"    +192  native unsigned short
-%  "encoding_space_ref" +194  native unsigned short
-%  "trajectory_dimensions" +196  native unsigned short
-%  "sample_time_us"   +198  native float
-%  "position"         +202  [3] native float
-%  "read_dir"         +214  [3] native float
-%  "phase_dir"        +226  [3] native float
-%  "slice_dir"        +238  [3] native float
-%  "patient_table_position" +250  [3] native float
-%  "idx"              +262  struct {
-%     "kspace_encode_step_1" +0    native unsigned short
-%     "kspace_encode_step_2" +2    native unsigned short
-%     "average"          +4    native unsigned short
-%     "slice"            +6    native unsigned short
-%     "contrast"         +8    native unsigned short
-%     "phase"            +10   native unsigned short
-%     "repetition"       +12   native unsigned short
-%     "set"              +14   native unsigned short
-%     "segment"          +16   native unsigned short
-%     "user"             +18   [8] native unsigned short
-%  } 34 bytes
-%  "user_int"         +296  [8] native int
-%  "user_float"       +328  [8] native float
-%} 360 bytes
-%"traj"             +360  variable length of native float
-%"data"             +376  variable length of native float
-%} 392 bytes
+%     Chunks:    {1} 376 bytes
+%     Storage:   96256 logical bytes, 96256 allocated bytes, 100.00% utilization
+%     Type:      struct {
+%                    "head"             +0    struct {
+%                        "version"          +0    native unsigned short
+%                        "flags"            +2    native unsigned long
+%                        "measurement_uid"  +10   native unsigned int
+%                        "scan_counter"     +14   native unsigned int
+%                        "acquisition_time_stamp" +18   native unsigned int
+%                        "physiology_time_stamp" +22   [3] native unsigned int
+%                        "number_of_samples" +34   native unsigned short
+%                        "available_channels" +36   native unsigned short
+%                        "active_channels"  +38   native unsigned short
+%                        "channel_mask"     +40   [16] native unsigned long
+%                        "discard_pre"      +168  native unsigned short
+%                        "discard_post"     +170  native unsigned short
+%                        "center_sample"    +172  native unsigned short
+%                        "encoding_space_ref" +174  native unsigned short
+%                        "trajectory_dimensions" +176  native unsigned short
+%                        "sample_time_us"   +178  native float
+%                        "position"         +182  [3] native float
+%                        "read_dir"         +194  [3] native float
+%                        "phase_dir"        +206  [3] native float
+%                        "slice_dir"        +218  [3] native float
+%                        "patient_table_position" +230  [3] native float
+%                        "idx"              +242  struct {
+%                            "kspace_encode_step_1" +0    native unsigned short
+%                            "kspace_encode_step_2" +2    native unsigned short
+%                            "average"          +4    native unsigned short
+%                            "slice"            +6    native unsigned short
+%                            "contrast"         +8    native unsigned short
+%                            "phase"            +10   native unsigned short
+%                            "repetition"       +12   native unsigned short
+%                            "set"              +14   native unsigned short
+%                            "segment"          +16   native unsigned short
+%                            "user"             +18   [8] native unsigned short
+%                        } 34 bytes
+%                        "user_int"         +276  [8] native int
+%                        "user_float"       +308  [8] native float
+%                    } 340 bytes
+%                    "traj"             +344  variable length of
+%                        native float
+%                    "data"             +360  variable length of
+%                        native float
+%                } 376 bytes

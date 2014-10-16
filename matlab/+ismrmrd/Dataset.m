@@ -1,19 +1,16 @@
-classdef IsmrmrdDataset
+classdef Dataset
 
     properties
         fid = -1;
         filename = '';
         datapath = '';
         xmlpath = '';
-        xmlhdr = [];
         htypes = [];
     end
 
     methods
 
-        function obj = IsmrmrdDataset(filename,groupname)
-            % add the ismrmrd jar to the javaclasspath
-            ismrmrd.util.includejar();
+        function obj = Dataset(filename,groupname)
 
             % Set the hdf types
             obj.htypes = ismrmrd.util.hdf5_datatypes;
@@ -47,34 +44,18 @@ classdef IsmrmrdDataset
                 % group does not exist, create it
                 group_id = H5G.create(obj.fid, grouppath, 0);
                 H5G.close(group_id);
-                % create a default xml header object
-                %obj.xmlhdr = ismrmrd.XMLHeader();
-                obj.xmlhdr = org.ismrm.ismrmrd.IsmrmrdHeader();
-            else
-                % group exists, read the xml header
-                %obj.xmlhdr = ismrmrd.XMLHeader().stringToHeader(obj.readxml());
-                obj.xmlhdr = org.ismrm.ismrmrd.XMLString.StringToIsmrmrdHeader(obj.readxml());
             end
             H5P.close(lapl_id);
 
         end
 
         function obj = close(obj)
-            % synchronize the xml header
-            obj.writexml(obj.xmlstring());
             % close the file
             H5F.close(obj.fid);
-        end
-
-        function xmlstring = xmlstring(obj)
-            % convert xmlhdr to a string
-            %xmlstring = ismrmrd.XMLHeader.headerToString(obj.xmlhdr);
-            xmlstring = org.ismrm.ismrmrd.XMLString.IsmrmrdHeaderToString(obj.xmlhdr);
         end
         
         function xmlstring = readxml(obj)
             % Check if the XML header exists
-            % TODO: set it's value to the default
             lapl_id=H5P.create('H5P_LINK_ACCESS');
             if (H5L.exists(obj.fid,obj.xmlpath,lapl_id) == 0)
                 error('No XML header found.');
@@ -182,23 +163,22 @@ classdef IsmrmrdDataset
             space = H5D.get_space(dset);
             
             % Get the size
-            H5S.get_simple_extent_dims(space);
             [~,dims,~] = H5S.get_simple_extent_dims(space);
             nacq = dims(1);
 
             % Create a mem_space for reading
             if (stop >= start)
-                offset = [start-1 0];
-                dims = [stop-start+1 1];
-                mem_space = H5S.create_simple(2,dims,[]);
+                offset = [start-1];
+                dims = [stop-start+1];
+                mem_space = H5S.create_simple(1,dims,[]);
             else
-                offset = [0 0];
-                dims = [nacq 1];
-                mem_space = H5S.create_simple(2,dims,[]);
+                offset = [0];
+                dims = [nacq];
+                mem_space = H5S.create_simple(1,dims,[]);
             end
 
             % Read the desired acquisitions            
-            H5S.select_hyperslab(space,'H5S_SELECT_SET',offset,[1 1],[1 1],dims);
+            H5S.select_hyperslab(space,'H5S_SELECT_SET',offset,[1],[1],dims);
             d = H5D.read(dset, obj.htypes.T_Acquisition, ...
                          mem_space, space, 'H5P_DEFAULT');
                      

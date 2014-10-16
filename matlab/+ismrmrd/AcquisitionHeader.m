@@ -381,7 +381,6 @@ classdef AcquisitionHeader < handle
                 bytes(off:off+3,p)   = typecast(obj.measurement_uid(p)       ,'uint8'); off=off+4;
                 bytes(off:off+3,p)   = typecast(obj.scan_counter(p)          ,'uint8'); off=off+4;
                 bytes(off:off+3,p)   = typecast(obj.acquisition_time_stamp(p),'uint8'); off=off+4;
-                % The C struct has padding because of the 5 unused physio time stamps
                 bytes(off:off+11,p)  = typecast(obj.physiology_time_stamp(:,p) ,'uint8'); off=off+12;
                 bytes(off:off+1,p)   = typecast(obj.number_of_samples(p)     ,'uint8'); off=off+2;
                 bytes(off:off+1,p)   = typecast(obj.available_channels(p)    ,'uint8'); off=off+2;

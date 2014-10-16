@@ -283,7 +283,7 @@ static hid_t get_hdf5type_acquisitionheader(void) {
     datatype = H5Tcreate(H5T_COMPOUND, sizeof(ISMRMRD_AcquisitionHeader));
     h5status = H5Tinsert(datatype, "version", HOFFSET(ISMRMRD_AcquisitionHeader, version), H5T_NATIVE_UINT16);
     h5status = H5Tinsert(datatype, "flags", HOFFSET(ISMRMRD_AcquisitionHeader, flags), H5T_NATIVE_UINT64);
-    h5status = H5Tinsert(datatype, " measurement_uid", HOFFSET(ISMRMRD_AcquisitionHeader,  measurement_uid), H5T_NATIVE_UINT32);
+    h5status = H5Tinsert(datatype, "measurement_uid", HOFFSET(ISMRMRD_AcquisitionHeader,  measurement_uid), H5T_NATIVE_UINT32);
     h5status = H5Tinsert(datatype, "scan_counter", HOFFSET(ISMRMRD_AcquisitionHeader, scan_counter), H5T_NATIVE_UINT32);
     h5status = H5Tinsert(datatype, "acquisition_time_stamp", HOFFSET(ISMRMRD_AcquisitionHeader, acquisition_time_stamp), H5T_NATIVE_UINT32);
     
@@ -345,7 +345,8 @@ static hid_t get_hdf5type_acquisition(void) {
     vartype =  get_hdf5type_float();
     vlvartype = H5Tvlen_create(vartype);
     h5status = H5Tinsert(datatype, "traj", HOFFSET(HDF5_Acquisition, traj), vlvartype);
-    vartype = get_hdf5type_complexfloat();
+    /* Store acquisition data as an array of floats */
+    vartype = get_hdf5type_float();
     vlvartype = H5Tvlen_create(vartype);
     h5status = H5Tinsert(datatype, "data", HOFFSET(HDF5_Acquisition, data), vlvartype);
     
@@ -369,7 +370,7 @@ static hid_t get_hdf5type_imageheader(void) {
     h5status = H5Tinsert(datatype, "version", HOFFSET(ISMRMRD_ImageHeader, version), H5T_NATIVE_UINT16);
     h5status = H5Tinsert(datatype, "data_type", HOFFSET(ISMRMRD_ImageHeader, data_type), H5T_NATIVE_UINT16);
     h5status = H5Tinsert(datatype, "flags", HOFFSET(ISMRMRD_ImageHeader, flags), H5T_NATIVE_UINT64);
-    h5status = H5Tinsert(datatype, " measurement_uid", HOFFSET(ISMRMRD_ImageHeader,  measurement_uid), H5T_NATIVE_UINT32);
+    h5status = H5Tinsert(datatype, "measurement_uid", HOFFSET(ISMRMRD_ImageHeader,  measurement_uid), H5T_NATIVE_UINT32);
     arraydims[0] = 3;
     vartype = H5Tarray_create2(H5T_NATIVE_UINT16, 1, arraydims);
     h5status = H5Tinsert(datatype, "matrix_size", HOFFSET(ISMRMRD_ImageHeader, matrix_size), vartype);
@@ -962,7 +963,7 @@ int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquis
     hdf5acq[0].head = acq->head;
     hdf5acq[0].traj.len = acq->head.number_of_samples * acq->head.trajectory_dimensions;
     hdf5acq[0].traj.p = acq->traj;
-    hdf5acq[0].data.len = acq->head.number_of_samples * acq->head.active_channels;
+    hdf5acq[0].data.len = 2 * acq->head.number_of_samples * acq->head.active_channels;
     hdf5acq[0].data.p = acq->data;
     
     /* Write it */

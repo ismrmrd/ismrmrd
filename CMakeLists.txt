@@ -198,8 +198,10 @@ enable_testing()
 add_subdirectory(doc)
 add_subdirectory(examples/c)
 add_subdirectory(utilities)
-#add_subdirectory(matlab)
 #add_subdirectory(bindings)
+
+# install the matlab api
+install(DIRECTORY matlab DESTINATION share/ismrmrd)
 
 # Create package
 string(TOLOWER ${PROJECT_NAME} PROJECT_NAME_LOWER)
