@@ -13,7 +13,7 @@ docRootNode.setAttribute('version','1');
 append_optional(docNode,docRootNode,header,'version',@int2str)
 
 if isfield(header,'subjectInformation')
-    subjectInformation = header.subjectInformation
+    subjectInformation = header.subjectInformation;
     subjectInformationNode = docNode.createElement('subjectInformation');
     append_optional(docNode,subjectInformationNode,subjectInformation,'patientName');
     append_optional(docNode,subjectInformationNode,subjectInformation,'patientWeight_kg',@num2str);
@@ -24,7 +24,7 @@ if isfield(header,'subjectInformation')
 end
 
 if isfield(header,'studyInformation')
-    studyInformation = header.studyInformation
+    studyInformation = header.studyInformation;
     studyInformationNode = docNode.createElement('subjectInformation');
     append_optional(docNode,studyInformationNode,studyInformation,'studyDate');
     append_optional(docNode,studyInformationNode,studyInformation,'studyTime');
@@ -62,7 +62,7 @@ if isfield(header,'measurementInformation')
     append_optional(docNode,measurementInformationNode,measurementInformation,'frameOfReferenceUID');
     
     referencedImageSequence = measurementInformation.referencedImageSequence;
-    referencedImageSequenceNode = docNode.createElement('referencedImageSequence')
+    referencedImageSequenceNode = docNode.createElement('referencedImageSequence');
     for ref = referencedImageSequence(:)
         append_node(docNode,referencedImageSequenceNode,ref,'referencedSOPInstanceUID');
     end
@@ -111,7 +111,7 @@ for enc = header.encoding(:)
     append_encoding_limits(docNode,node,'set',enc);
     append_encoding_limits(docNode,node,'segment',enc);
     append_node(docNode,node,enc,'trajectory');
-    node.appendChild(n2)
+    node.appendChild(n2);
     
     
     if isfield(enc,'trajectoryDescription')
@@ -146,14 +146,14 @@ end
 
 if isfield(header,'sequenceParameters')
     n1 = docNode.createElement('sequenceParameters');
-    sequenceParameters = header.sequenceParameters
+    sequenceParameters = header.sequenceParameters;
     
     append_node(docNode,n1,sequenceParameters,'TR',@num2str);
     append_node(docNode,n1,sequenceParameters,'TE',@num2str);
     append_node(docNode,n1,sequenceParameters,'TI',@num2str);
     
     append_node(docNode,n1,sequenceParameters,'flipAngle_deg',@num2str);
-    docRootNode.appendChild(n1)
+    docRootNode.appendChild(n1);
 end
 
 if isfield(header,'userParameters')
@@ -164,7 +164,7 @@ if isfield(header,'userParameters')
     append_user_parameter(docNode,n1,userParameters,'userParameterDouble',@num2str);
     append_user_parameter(docNode,n1,userParameters,'userParameterString');
     append_user_parameter(docNode,n1,userParameters,'userParameterBase64');
-    docRootNode.appendChild(n1)
+    docRootNode.appendChild(n1);
 end
 xml_doc = xmlwrite(docNode);
 
@@ -198,7 +198,7 @@ function append_encoding_limits(docNode,subNode,name,limit)
         append_node(docNode,n2,limit.(name),'minimum',@int2str);
         append_node(docNode,n2,limit.(name),'maximum',@int2str);
         append_node(docNode,n2,limit.(name),'center',@int2str);
-        subNode.appendChild(n2)
+        subNode.appendChild(n2);
     end
 end
 
@@ -224,7 +224,7 @@ end
     
 function append_optional(docNode,subnode,subheader,name,tostr)
     if isfield(subheader,name)
-       append_node(docNode,subnode,subheader,name,tostr)
+       append_node(docNode,subnode,subheader,name,tostr);
     end       
 end
 
@@ -234,14 +234,14 @@ function append_node(docNode,subnode,subheader,name,tostr)
         n1 = docNode.createElement(name);    
         n1.appendChild...
         (docNode.createTextNode(subheader.(name)));
-        subnode.appendChild(n1)
+        subnode.appendChild(n1);
     else
 
         for val = subheader.(name)(:)
             n1 = docNode.createElement(name);    
             n1.appendChild...
                 (docNode.createTextNode(tostr(val)));        
-            subnode.appendChild(n1)
+            subnode.appendChild(n1);
         end
     end
 end
