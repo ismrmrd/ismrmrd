@@ -8,12 +8,12 @@ docRootNode.setAttribute('xmlns:xsi','http://www.w3.org/2001/XMLSchema-instance'
 docRootNode.setAttribute('xmlns:xs','http://www.w3.org/2001/XMLSchema');
 
 docRootNode.setAttribute('xsi:schemaLocation','http://www.ismrm.org/ISMRMRD ismrmrd.xsd');
-docRootNode.setAttribute('version','1');
+% docRootNode.setAttribute('version','1');
 
-append_optional(docNode,docRootNode,header,'version',@int2str)
+% append_optional(docNode,docRootNode,header,'version',@int2str)
 
 if isfield(header,'subjectInformation')
-    subjectInformation = header.subjectInformation
+    subjectInformation = header.subjectInformation;
     subjectInformationNode = docNode.createElement('subjectInformation');
     append_optional(docNode,subjectInformationNode,subjectInformation,'patientName');
     append_optional(docNode,subjectInformationNode,subjectInformation,'patientWeight_kg',@num2str);
@@ -24,7 +24,7 @@ if isfield(header,'subjectInformation')
 end
 
 if isfield(header,'studyInformation')
-    studyInformation = header.studyInformation
+    studyInformation = header.studyInformation;
     studyInformationNode = docNode.createElement('subjectInformation');
     append_optional(docNode,studyInformationNode,studyInformation,'studyDate');
     append_optional(docNode,studyInformationNode,studyInformation,'studyTime');
@@ -62,7 +62,7 @@ if isfield(header,'measurementInformation')
     append_optional(docNode,measurementInformationNode,measurementInformation,'frameOfReferenceUID');
     
     referencedImageSequence = measurementInformation.referencedImageSequence;
-    referencedImageSequenceNode = docNode.createElement('referencedImageSequence')
+    referencedImageSequenceNode = docNode.createElement('referencedImageSequence');
     for ref = referencedImageSequence(:)
         append_node(docNode,referencedImageSequenceNode,ref,'referencedSOPInstanceUID');
     end
@@ -84,7 +84,7 @@ if isfield(header,'acquisitionSystemInformation')
 end
 
 experimentalConditions = header.experimentalConditions;
-experimentalConditionsNode = docNode.createElement('experimentalConditionsNode');
+experimentalConditionsNode = docNode.createElement('experimentalConditions');
 append_node(docNode,experimentalConditionsNode,experimentalConditions,'H1resonanceFrequency_Hz',@int2str);
 docRootNode.appendChild(experimentalConditionsNode);
 
@@ -111,7 +111,7 @@ for enc = header.encoding(:)
     append_encoding_limits(docNode,node,'set',enc);
     append_encoding_limits(docNode,node,'segment',enc);
     append_node(docNode,node,enc,'trajectory');
-    node.appendChild(n2)
+    node.appendChild(n2);
     
     
     if isfield(enc,'trajectoryDescription')
@@ -130,12 +130,12 @@ for enc = header.encoding(:)
         parallelImaging = enc.parallelImaging;
         append_node(docNode,n3,parallelImaging.accelerationFactor,'kspace_encoding_step_1',@int2str);
         append_node(docNode,n3,parallelImaging.accelerationFactor,'kspace_encoding_step_2',@int2str);
-        n2.appendChild(n3)
+        n2.appendChild(n3);
         
         append_optional(docNode,n2,parallelImaging,'calibrationMode'); 
         append_optional(docNode,n2,parallelImaging,'interleavingDimension'); 
         
-        node.appendChild(n2)
+        node.appendChild(n2);
     end
         
     append_optional(docNode,node,enc,'echoTrainLength');
@@ -153,7 +153,7 @@ if isfield(header,'sequenceParameters')
     append_node(docNode,n1,sequenceParameters,'TI',@num2str);
     
     append_node(docNode,n1,sequenceParameters,'flipAngle_deg',@num2str);
-    docRootNode.appendChild(n1)
+    docRootNode.appendChild(n1);
 end
 
 if isfield(header,'userParameters')
@@ -164,7 +164,7 @@ if isfield(header,'userParameters')
     append_user_parameter(docNode,n1,userParameters,'userParameterDouble',@num2str);
     append_user_parameter(docNode,n1,userParameters,'userParameterString');
     append_user_parameter(docNode,n1,userParameters,'userParameterBase64');
-    docRootNode.appendChild(n1)
+    docRootNode.appendChild(n1);
 end
 xml_doc = xmlwrite(docNode);
 
