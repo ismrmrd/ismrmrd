@@ -108,16 +108,16 @@ classdef Dataset
             % Matlab is having trouble writing variable length strings
             % that are longer that 512 characters.  Switched to fixed
             % length.
-            % H5T.set_size(xml_dtype,'H5T_VARIABLE');
-            H5T.set_size(xml_dtype, length(xmlstring));
+            H5T.set_size(xml_dtype,'H5T_VARIABLE');
+            %H5T.set_size(xml_dtype, length(xmlstring));
             xml_space_id = H5S.create_simple (1, 1, []);
-            xml_id = H5D.create (obj.fid, obj.xmlpath, xml_dtype, ....
+            xml_id = H5D.create(obj.fid, obj.xmlpath, xml_dtype, ....
                                  xml_space_id, 'H5P_DEFAULT');
             H5S.close(xml_space_id);
 
             % Write the data
             H5D.write(xml_id, xml_dtype, ...
-                      'H5S_ALL', 'H5S_ALL', 'H5P_DEFAULT', xmlstring);
+                      'H5S_ALL', 'H5S_ALL', 'H5P_DEFAULT', {xmlstring});
 
             % Close the XML
             H5D.close(xml_id);
@@ -205,13 +205,13 @@ classdef Dataset
             lapl_id=H5P.create('H5P_LINK_ACCESS');
             if (H5L.exists(obj.fid, obj.datapath, lapl_id) == 0)
                 % Data does not exist
-                %   create with rank 2, unlimited, and set the chunk size
-                dims    = [N 1];
-                maxdims = [H5ML.get_constant_value('H5S_UNLIMITED') 1];
-                file_space_id = H5S.create_simple(2, dims, maxdims);
+                %   create with rank 1, unlimited, and set the chunk size
+                dims    = [N];
+                maxdims = [H5ML.get_constant_value('H5S_UNLIMITED')];
+                file_space_id = H5S.create_simple(1, dims, maxdims);
 
                 dcpl = H5P.create('H5P_DATASET_CREATE');
-                chunk = [1 1];
+                chunk = [1];
                 H5P.set_chunk (dcpl, chunk);
                 data_id = H5D.create(obj.fid, obj.datapath, ...
                                      obj.htypes.T_Acquisition, ...
@@ -229,7 +229,7 @@ classdef Dataset
                 % Get the size, increment by N
                 H5S.get_simple_extent_dims(file_space_id);
                 [~,dims,~] = H5S.get_simple_extent_dims(file_space_id);
-                dims = [dims(1)+N, 1];
+                dims = [dims(1)+N];
                 H5D.set_extent (data_id, dims);
                 H5S.close(file_space_id);
 
@@ -241,11 +241,11 @@ classdef Dataset
             [~,dims,~] = H5S.get_simple_extent_dims(file_space_id);
 
             % Select the last N block
-            offset = [dims(1)-N 0];
-            H5S.select_hyperslab(file_space_id,'H5S_SELECT_SET',offset,[1 1],[1 1],[N 1]);
+            offset = [dims(1)-N];
+            H5S.select_hyperslab(file_space_id,'H5S_SELECT_SET',offset,[1],[1],[N]);
 
             % Mem space
-            mem_space_id = H5S.create_simple(2,[N 1],[]);
+            mem_space_id = H5S.create_simple(1,[N],[]);
 
             % Check and fix the acquisition header types
             acq.head.check();

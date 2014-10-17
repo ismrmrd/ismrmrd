@@ -5,13 +5,13 @@
 % data from 4 coils from a single slice object that looks like a square
 
 % File Name
-filename = 'testdata.h5';
+filename = 'matlabtestdata.h5';
 
 % Create an empty ismrmrd dataset
 if exist(filename,'file')
     error(['File ' filename ' already exists.  Please remove first'])
 end
-dset = ismrmrd.IsmrmrdDataset(filename);
+dset = ismrmrd.Dataset(filename);
 
 % Synthesize the object
 nX = 256;
@@ -93,78 +93,44 @@ end % rep loop
 %%%%%%%%%%%%%%%%%%%%%%%%
 %% Fill the xml header %
 %%%%%%%%%%%%%%%%%%%%%%%%
+% We create a matlab struct and then serialize it to xml.
+% Look at the xml schema to see what the field names should be
 
-%% Experimental Conditions
-expcond = org.ismrm.ismrmrd.ExperimentalConditionsType;
-expcond.setH1ResonanceFrequencyHz(128000000); % 3T
-dset.xmlhdr.setExperimentalConditions(expcond);
+header = [];
 
-%% Acquisition System Information
-acqsysinfo = org.ismrm.ismrmrd.AcquisitionSystemInformationType;
-acqsysinfo.setReceiverChannels(java.lang.Integer(nCoils));
-dset.xmlhdr.setAcquisitionSystemInformation(acqsysinfo);
+% Experimental Conditions (Required)
+header.experimentalConditions.H1resonanceFrequency_Hz = 128000000; % 3T
 
-%% The Encoding
-encoding = org.ismrm.ismrmrd.Encoding;
-encoding.setTrajectory(org.ismrm.ismrmrd.TrajectoryType.CARTESIAN);
+% Acquisition System Information (Optional)
+header.acquisitionSystemInformation.systemVendor = 'ISMRMRD Labs';
+header.acquisitionSystemInformation.systemModel = 'Virtual Scanner';
+header.acquisitionSystemInformation.receiverChannels = nCoils;
 
-% Encoded Space
-fov = org.ismrm.ismrmrd.FieldOfViewMm;
-fov.setX(256);
-fov.setX(256);
-fov.setZ(5);
-matrix = org.ismrm.ismrmrd.MatrixSize;
-matrix.setX(size(K,1));
-matrix.setY(size(K,2));
-matrix.setZ(1);
-encodedspace = org.ismrm.ismrmrd.EncodingSpaceType;
-encodedspace.setMatrixSize(matrix);
-encodedspace.setFieldOfViewMm(fov);
-encoding.setEncodedSpace(encodedspace);
-
+% The Encoding (Required)
+header.encoding.trajectory = 'cartesian';
+header.encoding.encodedSpace.fieldOfView_mm.x = 256;
+header.encoding.encodedSpace.fieldOfView_mm.y = 256;
+header.encoding.encodedSpace.fieldOfView_mm.z = 5;
+header.encoding.encodedSpace.matrixSize.x = size(K,1);
+header.encoding.encodedSpace.matrixSize.y = size(K,2);
+header.encoding.encodedSpace.matrixSize.z = 1;
 % Recon Space
-% (same as encoding space)
-encoding.setReconSpace(encodedspace);
-
+% (in this case same as encoding space)
+header.encoding.reconSpace = header.encoding.encodedSpace;
 % Encoding Limits
-% Be careful!!! All of the XML Header stuff is  JAVA so it is
-% being done with objects.  Make sure that you
-% create one object per thing you care about
-encodinglimits = org.ismrm.ismrmrd.EncodingLimitsType;
+header.encoding.encodingLimits.kspace_encoding_step_0.minimum = 0;
+header.encoding.encodingLimits.kspace_encoding_step_0.maximum = size(K,1)-1;
+header.encoding.encodingLimits.kspace_encoding_step_0.center = floor(size(K,1)/2);
+header.encoding.encodingLimits.kspace_encoding_step_1.minimum = 0;
+header.encoding.encodingLimits.kspace_encoding_step_1.maximum = size(K,2)-1;
+header.encoding.encodingLimits.kspace_encoding_step_1.center = floor(size(K,2)/2);
+header.encoding.encodingLimits.repetition.minimum = 0;
+header.encoding.encodingLimits.repetition.maximum = nReps-1;
+header.encoding.encodingLimits.repetition.center = 0;
 
-limitsa = org.ismrm.ismrmrd.LimitType;
-limitsa.setMinimum(0);
-limitsa.setCenter(floor(size(K,1)/2)); 
-limitsa.setMaximum(size(K,1)-1); 
-encodinglimits.setKspaceEncodingStep0(limitsa);
-
-limitsb = org.ismrm.ismrmrd.LimitType;
-limitsb.setMinimum(0);
-limitsb.setCenter(floor(size(K,2)/2)); 
-limitsb.setMaximum(size(K,2)-1); 
-encodinglimits.setKspaceEncodingStep1(limitsb);
-
-limitsc = org.ismrm.ismrmrd.LimitType;
-limitsc.setMinimum(0);
-limitsc.setCenter(floor(nReps/2)); 
-limitsc.setMaximum(nReps-1);
-encodinglimits.setRepetition(limitsc);
-
-% All the rest are zero and we can use the same one for all of them
-limits = org.ismrm.ismrmrd.LimitType;
-limits.setMinimum(0);
-limits.setCenter(0); 
-limits.setMaximum(0);
-encodinglimits.setAverage(limits);
-encodinglimits.setContrast(limits);
-encodinglimits.setKspaceEncodingStep2(limits);
-encodinglimits.setPhase(limits);
-encodinglimits.setSegment(limits);
-encodinglimits.setSet(limits);
-encodinglimits.setSlice(limits);
-% Stuff
-encoding.setEncodingLimits(encodinglimits);
-dset.xmlhdr.getEncoding.add(encoding);
+%% Serialize and write to the data set
+xmlstring = ismrmrd.xml.serialize(header);
+dset.writexml(xmlstring);
 
 %% Write the dataset
 dset.close();

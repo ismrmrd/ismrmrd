@@ -84,7 +84,7 @@ if isfield(header,'acquisitionSystemInformation')
 end
 
 experimentalConditions = header.experimentalConditions;
-experimentalConditionsNode = docNode.createElement('experimentalConditionsNode');
+experimentalConditionsNode = docNode.createElement('experimentalConditions');
 append_node(docNode,experimentalConditionsNode,experimentalConditions,'H1resonanceFrequency_Hz',@int2str);
 docRootNode.appendChild(experimentalConditionsNode);
 
@@ -100,23 +100,23 @@ for enc = header.encoding(:)
     
     n2 = docNode.createElement('encodingLimits');
     
-    append_encoding_limits(docNode,node,'kspace_encoding_step_0',enc);
-    append_encoding_limits(docNode,node,'kspace_encoding_step_1',enc);
-    append_encoding_limits(docNode,node,'kspace_encoding_step_2',enc);
-    append_encoding_limits(docNode,node,'average',enc);
-    append_encoding_limits(docNode,node,'slice',enc);
-    append_encoding_limits(docNode,node,'contrast',enc);
-    append_encoding_limits(docNode,node,'phase',enc);
-    append_encoding_limits(docNode,node,'repetition',enc);
-    append_encoding_limits(docNode,node,'set',enc);
-    append_encoding_limits(docNode,node,'segment',enc);
-    append_node(docNode,node,enc,'trajectory');
+    append_encoding_limits(docNode,n2,'kspace_encoding_step_0',enc.encodingLimits);
+    append_encoding_limits(docNode,n2,'kspace_encoding_step_1',enc.encodingLimits);
+    append_encoding_limits(docNode,n2,'kspace_encoding_step_2',enc.encodingLimits);
+    append_encoding_limits(docNode,n2,'average',enc.encodingLimits);
+    append_encoding_limits(docNode,n2,'slice',enc.encodingLimits);
+    append_encoding_limits(docNode,n2,'contrast',enc.encodingLimits);
+    append_encoding_limits(docNode,n2,'phase',enc.encodingLimits);
+    append_encoding_limits(docNode,n2,'repetition',enc.encodingLimits);
+    append_encoding_limits(docNode,n2,'set',enc.encodingLimits);
+    append_encoding_limits(docNode,n2,'segment',enc.encodingLimits);
     node.appendChild(n2);
-    
+
+    append_node(docNode,node,enc,'trajectory');
     
     if isfield(enc,'trajectoryDescription')
         n2 = docNode.createElement('trajectoryDescription');
-        append_node(docNode,node,enc.trajectoryDescription,'identifier');
+        append_node(docNode,n2,enc.trajectoryDescription,'identifier');
         append_user_parameter(docNode,n2,enc.trajectoryDescription,'userParameterLong',@int2str);
         append_user_parameter(docNode,n2,enc.trajectoryDescription,'userParameterDouble',@num2str);
         append_optional(docNode,n2,enc.trajectoryDescription,'comment');      
@@ -133,12 +133,12 @@ for enc = header.encoding(:)
         n2.appendChild(n3)
         
         append_optional(docNode,n2,parallelImaging,'calibrationMode'); 
-        append_optional(docNode,n2,parallelImaging,'interleavingDimension'); 
+        append_optional(docNode,n2,parallelImaging,'interleavingDimension',@int2str); 
         
         node.appendChild(n2)
     end
         
-    append_optional(docNode,node,enc,'echoTrainLength');
+    append_optional(docNode,node,enc,'echoTrainLength',@int2str);
     
     docRootNode.appendChild(node);
     
@@ -162,8 +162,8 @@ if isfield(header,'userParameters')
     
     append_user_parameter(docNode,n1,userParameters,'userParameterLong',@int2str);
     append_user_parameter(docNode,n1,userParameters,'userParameterDouble',@num2str);
-    append_user_parameter(docNode,n1,userParameters,'userParameterString');
-    append_user_parameter(docNode,n1,userParameters,'userParameterBase64');
+    append_user_parameter(docNode,n1,userParameters,'userParameterString',@num2str);
+    append_user_parameter(docNode,n1,userParameters,'userParameterBase64',@num2str);
     docRootNode.appendChild(n1);
 end
 xml_doc = xmlwrite(docNode);
@@ -185,7 +185,6 @@ for v = values(:)
     else
         append_node(docNode,n2,v,'value');
     end
-    
     
     subNode.appendChild(n2);
 end
@@ -216,15 +215,18 @@ function append_encoding_space(docNode,subnode,name,encodedSpace)
     append_node(docNode,n3,encodedSpace.fieldOfView_mm,'y',@num2str);
     append_node(docNode,n3,encodedSpace.fieldOfView_mm,'z',@num2str);
     n2.appendChild(n3);
-    
-       
+ 
     subnode.appendChild(n2);
 end
     
     
 function append_optional(docNode,subnode,subheader,name,tostr)
     if isfield(subheader,name)
-       append_node(docNode,subnode,subheader,name,tostr);
+        if nargin > 4
+            append_node(docNode,subnode,subheader,name,tostr);
+        else
+            append_node(docNode,subnode,subheader,name);
+        end
     end       
 end
 
@@ -238,7 +240,7 @@ function append_node(docNode,subnode,subheader,name,tostr)
     else
 
         for val = subheader.(name)(:)
-            n1 = docNode.createElement(name);    
+            n1 = docNode.createElement(name);
             n1.appendChild...
                 (docNode.createTextNode(tostr(val)));        
             subnode.appendChild(n1);
