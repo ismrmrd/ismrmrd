@@ -1,3 +1,4 @@
+
 /*
  * generate_cartesian_shepp_logan.cpp
  *
@@ -202,9 +203,9 @@ int main(int argc, char** argv)
 	d.writeHeader(xml_header);
 
         //Write out some arrays for convenience
-        d.appendNDArray("phantom", ISMRMRD_BLOCKMODE_ARRAY, *phantom);
-        d.appendNDArray("csm", ISMRMRD_BLOCKMODE_ARRAY, *coils);
-        d.appendNDArray("coil_images", ISMRMRD_BLOCKMODE_ARRAY, coil_images);
+        d.appendNDArray("phantom", *phantom);
+        d.appendNDArray("csm", *coils);
+        d.appendNDArray("coil_images", coil_images);
         
 	return 0;
 }
