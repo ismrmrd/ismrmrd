@@ -505,7 +505,7 @@ public:
     float (&phase_dir())[3];
     float (&slice_dir())[3];
     float (&patient_table_position())[3];
-    ISMRMRD_EncodingCounters &idx();
+    EncodingCounters &idx();
     int32_t (&user_int())[ISMRMRD_USER_INTS];
     float (&user_float())[ISMRMRD_USER_FLOATS];
 
