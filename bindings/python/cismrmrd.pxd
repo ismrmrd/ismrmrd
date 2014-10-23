@@ -23,6 +23,45 @@ cdef extern from "ismrmrd/ismrmrd.h":
         uint16_t segment               # e.g. segment number for segmented acquisition
         uint16_t user[ISMRMRD_USER_INTS]   # Free user parameters
 
+    cdef enum ISMRMRD_AcquisitionFlags:
+        ISMRMRD_ACQ_FIRST_IN_ENCODE_STEP1
+        ISMRMRD_ACQ_LAST_IN_ENCODE_STEP1
+        ISMRMRD_ACQ_FIRST_IN_ENCODE_STEP2
+        ISMRMRD_ACQ_LAST_IN_ENCODE_STEP2
+        ISMRMRD_ACQ_FIRST_IN_AVERAGE
+        ISMRMRD_ACQ_LAST_IN_AVERAGE
+        ISMRMRD_ACQ_FIRST_IN_SLICE
+        ISMRMRD_ACQ_LAST_IN_SLICE
+        ISMRMRD_ACQ_FIRST_IN_CONTRAST
+        ISMRMRD_ACQ_LAST_IN_CONTRAST
+        ISMRMRD_ACQ_FIRST_IN_PHASE
+        ISMRMRD_ACQ_LAST_IN_PHASE
+        ISMRMRD_ACQ_FIRST_IN_REPETITION
+        ISMRMRD_ACQ_LAST_IN_REPETITION
+        ISMRMRD_ACQ_FIRST_IN_SET
+        ISMRMRD_ACQ_LAST_IN_SET
+        ISMRMRD_ACQ_FIRST_IN_SEGMENT
+        ISMRMRD_ACQ_LAST_IN_SEGMENT
+        ISMRMRD_ACQ_IS_NOISE_MEASUREMENT
+        ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION
+        ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING
+        ISMRMRD_ACQ_IS_REVERSE
+        ISMRMRD_ACQ_IS_NAVIGATION_DATA
+        ISMRMRD_ACQ_IS_PHASECORR_DATA
+        ISMRMRD_ACQ_LAST_IN_MEASUREMENT
+        ISMRMRD_ACQ_IS_HPFEEDBACK_DATA
+        ISMRMRD_ACQ_IS_DUMMYSCAN_DATA
+        ISMRMRD_ACQ_IS_RTFEEDBACK_DATA
+        ISMRMRD_ACQ_IS_SURFACECOILCORRECTIONSCAN_DATA
+        ISMRMRD_ACQ_USER1
+        ISMRMRD_ACQ_USER2
+        ISMRMRD_ACQ_USER3
+        ISMRMRD_ACQ_USER4
+        ISMRMRD_ACQ_USER5
+        ISMRMRD_ACQ_USER6
+        ISMRMRD_ACQ_USER7
+        ISMRMRD_ACQ_USER8
+
     ctypedef struct ISMRMRD_AcquisitionHeader:
         uint16_t version   # First unsigned int indicates the version
         uint64_t flags     # bit field with flags
@@ -96,6 +135,7 @@ cdef extern from "ismrmrd/ismrmrd.h":
 
     ctypedef struct ISMRMRD_ImageHeader:
         uint16_t version    # First unsigned int indicates the version
+        uint16_t data_type  # e.g. unsigned short, float, complex float, etc.
         uint64_t flags      # bit field with flags
         uint32_t measurement_uid    # Unique ID for the measurement
         uint16_t matrix_size[3]     # Pixels in the 3 spatial dimensions
@@ -114,7 +154,6 @@ cdef extern from "ismrmrd/ismrmrd.h":
         uint16_t set        # e.g. flow encodning set
         uint32_t acquisition_time_stamp # Acquisition clock
         uint32_t physiology_time_stamp[ISMRMRD_PHYS_STAMPS] # Physiology time stamps, e.g. ecg, breating, etc.
-        uint16_t image_data_type    # e.g. unsigned short, float, complex float, etc.
         uint16_t image_type     # e.g. magnitude, phase, complex, real, imag, etc.
         uint16_t image_index    # e.g. image number in series of images
         uint16_t image_series_index             # e.g. series number
@@ -181,15 +220,19 @@ cdef extern from "ismrmrd/dataset.h":
     cdef char *ismrmrd_read_header(const ISMRMRD_Dataset *)
     cdef int ismrmrd_write_header(ISMRMRD_Dataset *, const char *)
     cdef uint32_t ismrmrd_get_number_of_acquisitions(const ISMRMRD_Dataset*)
-    cdef int ismrmrd_append_acquisition(ISMRMRD_Dataset *, const ISMRMRD_Acquisition *)
-    cdef int ismrmrd_read_acquisition(const ISMRMRD_Dataset *, uint32_t , ISMRMRD_Acquisition *)
-    cdef uint32_t ismrmrd_get_number_of_images(const ISMRMRD_Dataset *, const char *)
+    cdef int ismrmrd_append_acquisition(ISMRMRD_Dataset *,
+            const ISMRMRD_Acquisition *)
+    cdef int ismrmrd_read_acquisition(const ISMRMRD_Dataset *, uint32_t,
+            ISMRMRD_Acquisition *)
+    cdef uint32_t ismrmrd_get_number_of_images(const ISMRMRD_Dataset *,
+            const char *)
     cdef int ismrmrd_append_image(ISMRMRD_Dataset *, const char *,
-                         const int, const ISMRMRD_Image *)
+            const ISMRMRD_Image *)
     cdef int ismrmrd_read_image(const ISMRMRD_Dataset *, const char *,
-                       const uint32_t, ISMRMRD_Image *)
-    cdef uint32_t ismrmrd_get_number_of_arrays(const ISMRMRD_Dataset *, const char *)
-    cdef int ismrmrd_append_array(ISMRMRD_Dataset *dset, const char *varname,
-                            const int block_mode, const ISMRMRD_NDArray *)
+            const uint32_t, ISMRMRD_Image *)
+    cdef uint32_t ismrmrd_get_number_of_arrays(const ISMRMRD_Dataset *,
+            const char *)
+    cdef int ismrmrd_append_array(ISMRMRD_Dataset *dset, const char *,
+            const ISMRMRD_NDArray *)
     cdef int ismrmrd_read_array(const ISMRMRD_Dataset *, const char *,
-                        const uint32_t, ISMRMRD_NDArray *)
+            const uint32_t, ISMRMRD_NDArray *)
