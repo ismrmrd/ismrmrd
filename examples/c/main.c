@@ -137,11 +137,11 @@ int main(void)
     
     printf("Image Version: %d\n", im.head.version);
     printf("Image String: %s\n", im.attribute_string);
-    ismrmrd_append_image(&dataset2, "testimages", 1, &im);
+    ismrmrd_append_image(&dataset2, "testimages", &im);
     for (loc=0; loc < 256*256*4*8; loc++) {
         ((float*)im.data)[loc] = 2.0;
     }
-    ismrmrd_append_image(&dataset2, "testimages", 1, &im);
+    ismrmrd_append_image(&dataset2, "testimages", &im);
                          
     /* Clean up */
     /* This frees the internal memory of the acquisitions */

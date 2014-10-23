@@ -78,30 +78,30 @@ uint32_t Dataset::getNumberOfAcquisitions()
 }
 
 // Images
-template <typename T>void Dataset::appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const Image<T> &im)
+template <typename T>void Dataset::appendImage(const std::string &var, const Image<T> &im)
 {
-    int status = ismrmrd_append_image(&dset_, var.c_str(), blockmode, reinterpret_cast<const ISMRMRD_Image*>(&im));
+    int status = ismrmrd_append_image(&dset_, var.c_str(), reinterpret_cast<const ISMRMRD_Image*>(&im));
     if (status != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
 }
 
-void Dataset::appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const ISMRMRD_Image *im)
+void Dataset::appendImage(const std::string &var, const ISMRMRD_Image *im)
 {
-    int status = ismrmrd_append_image(&dset_, var.c_str(), blockmode, im);
+    int status = ismrmrd_append_image(&dset_, var.c_str(), im);
     if (status != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
 }
 // Specific instantiations
-template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const Image<uint16_t> &im);
-template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const Image<int16_t> &im);
-template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const Image<uint32_t> &im);
-template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const Image<int32_t> &im);
-template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const Image<float> &im);
-template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const Image<double> &im);
-template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const Image<complex_float_t> &im);
-template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const Image<complex_double_t> &im);
+template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const Image<uint16_t> &im);
+template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const Image<int16_t> &im);
+template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const Image<uint32_t> &im);
+template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const Image<int32_t> &im);
+template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const Image<float> &im);
+template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const Image<double> &im);
+template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const Image<complex_float_t> &im);
+template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const Image<complex_double_t> &im);
 
 
 template <typename T> void Dataset::readImage(const std::string &var, uint32_t index, Image<T> &im) {
@@ -119,27 +119,27 @@ uint32_t Dataset::getNumberOfImages(const std::string &var)
 
 
 // NDArrays
-template <typename T> void Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<T> &arr)
+template <typename T> void Dataset::appendNDArray(const std::string &var, const NDArray<T> &arr)
 {
-    int status = ismrmrd_append_array(&dset_, var.c_str(), blockmode, static_cast<const ISMRMRD_NDArray*>(&arr));
+    int status = ismrmrd_append_array(&dset_, var.c_str(), static_cast<const ISMRMRD_NDArray*>(&arr));
     if (status != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
 }
 
 // Specific instantiations
-template EXPORTISMRMRD void Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<uint16_t> &arr);
-template EXPORTISMRMRD void Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<int16_t> &arr);
-template EXPORTISMRMRD void Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<uint32_t> &arr);
-template EXPORTISMRMRD void Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<int32_t> &arr);
-template EXPORTISMRMRD void Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<float> &arr);
-template EXPORTISMRMRD void Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<double> &arr);
-template EXPORTISMRMRD void Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<complex_float_t> &arr);
-template EXPORTISMRMRD void Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<complex_double_t> &arr);
+template EXPORTISMRMRD void Dataset::appendNDArray(const std::string &var, const NDArray<uint16_t> &arr);
+template EXPORTISMRMRD void Dataset::appendNDArray(const std::string &var, const NDArray<int16_t> &arr);
+template EXPORTISMRMRD void Dataset::appendNDArray(const std::string &var, const NDArray<uint32_t> &arr);
+template EXPORTISMRMRD void Dataset::appendNDArray(const std::string &var, const NDArray<int32_t> &arr);
+template EXPORTISMRMRD void Dataset::appendNDArray(const std::string &var, const NDArray<float> &arr);
+template EXPORTISMRMRD void Dataset::appendNDArray(const std::string &var, const NDArray<double> &arr);
+template EXPORTISMRMRD void Dataset::appendNDArray(const std::string &var, const NDArray<complex_float_t> &arr);
+template EXPORTISMRMRD void Dataset::appendNDArray(const std::string &var, const NDArray<complex_double_t> &arr);
 
-void Dataset::appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const ISMRMRD_NDArray *arr)
+void Dataset::appendNDArray(const std::string &var, const ISMRMRD_NDArray *arr)
 {
-    int status = ismrmrd_append_array(&dset_, var.c_str(), blockmode, arr);
+    int status = ismrmrd_append_array(&dset_, var.c_str(), arr);
     if (status != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }

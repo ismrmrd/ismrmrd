@@ -1,5 +1,6 @@
 *~
 *swp
+*.so
 build/
 .DS_Store
 

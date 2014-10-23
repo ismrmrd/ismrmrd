@@ -17,14 +17,6 @@ extern "C" {
 #endif
 
 /**
- * Image and Array storage block modes
- */
-enum ISMRMRD_BlockModes {
-    ISMRMRD_BLOCKMODE_ARRAY,
-    ISMRMRD_BLOCKMODE_BLOB
-};
-    
-/**
  *   Interface for accessing an ISMRMRD Data Set stored on disk in HDF5 format.
  *
  *   A given ISMRMRD dataset if assumed to be stored under one group name in the
@@ -95,18 +87,16 @@ EXPORTISMRMRD uint32_t ismrmrd_get_number_of_acquisitions(const ISMRMRD_Dataset 
  *
  *  Please consult @See ISMRMRD_Image struct for details.
  *
- *  Images can be stored in one of two ways.  In either case headers and attribute strings are stored
- *  separatey for each of image.   This allows for easy viewing and reading in other applications.
+ *  Headers and attribute strings are stored separately from the data.
+ *  This allows for easy viewing and reading in other applications.
  *
- *  Method 1: Images of the same size can be appended to "grow" an array.
+ *  Images of the same size can be appended to "grow" an array.
  *    e.g. 20 images of size (256, 256, 4, 16), i.e. 4 slice and 16 channels, can be appended
  *    one at a time to make a (256, 256, 4, 16, 20) array in the file.
  *
- *  Method 2: Images of different sizes can be appended individually.
- *
  */
 EXPORTISMRMRD int ismrmrd_append_image(const ISMRMRD_Dataset *dset, const char *varname,
-                                       const int block_mode, const ISMRMRD_Image *im);
+                                       const ISMRMRD_Image *im);
 
 /**
  *   Reads an image stored with appendImage.
@@ -126,16 +116,13 @@ EXPORTISMRMRD uint32_t ismrmrd_get_number_of_images(const ISMRMRD_Dataset *dset,
  *  Please consult @See NDArray struct for details.
  *
  *  Arrays contain simple data elements such as float, double, etc.
- *  Arrays can be stored in one of two ways to allow for easy viewing in other applications.
  *
- *  Method 1: Arrays of the same size can be appended to "grow" an array,
+ *  Arrays of the same size can be appended to "grow" an array,
  *    e.g. 3D arrays of size (K,L,M) can be appended to grow a 4D array of size (K,L,M,N).
- *
- *  Method 2:Arrays of varying dimensionality and size can be appended as blobs of data.
  *
  */
 EXPORTISMRMRD int ismrmrd_append_array(const ISMRMRD_Dataset *dset, const char *varname,
-                                       const int block_mode, const ISMRMRD_NDArray *arr);
+                                       const ISMRMRD_NDArray *arr);
 
 /**
  *  Reads an array from the data file.
@@ -171,13 +158,13 @@ public:
     void readAcquisition(uint32_t index, Acquisition &acq);
     uint32_t getNumberOfAcquisitions();
     // Images
-    template <typename T> void appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const Image<T> &im);
-    void appendImage(const std::string &var, const ISMRMRD_BlockModes blockmode, const ISMRMRD_Image *im);
+    template <typename T> void appendImage(const std::string &var, const Image<T> &im);
+    void appendImage(const std::string &var, const ISMRMRD_Image *im);
     template <typename T> void readImage(const std::string &var, uint32_t index, Image<T> &im);
     uint32_t getNumberOfImages(const std::string &var);
     // NDArrays
-    template <typename T> void appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const NDArray<T> &arr);
-    void appendNDArray(const std::string &var, const ISMRMRD_BlockModes blockmode, const ISMRMRD_NDArray *arr);
+    template <typename T> void appendNDArray(const std::string &var, const NDArray<T> &arr);
+    void appendNDArray(const std::string &var, const ISMRMRD_NDArray *arr);
     template <typename T> void readNDArray(const std::string &var, uint32_t index, NDArray<T> &arr);
     uint32_t getNumberOfNDArrays(const std::string &var);
 

@@ -159,20 +159,6 @@ typedef struct HDF5_Acquisition
     hvl_t data;
 } HDF5_Acquisition;
 
-typedef struct HDF5_NDArrayBlob
-{
-    uint16_t version;
-    uint16_t data_type;
-    uint16_t ndim;
-    uint16_t dims[ISMRMRD_NDARRAY_MAXDIM];
-    hvl_t data;
-} HDF5_NDArrayBlob;
-
-static hid_t get_hdf5type_char(void) {
-    hid_t datatype = H5Tcopy(H5T_NATIVE_CHAR);
-    return datatype;
-}
-
 static hid_t get_hdf5type_uint16(void) {
     hid_t datatype = H5Tcopy(H5T_NATIVE_UINT16);
     return datatype;
@@ -423,31 +409,6 @@ static hid_t get_hdf5type_image_attribute_string(void) {
     return datatype;
 }
     
-static hid_t get_hdf5type_ndarrayblob(void) {
-    hid_t datatype, vartype, vlvartype;
-    herr_t h5status;
-    hsize_t arraydims[1];
-    
-    datatype = H5Tcreate(H5T_COMPOUND, sizeof(HDF5_NDArrayBlob));
-    h5status = H5Tinsert(datatype, "version", HOFFSET(HDF5_NDArrayBlob, version), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "data_type", HOFFSET(HDF5_NDArrayBlob, data_type), H5T_NATIVE_UINT16);
-    arraydims[0] = ISMRMRD_NDARRAY_MAXDIM;
-    vartype = H5Tarray_create2(H5T_NATIVE_UINT16, 1, arraydims);
-    h5status = H5Tinsert(datatype, "dims", HOFFSET(HDF5_NDArrayBlob, dims), vartype);
-    vartype = get_hdf5type_char();
-    vlvartype = H5Tvlen_create(vartype);
-    h5status = H5Tinsert(datatype, "data", HOFFSET(HDF5_NDArrayBlob, data), vlvartype);
-    
-    H5Tclose(vartype);
-    H5Tclose(vlvartype);
-    
-    if (h5status < 0) {
-        ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get NDArrayBlob data type");
-    }
-    
-    return datatype;
-}
-
 static hid_t get_hdf5type_ndarray(uint16_t data_type) {
     
     hid_t hdfdatatype = -1;
@@ -1023,8 +984,7 @@ int ismrmrd_read_acquisition(const ISMRMRD_Dataset *dset, uint32_t index, ISMRMR
     return ISMRMRD_NOERROR;
 }
 
-int ismrmrd_append_image(const ISMRMRD_Dataset *dset, const char *varname,
-                         const int block_mode, const ISMRMRD_Image *im) {
+int ismrmrd_append_image(const ISMRMRD_Dataset *dset, const char *varname, const ISMRMRD_Image *im) {
     int status;
     hid_t datatype;
     char *path, *headerpath, *attrpath, *datapath;
@@ -1113,8 +1073,7 @@ uint32_t ismrmrd_get_number_of_images(const ISMRMRD_Dataset *dset, const char *v
     return numimages;
 }
 
-int ismrmrd_append_array(const ISMRMRD_Dataset *dset, const char *varname,
-                         const int block_mode, const ISMRMRD_NDArray *arr) {
+int ismrmrd_append_array(const ISMRMRD_Dataset *dset, const char *varname, const ISMRMRD_NDArray *arr) {
     int status;
     hid_t datatype;
     uint16_t ndim, *dims;

@@ -142,7 +142,7 @@ int main(int argc, char** argv)
     //And so on
     
     //Let's write the reconstructed image into the same data file
-    d.appendImage("myimage", ISMRMRD::ISMRMRD_BLOCKMODE_ARRAY, img_out);
+    d.appendImage("myimage", img_out);
 
     return 0;
 }
