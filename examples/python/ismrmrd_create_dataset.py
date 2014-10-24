@@ -80,8 +80,8 @@ for rep in range(nreps):
         # Construct acquisition object from header
         acq = ismrmrd.Acquisition(head=head)
         
-        # Use view to fill in the internal data array
-        acq.data.ravel()[:] = data.ravel()[:]
+        # Fill in the internal data array
+        acq.data = data
         
         # Append to HDF5 dataset
         dset.append_acquisition(acq)
