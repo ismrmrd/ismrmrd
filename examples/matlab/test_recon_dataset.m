@@ -11,6 +11,7 @@
 % Limitations:
 %   only works with a single encoded space
 %   fully sampled k-space (no partial fourier or undersampling)
+%   multiple repetitions
 %   doesn't handle averages, phases, segments and sets
 %   ignores noise scans (no pre-whitening)
 % 
@@ -30,7 +31,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 filename = 'testdata.h5';
 if exist(filename, 'file')
-    dset = ismrmrd.IsmrmrdDataset(filename, 'dataset');
+    dset = ismrmrd.Dataset(filename, 'dataset');
 else
     error(['File ' filename ' does not exist.  Please generate it.'])
 end
@@ -39,54 +40,50 @@ end
 %% Read some fields from the XML header %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % We need to check if optional fields exists before trying to read them
-% Some functions return java.lang.Integer type and we convert to double
+
+hdr = ismrmrd.xml.deserialize(dset.readxml);
 
 %% Encoding and reconstruction information
 % Matrix size
-enc_Nx = dset.xmlhdr.getEncoding.get(0).getEncodedSpace.getMatrixSize.getX;
-enc_Ny = dset.xmlhdr.getEncoding.get(0).getEncodedSpace.getMatrixSize.getY;
-enc_Nz = dset.xmlhdr.getEncoding.get(0).getEncodedSpace.getMatrixSize.getZ;
-rec_Nx = dset.xmlhdr.getEncoding.get(0).getReconSpace.getMatrixSize.getX;
-rec_Ny = dset.xmlhdr.getEncoding.get(0).getReconSpace.getMatrixSize.getY;
-rec_Nz = dset.xmlhdr.getEncoding.get(0).getReconSpace.getMatrixSize.getZ;
+enc_Nx = hdr.encoding.encodedSpace.matrixSize.x;
+enc_Ny = hdr.encoding.encodedSpace.matrixSize.y;
+enc_Nz = hdr.encoding.encodedSpace.matrixSize.z;
+rec_Nx = hdr.encoding.reconSpace.matrixSize.x;
+rec_Ny = hdr.encoding.reconSpace.matrixSize.y;
+rec_Nz = hdr.encoding.reconSpace.matrixSize.z;
 
 % Field of View
-enc_FOVx = dset.xmlhdr.getEncoding.get(0).getEncodedSpace.getFieldOfViewMm.getX;
-enc_FOVy = dset.xmlhdr.getEncoding.get(0).getEncodedSpace.getFieldOfViewMm.getY;
-enc_FOVz = dset.xmlhdr.getEncoding.get(0).getEncodedSpace.getFieldOfViewMm.getZ;
-rec_FOVx = dset.xmlhdr.getEncoding.get(0).getReconSpace.getFieldOfViewMm.getX;
-rec_FOVy = dset.xmlhdr.getEncoding.get(0).getReconSpace.getFieldOfViewMm.getY;
-rec_FOVz = dset.xmlhdr.getEncoding.get(0).getReconSpace.getFieldOfViewMm.getZ;
+enc_FOVx = hdr.encoding.encodedSpace.fieldOfView_mm.x;
+enc_FOVy = hdr.encoding.encodedSpace.fieldOfView_mm.y;
+enc_FOVz = hdr.encoding.encodedSpace.fieldOfView_mm.z;
+rec_FOVx = hdr.encoding.reconSpace.fieldOfView_mm.x;
+rec_FOVy = hdr.encoding.reconSpace.fieldOfView_mm.y;
+rec_FOVz = hdr.encoding.reconSpace.fieldOfView_mm.z;
 
-% Number of slices
-if isempty(dset.xmlhdr.getEncoding.get(0).getEncodingLimits.getSlice)
+% Number of slices, coils, repetitions, contrasts etc.
+% We have to wrap the following in a try/catch because a valid xml header may
+% not have an entry for some of the parameters
+
+try
+  nSlices = hdr.encoding.encodingLimits.slice.maximum + 1;
+catch
     nSlices = 1;
-else
-  nSlices = dset.xmlhdr.getEncoding.get(0).getEncodingLimits.getSlice.getMaximum;
-  if nSlices == 0;
-    nSlices = 1;
-  end
 end
 
-% Number of coils, repetitions, contrasts etc.
-% We have to wrap this in a try/catch because a valid xml header may
-% not have an entry for the the parameter in question
-% Encoding limit values in the XML header are zero based
-% Java return values needed to be converte to matlab types for math.
 try 
-    nCoils = double(dset.xmlhdr.getAcquisitionSystemInformation.getReceiverChannels);
+    nCoils = hdr.acquisitionSystemInformation.receiverChannels;
 catch
     nCoils = 1;
 end
 
 try
-    nReps = double(dset.xmlhdr.getEncoding.get(0).getEncodingLimits.getRepetition.getMaximum) + 1;
+    nReps = hdr.encoding.encodingLimits.repetition.maximum + 1;
 catch
     nReps = 1;
 end
 
 try
-    nContrasts = double(dset.xmlhdr.getEncoding.get(0).getEncodingLimits.getContrast.getMaximum) + 1;
+    nContrasts = hdr.encoding.encodingLimits.contrast.maximum + 1 + 1;
 catch
     nContrasts = 1;
 end

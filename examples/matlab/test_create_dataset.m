@@ -5,7 +5,7 @@
 % data from 4 coils from a single slice object that looks like a square
 
 % File Name
-filename = 'matlabtestdata.h5';
+filename = 'testdata.h5';
 
 % Create an empty ismrmrd dataset
 if exist(filename,'file')
