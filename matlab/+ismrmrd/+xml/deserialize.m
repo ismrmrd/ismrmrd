@@ -15,131 +15,115 @@ dom = db.parse(isrc);
 % Get the root element
 rootNode = dom.getDocumentElement();
 
-% Loop through and fill
-header = parseChildNodes(rootNode);
+% Initialize an empty struct
+header = struct;
 
-end
+% The header always has a few nodes (e.g. encoding is required)
+childNodes = getChildNodes(rootNode);
+numChildNodes = getLength(childNodes);
 
-% ----- Subfunction parseChildNodes -----
-function [children,ptext,textflag] = parseChildNodes(theNode)
-    % Recurse over node children.
-    children = struct;
-    ptext = struct; textflag = 'Text';
-    if hasChildNodes(theNode)
-        childNodes = getChildNodes(theNode);
-        numChildNodes = getLength(childNodes);
+for n = 1:numChildNodes
+    theChild = item(childNodes,n-1);
+    name = char(getNodeName(theChild));
+    
+    if strcmp(name,'version')
+        header.version = str2num(getTextContent(theChild));
+    end
 
-        for count = 1:numChildNodes
-            theChild = item(childNodes,count-1);
-            [text,name,attr,childs,textflag] = getNodeData(theChild);
-            
-            if (~strcmp(name,'#text') && ~strcmp(name,'#comment') && ~strcmp(name,'#cdata_dash_section'))
-                %XML allows the same elements to be defined multiple times,
-                %put each in a different cell
-                if (isfield(children,name))
-                    if (~iscell(children.(name)))
-                        %put existsing element into cell format
-                        children.(name) = {children.(name)};
-                    end
-                    index = length(children.(name))+1;
-                    %add new element
-                    children.(name){index} = childs;
-                    if(~isempty(fieldnames(text)))
-                        children.(name){index} = text; 
-                    end
-                    if(~isempty(attr)) 
-                        children.(name){index}.('Attributes') = attr; 
-                    end
-                else
-                    %add previously unknown (new) element to the structure
-                    children.(name) = childs;
-                    if(~isempty(text) && ~isempty(fieldnames(text)))
-                        children.(name) = text; 
-                    end
-                    if(~isempty(attr)) 
-                        children.(name).('Attributes') = attr; 
-                    end
-                end
-            else
-                ptextflag = 'Text';
-                if (strcmp(name, '#cdata_dash_section'))
-                    ptextflag = 'CDATA';
-                elseif (strcmp(name, '#comment'))
-                    ptextflag = 'Comment';
-                end
-                
-                %this is the text in an element (i.e., the parentNode) 
-                if (~isempty(regexprep(text.(textflag),'[\s]*','')))
-                    if (~isfield(ptext,ptextflag) || isempty(ptext.(ptextflag)))
-                        ptext.(ptextflag) = text.(textflag);
-                    else
-                        %what to do when element data is as follows:
-                        %<element>Text <!--Comment--> More text</element>
-                        
-                        %put the text in different cells:
-                        % if (~iscell(ptext)) ptext = {ptext}; end
-                        % ptext{length(ptext)+1} = text;
-                        
-                        %just append the text
-                        ptext.(ptextflag) = [ptext.(ptextflag) text.(textflag)];
-                    end
-                end
-            end
-            
+    if strcmp(name,'subjectInformation')
+        header.subjectInformation = parseSubjectInformation(theChild);
+    end
+    
+    if strcmp(name,'studyInformation')
+        header.studyInformation = parseStudyInformation(theChild);
+    end
+    
+    if strcmp(name,'measurementInformation')
+        header.measurementInformation = parseMeasurementInformation(theChild);
+    end
+    
+    if strcmp(name,'acquisitionSystemInformation')
+        header.acquisitionSystemInformation = parseAcquisitionSystemInformation(theChild);
+    end
+    
+    if strcmp(name,'experimentalConditions')
+        header.experimentalConditions = parseExperimentalConditions(theChild);
+    end
+
+    if strcmp(name,'encoding')
+        % there can be multiple encodings but there must be at least one
+        if isfield(header, 'encoding')
+            nenc = length(header.encoding);
+        else
+            nenc = 1;
         end
+        header.encoding(nenc) = parseEncoding(theChild);
+    end
+
+    if strcmp(name,'sequenceParameters')
+        header.sequenceParameters = parseSequenceParameters(theChild);
+    end
+
+    if strcmp(name,'userParameters')
+        header.userParameters = parseUserParameters(theChild);
+    end
+
+end
+
+end
+
+% ----- Subfunction parseSubjectInformation -----
+function subjectInformation = parseSubjectInformation(theNode)
+    subjectInformation = struct;
+end
+
+% ----- Subfunction parseStudyInformation -----
+function studyInformation = parseStudyInformation(theNode)
+    studyInformation = struct;
+end
+
+% ----- Subfunction parseMeasurementInformation -----
+function measurementInformation = parseMeasurementInformation(theNode)
+    measurementInformation = struct;
+end
+
+% ----- Subfunction parseAcquisitionSystemInformation -----
+function acquisitionSystemInformation = parseAcquisitionSystemInformation(theNode)
+    acquisitionSystemInformation = struct;
+end
+
+% ----- Subfunction parseExperimentalConditions -----
+function experimentalConditions = parseExperimentalConditions(theNode)
+
+% Walk down the tree
+childNodes = getChildNodes(theNode);
+numChildNodes = getLength(childNodes);
+
+experimentalConditions = struct;
+
+for n = 1:numChildNodes
+    theChild = item(childNodes,n-1);
+    name = char(getNodeName(theChild));
+
+    if strcmp(name,'H1resonanceFrequency_Hz')
+        experimentalConditions.H1resonanceFrequency_Hz = str2num(getTextContent(theChild));
+        break;
     end
 end
 
-% ----- Subfunction getNodeData -----
-function [text,name,attr,childs,textflag] = getNodeData(theNode)
-    % Create structure of node info.
-    
-    %make sure name is allowed as structure name
-    name = toCharArray(getNodeName(theNode))';
-    name = strrep(name, '-', '_dash_');
-    name = strrep(name, ':', '_colon_');
-    name = strrep(name, '.', '_dot_');
-
-    attr = parseAttributes(theNode);
-    if (isempty(fieldnames(attr))) 
-        attr = []; 
-    end
-    
-    %parse child nodes
-    [childs,text,textflag] = parseChildNodes(theNode);
-    
-    if (isempty(fieldnames(childs)) && isempty(fieldnames(text)))
-        %get the data of any childless nodes
-        % faster than if any(strcmp(methods(theNode), 'getData'))
-        % no need to try-catch (?)
-        % faster than text = char(getData(theNode));
-        text.(textflag) = toCharArray(getTextContent(theNode))';
-    end
-    
 end
 
-% ----- Subfunction parseAttributes -----
-function attributes = parseAttributes(theNode)
-    % Create attributes structure.
+% ----- Subfunction parseEncoding -----
+function encoding = parseEncoding(theNode)
+    encoding = struct;
+end
 
-    attributes = struct;
-    if hasAttributes(theNode)
-       theAttributes = getAttributes(theNode);
-       numAttributes = getLength(theAttributes);
+% ----- Subfunction parseSequenceParameters -----
+function sequenceParameters = parseSequenceParameters(theNode)
+    sequenceParameters = struct;
+end
 
-       for count = 1:numAttributes
-            %attrib = item(theAttributes,count-1);
-            %attr_name = regexprep(char(getName(attrib)),'[-:.]','_');
-            %attributes.(attr_name) = char(getValue(attrib));
-
-            %Suggestion of Adrian Wanner
-            str = toCharArray(toString(item(theAttributes,count-1)))';
-            k = strfind(str,'='); 
-            attr_name = str(1:(k(1)-1));
-            attr_name = strrep(attr_name, '-', '_dash_');
-            attr_name = strrep(attr_name, ':', '_colon_');
-            attr_name = strrep(attr_name, '.', '_dot_');
-            attributes.(attr_name) = str((k(1)+2):(end-1));
-       end
-    end
+% ----- Subfunction parseUserParameters -----
+function userParameters = parseUserParameters(theNode)
+    userParameters = struct;
 end
