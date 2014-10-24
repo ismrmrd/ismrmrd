@@ -104,7 +104,7 @@ D = dset.readAcquisition();
 % TODO add a pre-whitening example
 % Find the first non-noise scan
 % This is how to check if a flag is set in the acquisition header
-isNoise = D.head.flagIsSet(D.head.FLAGS.ACQ_IS_NOISE_MEASUREMENT);
+isNoise = D.head.flagIsSet('ACQ_IS_NOISE_MEASUREMENT');
 firstScan = find(isNoise==0,1,'first');
 if firstScan > 1
     noise = D.select(1:firstScan-1);

@@ -36,7 +36,7 @@ classdef Acquisition < handle
                     if isempty(traj)
                         obj.traj{M} = [];
                     else
-                        obj.traj = traj;
+                        trajFromFloat(obj,traj);
                     end
                     if isempty(data)
                         obj.data{M} = [];
@@ -122,13 +122,24 @@ classdef Acquisition < handle
             end
         end
         
+        function trajFromFloat(obj,v)
+            if (isempty(obj.head) || (length(v) ~= length(obj.head.version)))
+                error('Mismatch between size of head and trajectory.  Please set head first.');
+            end
+            obj.traj = cell(1,length(v));
+            for p = 1:length(v)
+                dims = [obj.head.trajectory_dimensions(p), ...
+                        obj.head.number_of_samples(p)];
+                obj.traj{p} = reshape(v{p}, dims);
+            end
+        end
+
         function v = trajToFloat(obj)
             v = cell(1,length(obj.traj));
             for p = 1:length(obj.traj)
                 v{p} = single(obj.traj{p});
             end
         end
-
     end
 
 end

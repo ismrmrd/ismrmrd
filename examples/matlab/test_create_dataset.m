@@ -71,13 +71,13 @@ for rep = 1:nReps
         % Set the flags
         acqblock.head.flagClearAll(acqno);
         if acqno == 1
-            acqblock.head.flagSet(acqblock.head.FLAGS.ACQ_FIRST_IN_ENCODE_STEP1, acqno);
-            acqblock.head.flagSet(acqblock.head.FLAGS.ACQ_FIRST_IN_SLICE, acqno);
-            acqblock.head.flagSet(acqblock.head.FLAGS.ACQ_FIRST_IN_REPETITION, acqno);
+            acqblock.head.flagSet('ACQ_FIRST_IN_ENCODE_STEP1', acqno);
+            acqblock.head.flagSet('ACQ_FIRST_IN_SLICE', acqno);
+            acqblock.head.flagSet('ACQ_FIRST_IN_REPETITION', acqno);
         elseif acqno==size(K,2)
-            acqblock.head.flagSet(acqblock.head.FLAGS.ACQ_LAST_IN_ENCODE_STEP1, acqno);
-            acqblock.head.flagSet(acqblock.head.FLAGS.ACQ_LAST_IN_SLICE, acqno);
-            acqblock.head.flagSet(acqblock.head.FLAGS.ACQ_LAST_IN_REPETITION, acqno);
+            acqblock.head.flagSet('ACQ_LAST_IN_ENCODE_STEP1', acqno);
+            acqblock.head.flagSet('ACQ_LAST_IN_SLICE', acqno);
+            acqblock.head.flagSet('ACQ_LAST_IN_REPETITION', acqno);
         end
         
         % fill the data

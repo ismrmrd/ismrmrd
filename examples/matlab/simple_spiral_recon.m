@@ -8,19 +8,20 @@ function [images] = simple_spiral_recon(ismrmrdfile)
 %   Michael S. Hansen (michael.hansen@nih.gov), 2012
 %
 
-header = ismrmrd_header2struct(h5read(ismrmrdfile,'/dataset/xml'));
+dset = ismrmrd.Dataset(ismrmrdfile);
+header = ismrmrd.xml.deserialize(dset.readxml());
 
 %Is this a spiral acquisition
-if (~strcmp(header.ismrmrdHeader.encoding.trajectory.Text,'spiral')),
+if (~strcmp(header.encoding.trajectory,'spiral')),
    error('This is not a spiral dataset'); 
 end
 
 %Let's get the matrix size
-matrix_size = [str2num(header.ismrmrdHeader.encoding.encodedSpace.matrixSize.x.Text), ...
-               str2num(header.ismrmrdHeader.encoding.encodedSpace.matrixSize.y.Text)];
+matrix_size = [header.encoding.encodedSpace.matrixSize.x, ...
+               header.encoding.encodedSpace.matrixSize.y];
 
 %Let's load the data
-raw_data = h5read(ismrmrdfile,'/dataset/data');
+raw_data = dset.readAcquisition();  % read all the acquisitions
 
 interleaves = max(raw_data.head.idx.kspace_encode_step_1)+1;
 repetitions = max(raw_data.head.idx.repetition)+1;
@@ -38,20 +39,23 @@ images = [];
 counter = 0;
 for p=1:length(raw_data.head.flags),
 
-   if (bitget(uint64(raw_data.head.flags(p)),19)), %if this is noise, we will skip it
+   %if this is noise, we will skip it
+   if raw_data.head.flagIsSet('ACQ_IS_NOISE_MEASUREMENT',p) 
       continue; 
    end
    
-   d = reshape(complex(raw_data.data{p}(1:2:end), raw_data.data{p}(2:2:end)), samples, channels);
-   t = reshape(raw_data.traj{p}, raw_data.head.trajectory_dimensions(p), samples);
+   d = raw_data.data{p};
+   t = raw_data.traj{p};
    current_interleave = raw_data.head.idx.kspace_encode_step_1(p)+1;
    start_sample = samples_to_skip_start+1;
    end_sample = samples-samples_to_skip_end;
 
    data(:,current_interleave,:) = reshape(d(start_sample:end_sample,:), net_samples, 1, channels);
    trajectory(:,:,current_interleave) = t(:,start_sample:end_sample);
-   
-   if (bitget(uint64(raw_data.head.flags(p)),8)), %Is this the last in slice? We should make an image
+
+   %Is this the last in slice? We should make an image
+   if raw_data.head.flagIsSet('ACQ_LAST_IN_SLICE',p) 
+
       fprintf('Reconstructing image %d....', counter+1); 
       co = permute(trajectory(:,:),[2 1]);
 
