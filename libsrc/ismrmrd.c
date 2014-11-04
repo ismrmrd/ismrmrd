@@ -513,6 +513,52 @@ int ismrmrd_clear_all_flags(uint64_t *flags) {
     return ISMRMRD_NOERROR;
 }
 
+bool ismrmrd_is_channel_on(const uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS], const uint16_t chan) {
+    uint64_t bitmask;
+    size_t offset;
+    if (channel_mask==NULL) {
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer to channel_mask should not be NULL.");
+    }
+    bitmask = 1 << (chan % 64);
+    offset = chan / 64;
+    return (channel_mask[offset] & bitmask) > 0;
+}
+
+int ismrmrd_set_channel_on(uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS], const uint16_t chan) {
+    uint64_t bitmask;
+    size_t offset;
+    if (channel_mask==NULL) {
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer to channel_mask should not be NULL.");
+    }
+    bitmask = 1 << (chan % ISMRMRD_CHANNEL_MASKS);
+    offset = chan / ISMRMRD_CHANNEL_MASKS;
+    channel_mask[offset] |= bitmask;
+    return ISMRMRD_NOERROR;
+}
+
+int ismrmrd_set_channel_off(uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS], const uint16_t chan) {
+    uint64_t bitmask;
+    size_t offset;
+    if (channel_mask==NULL) {
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer to channel_mask should not be NULL.");
+    }
+    bitmask = 1 << (chan % 64);
+    offset = chan / 64;
+    channel_mask[offset] &= ~bitmask;
+    return ISMRMRD_NOERROR;
+}
+    
+int ismrmrd_clear_all_channels(uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS]) {
+    size_t offset;
+    if (channel_mask==NULL) {
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer to channel_mask should not be NULL.");
+    }
+    for (offset = 0; offset<ISMRMRD_CHANNEL_MASKS; offset++) {
+        channel_mask[offset] = 0;
+    }
+    return ISMRMRD_NOERROR;
+}
+    
 int ismrmrd_sign_of_directions(float read_dir[3], float phase_dir[3], float slice_dir[3]) {
     float r11 = read_dir[0], r12 = phase_dir[0], r13 = slice_dir[0];
     float r21 = read_dir[1], r22 = phase_dir[1], r23 = slice_dir[1];

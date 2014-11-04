@@ -368,7 +368,17 @@ EXPORTISMRMRD int ismrmrd_clear_flag(uint64_t *flags, const uint64_t val);
 EXPORTISMRMRD int ismrmrd_clear_all_flags(uint64_t *flags);
 /** @} */
 
-/** TODO: add helper functions for channel mask */
+/*****************/
+/* Channel Masks */
+/*****************/
+/** @addtogroup capi
+ *  @{
+ */
+EXPORTISMRMRD bool ismrmrd_is_channel_on(const uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS], const uint16_t chan);
+EXPORTISMRMRD int ismrmrd_set_channel_on(uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS], const uint16_t chan);
+EXPORTISMRMRD int ismrmrd_set_channel_off(uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS], const uint16_t chan);
+EXPORTISMRMRD int ismrmrd_clear_all_channels(uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS]);
+/** @} */
 
 /******************/
 /* Error Handling */

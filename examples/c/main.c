@@ -54,6 +54,10 @@ int main(void)
         ismrmrd_init_acquisition(&acq);
         acq.head.number_of_samples = 128;
         acq.head.active_channels = 4;
+        ismrmrd_clear_all_channels(acq.head.channel_mask);
+        for (k=0; k<acq.head.active_channels; k++) {
+            ismrmrd_set_channel_on(acq.head.channel_mask, k);
+        }
         ismrmrd_make_consistent_acquisition(&acq);
         for (k=0; k<acq.head.number_of_samples; k++) {
             for (c=0; c<acq.head.active_channels; c++) {
@@ -106,6 +110,11 @@ int main(void)
     ismrmrd_read_acquisition(&dataset2, index, &acq2);
     printf("Number of samples: %u\n", acq2.head.number_of_samples);
     printf("Flags: %llu\n", acq2.head.flags);
+    printf("Channel Mask[0]: %llu\n", acq2.head.channel_mask[0]);
+    printf("Channel Mask[1]: %llu\n", acq2.head.channel_mask[1]);
+    printf("Channel 3 is %d\n", ismrmrd_is_channel_on(acq2.head.channel_mask, 3));
+    printf("Channel 5 is %d\n", ismrmrd_is_channel_on(acq2.head.channel_mask, 5));
+    
 #ifdef _MSC_VER
     /* Windows C compilers don't have a good complex type */
     printf("Data 3: %f\t 2: %f\n", acq2.data[4].real, acq2.data[4].imag);
