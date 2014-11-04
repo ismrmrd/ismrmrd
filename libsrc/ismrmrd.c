@@ -548,7 +548,7 @@ int ismrmrd_set_channel_off(uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS], const 
     return ISMRMRD_NOERROR;
 }
     
-int ismrmrd_clear_all_channels(uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS]) {
+int ismrmrd_set_all_channels_off(uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS]) {
     size_t offset;
     if (channel_mask==NULL) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer to channel_mask should not be NULL.");

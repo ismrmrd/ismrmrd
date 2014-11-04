@@ -377,7 +377,7 @@ EXPORTISMRMRD int ismrmrd_clear_all_flags(uint64_t *flags);
 EXPORTISMRMRD bool ismrmrd_is_channel_on(const uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS], const uint16_t chan);
 EXPORTISMRMRD int ismrmrd_set_channel_on(uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS], const uint16_t chan);
 EXPORTISMRMRD int ismrmrd_set_channel_off(uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS], const uint16_t chan);
-EXPORTISMRMRD int ismrmrd_clear_all_channels(uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS]);
+EXPORTISMRMRD int ismrmrd_set_all_channels_off(uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS]);
 /** @} */
 
 /******************/
@@ -473,11 +473,10 @@ public:
     void clearAllFlags();
 
     // Channel mask methods
-    // TODO: need to add the functionality for these
-    //bool isChannelActive(uint16_t channel_id);
-    //void setChannelActive(uint16_t channel_id);
-    //void setChannelNotActive(uint16_t channel_id);
-    //void setAllChannelsNotActive();
+    bool isChannelActive(uint16_t channel_id);
+    void setChannelActive(uint16_t channel_id);
+    void setChannelNotActive(uint16_t channel_id);
+    void setAllChannelsNotActive();
 
 };
 
@@ -536,11 +535,10 @@ public:
     void clearAllFlags();
 
     // Channel mask methods
-    // TODO: need to add the functionality for these
-    //bool isChannelActive(uint16_t channel_id);
-    //void setChannelActive(uint16_t channel_id);
-    //void setChannelNotActive(uint16_t channel_id);
-    //void setAllChannelsNotActive();
+    bool isChannelActive(uint16_t channel_id);
+    void setChannelActive(uint16_t channel_id);
+    void setChannelNotActive(uint16_t channel_id);
+    void setAllChannelsNotActive();
 
 };
 

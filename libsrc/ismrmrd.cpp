@@ -236,18 +236,31 @@ float * Acquisition::getTraj() {
 // Flag methods
 bool Acquisition::isFlagSet(const uint64_t val) {
     return ismrmrd_is_flag_set(head.flags, val);
-};
+}
 void Acquisition::setFlag(const uint64_t val) {
     ismrmrd_set_flag(&head.flags, val);
-};
+}
 void Acquisition::clearFlag(const uint64_t val) {
     ismrmrd_clear_flag(&head.flags, val);
-};
+}
 void Acquisition::clearAllFlags() {
     ismrmrd_clear_all_flags(&head.flags);
-};
+}
 
-// TODO: Channel mask methods go here
+// Channel mask methods
+bool Acquisition::isChannelActive(uint16_t channel_id) {
+    return ismrmrd_is_channel_on(head.channel_mask, channel_id);
+}
+void Acquisition::setChannelActive(uint16_t channel_id) {
+    ismrmrd_set_channel_on(head.channel_mask, channel_id);
+}
+void Acquisition::setChannelNotActive(uint16_t channel_id) {
+    ismrmrd_set_channel_off(head.channel_mask, channel_id);
+}
+void Acquisition::setAllChannelsNotActive() {
+    ismrmrd_set_all_channels_off(head.channel_mask);
+}
+
 
 //
 // ImageHeader class Implementation

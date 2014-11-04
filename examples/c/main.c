@@ -54,7 +54,6 @@ int main(void)
         ismrmrd_init_acquisition(&acq);
         acq.head.number_of_samples = 128;
         acq.head.active_channels = 4;
-        ismrmrd_clear_all_channels(acq.head.channel_mask);
         for (k=0; k<acq.head.active_channels; k++) {
             ismrmrd_set_channel_on(acq.head.channel_mask, k);
         }
