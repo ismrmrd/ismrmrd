@@ -677,12 +677,12 @@ cdef class Dataset:
     cdef cismrmrd.ISMRMRD_Dataset *thisptr
     cdef bint is_open
 
-    def __cinit__(self, const char *filename, const char *groupname):
+    def __cinit__(self, const char *filename, const char *groupname, create_if_needed=True):
         self.thisptr = <cismrmrd.ISMRMRD_Dataset*>calloc(1, sizeof(cismrmrd.ISMRMRD_Dataset))
         errno = cismrmrd.ismrmrd_init_dataset(self.thisptr, filename, groupname)
         if errno != cismrmrd.ISMRMRD_NOERROR:
             raise RuntimeError(build_exception_string())
-        self.is_open = False
+        self.open(create_if_needed)
 
     def __dealloc__(self):
         self.close()
