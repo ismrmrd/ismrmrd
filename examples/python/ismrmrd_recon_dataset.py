@@ -12,7 +12,7 @@ filename = 'testdata.h5'
 if not os.path.isfile(filename):
     print("%s is not a valid file" % filename)
     raise SystemExit
-dset = ismrmrd.IsmrmrdDataset(filename, 'dataset')
+dset = ismrmrd.IsmrmrdDataset(filename, 'dataset', create_if_needed=False)
 
 header = ismrmrd_xsd.CreateFromDocument(dset.readHeader())
 enc = header.encoding[0]

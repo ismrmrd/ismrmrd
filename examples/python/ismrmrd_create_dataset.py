@@ -10,7 +10,6 @@ if os.path.isfile(filename):
     os.remove(filename)
 # Create an empty ISMRMRD dataset
 dset = ismrmrd.Dataset(filename, "dataset")
-dset.open(create_if_needed=True)
 
 # Synthesize the object
 nX, nY = 256, 256
