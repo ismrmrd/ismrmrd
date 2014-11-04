@@ -20,14 +20,16 @@ int main(void)
     ISMRMRD_Acquisition acq, acq2, acq3;
     ISMRMRD_Dataset dataset2;
     char *xmlstring;
-    ISMRMRD_Image im;
+    ISMRMRD_Image im, im2;
     uint32_t index;
     uint64_t loc;
     uint32_t nacq_read;
+    uint32_t numim;
     const char *filename = "myfile.h5";
     const char *groupname = "/dataset";
     const char *xmlhdr = "Yo! This is some text for the header.";
     const char *attr_string = "Yo! This is some text for the attribute string.";
+    ISMRMRD_NDArray arr, arr2;
 
     /* Set the error handler */
     ismrmrd_set_error_handler(myerror);
@@ -142,7 +144,32 @@ int main(void)
         ((float*)im.data)[loc] = 2.0;
     }
     ismrmrd_append_image(&dataset2, "testimages", &im);
-                         
+
+    numim = ismrmrd_get_number_of_images(&dataset2, "testimages");
+    printf("Number of images stored = %d\n", numim);
+    
+    ismrmrd_read_image(&dataset2, "testimages", 1, &im2);
+    printf("Image 1 attribute string = %s\n", im2.attribute_string);
+    printf("Image 1 at position 10 has value = %f\n", ((float*)im2.data)[10]);
+
+    /* Create and store an array */
+    ismrmrd_init_ndarray(&arr);
+    arr.data_type = ISMRMRD_FLOAT;
+    arr.ndim = 3;
+    arr.dims[0] = 256;
+    arr.dims[1] = 128;
+    arr.dims[2] = 4;
+    ismrmrd_make_consistent_ndarray(&arr);
+    for (loc=0; loc < 256*128*4; loc++) {
+        ((float*)arr.data)[loc] = 2.0;
+    }
+    ismrmrd_append_array(&dataset2, "testarray", &arr);
+    printf("Number of arrays stored = %d\n", ismrmrd_get_number_of_arrays(&dataset2, "testarray"));
+
+    /* Read it back in */
+    ismrmrd_read_array(&dataset2, "testarray", 0, &arr2);
+    printf("Array 2 at position 10 has value = %f\n", ((float*)arr2.data)[10]);
+    
     /* Clean up */
     /* This frees the internal memory of the acquisitions */
     ismrmrd_cleanup_acquisition(&acq);

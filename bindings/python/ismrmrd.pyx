@@ -706,7 +706,7 @@ cdef class Dataset:
         def __get__(self): return self.thisptr.filename
 
     property groupname:
-        def __get__(self): return self.thisptr.filename
+        def __get__(self): return self.thisptr.groupname
 
     property fileid:
         def __get__(self): return self.thisptr.fileid
