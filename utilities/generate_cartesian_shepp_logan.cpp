@@ -77,39 +77,44 @@ int main(int argc, char** argv)
 	dims.push_back(ncoils);
 
 	NDArray<complex_float_t> coil_images(dims);
-	memset(coil_images.getData(), 0, coil_images.getDataSize());
+	memset(coil_images.getDataPtr(), 0, coil_images.getDataSize());
 
 	for (unsigned int c = 0; c < ncoils; c++) {
-		for (unsigned int y = 0; y < matrix_size; y++) {
-			for (unsigned int x = 0; x < matrix_size; x++) {
-				size_t out_index = c*matrix_size*matrix_size*ros + y*matrix_size*ros + ((matrix_size*ros-matrix_size)>>1) + x;
-				size_t cindex = c*matrix_size*matrix_size + y*matrix_size + x;
-				size_t iindex = y*matrix_size + x;
-				coil_images.getData()[out_index] = phantom->getData()[iindex] * coils->getData()[cindex];
-			}
-		}
+            for (unsigned int y = 0; y < matrix_size; y++) {
+                for (unsigned int x = 0; x < matrix_size; x++) {
+                    uint16_t xout = x + (matrix_size*ros-matrix_size)/2;
+                    coil_images(xout,y,c) = (*phantom)(x,y) * (*coils)(x,y,c);
+                }
+            }
 	}
 
         //Let's append the data to the file
         //Create if needed
 	Dataset d(outfile.c_str(),dataset.c_str(), true);
 	Acquisition acq;
-	acq.available_channels() = ncoils;
-	acq.active_channels(ncoils);
-	size_t readout = matrix_size*ros;
-	acq.number_of_samples(readout);
-	acq.center_sample() = (readout>>1);
-
-	if (noise_calibration) {
+        size_t readout = matrix_size*ros;
+        
+	if (noise_calibration)
+        {
+            acq.resize(readout, ncoils);
+            memset((void *)acq.getDataPtr(), 0, acq.getDataSize());
             acq.setFlag(ISMRMRD_ACQ_IS_NOISE_MEASUREMENT);
-            acq.number_of_samples(readout);
-            for (size_t s = 0; s < acq.getNumberOfDataElements(); s++) {
-                acq.getData()[s] = 0.0;
-            }
             add_noise(acq,noise_level);
             acq.sample_time_us() = 5.0;
             d.appendAcquisition(acq);
 	}
+        
+        if (store_coordinates) {
+            acq.resize(readout, ncoils, 2);
+        }
+        else {
+            acq.resize(readout, ncoils);
+        }
+        memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
+        
+        acq.available_channels() = ncoils;
+	acq.center_sample() = (readout>>1);
+
 
         for (unsigned int r = 0; r < repetitions; r++) {
             for (unsigned int a = 0; a < acc_factor; a++) {
@@ -119,7 +124,6 @@ int main(int argc, char** argv)
                 add_noise(cm,noise_level);
                 for (size_t i = a; i < matrix_size; i+=acc_factor) {
                     acq.clearAllFlags();
-                    acq.number_of_samples(readout);
                     
                     //Set some flags
                     if (i == a) {
@@ -132,18 +136,17 @@ int main(int argc, char** argv)
                     acq.idx().repetition = r*acc_factor + a;
                     acq.sample_time_us() = 5.0;
                     for (size_t c = 0; c < ncoils; c++) {
-                        memcpy(&(acq.getData()[c*readout]),
-                               &(cm.getData()[c*matrix_size*readout + i*readout]),
-                               sizeof(complex_float_t)*readout);
+                        for (size_t s = 0; s < readout; s++) {
+                            acq.data(s,c) = cm(s,i,c);
+                        }
                     }
                     
                     if (store_coordinates) {
-                        acq.trajectory_dimensions(2);
                         float ky = (1.0*i-(matrix_size>>1))/(1.0*matrix_size);
                         for (size_t x = 0; x < readout; x++) {
                             float kx = (1.0*x-(readout>>1))/(1.0*readout);
-                            acq.getTraj()[x*2  ] = kx;
-                            acq.getTraj()[x*2+1] = ky;
+                            acq.traj(0,x) = kx;
+                            acq.traj(1,x) = ky;
                         }
                     }
                     d.appendAcquisition(acq);

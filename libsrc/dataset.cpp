@@ -80,7 +80,7 @@ uint32_t Dataset::getNumberOfAcquisitions()
 // Images
 template <typename T>void Dataset::appendImage(const std::string &var, const Image<T> &im)
 {
-    int status = ismrmrd_append_image(&dset_, var.c_str(), reinterpret_cast<const ISMRMRD_Image*>(&im));
+    int status = ismrmrd_append_image(&dset_, var.c_str(), &im.im);
     if (status != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
@@ -105,7 +105,7 @@ template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const I
 
 
 template <typename T> void Dataset::readImage(const std::string &var, uint32_t index, Image<T> &im) {
-    int status = ismrmrd_read_image(&dset_, var.c_str(), index, reinterpret_cast<ISMRMRD_Image*>(&im));
+    int status = ismrmrd_read_image(&dset_, var.c_str(), index, &im.im);
     if (status != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
@@ -121,7 +121,7 @@ uint32_t Dataset::getNumberOfImages(const std::string &var)
 // NDArrays
 template <typename T> void Dataset::appendNDArray(const std::string &var, const NDArray<T> &arr)
 {
-    int status = ismrmrd_append_array(&dset_, var.c_str(), static_cast<const ISMRMRD_NDArray*>(&arr));
+    int status = ismrmrd_append_array(&dset_, var.c_str(), &arr.arr);
     if (status != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
@@ -146,7 +146,7 @@ void Dataset::appendNDArray(const std::string &var, const ISMRMRD_NDArray *arr)
 }
 
 template <typename T> void Dataset::readNDArray(const std::string &var, uint32_t index, NDArray<T> &arr) {
-    int status = ismrmrd_read_array(&dset_, var.c_str(), index, static_cast<ISMRMRD_NDArray*>(&arr));
+    int status = ismrmrd_read_array(&dset_, var.c_str(), index, &arr.arr);
     if (status != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }

@@ -481,10 +481,12 @@ public:
 };
 
 /// MR Acquisition type
-class EXPORTISMRMRD Acquisition: protected ISMRMRD_Acquisition {
+class EXPORTISMRMRD Acquisition {
+    friend class Dataset;
 public:
     // Constructors, assignment, destructor
     Acquisition();
+    Acquisition(uint16_t num_samples, uint16_t active_channels=1, uint16_t trajectory_dimensions=0);
     Acquisition(const Acquisition &other);
     Acquisition & operator= (const Acquisition &other);
     ~Acquisition();
@@ -497,36 +499,84 @@ public:
     uint32_t &acquisition_time_stamp();
     uint32_t (&physiology_time_stamp())[ISMRMRD_PHYS_STAMPS];
     const uint16_t &number_of_samples();
-    void number_of_samples(uint16_t num_samples);
     uint16_t &available_channels();
     const uint16_t &active_channels();
-    void active_channels(uint16_t num_active_channels);
     const uint64_t (&channel_mask())[ISMRMRD_CHANNEL_MASKS];
     uint16_t &discard_pre();
     uint16_t &discard_post();
     uint16_t &center_sample();
     uint16_t &encoding_space_ref();
     const uint16_t &trajectory_dimensions();
-    void trajectory_dimensions(uint16_t traj_dim);
     float &sample_time_us();
     float (&position())[3];
     float (&read_dir())[3];
     float (&phase_dir())[3];
     float (&slice_dir())[3];
     float (&patient_table_position())[3];
-    EncodingCounters &idx();
+    ISMRMRD_EncodingCounters &idx();
     int32_t (&user_int())[ISMRMRD_USER_INTS];
     float (&user_float())[ISMRMRD_USER_FLOATS];
 
     // Sizes
+    void resize(uint16_t num_samples, uint16_t active_channels=1, uint16_t trajectory_dimensions=0);
     const size_t getNumberOfDataElements();
     const size_t getNumberOfTrajElements();
+    const size_t getDataSize();
+    const size_t getTrajSize();
 
     // Header, data and trajectory accessors
-    AcquisitionHeader &getHead();
+    const AcquisitionHeader &getHead();
     void setHead(const AcquisitionHeader other);
-    complex_float_t *getData();
-    float *getTraj();
+    
+    /**
+     * Returns a pointer to the data
+     */
+    const complex_float_t * const getDataPtr() const ;
+
+    /**
+     * Returns a reference to the data
+     */    
+    complex_float_t & data(uint16_t sample, uint16_t channel);
+
+    /**
+     * Sets the datay.  Must set sizes properly first
+     */    
+    void setData(complex_float_t * data);
+
+    /**
+     * Returns an iterator to the beginning of the data
+     */
+    complex_float_t * data_begin() const;
+    
+    /**
+     * Returns an iterator of the end of the data
+     */
+    complex_float_t * data_end() const;
+    
+    /**
+     * Returns a pointer to the trajectory
+     */
+    const float * const getTrajPtr() const;
+    
+    /**
+     * Returns a reference to the trajectory
+     */
+    float & traj(uint16_t dimension, uint16_t sample);
+    
+    /**
+     * Sets the trajectory.  Must set sizes properly first
+     */
+    void setTraj(float * traj);
+    
+    /**
+     * Returns an iterator to the beginning of the trajectories
+     */
+    float * traj_begin() const;
+    
+    /**
+     * Returns an iterator to the end of the trajectories
+     */
+    float * traj_end() const;
 
     // Flag methods
     bool isFlagSet(const uint64_t val);
@@ -540,6 +590,8 @@ public:
     void setChannelNotActive(uint16_t channel_id);
     void setAllChannelsNotActive();
 
+protected:
+    ISMRMRD_Acquisition acq;
 };
 
 /// Header for MR Image type
@@ -557,7 +609,8 @@ public:
 };
 
 /// MR Image type
-template <typename T> class EXPORTISMRMRD Image : protected ISMRMRD_Image {
+template <typename T> class EXPORTISMRMRD Image {
+    friend class Dataset;
 public:
     // Constructors
     Image(uint16_t matrix_size_x = 0, uint16_t matrix_size_y = 1,
@@ -694,13 +747,27 @@ public:
     const size_t getAttributeStringLength();
     
     // Data
-    T * const getData() const;
+    T * const getDataPtr() const;
+    /** Returns the number of elements in the image data **/
     size_t getNumberOfDataElements() const;
+    /** Returns the size of the image data in bytes **/
     size_t getDataSize() const;
+
+    /** Returns iterator to the beginning of the image data **/
+    T* begin();
+
+    /** Returns iterator to the end of the image data **/
+    T* end();
+
+    /** Returns a reference to the image data **/
+    T & operator () (uint16_t x, uint16_t y=0, uint16_t z=0 , uint16_t channel =0);
+
+protected:
+    ISMRMRD_Image im;
 };
 
 /// N-Dimensional array type
-template <typename T> class EXPORTISMRMRD NDArray: protected ISMRMRD_NDArray {
+template <typename T> class EXPORTISMRMRD NDArray {
     friend class Dataset;
 public:
     // Constructors, destructor and copy
@@ -718,8 +785,19 @@ public:
     const size_t getDataSize();
     void resize(const std::vector<size_t> dimvec);
     const size_t getNumberOfElements();
-    T * getData();
+    T * getDataPtr();
+    
+    /** Returns iterator to the beginning of the array **/
+    T * begin();
 
+    /** Returns iterator to the end of the array **/
+    T* end();
+
+    /** Returns a reference to the image data **/
+    T & operator () (uint16_t x, uint16_t y=0, uint16_t z=0, uint16_t w=0, uint16_t n=0, uint16_t m=0, uint16_t l=0);
+
+protected:
+    ISMRMRD_NDArray arr;
 };
 
 

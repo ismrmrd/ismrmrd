@@ -34,26 +34,47 @@ void AcquisitionHeader::clearAllFlags() {
     ismrmrd_clear_all_flags(&flags);
 }
 
-// TODO: Channel mask methods go here
+// Channel mask methods
+bool AcquisitionHeader::isChannelActive(uint16_t channel_id) {
+    return ismrmrd_is_channel_on(channel_mask, channel_id);
+}
+void AcquisitionHeader::setChannelActive(uint16_t channel_id) {
+    ismrmrd_set_channel_on(channel_mask, channel_id);
+}
+void AcquisitionHeader::setChannelNotActive(uint16_t channel_id) {
+    ismrmrd_set_channel_off(channel_mask, channel_id);
+}
+void AcquisitionHeader::setAllChannelsNotActive() {
+    ismrmrd_set_all_channels_off(channel_mask);
+}
+
 
 //
 // Acquisition class Implementation
 //
 // Constructors, assignment operator, destructor
 Acquisition::Acquisition() {
-    if (ismrmrd_init_acquisition(this) != ISMRMRD_NOERROR) {
+    if (ismrmrd_init_acquisition(&acq) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
+}
+
+
+Acquisition::Acquisition(uint16_t num_samples, uint16_t active_channels, uint16_t trajectory_dimensions){
+    if (ismrmrd_init_acquisition(&acq) != ISMRMRD_NOERROR) {
+        throw std::runtime_error(build_exception_string());
+    }
+    this->resize(num_samples,active_channels,trajectory_dimensions);
 }
 
 Acquisition::Acquisition(const Acquisition &other) {
     int err = 0;
     // This is a deep copy
-    err = ismrmrd_init_acquisition(this);
+    err = ismrmrd_init_acquisition(&acq);
     if (err) {
         throw std::runtime_error(build_exception_string());
     }
-    err = ismrmrd_copy_acquisition(this, &other);
+    err = ismrmrd_copy_acquisition(&acq, &other.acq);
     if (err) {
         throw std::runtime_error(build_exception_string());
     }
@@ -64,11 +85,11 @@ Acquisition & Acquisition::operator= (const Acquisition &other) {
     int err = 0;
     if (this != &other )
     {
-        err = ismrmrd_init_acquisition(this);
+        err = ismrmrd_init_acquisition(&acq);
         if (err) {
             throw std::runtime_error(build_exception_string());
         }
-        err = ismrmrd_copy_acquisition(this, &other);
+        err = ismrmrd_copy_acquisition(&acq, &other.acq);
         if (err) {
             throw std::runtime_error(build_exception_string());
         }
@@ -77,188 +98,219 @@ Acquisition & Acquisition::operator= (const Acquisition &other) {
 }
 
 Acquisition::~Acquisition() {
-    if (ismrmrd_cleanup_acquisition(this) != ISMRMRD_NOERROR) {
+    if (ismrmrd_cleanup_acquisition(&acq) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
 }
 
 // Accessors and mutators
 const uint16_t &Acquisition::version() {
-    return head.version;
+    return acq.head.version;
 }
 
 const uint64_t &Acquisition::flags() {
-    return head.flags;
+    return acq.head.flags;
 }
 
 uint32_t &Acquisition::measurement_uid() {
-    return head.measurement_uid;
+    return acq.head.measurement_uid;
 }
 
 uint32_t &Acquisition::scan_counter() {
-    return head.scan_counter;
+    return acq.head.scan_counter;
 }
 
 uint32_t &Acquisition::acquisition_time_stamp() {
-    return head.acquisition_time_stamp;
+    return acq.head.acquisition_time_stamp;
 }
 
 uint32_t (&Acquisition::physiology_time_stamp()) [ISMRMRD_PHYS_STAMPS] {
-    return head.physiology_time_stamp;
+    return acq.head.physiology_time_stamp;
 }
 
 const uint16_t &Acquisition::number_of_samples() {
-    return head.number_of_samples;
-}
-
-void Acquisition::number_of_samples(uint16_t num_samples) {
-    head.number_of_samples = num_samples;
-    if (ismrmrd_make_consistent_acquisition(this) != ISMRMRD_NOERROR) {
-        throw std::runtime_error(build_exception_string());
-    }
+    return acq.head.number_of_samples;
 }
 
 uint16_t &Acquisition::available_channels() {
-    return head.available_channels;
+    return acq.head.available_channels;
 }
 
 const uint16_t &Acquisition::active_channels() {
-    return head.active_channels;
-}
-
-void Acquisition::active_channels(uint16_t num_channels) {
-    head.active_channels = num_channels;
-    if (ismrmrd_make_consistent_acquisition(this) != ISMRMRD_NOERROR) {
-        throw std::runtime_error(build_exception_string());
-    }
+    return acq.head.active_channels;
 }
 
 const uint64_t (&Acquisition::channel_mask()) [ISMRMRD_CHANNEL_MASKS] {
-    return head.channel_mask;
+    return acq.head.channel_mask;
 }
 
 uint16_t &Acquisition::discard_pre() {
-    return head.discard_pre;
+    return acq.head.discard_pre;
 }
 
 uint16_t &Acquisition::discard_post() {
-    return head.discard_post;
+    return acq.head.discard_post;
 }
 
 uint16_t &Acquisition::center_sample() {
-    return head.center_sample;
+    return acq.head.center_sample;
 }
 
 uint16_t &Acquisition::encoding_space_ref() {
-    return head.encoding_space_ref;
+    return acq.head.encoding_space_ref;
 }
 
 const uint16_t &Acquisition::trajectory_dimensions() {
-    return head.trajectory_dimensions;
+    return acq.head.trajectory_dimensions;
 }
-
-void Acquisition::trajectory_dimensions(uint16_t traj_dim) {
-    head.trajectory_dimensions =  traj_dim;
-    if (ismrmrd_make_consistent_acquisition(this) != ISMRMRD_NOERROR) {
-        throw std::runtime_error(build_exception_string());
-    }
-}
-
 
 float &Acquisition::sample_time_us() {
-    return head.sample_time_us;
+    return acq.head.sample_time_us;
 }
 
 float (&Acquisition::position())[3] {
-    return head.position;
+    return acq.head.position;
 }
 
 float (&Acquisition::read_dir())[3] {
-    return head.read_dir;
+    return acq.head.read_dir;
 }
 
 float (&Acquisition::phase_dir())[3] {
-    return head.phase_dir;
+    return acq.head.phase_dir;
 }
 
 float (&Acquisition::slice_dir())[3] {
-    return head.slice_dir;
+    return acq.head.slice_dir;
 }
 
 float (&Acquisition::patient_table_position())[3] {
-    return head.patient_table_position;
+    return acq.head.patient_table_position;
 }
 
 ISMRMRD_EncodingCounters &Acquisition::idx() {
-    return head.idx;
+    return acq.head.idx;
 }
 
 int32_t (&Acquisition::user_int()) [ISMRMRD_USER_INTS] {
-    return head.user_int;
+    return acq.head.user_int;
 }
 
 float (&Acquisition::user_float()) [ISMRMRD_USER_FLOATS] {
-    return head.user_float;
+    return acq.head.user_float;
 }
 
 // Sizes
 const size_t Acquisition::getNumberOfDataElements() {
-    size_t num = head.number_of_samples * head.active_channels;
+    size_t num = acq.head.number_of_samples * acq.head.active_channels;
     return num;
+}
+
+const size_t Acquisition::getDataSize() {
+    size_t num = acq.head.number_of_samples * acq.head.active_channels;
+    return num*sizeof(complex_float_t);
 }
 
 const size_t Acquisition::getNumberOfTrajElements() {
-    size_t num = head.number_of_samples * head.trajectory_dimensions;
+    size_t num = acq.head.number_of_samples * acq.head.trajectory_dimensions;
     return num;
 }
 
+const size_t Acquisition::getTrajSize() {
+    size_t num = acq.head.number_of_samples * acq.head.trajectory_dimensions;
+    return num*sizeof(float);
+}
+
 // Data and Trajectory accessors
-AcquisitionHeader & Acquisition::getHead() {
+const AcquisitionHeader & Acquisition::getHead() {
     // This returns a reference
-    return *static_cast<AcquisitionHeader *>(&head);
+    return *static_cast<AcquisitionHeader *>(&acq.head);
 }
 
 void Acquisition::setHead(const AcquisitionHeader other) {
-    memcpy(&head, &other, sizeof(AcquisitionHeader));
-    if (ismrmrd_make_consistent_acquisition(this) != ISMRMRD_NOERROR) {
+    memcpy(&acq.head, &other, sizeof(AcquisitionHeader));
+    if (ismrmrd_make_consistent_acquisition(&acq) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
 }
 
-complex_float_t * Acquisition::getData() {
-    return data;
+void Acquisition::resize(uint16_t num_samples, uint16_t active_channels, uint16_t trajectory_dimensions){
+       acq.head.number_of_samples = num_samples;
+       acq.head.active_channels = active_channels;
+       acq.head.trajectory_dimensions = trajectory_dimensions;
+       if (ismrmrd_make_consistent_acquisition(&acq) != ISMRMRD_NOERROR) {
+           throw std::runtime_error(build_exception_string());
+       }
 }
 
-float * Acquisition::getTraj() {
-    return traj;
+const complex_float_t * const Acquisition::getDataPtr() const {
+    return acq.data;
+}
+
+void Acquisition::setData(complex_float_t * data) {
+    memcpy(acq.data,data,this->getNumberOfDataElements()*sizeof(complex_float_t));
+}
+
+complex_float_t & Acquisition::data(uint16_t sample, uint16_t channel){
+       size_t index = size_t(sample)+size_t(channel)*size_t(acq.head.number_of_samples);
+       return acq.data[index];
+}
+
+const float * const Acquisition::getTrajPtr() const {
+    return acq.traj;
+}
+
+void Acquisition::setTraj(float* traj) {
+       memcpy(acq.traj,traj,this->getNumberOfTrajElements()*sizeof(float));
+}
+
+float & Acquisition::traj(uint16_t dimension, uint16_t sample){
+    size_t index = size_t(sample)*size_t(acq.head.trajectory_dimensions)+size_t(dimension);
+    return acq.traj[index];
+}
+
+complex_float_t * Acquisition::data_begin() const{
+       return acq.data;
+}
+
+complex_float_t * Acquisition::data_end() const {
+       return acq.data+size_t(acq.head.number_of_samples)*size_t(acq.head.active_channels);
+}
+
+float * Acquisition::traj_begin() const {
+       return acq.traj;
+}
+
+float * Acquisition::traj_end() const {
+       return acq.traj+size_t(acq.head.number_of_samples)*size_t(acq.head.trajectory_dimensions);
 }
 
 // Flag methods
 bool Acquisition::isFlagSet(const uint64_t val) {
-    return ismrmrd_is_flag_set(head.flags, val);
+    return ismrmrd_is_flag_set(acq.head.flags, val);
 }
 void Acquisition::setFlag(const uint64_t val) {
-    ismrmrd_set_flag(&head.flags, val);
+    ismrmrd_set_flag(&acq.head.flags, val);
 }
 void Acquisition::clearFlag(const uint64_t val) {
-    ismrmrd_clear_flag(&head.flags, val);
+    ismrmrd_clear_flag(&acq.head.flags, val);
 }
 void Acquisition::clearAllFlags() {
-    ismrmrd_clear_all_flags(&head.flags);
+    ismrmrd_clear_all_flags(&acq.head.flags);
 }
 
 // Channel mask methods
 bool Acquisition::isChannelActive(uint16_t channel_id) {
-    return ismrmrd_is_channel_on(head.channel_mask, channel_id);
+    return ismrmrd_is_channel_on(acq.head.channel_mask, channel_id);
 }
 void Acquisition::setChannelActive(uint16_t channel_id) {
-    ismrmrd_set_channel_on(head.channel_mask, channel_id);
+    ismrmrd_set_channel_on(acq.head.channel_mask, channel_id);
 }
 void Acquisition::setChannelNotActive(uint16_t channel_id) {
-    ismrmrd_set_channel_off(head.channel_mask, channel_id);
+    ismrmrd_set_channel_off(acq.head.channel_mask, channel_id);
 }
 void Acquisition::setAllChannelsNotActive() {
-    ismrmrd_set_all_channels_off(head.channel_mask);
+    ismrmrd_set_all_channels_off(acq.head.channel_mask);
 }
 
 
@@ -300,21 +352,21 @@ template <typename T> Image<T>::Image(uint16_t matrix_size_x,
                                       uint16_t matrix_size_z,
                                       uint16_t channels)
 {
-    if (ismrmrd_init_image(this) != ISMRMRD_NOERROR) {
+    if (ismrmrd_init_image(&im) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
-    head.data_type = get_data_type<T>();
+    im.head.data_type = get_data_type<T>();
     resize(matrix_size_x, matrix_size_y, matrix_size_z, channels);
 }
 
 template <typename T> Image<T>::Image(const Image<T> &other) {
     int err = 0;
     // This is a deep copy
-    err = ismrmrd_init_image(this);
+    err = ismrmrd_init_image(&im);
     if (err) {
         throw std::runtime_error(build_exception_string());
     }
-    err = ismrmrd_copy_image(this, &other);
+    err = ismrmrd_copy_image(&im, &other.im);
     if (err) {
         throw std::runtime_error(build_exception_string());
     }
@@ -326,11 +378,11 @@ template <typename T> Image<T> & Image<T>::operator= (const Image<T> &other)
     // Assignment makes a copy
     if (this != &other )
     {
-        err = ismrmrd_init_image(this);
+        err = ismrmrd_init_image(&im);
         if (err) {
             throw std::runtime_error(build_exception_string());
         }
-        err = ismrmrd_copy_image(this, &other);
+        err = ismrmrd_copy_image(&im, &other.im);
         if (err) {
             throw std::runtime_error(build_exception_string());
         }
@@ -339,7 +391,7 @@ template <typename T> Image<T> & Image<T>::operator= (const Image<T> &other)
 }
 
 template <typename T> Image<T>::~Image() {
-    if (ismrmrd_cleanup_image(this) != ISMRMRD_NOERROR) {
+    if (ismrmrd_cleanup_image(&im) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
 }
@@ -361,32 +413,32 @@ template <typename T> void Image<T>::resize(uint16_t matrix_size_x,
         channels = 1;
     }
     
-    head.matrix_size[0] = matrix_size_x;
-    head.matrix_size[1] = matrix_size_y;
-    head.matrix_size[2] = matrix_size_z;
-    head.channels = channels;
-    if (ismrmrd_make_consistent_image(this) != ISMRMRD_NOERROR) {
+    im.head.matrix_size[0] = matrix_size_x;
+    im.head.matrix_size[1] = matrix_size_y;
+    im.head.matrix_size[2] = matrix_size_z;
+    im.head.channels = channels;
+    if (ismrmrd_make_consistent_image(&im) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
 }
 
 template <typename T> uint16_t Image<T>::getMatrixSizeX() const
 {
-    return head.matrix_size[0];
+    return im.head.matrix_size[0];
 }
 
 template <typename T> void Image<T>::setMatrixSizeX(uint16_t matrix_size_x)
 {
     // TODO what if matrix_size_x = 0?
-    head.matrix_size[0] = matrix_size_x;
-    if (ismrmrd_make_consistent_image(this) != ISMRMRD_NOERROR) {
+    im.head.matrix_size[0] = matrix_size_x;
+    if (ismrmrd_make_consistent_image(&im) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
 }
 
 template <typename T> uint16_t Image<T>::getMatrixSizeY() const
 {
-    return head.matrix_size[1];
+    return im.head.matrix_size[1];
 }
 
 template <typename T> void Image<T>::setMatrixSizeY(uint16_t matrix_size_y)
@@ -394,15 +446,15 @@ template <typename T> void Image<T>::setMatrixSizeY(uint16_t matrix_size_y)
     if (matrix_size_y == 0) {
         matrix_size_y = 1;
     }
-    head.matrix_size[1] = matrix_size_y;
-    if (ismrmrd_make_consistent_image(this) != ISMRMRD_NOERROR) {
+    im.head.matrix_size[1] = matrix_size_y;
+    if (ismrmrd_make_consistent_image(&im) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
 }
 
 template <typename T> uint16_t Image<T>::getMatrixSizeZ() const
 {
-    return head.matrix_size[2];
+    return im.head.matrix_size[2];
 }
 
 template <typename T> void Image<T>::setMatrixSizeZ(uint16_t matrix_size_z)
@@ -410,15 +462,15 @@ template <typename T> void Image<T>::setMatrixSizeZ(uint16_t matrix_size_z)
     if (matrix_size_z == 0) {
         matrix_size_z = 1;
     }
-    head.matrix_size[2] = matrix_size_z;
-    if (ismrmrd_make_consistent_image(this) != ISMRMRD_NOERROR) {
+    im.head.matrix_size[2] = matrix_size_z;
+    if (ismrmrd_make_consistent_image(&im) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
 }
 
 template <typename T> uint16_t Image<T>::getNumberOfChannels() const
 {
-    return head.channels;
+    return im.head.channels;
 }
 
 template <typename T> void Image<T>::setNumberOfChannels(uint16_t channels)
@@ -427,8 +479,8 @@ template <typename T> void Image<T>::setNumberOfChannels(uint16_t channels)
         channels = 1;
     }
 
-    head.channels = channels;
-    if (ismrmrd_make_consistent_image(this) != ISMRMRD_NOERROR) {
+    im.head.channels = channels;
+    if (ismrmrd_make_consistent_image(&im) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
 }
@@ -436,418 +488,418 @@ template <typename T> void Image<T>::setNumberOfChannels(uint16_t channels)
 
 template <typename T> void Image<T>::setFieldOfView(float fov_x, float fov_y, float fov_z)
 {
-    head.field_of_view[0] = fov_x;
-    head.field_of_view[1] = fov_y;
-    head.field_of_view[2] = fov_z;
+    im.head.field_of_view[0] = fov_x;
+    im.head.field_of_view[1] = fov_y;
+    im.head.field_of_view[2] = fov_z;
 }
 
 template <typename T> void Image<T>::setFieldOfViewX(float fov_x)
 {
-    head.field_of_view[0] = fov_x;
+    im.head.field_of_view[0] = fov_x;
 }
 
 template <typename T> float Image<T>::getFieldOfViewX() const
 {
-    return head.field_of_view[0];
+    return im.head.field_of_view[0];
 }
 
 template <typename T> void Image<T>::setFieldOfViewY(float fov_y)
 {
-    head.field_of_view[1] = fov_y;
+    im.head.field_of_view[1] = fov_y;
 }
 
 template <typename T> float Image<T>::getFieldOfViewY() const
 {
-    return head.field_of_view[1];
+    return im.head.field_of_view[1];
 }
 
 template <typename T> void Image<T>::setFieldOfViewZ(float fov_z)
 {
-    head.field_of_view[2] = fov_z;
+    im.head.field_of_view[2] = fov_z;
 }
 
 template <typename T> float Image<T>::getFieldOfViewZ() const
 {
-    return head.field_of_view[2];
+    return im.head.field_of_view[2];
 }
 
 
 // Positions and orientations
 template <typename T> void Image<T>::setPosition(float x, float y, float z)
 {
-    head.position[0] = x;
-    head.position[1] = y;
-    head.position[2] = z;
+    im.head.position[0] = x;
+    im.head.position[1] = y;
+    im.head.position[2] = z;
 }
 
 template <typename T> float Image<T>::getPositionX() const
 {
-    return head.position[0];
+    return im.head.position[0];
 }
 
 template <typename T> void Image<T>::setPositionX(float x)
 {
-    head.position[0] = x;
+    im.head.position[0] = x;
 }
 
 template <typename T> float Image<T>::getPositionY() const
 {
-    return head.position[1];
+    return im.head.position[1];
 }
 
 template <typename T> void Image<T>::setPositionY(float y)
 {
-    head.position[1] = y;
+    im.head.position[1] = y;
 }
 
 template <typename T> float Image<T>::getPositionZ() const
 {
-    return head.position[2];
+    return im.head.position[2];
 }
 
 template <typename T> void Image<T>::setPositionZ(float z)
 {
-    head.position[2] = z;
+    im.head.position[2] = z;
 }
 
 
 template <typename T> void Image<T>::setReadDirection(float x, float y, float z)
 {
-    head.read_dir[0] = x;
-    head.read_dir[1] = y;
-    head.read_dir[2] = z;
+    im.head.read_dir[0] = x;
+    im.head.read_dir[1] = y;
+    im.head.read_dir[2] = z;
 }
 
 template <typename T> float Image<T>::getReadDirectionX() const
 {
-    return head.read_dir[0];
+    return im.head.read_dir[0];
 }
 
 template <typename T> void Image<T>::setReadDirectionX(float x)
 {
-    head.read_dir[0] = x;
+    im.head.read_dir[0] = x;
 }
 
 template <typename T> float Image<T>::getReadDirectionY() const
 {
-    return head.read_dir[1];
+    return im.head.read_dir[1];
 }
 
 template <typename T> void Image<T>::setReadDirectionY(float y)
 {
-    head.read_dir[1] = y;
+    im.head.read_dir[1] = y;
 }
 
 template <typename T> float Image<T>::getReadDirectionZ() const
 {
-    return head.read_dir[2];
+    return im.head.read_dir[2];
 }
 
 template <typename T> void Image<T>::setReadDirectionZ(float z)
 {
-    head.read_dir[2] = z;    
+    im.head.read_dir[2] = z;    
 }
 
     
 template <typename T> void Image<T>::setPhaseDirection(float x, float y, float z)
 {
-    head.phase_dir[0] = x;
-    head.phase_dir[1] = y;
-    head.phase_dir[2] = z;
+    im.head.phase_dir[0] = x;
+    im.head.phase_dir[1] = y;
+    im.head.phase_dir[2] = z;
 }
 
 template <typename T> float Image<T>::getPhaseDirectionX() const
 {
-    return head.phase_dir[0];
+    return im.head.phase_dir[0];
 }
 
 template <typename T> void Image<T>::setPhaseDirectionX(float x)
 {
-    head.phase_dir[0] = x;
+    im.head.phase_dir[0] = x;
 }
 
 template <typename T> float Image<T>::getPhaseDirectionY() const
 {
-    return head.phase_dir[1];
+    return im.head.phase_dir[1];
 }
 
 template <typename T> void Image<T>::setPhaseDirectionY(float y)
 {
-    head.phase_dir[1] = y;
+    im.head.phase_dir[1] = y;
 }
 
 template <typename T> float Image<T>::getPhaseDirectionZ() const
 {
-    return head.phase_dir[2];
+    return im.head.phase_dir[2];
 }
 
 template <typename T> void Image<T>::setPhaseDirectionZ(float z)
 {
-    head.phase_dir[2] = z;
+    im.head.phase_dir[2] = z;
 }
 
 template <typename T> void Image<T>::setSliceDirection(float x, float y, float z)
 {
-    head.slice_dir[0] = x;
-    head.slice_dir[1] = y;
-    head.slice_dir[2] = z;
+    im.head.slice_dir[0] = x;
+    im.head.slice_dir[1] = y;
+    im.head.slice_dir[2] = z;
 }
 
 template <typename T> float Image<T>::getSliceDirectionX() const
 {
-    return head.slice_dir[0];
+    return im.head.slice_dir[0];
 }
 
 template <typename T> void Image<T>::setSliceDirectionX(float x)
 {
-    head.slice_dir[0] = x;
+    im.head.slice_dir[0] = x;
 }
 
 template <typename T> float Image<T>::getSliceDirectionY() const
 {
-    return head.slice_dir[1];
+    return im.head.slice_dir[1];
 }
 
 template <typename T> void Image<T>::setSliceDirectionY(float y)
 {
-    head.slice_dir[1] = y;
+    im.head.slice_dir[1] = y;
 }
 
 template <typename T> float Image<T>::getSliceDirectionZ() const
 {
-    return head.slice_dir[2];
+    return im.head.slice_dir[2];
 }
 
 template <typename T> void Image<T>::setSliceDirectionZ(float z)
 {
-    head.slice_dir[2] = z;
+    im.head.slice_dir[2] = z;
 }
     
 template <typename T> void Image<T>::setPatientTablePosition(float x, float y, float z)
 {
-    head.patient_table_position[0] = x;
-    head.patient_table_position[1] = y;
-    head.patient_table_position[2] = z;
+    im.head.patient_table_position[0] = x;
+    im.head.patient_table_position[1] = y;
+    im.head.patient_table_position[2] = z;
 }
 
 template <typename T> float Image<T>::getPatientTablePositionX() const
 {
-    return head.patient_table_position[0];
+    return im.head.patient_table_position[0];
 }
 
 template <typename T> void Image<T>::setPatientTablePositionX(float x)
 {
-    head.patient_table_position[0] = x;
+    im.head.patient_table_position[0] = x;
 }
 
 template <typename T> float Image<T>::getPatientTablePositionY() const
 {
-    return head.patient_table_position[1];
+    return im.head.patient_table_position[1];
 }
 
 template <typename T> void Image<T>::setPatientTablePositionY(float y)
 {
-    head.patient_table_position[1] = y;
+    im.head.patient_table_position[1] = y;
 }
 
 template <typename T> float Image<T>::getPatientTablePositionZ() const
 {
-    return head.patient_table_position[2];
+    return im.head.patient_table_position[2];
 }
 
 template <typename T> void Image<T>::setPatientTablePositionZ(float z)
 {
-    head.patient_table_position[2] = z;
+    im.head.patient_table_position[2] = z;
 }
 
 template <typename T> uint16_t Image<T>::getVersion() const
 {
-    return head.version;
+    return im.head.version;
 }
 
 template <typename T> ISMRMRD_DataTypes Image<T>::getDataType() const
 {
-    return static_cast<ISMRMRD_DataTypes>(head.data_type);
+    return static_cast<ISMRMRD_DataTypes>(im.head.data_type);
 }
 
 template <typename T> uint32_t Image<T>::getMeasurementUid() const
 {
-    return head.measurement_uid;
+    return im.head.measurement_uid;
 }
 
 template <typename T> void Image<T>::setMeasurementUid(uint32_t measurement_uid)
 {
-    head.measurement_uid = measurement_uid;
+    im.head.measurement_uid = measurement_uid;
 }
 
 
 template <typename T> uint16_t Image<T>::getAverage() const
 {
-    return head.average;
+    return im.head.average;
 }
 
 template <typename T> void  Image<T>::setAverage(uint16_t average)
 {
-    head.average = average;
+    im.head.average = average;
 }
 
 template <typename T> uint16_t Image<T>::getSlice() const
 {
-    return head.slice;
+    return im.head.slice;
 }
 
 template <typename T> void  Image<T>::setSlice(uint16_t slice)
 {
-    head.slice = slice;
+    im.head.slice = slice;
 }
 
 template <typename T> uint16_t Image<T>::getContrast() const
 {
-    return head.contrast;
+    return im.head.contrast;
 }
 
 template <typename T> void  Image<T>::setContrast(uint16_t contrast)
 {
-    head.contrast = contrast;
+    im.head.contrast = contrast;
 }
 
 template <typename T> uint16_t Image<T>::getPhase() const
 {
-    return head.phase;
+    return im.head.phase;
 }
 
 template <typename T> void  Image<T>::setPhase(uint16_t phase)
 {
-    head.phase = phase;
+    im.head.phase = phase;
 }
     
 template <typename T> uint16_t Image<T>::getRepetition() const
 {
-    return head.repetition;
+    return im.head.repetition;
 }
 
 template <typename T> void  Image<T>::setRepetition(uint16_t repetition)
 {
-    head.repetition = repetition;
+    im.head.repetition = repetition;
 }
 
 template <typename T> uint16_t Image<T>::getSet() const
 {
-    return head.set;
+    return im.head.set;
 }
 
 template <typename T> void  Image<T>::setSet(uint16_t set)
 {
-    head.set = set;
+    im.head.set = set;
 }
 
 template <typename T> uint32_t Image<T>::getAcquisitionTimeStamp() const
 {
-    return head.acquisition_time_stamp;
+    return im.head.acquisition_time_stamp;
 }
 
 template <typename T> void  Image<T>::setAcquisitionTimeStamp(uint32_t acquisition_time_stamp)
 {
-    head.acquisition_time_stamp = acquisition_time_stamp;
+    im.head.acquisition_time_stamp = acquisition_time_stamp;
 }
 
 template <typename T> uint32_t Image<T>::getPhysiologyTimeStamp(unsigned int stamp_id) const
 {
-    return head.physiology_time_stamp[stamp_id];
+    return im.head.physiology_time_stamp[stamp_id];
 }
 
 template <typename T> void  Image<T>::setPhysiologyTimeStamp(unsigned int stamp_id, uint32_t value)
 {
-    head.physiology_time_stamp[stamp_id] = value;
+    im.head.physiology_time_stamp[stamp_id] = value;
 }
 
 template <typename T> uint16_t Image<T>::getImageType() const
 {
-    return head.image_type;
+    return im.head.image_type;
 }
 
 template <typename T> void Image<T>::setImageType(uint16_t image_type)
 {
-    head.image_type = image_type;
+    im.head.image_type = image_type;
 }
 
 template <typename T> uint16_t Image<T>::getImageIndex() const
 {
-    return head.image_index;
+    return im.head.image_index;
 }
 
 template <typename T> void Image<T>::setImageIndex(uint16_t image_index)
 {
-    head.image_index = image_index;
+    im.head.image_index = image_index;
 }
 
 template <typename T> uint16_t Image<T>::getImageSeriesIndex() const
 {
-    return head.image_series_index;
+    return im.head.image_series_index;
 }
 
 template <typename T> void Image<T>::setImageSeriesIndex(uint16_t image_series_index)
 {
-    head.image_series_index = image_series_index;
+    im.head.image_series_index = image_series_index;
 }
 
     
 // User parameters
 template <typename T> float Image<T>::getUserFloat(unsigned int index) const
 {
-    return head.user_float[index];
+    return im.head.user_float[index];
 }
 
 template <typename T> void Image<T>::setUserFloat(unsigned int index, float value)
 {
-    head.user_float[index] = value;
+    im.head.user_float[index] = value;
 }
 
 template <typename T> int32_t Image<T>::getUserInt(unsigned int index) const
 {
-    return head.user_int[index];
+    return im.head.user_int[index];
 }
 
 template <typename T> void Image<T>::setUserInt(unsigned int index, int32_t value)
 {
-    head.user_int[index] = value;
+    im.head.user_int[index] = value;
 }
 
 
 // Flag methods
 template <typename T> uint64_t Image<T>::getFlags() const {
-    return head.flags;
+    return im.head.flags;
 }
 
 template <typename T> bool Image<T>::isFlagSet(const uint64_t val) const {
-    return ismrmrd_is_flag_set(head.flags, val);
+    return ismrmrd_is_flag_set(im.head.flags, val);
 }
 
 template <typename T> void Image<T>::setFlag(const uint64_t val) {
-    ismrmrd_set_flag(&(head.flags), val);
+    ismrmrd_set_flag(&(im.head.flags), val);
 }
 
 template <typename T> void Image<T>::clearFlag(const uint64_t val) {
-    ismrmrd_clear_flag(&(head.flags), val);
+    ismrmrd_clear_flag(&(im.head.flags), val);
 }
 
 template <typename T> void Image<T>::clearAllFlags() {
-    ismrmrd_clear_all_flags(&(head.flags));
+    ismrmrd_clear_all_flags(&(im.head.flags));
 }
 
 // Header
 template <typename T> ImageHeader &Image<T>::getHead() {
     // This returns a reference
-    return *static_cast<ImageHeader *>(&head);
+    return *static_cast<ImageHeader *>(&im.head);
 }
 
 template <typename T> void Image<T>::setHead(const ImageHeader &other) {
-    if (other.data_type != head.data_type) {
+    if (other.data_type != im.head.data_type) {
         throw std::runtime_error("Cannot assign a header of a different data type.");
     }
     
-    memcpy(&head, &other, sizeof(ImageHeader));
-    if (ismrmrd_make_consistent_image(this) != ISMRMRD_NOERROR) {
+    memcpy(&im.head, &other, sizeof(ImageHeader));
+    if (ismrmrd_make_consistent_image(&im) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
 }
@@ -855,69 +907,84 @@ template <typename T> void Image<T>::setHead(const ImageHeader &other) {
 // Attribute string
 template <typename T> void Image<T>::getAttributeString(std::string &attr) const
 {
-    attr = std::string(attribute_string);
+    attr = std::string(im.attribute_string);
 }
 
 template <typename T> void Image<T>::setAttributeString(const std::string attr)
 {
-    head.attribute_string_len = attr.length();
-    attribute_string = (char *)realloc(attribute_string, attr.length()+1);
+    im.head.attribute_string_len = attr.length();
+    im.attribute_string = (char *)realloc(im.attribute_string, attr.length()+1);
     // TODO error check?
-    strcpy(attribute_string, attr.c_str());
+    strcpy(im.attribute_string, attr.c_str());
 }
 
 template <typename T> const size_t Image<T>::getAttributeStringLength()
 {
-    return head.attribute_string_len;
+    return im.head.attribute_string_len;
 }
 
 // Data
-template <typename T> T * const Image<T>::getData() const {
-     return static_cast<T*>(data);
+template <typename T> T * const Image<T>::getDataPtr() const {
+     return static_cast<T*>(im.data);
 }
 
 template <typename T> size_t Image<T>::getNumberOfDataElements() const {
     size_t num = 1;
-    num *= head.matrix_size[0];
-    num *= head.matrix_size[1];
-    num *= head.matrix_size[2];
-    num *= head.channels;
-    return ismrmrd_size_of_image_data(this);
+    num *= im.head.matrix_size[0];
+    num *= im.head.matrix_size[1];
+    num *= im.head.matrix_size[2];
+    num *= im.head.channels;
+    return ismrmrd_size_of_image_data(&im);
 }
 
 template <typename T> size_t Image<T>::getDataSize() const {
-    return ismrmrd_size_of_image_data(this);
+    return ismrmrd_size_of_image_data(&im);
 }
 
+template <typename T> T * Image<T>::begin() {
+     return static_cast<T*>(im.data);
+}
+
+template <typename T> T * Image<T>::end() {
+     return static_cast<T*>(im.data)+this->getNumberOfDataElements();
+}
+
+template <typename T> T & Image<T>::operator () (uint16_t ix, uint16_t iy, uint16_t iz, uint16_t channel) {
+     size_t index = ix \
+             + size_t(im.head.matrix_size[0])*iy \
+             + size_t(im.head.matrix_size[1])*size_t(im.head.matrix_size[0])*iz \
+             + size_t(im.head.matrix_size[1])*size_t(im.head.matrix_size[0])*size_t(im.head.matrix_size[2])*channel;
+     return static_cast<T*>(im.data)[index];
+}
 
 //
 // Array class Implementation
 //
 template <typename T> NDArray<T>::NDArray()
 {
-    if (ismrmrd_init_ndarray(this) != ISMRMRD_NOERROR) {
+    if (ismrmrd_init_ndarray(&arr) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
-    data_type = get_data_type<T>();
+    arr.data_type = get_data_type<T>();
 }
 
 template <typename T> NDArray<T>::NDArray(const std::vector<size_t> dimvec)
 {
-    if (ismrmrd_init_ndarray(this) != ISMRMRD_NOERROR) {
+    if (ismrmrd_init_ndarray(&arr) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
-    data_type = get_data_type<T>();
+    arr.data_type = get_data_type<T>();
     resize(dimvec);
 }
 
 template <typename T> NDArray<T>::NDArray(const NDArray<T> &other)
 {
     int err = 0;
-    err = ismrmrd_init_ndarray(this);
+    err = ismrmrd_init_ndarray(&arr);
     if (err) {
         throw std::runtime_error(build_exception_string());
     }
-    err = ismrmrd_copy_ndarray(this, &other);
+    err = ismrmrd_copy_ndarray(&arr, &other.arr);
     if (err) {
         throw std::runtime_error(build_exception_string());
     }
@@ -925,7 +992,7 @@ template <typename T> NDArray<T>::NDArray(const NDArray<T> &other)
 
 template <typename T> NDArray<T>::~NDArray()
 {
-    if (ismrmrd_cleanup_ndarray(this) != ISMRMRD_NOERROR) {
+    if (ismrmrd_cleanup_ndarray(&arr) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
 }
@@ -936,11 +1003,11 @@ template <typename T> NDArray<T> & NDArray<T>::operator= (const NDArray<T> &othe
     // Assignment makes a copy
     if (this != &other )
     {
-        err = ismrmrd_init_ndarray(this);
+        err = ismrmrd_init_ndarray(&arr);
         if (err) {
             throw std::runtime_error(build_exception_string());
         }
-        err = ismrmrd_copy_ndarray(this, &other);
+        err = ismrmrd_copy_ndarray(&arr, &other.arr);
         if (err) {
             throw std::runtime_error(build_exception_string());
         }
@@ -949,50 +1016,69 @@ template <typename T> NDArray<T> & NDArray<T>::operator= (const NDArray<T> &othe
 }
 
 template <typename T> const uint16_t NDArray<T>::getVersion() {
-    return version;
+    return arr.version;
 };
 
 template <typename T> const ISMRMRD_DataTypes NDArray<T>::getDataType() {
-    return static_cast<ISMRMRD_DataTypes>( data_type );
+    return static_cast<ISMRMRD_DataTypes>( arr.data_type );
 }
 
 template <typename T> const uint16_t NDArray<T>::getNDim() {
-    return  ndim;
+    return  arr.ndim;
 };
     
 template <typename T> const size_t (&NDArray<T>::getDims())[ISMRMRD_NDARRAY_MAXDIM] {
-    return dims;
+    return arr.dims;
 };
 
 template <typename T> void NDArray<T>::resize(const std::vector<size_t> dimvec) {
     if (dimvec.size() > ISMRMRD_NDARRAY_MAXDIM) {
         throw std::runtime_error("Input vector dimvec is too long.");
     }
-    ndim = dimvec.size();
-    for (int n=0; n<ndim; n++) {
-        dims[n] = dimvec[n];
+    arr.ndim = dimvec.size();
+    for (int n=0; n<arr.ndim; n++) {
+        arr.dims[n] = dimvec[n];
     }
-    if (ismrmrd_make_consistent_ndarray(this) != ISMRMRD_NOERROR) {
+    if (ismrmrd_make_consistent_ndarray(&arr) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
 }
 
-template <typename T> T * NDArray<T>::getData() {
-    return static_cast<T*>(data);
+template <typename T> T * NDArray<T>::getDataPtr() {
+    return static_cast<T*>(arr.data);
 }
 
 template <typename T> const size_t NDArray<T>::getDataSize() {
-    return ismrmrd_size_of_ndarray_data(this);
+    return ismrmrd_size_of_ndarray_data(&arr);
 }
 
 template <typename T> const size_t NDArray<T>::getNumberOfElements() {
     size_t num = 1;
-    for (int n = 0; n < ndim; n++) {
-        num *= dims[n];
+    for (int n = 0; n < arr.ndim; n++) {
+        num *= arr.dims[n];
     }
     return num;
 }
 
+template <typename T> T * NDArray<T>::begin() {
+    return static_cast<T*>(arr.data);
+}
+
+template <typename T> T * NDArray<T>::end() {
+    return static_cast<T*>(arr.data)+this->getNumberOfElements();
+}
+
+template <typename T> T & NDArray<T>::operator () (uint16_t x, uint16_t y, uint16_t z, uint16_t w, uint16_t n, uint16_t m, uint16_t l){
+       size_t index = 0;
+       uint16_t indices[ISMRMRD_NDARRAY_MAXDIM] = {x,y,z,w,n,m,l};
+       size_t stride = 1;
+       for (uint16_t i = 0; i < arr.ndim; i++){
+               index += indices[i]*stride;
+               stride *= arr.dims[i];
+       }
+
+       return static_cast<T*>(arr.data)[index];
+}
 
 // Specializations
 // Allowed data types for Images and NDArrays

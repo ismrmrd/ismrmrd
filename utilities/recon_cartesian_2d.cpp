@@ -95,7 +95,7 @@ int main(int argc, char** argv)
         //Copy data, we should probably be more careful here and do more tests....
         //We are not considering multiple channels here.
         unsigned int offset = acq.idx().kspace_encode_step_1*dims[0];
-        memcpy(&buffer.getData()[offset], acq.getData(),sizeof(complex_float_t)*dims[0]);
+        memcpy(&buffer.getDataPtr()[offset], acq.getDataPtr(),sizeof(complex_float_t)*dims[0]);
     }
 
     //Let's FFT the k-space to image
@@ -107,7 +107,7 @@ int main(int argc, char** argv)
     }
 
     //FFTSHIFT
-    fftshift(reinterpret_cast<complex_float_t*>(tmp), buffer.getData(), dims[0], dims[1]);
+    fftshift(reinterpret_cast<complex_float_t*>(tmp), buffer.getDataPtr(), dims[0], dims[1]);
 
     //Create the FFTW plan
     fftwf_plan p = fftwf_plan_dft_2d(dims[1], dims[0], tmp ,tmp, FFTW_BACKWARD, FFTW_ESTIMATE);
@@ -116,7 +116,7 @@ int main(int argc, char** argv)
     fftwf_execute(p);
 
     //FFTSHIFT
-    fftshift( buffer.getData(), reinterpret_cast<std::complex<float>*>(tmp), dims[0], dims[1]);
+    fftshift( buffer.getDataPtr(), reinterpret_cast<std::complex<float>*>(tmp), dims[0], dims[1]);
 
     //Clean up.
     fftwf_destroy_plan(p);
@@ -130,8 +130,7 @@ int main(int argc, char** argv)
     size_t offset = ((e_space.matrixSize.x - r_space.matrixSize.x)>>1);
     for (unsigned int y = 0; y < r_space.matrixSize.y; y++) {
         for (unsigned int x = 0; x < r_space.matrixSize.x; x++) {
-            static_cast<float*>(img_out.getData())[y*r_space.matrixSize.x+x] =
-                    std::abs(buffer.getData()[y*dims[0] + x + offset]);
+            img_out(x,y) = std::abs(buffer(x+offset, y));
         }
     }
     
