@@ -263,8 +263,7 @@ classdef ImageHeader < handle
         function fromBytes(obj, bytearray)
             % Convert from a byte array to an ISMRMRD ImageHeader
 	    % This conforms to the memory layout of the C-struct
-
-            if size(bytearray,1) ~= 214
+            if size(bytearray,1) ~= 198
                 error('Wrong number of bytes for ImageHeader.')
             end
             N = size(bytearray,2);
@@ -288,15 +287,13 @@ classdef ImageHeader < handle
                 obj.repetition(p)               = typecast(bytearray(105:106,p), 'uint16');
                 obj.set(p)                      = typecast(bytearray(107:108,p), 'uint16');
                 obj.acquisition_time_stamp(p)   = typecast(bytearray(109:112,p), 'uint32');
-                obj.physiology_time_stamp(:,p)  = typecast(bytearray(113:124,p), 'uint32');
-                                                           ... %   C-struct has padding
-                
-                obj.image_type(p)               = typecast(bytearray(147:148,p), 'uint16');
-                obj.image_index(p)              = typecast(bytearray(149:150,p), 'uint16');
-                obj.image_series_index(p)       = typecast(bytearray(151:152,p), 'uint16');
-                obj.user_int(:,p)               = typecast(bytearray(153:184,p), 'uint32');
-                obj.user_float(:,p)             = typecast(bytearray(185:216,p), 'single');
-                obj.attribute_string_len        = typecast(bytearray(217:220,p), 'uint32');
+                obj.physiology_time_stamp(:,p)  = typecast(bytearray(113:124,p), 'uint32');                                                          
+                obj.image_type(p)               = typecast(bytearray(125:126,p), 'uint16');
+                obj.image_index(p)              = typecast(bytearray(127:128,p), 'uint16');
+                obj.image_series_index(p)       = typecast(bytearray(129:130,p), 'uint16');
+                obj.user_int(:,p)               = typecast(bytearray(131:162,p), 'uint32');
+                obj.user_float(:,p)             = typecast(bytearray(163:194,p), 'single');
+                obj.attribute_string_len        = typecast(bytearray(195:198,p), 'uint32');
                 
             end              
         end
@@ -306,7 +303,7 @@ classdef ImageHeader < handle
 	    % This conforms to the memory layout of the C-struct
 
             N = obj.getNumber;
-            bytes = zeros(214,N,'uint8');
+            bytes = zeros(198,N,'uint8');
             for p = 1:N
                 off = 1;
                 bytes(off:off+1,p)   = typecast(obj.version(p)                 ,'uint8'); off=off+2;
@@ -328,9 +325,9 @@ classdef ImageHeader < handle
                 bytes(off:off+1,p)   = typecast(obj.repetition(p)              ,'uint8'); off=off+2;
                 bytes(off:off+1,p)   = typecast(obj.set(p)                     ,'uint8'); off=off+2;
                 bytes(off:off+3,p)   = typecast(obj.acquisition_time_stamp(p)  ,'uint8'); off=off+4;
-                % The C struct has padding.
+                
                 bytes(off:off+11,p)  = typecast(obj.physiology_time_stamp(:,p) ,'uint8'); off=off+12;
-                off = off+20; % Discard 5*uint32;              
+                
                 bytes(off:off+1,p)   = typecast(obj.image_type(p)              ,'uint8'); off=off+2;
                 bytes(off:off+1,p)   = typecast(obj.image_index(p)             ,'uint8'); off=off+2;
                 bytes(off:off+1,p)   = typecast(obj.image_series_index(p)      ,'uint8'); off=off+2;
