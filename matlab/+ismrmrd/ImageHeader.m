@@ -3,6 +3,7 @@ classdef ImageHeader < handle
     properties
         
         version = uint16([]);                % First unsigned int indicates the version %
+        data_type = uint16([]);              % e.g. unsigned short, float, complex float, etc. */
         flags = uint64([]);                  % bit field with flags %
         measurement_uid = uint32([]);        % Unique ID for the measurement %
         matrix_size = uint16([]);            % Pixels in the 3 spatial dimensions
@@ -21,12 +22,12 @@ classdef ImageHeader < handle
         set = uint16([]);                    % e.g. flow encodning set %
         acquisition_time_stamp = uint32([]); % Acquisition clock %
         physiology_time_stamp = uint32([]);  % Physiology time stamps, e.g. ecg, breating, etc. %
-        image_data_type = uint16([]);        % e.g. unsigned short, float, complex float, etc. %
         image_type = uint16([]);             % e.g. magnitude, phase, complex, real, imag, etc. %
         image_index = uint16([]);			 % e.g. image number in series of images  %
         image_series_index = uint16([]);     % e.g. series number %
         user_int = int32([]);                % Free user parameters %
         user_float = single([]);             % Free user parameters %
+        attribute_string_len = uint32([]);
         
     end
 
@@ -123,12 +124,13 @@ classdef ImageHeader < handle
             hdr.set = obj.set(range);
             hdr.acquisition_time_stamp = obj.acquisition_time_stamp(range);
             hdr.physiology_time_stamp = obj.physiology_time_stamp(:,range);
-            hdr.image_data_type = obj.image_data_type(range);
+            hdr.data_type = obj.data_type(range);
             hdr.image_type = obj.image_type(range);
             hdr.image_index = obj.image_index(range);
             hdr.image_series_index = obj.image_series_index(range);
             hdr.user_int = obj.user_int(:,range);
             hdr.user_float = obj.user_float(:,range);
+            hdr.attribute_string_len = obj.attribute_string_len(:,range);
 
         end        
         
@@ -155,12 +157,13 @@ classdef ImageHeader < handle
             obj.set(1,range)                      = zeros(1,N,'uint16');
             obj.acquisition_time_stamp(1,range)   = zeros(1,N,'uint32');
             obj.physiology_time_stamp(1:3,range)  = zeros(3,N,'uint32');
-            obj.image_data_type(1,range)          = zeros(1,N,'uint16');
+            obj.data_type(1,range)                = zeros(1,N,'uint16');
             obj.image_type(1,range)               = zeros(1,N,'uint16');
             obj.image_index(1,range)              = zeros(1,N,'uint16');
             obj.image_series_index(1,range)       = zeros(1,N,'uint16');
             obj.user_int(1:8,range)               = zeros(8,N,'int32');
             obj.user_float(1:8,range)             = zeros(8,N,'single');
+            obj.attribute_string_len              = zeros(1,N,'uint32');
         end
         
         function append(obj, head)
@@ -186,12 +189,13 @@ classdef ImageHeader < handle
             obj.set(Nrange) = hdr.set;
             obj.acquisition_time_stamp(Nrange) = hdr.acquisition_time_stamp;
             obj.physiology_time_stamp(:,Nrange) = hdr.physiology_time_stamp;
-            obj.image_data_type(Nrange) = hdr.image_data_type;
+            obj.data_type(Nrange) = hdr.data_type;
             obj.image_type(Nrange) = hdr.image_type;
             obj.image_index(Nrange) = hdr.image_index;
             obj.image_series_index(Nrange) = hdr.image_series_index;
             obj.user_int(:,Nrange) = hdr.user_int;
-            obj.user_float(:,Nrange) = hdr.user_float;            
+            obj.user_float(:,Nrange) = hdr.user_float;
+            obj.attribute_string_len(Nrange) = hdr.attribute_string_len;
             
         end
 
@@ -216,12 +220,13 @@ classdef ImageHeader < handle
             obj.set = hdr.set;
             obj.acquisition_time_stamp = hdr.acquisition_time_stamp;
             obj.physiology_time_stamp = hdr.physiology_time_stamp;
-            obj.image_data_type = hdr.image_data_type;
+            obj.data_type = hdr.data_type;
             obj.image_type = hdr.image_type;
             obj.image_index = hdr.image_index;
             obj.image_series_index = hdr.image_series_index;
             obj.user_int = hdr.user_int;
             obj.user_float = hdr.user_float;
+            obj.attribute_string_len = hdr.attribute_string_len;
         end
 
         function hdr = toStruct(obj)
@@ -246,12 +251,13 @@ classdef ImageHeader < handle
             hdr.set = obj.set;
             hdr.acquisition_time_stamp = obj.acquisition_time_stamp;
             hdr.physiology_time_stamp = obj.physiology_time_stamp;
-            hdr.image_data_type = obj.image_data_type;
+            hdr.data_type = obj.data_type;
             hdr.image_type = obj.image_type;
             hdr.image_index = obj.image_index;
             hdr.image_series_index = obj.image_series_index;
             hdr.user_int = obj.user_int;
-            hdr.user_float = obj.user_float;            
+            hdr.user_float = obj.user_float;       
+            hdr.attribute_string_len = obj.attribute_string_len;
         end
         
         function fromBytes(obj, bytearray)
@@ -264,31 +270,34 @@ classdef ImageHeader < handle
             N = size(bytearray,2);
             for p = 1:N
                 obj.version(p)                  = typecast(bytearray(1:2,p),     'uint16');
-                obj.flags(p)                    = typecast(bytearray(3:10,p),    'uint64');
-                obj.measurement_uid(p)          = typecast(bytearray(11:14,p),   'uint32');
-                obj.matrix_size(:,p)            = typecast(bytearray(15:20,p),   'uint16');
-                obj.field_of_view(:,p)          = typecast(bytearray(21:32,p),   'single');
-                obj.channels(p)                 = typecast(bytearray(33:34,p),   'uint16');
-                obj.position(:,p)               = typecast(bytearray(35:46,p),   'single');
-                obj.read_dir(:,p)               = typecast(bytearray(47:58,p),   'single');
-                obj.phase_dir(:,p)              = typecast(bytearray(59:70,p),   'single');
-                obj.slice_dir(:,p)              = typecast(bytearray(71:82,p),   'single');
-                obj.patient_table_position(:,p) = typecast(bytearray(83:94,p),   'single');
-                obj.average(p)                  = typecast(bytearray(95:96,p),   'uint16');
-                obj.slice(p)                    = typecast(bytearray(97:98,p),   'uint16');
-                obj.contrast(p)                 = typecast(bytearray(99:100,p),  'uint16');
-                obj.phase(p)                    = typecast(bytearray(101:102,p), 'uint16');
-                obj.repetition(p)               = typecast(bytearray(103:104,p), 'uint16');
-                obj.set(p)                      = typecast(bytearray(105:106,p), 'uint16');
-                obj.acquisition_time_stamp(p)   = typecast(bytearray(107:110,p), 'uint32');
-                obj.physiology_time_stamp(:,p)  = typecast(bytearray(111:122,p), 'uint32');
+                obj.data_type(p)                = typecast(bytearray(3:4,p), 'uint16');
+                obj.flags(p)                    = typecast(bytearray(5:12,p),    'uint64');
+                obj.measurement_uid(p)          = typecast(bytearray(13:16,p),   'uint32');
+                obj.matrix_size(:,p)            = typecast(bytearray(17:22,p),   'uint16');
+                obj.field_of_view(:,p)          = typecast(bytearray(23:34,p),   'single');
+                obj.channels(p)                 = typecast(bytearray(35:36,p),   'uint16');
+                obj.position(:,p)               = typecast(bytearray(37:48,p),   'single');
+                obj.read_dir(:,p)               = typecast(bytearray(49:60,p),   'single');
+                obj.phase_dir(:,p)              = typecast(bytearray(61:72,p),   'single');
+                obj.slice_dir(:,p)              = typecast(bytearray(73:84,p),   'single');
+                obj.patient_table_position(:,p) = typecast(bytearray(85:96,p),   'single');
+                obj.average(p)                  = typecast(bytearray(97:98,p),   'uint16');
+                obj.slice(p)                    = typecast(bytearray(99:100,p),   'uint16');
+                obj.contrast(p)                 = typecast(bytearray(101:102,p),  'uint16');
+                obj.phase(p)                    = typecast(bytearray(103:104,p), 'uint16');
+                obj.repetition(p)               = typecast(bytearray(105:106,p), 'uint16');
+                obj.set(p)                      = typecast(bytearray(107:108,p), 'uint16');
+                obj.acquisition_time_stamp(p)   = typecast(bytearray(109:112,p), 'uint32');
+                obj.physiology_time_stamp(:,p)  = typecast(bytearray(113:124,p), 'uint32');
                                                            ... %   C-struct has padding
-                obj.image_data_type(p)          = typecast(bytearray(143:144,p), 'uint16');
-                obj.image_type(p)               = typecast(bytearray(145:146,p), 'uint16');
-                obj.image_index(p)              = typecast(bytearray(147:148,p), 'uint16');
-                obj.image_series_index(p)       = typecast(bytearray(149:150,p), 'uint16');
-                obj.user_int(:,p)               = typecast(bytearray(151:182,p), 'uint32');
-                obj.user_float(:,p)             = typecast(bytearray(183:214,p), 'single');
+                
+                obj.image_type(p)               = typecast(bytearray(147:148,p), 'uint16');
+                obj.image_index(p)              = typecast(bytearray(149:150,p), 'uint16');
+                obj.image_series_index(p)       = typecast(bytearray(151:152,p), 'uint16');
+                obj.user_int(:,p)               = typecast(bytearray(153:184,p), 'uint32');
+                obj.user_float(:,p)             = typecast(bytearray(185:216,p), 'single');
+                obj.attribute_string_len        = typecast(bytearray(217:220,p), 'uint32');
+                
             end              
         end
         
@@ -301,6 +310,7 @@ classdef ImageHeader < handle
             for p = 1:N
                 off = 1;
                 bytes(off:off+1,p)   = typecast(obj.version(p)                 ,'uint8'); off=off+2;
+                bytes(off:off+1,p)   = typecast(obj.data_type(p)               ,'uint8'); off=off+2;
                 bytes(off:off+7,p)   = typecast(obj.flags(p)                   ,'uint8'); off=off+8;
                 bytes(off:off+3,p)   = typecast(obj.measurement_uid(p)         ,'uint8'); off=off+4;
                 bytes(off:off+5,p)   = typecast(obj.matrix_size(:,p)           ,'uint8'); off=off+6;
@@ -320,13 +330,14 @@ classdef ImageHeader < handle
                 bytes(off:off+3,p)   = typecast(obj.acquisition_time_stamp(p)  ,'uint8'); off=off+4;
                 % The C struct has padding.
                 bytes(off:off+11,p)  = typecast(obj.physiology_time_stamp(:,p) ,'uint8'); off=off+12;
-                off = off+20; % Discard 5*uint32;
-                bytes(off:off+1,p)   = typecast(obj.image_data_type(p)         ,'uint8'); off=off+2;
+                off = off+20; % Discard 5*uint32;              
                 bytes(off:off+1,p)   = typecast(obj.image_type(p)              ,'uint8'); off=off+2;
                 bytes(off:off+1,p)   = typecast(obj.image_index(p)             ,'uint8'); off=off+2;
                 bytes(off:off+1,p)   = typecast(obj.image_series_index(p)      ,'uint8'); off=off+2;
                 bytes(off:off+31,p)  = typecast(obj.user_int(:,p)              ,'uint8'); off=off+32;
-                bytes(off:off+31,p)  = typecast(obj.user_float(:,p)            ,'uint8');
+                bytes(off:off+31,p)  = typecast(obj.user_float(:,p)            ,'uint8'); off=off+32;
+                bytes(off:off+3,p)  = typecast(obj.attribute_string_len(:,p)   ,'uint8'); 
+                
             end
         end
         
@@ -406,8 +417,8 @@ classdef ImageHeader < handle
                 (size(obj.physiology_time_stamp,2) ~= N))
                 error('Size of physiology_time_stamp is not correct.');
             end
-            if ((size(obj.image_data_type,1) ~= 1) || ...
-                (size(obj.image_data_type,2) ~= N))
+            if ((size(obj.data_type,1) ~= 1) || ...
+                (size(obj.data_type,2) ~= N))
                 error('Size of image_data_type is not correct.');
             end
             if ((size(obj.image_type,1) ~= 1) || ...
@@ -422,7 +433,7 @@ classdef ImageHeader < handle
                 (size(obj.image_series_index,2) ~= N))
                 error('Size of image_series_index is not correct.');
             end
-                        if ((size(obj.user_int,1) ~= 8) || ...
+            if ((size(obj.user_int,1) ~= 8) || ...
                 (size(obj.user_int,2) ~= N))    
                 error('Size of user_int is not correct.');
             end
@@ -451,12 +462,13 @@ classdef ImageHeader < handle
             obj.set = uint16(obj.set);
             obj.acquisition_time_stamp = uint32(obj.acquisition_time_stamp);
             obj.physiology_time_stamp = uint32(obj.physiology_time_stamp);            
-            obj.image_data_type = uint16(obj.image_data_type);
+            obj.data_type = uint16(obj.data_type);
             obj.image_type = uint16(obj.image_type);
             obj.image_index = uint16(obj.image_index);
             obj.image_series_index = uint16(obj.image_series_index);
             obj.user_int = int32(obj.user_int);
             obj.user_float = single(obj.user_float);
+            obj.attribute_string_len = uint32(obj.attribute_string_len);
  
         end
         
