@@ -25,7 +25,7 @@ end
 
 if isfield(header,'studyInformation')
     studyInformation = header.studyInformation;
-    studyInformationNode = docNode.createElement('subjectInformation');
+    studyInformationNode = docNode.createElement('studyInformation');
     append_optional(docNode,studyInformationNode,studyInformation,'studyDate');
     append_optional(docNode,studyInformationNode,studyInformation,'studyTime');
     append_optional(docNode,studyInformationNode,studyInformation,'studyID');
@@ -33,7 +33,7 @@ if isfield(header,'studyInformation')
     append_optional(docNode,studyInformationNode,studyInformation,'referringPhysicianName');
     append_optional(docNode,studyInformationNode,studyInformation,'studyDescription');
     append_optional(docNode,studyInformationNode,studyInformation,'studyInstanceUID');
-    docRootNode.appendChild(studyInformation);
+    docRootNode.appendChild(studyInformationNode);
 end
 
 if isfield(header,'measurementInformation')
@@ -43,7 +43,7 @@ if isfield(header,'measurementInformation')
     append_optional(docNode,measurementInformationNode,measurementInformation,'seriesDate');
     append_optional(docNode,measurementInformationNode,measurementInformation,'seriesTime');
     
-    append_node(docNode,docNode,measurementInformationNode,measurementInformation,'patientPosition');
+    append_node(docNode,measurementInformationNode,measurementInformation,'patientPosition');
     
     append_optional(docNode,measurementInformationNode,measurementInformation,'initialSeriesNumber',@int2str);
     append_optional(docNode,measurementInformationNode,measurementInformation,'protocolName');
