@@ -17,6 +17,7 @@ set(SPHINX_MAKEFILE ${CMAKE_CURRENT_BINARY_DIR}/Makefile.sphinx)
 configure_file(Makefile.sphinx.in ${SPHINX_MAKEFILE} @ONLY)
 add_custom_target(htmldoc
     COMMAND make -f ${SPHINX_MAKEFILE} html
+    COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/html/.nojekyll
     COMMENT "Generating HTML docs using Sphinx" VERBATIM)
 
 add_custom_target(doc)
