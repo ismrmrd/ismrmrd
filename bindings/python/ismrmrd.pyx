@@ -151,6 +151,8 @@ cdef bytes build_exception_string():
             )
     return err_string
 
+def sizeof_data_type(tp):
+    return cismrmrd.ismrmrd_sizeof_data_type(tp)
 
 cdef class EncodingCounters:
 

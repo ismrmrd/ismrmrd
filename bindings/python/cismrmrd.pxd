@@ -133,6 +133,8 @@ cdef extern from "ismrmrd/ismrmrd.h":
         ISMRMRD_CXFLOAT    # corresponds to complex float
         ISMRMRD_CXDOUBLE   # corresponds to complex double
 
+    cdef size_t ismrmrd_sizeof_data_type(int data_type)
+
     cdef enum ISMRMRD_ImageTypes:
         ISMRMRD_IMTYPE_MAGNITUDE = 1
         ISMRMRD_IMTYPE_PHASE
