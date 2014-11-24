@@ -292,13 +292,16 @@ size_t ismrmrd_size_of_image_data(const ISMRMRD_Image *im) {
         return 0;
     }
 
+    if (ismrmrd_sizeof_data_type(im->head.data_type) == 0) {
+        ISMRMRD_PUSH_ERR(ISMRMRD_TYPEERROR, "Invalid image data type");
+        return 0;
+    }
+
     num_data = im->head.matrix_size[0] * im->head.matrix_size[1] *
             im->head.matrix_size[2] * im->head.channels;
         
     data_size = num_data * ismrmrd_sizeof_data_type(im->head.data_type);
-    if (data_size == 0) {
-        ISMRMRD_PUSH_ERR(ISMRMRD_TYPEERROR, "Invalid image data type");
-    }
+    
     return data_size;
 }
 
@@ -417,14 +420,16 @@ size_t ismrmrd_size_of_ndarray_data(const ISMRMRD_NDArray *arr) {
         return 0;
     }
 
+    if (ismrmrd_sizeof_data_type(arr->data_type) == 0 ) {
+        ISMRMRD_PUSH_ERR(ISMRMRD_TYPEERROR, "Invalid NDArray data type");
+        return 0;
+    }
+    
     for (n = 0; n < arr->ndim; n++) {
         num_data *= arr->dims[n];
     }
 
     data_size = num_data * ismrmrd_sizeof_data_type(arr->data_type);
-    if (data_size == 0) {
-        ISMRMRD_PUSH_ERR(ISMRMRD_TYPEERROR, "Invalid NDArray data type");
-    }
 
     return data_size;
 }
