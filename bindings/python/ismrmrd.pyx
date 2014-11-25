@@ -151,8 +151,25 @@ cdef bytes build_exception_string():
             )
     return err_string
 
+
 def sizeof_data_type(tp):
     return cismrmrd.ismrmrd_sizeof_data_type(tp)
+
+def encoding_counters_from_bytes(buff):
+    e = EncodingCounters()
+    e._from_bytes(buff)
+    return e
+
+def acquisition_header_from_bytes(buff):
+    a = AcquisitionHeader()
+    a._from_bytes(buff)
+    return a
+
+def image_header_from_bytes(buff):
+    i = ImageHeader()
+    i._from_bytes(buff)
+    return i
+
 
 cdef class EncodingCounters:
 
@@ -174,6 +191,17 @@ cdef class EncodingCounters:
 
     cdef copy_to(self, cismrmrd.ISMRMRD_EncodingCounters *ptr):
         memcpy(ptr, self.thisptr, sizeof(cismrmrd.ISMRMRD_EncodingCounters))
+
+    @staticmethod
+    def _size_in_bytes():
+        return sizeof(cismrmrd.ISMRMRD_EncodingCounters)
+
+    def _from_bytes(self, s):
+        memcpy(self.thisptr, <char *>s, self._size_in_bytes())
+
+    def to_bytes(self):
+        c_string = <char *>(self.thisptr)
+        return c_string[:self._size_in_bytes()]
 
     property kspace_encode_step_1:
         def __get__(self): return self.thisptr.kspace_encode_step_1
@@ -245,6 +273,17 @@ cdef class AcquisitionHeader:
 
     cdef copy_to(self, cismrmrd.ISMRMRD_AcquisitionHeader *ptr):
         memcpy(ptr, self.thisptr, sizeof(cismrmrd.ISMRMRD_AcquisitionHeader))
+
+    @staticmethod
+    def _size_in_bytes():
+        return sizeof(cismrmrd.ISMRMRD_AcquisitionHeader)
+
+    def _from_bytes(self, s):
+        memcpy(self.thisptr, <char *>s, self._size_in_bytes())
+
+    def to_bytes(self):
+        c_string = <char *>(self.thisptr)
+        return c_string[:self._size_in_bytes()]
 
     property version:
         def __get__(self): return self.thisptr.version
@@ -467,6 +506,17 @@ cdef class ImageHeader:
 
     cdef copy_to(self, cismrmrd.ISMRMRD_ImageHeader *ptr):
         memcpy(ptr, self.thisptr, sizeof(cismrmrd.ISMRMRD_ImageHeader))
+
+    @staticmethod
+    def _size_in_bytes():
+        return sizeof(cismrmrd.ISMRMRD_ImageHeader)
+
+    def _from_bytes(self, s):
+        memcpy(self.thisptr, <char *>s, self._size_in_bytes())
+
+    def to_bytes(self):
+        c_string = <char *>(self.thisptr)
+        return c_string[:self._size_in_bytes()]
 
     property version:
         def __get__(self): return self.thisptr.version
