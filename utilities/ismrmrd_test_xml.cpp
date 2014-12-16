@@ -8,7 +8,7 @@ int main(int argc, char** argv)
 {
 
   if (argc < 2) {
-    std::cout << "Usage:\n\ttest_ismrmrd_xml <ismrmrd_xml_header.xml>\n" << std::endl;
+    std::cout << "Usage:\n\tismrmrd_test_xml <ismrmrd_xml_header.xml>\n" << std::endl;
     return -1;
   }
 
