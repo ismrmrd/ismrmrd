@@ -61,10 +61,11 @@ The ISMRM Raw Data format is described by an XML schema_ and some C-style struct
 * HDF5 (version 1.8 or higher) libraries. Available from http://www.hdfgroup.org/downloads/index.html.
 * Boost (http://www.boost.org/)
 * Cmake build tool (http://www.cmake.org/)
-* Doxygen if you would like to generate API documentation (http://www.doxygen.org)
 * Git if you would like to use the source code archive (http://git-scm.com/)
 * FFTW if you would like to compile some of the example applications
   (http://www.fftw.org)
+* Doxygen if you would like to generate API documentation (http://www.doxygen.org)
+* Sphinx (http://sphinx-doc.org/) and Sphinx Bootstrap Theme (https://pypi.python.org/pypi/sphinx-bootstrap-theme) to generate this project documentation
 
 .. note:: It is only necessary to install the dependencies if you wish to develop compiled C/C++ software, which uses the ISMRMRD format. The format can be read in Matlab without installing any additional software.
 
