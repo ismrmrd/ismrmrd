@@ -8,9 +8,8 @@ docRootNode.setAttribute('xmlns:xsi','http://www.w3.org/2001/XMLSchema-instance'
 docRootNode.setAttribute('xmlns:xs','http://www.w3.org/2001/XMLSchema');
 
 docRootNode.setAttribute('xsi:schemaLocation','http://www.ismrm.org/ISMRMRD ismrmrd.xsd');
-% docRootNode.setAttribute('version','1');
 
-% append_optional(docNode,docRootNode,header,'version',@int2str)
+append_optional(docNode,docRootNode,header,'version',@int2str)
 
 if isfield(header,'subjectInformation')
     subjectInformation = header.subjectInformation;
@@ -49,24 +48,27 @@ if isfield(header,'measurementInformation')
     append_optional(docNode,measurementInformationNode,measurementInformation,'protocolName');
     append_optional(docNode,measurementInformationNode,measurementInformation,'seriesDescription');
     
-    
-    measurementDependency = measurementInformation.measurementDependency;
-    for dep = measurementDependency(:)
-        node = docNode.createElement('measurementDependency');
-        append_node(docNode,node,dep,'dependencyType');
-        append_node(docNode,node,dep,'measurementID');
-        measurementInformationNode.appendChild(node)
+    if isfield(measurementInformation, 'measurementDependency')
+        measurementDependency = measurementInformation.measurementDependency;
+        for dep = measurementDependency(:)
+            node = docNode.createElement('measurementDependency');
+            append_node(docNode,node,dep,'dependencyType');
+            append_node(docNode,node,dep,'measurementID');
+            measurementInformationNode.appendChild(node)
+        end
     end
-       
+    
     append_optional(docNode,measurementInformationNode,measurementInformation,'seriesInstanceUIDRoot');
     append_optional(docNode,measurementInformationNode,measurementInformation,'frameOfReferenceUID');
     
-    referencedImageSequence = measurementInformation.referencedImageSequence;
-    referencedImageSequenceNode = docNode.createElement('referencedImageSequence');
-    for ref = referencedImageSequence(:)
-        append_node(docNode,referencedImageSequenceNode,ref,'referencedSOPInstanceUID');
+    if isfield(measurementInformation, 'referencedImageSequence')
+        referencedImageSequence = measurementInformation.referencedImageSequence;
+        referencedImageSequenceNode = docNode.createElement('referencedImageSequence');
+        for ref = referencedImageSequence(:)
+            append_node(docNode,referencedImageSequenceNode,ref,'referencedSOPInstanceUID');
+        end
     end
-   
+    
     docRootNode.appendChild(measurementInformationNode);
 end
 
@@ -78,6 +80,17 @@ if isfield(header,'acquisitionSystemInformation')
     append_optional(docNode,acquisitionSystemInformationNode,acquisitionSystemInformation,'systemFieldStrength_T',@num2str);
     append_optional(docNode,acquisitionSystemInformationNode,acquisitionSystemInformation,'relativeReceiverNoiseBandwidth',@num2str);
     append_optional(docNode,acquisitionSystemInformationNode,acquisitionSystemInformation,'receiverChannels',@int2str);
+    
+    if isfield(acquisitionSystemInformation, 'coilLabel')
+        coilLabel = acquisitionSystemInformation.coilLabel;
+        for coil = 1:length(coilLabel)
+            coilLabelNode = docNode.createElement('coilLabel');
+            append_node(docNode,coilLabelNode,coilLabel(coil),'coilNumber',@num2str);
+            append_node(docNode,coilLabelNode,coilLabel(coil),'coilName');
+            acquisitionSystemInformationNode.appendChild(coilLabelNode);
+        end
+    end
+
     append_optional(docNode,acquisitionSystemInformationNode,acquisitionSystemInformation,'institutionName');
     append_optional(docNode,acquisitionSystemInformationNode,acquisitionSystemInformation,'stationName',@num2str);
     docRootNode.appendChild(acquisitionSystemInformationNode);
@@ -115,31 +128,40 @@ for enc = header.encoding(:)
     append_node(docNode,node,enc,'trajectory');
     node.appendChild(n2);
     
+    % sometimes the encoding has the fields, but they are empty
     if isfield(enc,'trajectoryDescription')
-        n2 = docNode.createElement('trajectoryDescription');
-        append_node(docNode,n2,enc.trajectoryDescription,'identifier');
-        append_user_parameter(docNode,n2,enc.trajectoryDescription,'userParameterLong',@int2str);
-        append_user_parameter(docNode,n2,enc.trajectoryDescription,'userParameterDouble',@num2str);
-        append_optional(docNode,n2,enc.trajectoryDescription,'comment');      
-        node.appendChild(n2);
+        if ~isempty(fieldnames(enc.trajectoryDescription))
+            n2 = docNode.createElement('trajectoryDescription');
+            append_node(docNode,n2,enc.trajectoryDescription,'identifier');
+            append_user_parameter(docNode,n2,enc.trajectoryDescription,'userParameterLong',@int2str);
+            append_user_parameter(docNode,n2,enc.trajectoryDescription,'userParameterDouble',@num2str);
+            append_optional(docNode,n2,enc.trajectoryDescription,'comment');      
+            node.appendChild(n2);
+        end
     end
     
     if isfield(enc,'parallelImaging')
-        n2 = docNode.createElement('parallelImaging');
-        
-        n3 = docNode.createElement('accelerationFactor');
-        parallelImaging = enc.parallelImaging;
-        append_node(docNode,n3,parallelImaging.accelerationFactor,'kspace_encoding_step_1',@int2str);
-        append_node(docNode,n3,parallelImaging.accelerationFactor,'kspace_encoding_step_2',@int2str);
-        n2.appendChild(n3);
-        
-        append_optional(docNode,n2,parallelImaging,'calibrationMode'); 
-        append_optional(docNode,n2,parallelImaging,'interleavingDimension',@int2str); 
-        
-        node.appendChild(n2);
+        if ~isempty(fieldnames(enc.parallelImaging))
+            n2 = docNode.createElement('parallelImaging');
+
+            n3 = docNode.createElement('accelerationFactor');
+            parallelImaging = enc.parallelImaging;
+            append_node(docNode,n3,parallelImaging.accelerationFactor,'kspace_encoding_step_1',@int2str);
+            append_node(docNode,n3,parallelImaging.accelerationFactor,'kspace_encoding_step_2',@int2str);
+            n2.appendChild(n3);
+
+            append_optional(docNode,n2,parallelImaging,'calibrationMode'); 
+            append_optional(docNode,n2,parallelImaging,'interleavingDimension',@int2str); 
+
+            node.appendChild(n2);
+        end
     end
-        
-    append_optional(docNode,node,enc,'echoTrainLength',@int2str);
+    
+    if isfield(enc,'echoTrainLength')
+        if ~isempty(enc.echoTrainLength)
+            append_optional(docNode,node,enc,'echoTrainLength',@int2str);
+        end
+    end
     
     docRootNode.appendChild(node);
     
@@ -149,11 +171,10 @@ if isfield(header,'sequenceParameters')
     n1 = docNode.createElement('sequenceParameters');
     sequenceParameters = header.sequenceParameters;
     
-    append_node(docNode,n1,sequenceParameters,'TR',@num2str);
-    append_node(docNode,n1,sequenceParameters,'TE',@num2str);
-    append_node(docNode,n1,sequenceParameters,'TI',@num2str);
-    
-    append_node(docNode,n1,sequenceParameters,'flipAngle_deg',@num2str);
+    append_optional(docNode,n1,sequenceParameters,'TR',@num2str);
+    append_optional(docNode,n1,sequenceParameters,'TE',@num2str);
+    append_optional(docNode,n1,sequenceParameters,'TI',@num2str);
+    append_optional(docNode,n1,sequenceParameters,'flipAngle_deg',@num2str);
     docRootNode.appendChild(n1);
 end
 
@@ -161,10 +182,20 @@ if isfield(header,'userParameters')
     n1 = docNode.createElement('userParameters');
     userParameters = header.userParameters;
     
-    append_user_parameter(docNode,n1,userParameters,'userParameterLong',@int2str);
-    append_user_parameter(docNode,n1,userParameters,'userParameterDouble',@num2str);
-    append_user_parameter(docNode,n1,userParameters,'userParameterString');
-    append_user_parameter(docNode,n1,userParameters,'userParameterBase64');
+    if isfield(userParameters,'userParameterLong')
+        append_user_parameter(docNode,n1,userParameters,'userParameterLong',@int2str);
+    end
+    
+    if isfield(userParameters,'userParameterDouble')
+        append_user_parameter(docNode,n1,userParameters,'userParameterDouble',@num2str);
+    end
+    if isfield(userParameters,'userParameterString')
+        append_user_parameter(docNode,n1,userParameters,'userParameterString');
+    end
+    if isfield(userParameters,'userParameterBase64')
+        append_user_parameter(docNode,n1,userParameters,'userParameterBase64');
+    end
+    
     docRootNode.appendChild(n1);
 end
 xml_doc = xmlwrite(docNode);
@@ -174,17 +205,17 @@ xml_doc = xmlwrite(docNode);
 
 end
 
-function append_user_parameter(docNode,subNode,name,values,tostr)
+function append_user_parameter(docNode,subNode,values,name,tostr)
 
-for v = values(:)
+for v = 1:length(values.(name))
     n2 = docNode.createElement(name);
     
-    append_node(docNode,n2,v,'name');
+    append_node(docNode,n2,values.(name)(v),'name');
     
     if nargin > 4
-        append_node(docNode,n2,v,'value',tostr);
+        append_node(docNode,n2,values.(name)(v),'value',tostr);
     else
-        append_node(docNode,n2,v,'value');
+        append_node(docNode,n2,values.(name)(v),'value');
     end
     
     subNode.appendChild(n2);

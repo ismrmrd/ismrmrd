@@ -1,9 +1,14 @@
+ISMRMRD_HOME ?= /usr/local
+
 CPPFLAGS = -I$(ISMRMRD_HOME)/include
-LDFLAGS = -I$(ISMRMRD_HOME)/lib
+LDFLAGS = -L$(ISMRMRD_HOME)/lib
 
-# CPPFLAGS="$(CPPFLAGS)" LDFLAGS="$(LDFLAGS)" python setup.py build_ext -i
-
-ismrmrd: ismrmrd.pyx cismrmrd.pxd setup.py
+ismrmrd.so: ismrmrd.pyx cismrmrd.pxd setup.py
 	python setup.py build_ext -i
+
+install: ismrmrd.so
+	install -d $(ISMRMRD_HOME)/python
+	install $< $(ISMRMRD_HOME)/python/
+
 clean:
 	rm ismrmrd.c ismrmrd.so

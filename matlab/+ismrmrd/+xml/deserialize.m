@@ -45,7 +45,7 @@ for n = 1:numChildNodes
             info.encoding = struct('encodedSpace',struct,'reconSpace',struct, ...
                 'encodingLimits', struct, 'trajectory', '', ...
                 'trajectoryDescription', struct,  ...
-                'parallelImaging', struct, 'echoTrainLength', 0);
+                'parallelImaging', struct, 'echoTrainLength', []);
         end
         temp = parseNode(theChild);
         fnames = fieldnames(temp);
@@ -55,6 +55,17 @@ for n = 1:numChildNodes
         continue;
     end
     
+    % kspace_encoding_step_1/2 can be either part of the acceleration
+    % factor or part of the encoding limits.
+    if (strcmp(name, 'kspace_encoding_step_1') || strcmp(name, 'kspace_encoding_step_2'))
+        if strcmp(char(theChild.getParentNode.getNodeName),'encodingLimits') 
+            info.(name) = parseNode(theChild);
+        else
+            info.(name) = str2num(getTextContent(theChild));
+        end
+        continue;
+    end
+        
     if isCompoundType(name)        
         if num == 1
             info.(name) = parseNode(theChild);
@@ -143,12 +154,12 @@ function status = isCompoundType(name)
 
     % treat encoding separately
     headerNodeNames = { ...
-        'version', ...
         'subjectInformation', ...
         'studyInformation', ...
         'measurementInformation', ...
         'acquisitionSystemInformation', ...
         'experimentalConditions', ...
+        'coilLabel', ...
         'encoding', ...
         'sequenceParameters', ...
         'userParameters', ...
@@ -159,6 +170,8 @@ function status = isCompoundType(name)
         'encodingLimits', ...
         'trajectoryDescription', ...
         'echoTrainLength', ...
+        'parallelImaging', ...
+        'accelerationFactor', ...
         'matrixSize', ...
         'fieldOfView_mm', ...
         'kspace_encoding_step_0', ...
@@ -183,7 +196,7 @@ function status = isNumericalType(name)
       'initialSeriesNumber', ...
       'systemFieldStrength_T', ...
       'relativeReceiverNoiseBandwidth', ...
-      'receiverChannels', ...
+      'receiverChannels', 'coilNumber', ...
       'H1resonanceFrequency_Hz', ...
       'TR', ...
       'TE', ...
@@ -217,9 +230,10 @@ function status = isStringType(name)
       'systemModel', ...
       'institutionName', ...
       'stationName', ...
-      'trajectory'};
-      %'calibrationMode',...
-      %'interleavingDimension'};
+      'trajectory', ...
+      'coilName', ...
+      'calibrationMode',...
+      'interleavingDimension'};
 
       status = ismember(name, headerStringTypes);
 end
@@ -243,110 +257,3 @@ function status = isUserParameterType(name)
 
     status = ismember(name, typeNames);
 end
-% 
-%   <xs:complexType name="encoding">
-%     <xs:all>
-%       <xs:element maxOccurs="1" minOccurs="1" name="encodedSpace" type="encodingSpaceType"/>
-%       <xs:element maxOccurs="1" minOccurs="1" name="reconSpace" type="encodingSpaceType"/>
-%       <xs:element maxOccurs="1" minOccurs="1" name="encodingLimits" type="encodingLimitsType"/>
-%       <xs:element maxOccurs="1" minOccurs="1" name="trajectory" type="trajectoryType"/>
-%       <xs:element maxOccurs="1" minOccurs="0" name="trajectoryDescription" type="trajectoryDescriptionType"/>
-%       <xs:element maxOccurs="1" minOccurs="0" name="parallelImaging" type="parallelImagingType"/>
-%       <xs:element maxOccurs="1" minOccurs="0" name="echoTrainLength" type="xs:long"/>
-%     </xs:all>
-%   </xs:complexType>
-% 
-%   <xs:complexType name="encodingSpaceType">
-%     <xs:all>
-%       <xs:element maxOccurs="1" minOccurs="1" name="matrixSize" type="matrixSize"/>
-%       <xs:element maxOccurs="1" minOccurs="1" name="fieldOfView_mm" type="fieldOfView_mm"/>
-%     </xs:all>
-%   </xs:complexType>
-% 
-%   <xs:complexType name="matrixSize">
-%     <xs:sequence>
-%       <xs:element default="1" maxOccurs="1" minOccurs="1" name="x" type="xs:unsignedShort"/>
-%       <xs:element default="1" maxOccurs="1" minOccurs="1" name="y" type="xs:unsignedShort"/>
-%       <xs:element default="1" maxOccurs="1" minOccurs="1" name="z" type="xs:unsignedShort"/>
-%     </xs:sequence>
-%   </xs:complexType>
-% 
-%   <xs:complexType name="fieldOfView_mm">
-%     <xs:sequence>
-%       <xs:element maxOccurs="1" minOccurs="1" name="x" type="xs:float"/>
-%       <xs:element maxOccurs="1" minOccurs="1" name="y" type="xs:float"/>
-%       <xs:element maxOccurs="1" minOccurs="1" name="z" type="xs:float"/>
-%     </xs:sequence>
-%   </xs:complexType>
-% 
-%   <xs:complexType name="limitType">
-%     <xs:all>
-%       <xs:element default="0" name="minimum" type="xs:unsignedShort"/>
-%       <xs:element default="0" name="maximum" type="xs:unsignedShort"/>
-%       <xs:element default="0" name="center" type="xs:unsignedShort"/>
-%     </xs:all>
-%   </xs:complexType>
-% 
-%   <xs:complexType name="encodingLimitsType">
-%     <xs:all>
-%       <xs:element maxOccurs="1" minOccurs="0" name="kspace_encoding_step_0" type="limitType"/>
-%       <xs:element maxOccurs="1" minOccurs="0" name="kspace_encoding_step_1" type="limitType"/>
-%       <xs:element maxOccurs="1" minOccurs="0" name="kspace_encoding_step_2" type="limitType"/>
-%       <xs:element maxOccurs="1" minOccurs="0" name="average" type="limitType"/>
-%       <xs:element maxOccurs="1" minOccurs="0" name="slice" type="limitType"/>
-%       <xs:element maxOccurs="1" minOccurs="0" name="contrast" type="limitType"/>
-%       <xs:element maxOccurs="1" minOccurs="0" name="phase" type="limitType"/>
-%       <xs:element maxOccurs="1" minOccurs="0" name="repetition" type="limitType"/>
-%       <xs:element maxOccurs="1" minOccurs="0" name="set" type="limitType"/>
-%       <xs:element maxOccurs="1" minOccurs="0" name="segment" type="limitType"/>
-%     </xs:all>
-%   </xs:complexType>
-% 
-%   <xs:simpleType name="trajectoryType">
-%     <xs:restriction base="xs:string">
-%       <xs:enumeration value="cartesian"/>
-%       <xs:enumeration value="epi"/>
-%       <xs:enumeration value="radial"/>
-%       <xs:enumeration value="goldenangle"/>
-%       <xs:enumeration value="spiral"/>
-%       <xs:enumeration value="other"/>
-%     </xs:restriction>
-%   </xs:simpleType>
-% 
-%   <xs:complexType name="trajectoryDescriptionType">
-%     <xs:sequence>
-%       <xs:element maxOccurs="1" minOccurs="1" name="identifier" type="xs:string"/>
-%       <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterLong" type="userParameterLongType"/>
-%       <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterDouble" type="userParameterDoubleType"/>
-%       <xs:element maxOccurs="1" minOccurs="0" name="comment" type="xs:string"/>
-%     </xs:sequence>
-%   </xs:complexType>
-
-% 
-%   <xs:complexType name="userParameterLongType">
-%     <xs:all>
-%       <xs:element name="name" type="xs:string"/>
-%       <xs:element name="value" type="xs:long"/>
-%     </xs:all>
-%   </xs:complexType>
-% 
-%   <xs:complexType name="userParameterDoubleType">
-%     <xs:all>
-%       <xs:element name="name" type="xs:string"/>
-%       <xs:element name="value" type="xs:double"/>
-%     </xs:all>
-%   </xs:complexType>
-% 
-%   <xs:complexType name="userParameterStringType">
-%     <xs:all>
-%       <xs:element name="name" type="xs:string"/>
-%       <xs:element name="value" type="xs:string"/>
-%     </xs:all>
-%   </xs:complexType>
-% 
-%   <xs:complexType name="userParameterBase64Type">
-%     <xs:all>
-%       <xs:element name="name" type="xs:string"/>
-%       <xs:element name="value" type="xs:base64Binary"/>
-%     </xs:all>
-%   </xs:complexType>

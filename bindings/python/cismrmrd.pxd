@@ -1,8 +1,14 @@
 from libc.stdint cimport uint16_t, uint32_t, uint64_t, int32_t
 
+cdef extern from "ismrmrd/version.h":
+    cdef enum:
+        ISMRMRD_VERSION_MAJOR = 1
+        ISMRMRD_VERSION_MINOR = 1
+        ISMRMRD_VERSION_PATCH = 0
+        ISMRMRD_XMLHDR_VERSION = 1
+
 cdef extern from "ismrmrd/ismrmrd.h":
     cdef enum:
-        ISMRMRD_VERSION = 1
         ISMRMRD_USER_INTS = 8
         ISMRMRD_USER_FLOATS = 8
         ISMRMRD_PHYS_STAMPS = 3
@@ -127,6 +133,8 @@ cdef extern from "ismrmrd/ismrmrd.h":
         ISMRMRD_CXFLOAT    # corresponds to complex float
         ISMRMRD_CXDOUBLE   # corresponds to complex double
 
+    cdef size_t ismrmrd_sizeof_data_type(int data_type)
+
     cdef enum ISMRMRD_ImageTypes:
         ISMRMRD_IMTYPE_MAGNITUDE = 1
         ISMRMRD_IMTYPE_PHASE
@@ -172,6 +180,7 @@ cdef extern from "ismrmrd/ismrmrd.h":
         uint16_t image_series_index             # e.g. series number
         int32_t user_int[ISMRMRD_USER_INTS]     # Free user parameters
         float user_float[ISMRMRD_USER_FLOATS]   # Free user parameters
+        uint32_t attribute_string_len           # Length of attributes string
 
     ctypedef struct ISMRMRD_Image:
         ISMRMRD_ImageHeader head
@@ -218,10 +227,6 @@ cdef extern from "ismrmrd/ismrmrd.h":
             float read_dir[3], float phase_dir[3], float slice_dir[3])
 
 cdef extern from "ismrmrd/dataset.h":
-    cdef enum BlockModes:
-        BLOCKMODE_ARRAY
-        BLOCKMODE_BLOB
-
     ctypedef struct ISMRMRD_Dataset:
         char *filename
         char *groupname

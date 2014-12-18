@@ -108,9 +108,9 @@ int main(void)
     printf("Acquisition index: %u\n", index);
     ismrmrd_read_acquisition(&dataset2, index, &acq2);
     printf("Number of samples: %u\n", acq2.head.number_of_samples);
-    printf("Flags: %llu\n", acq2.head.flags);
-    printf("Channel Mask[0]: %llu\n", acq2.head.channel_mask[0]);
-    printf("Channel Mask[1]: %llu\n", acq2.head.channel_mask[1]);
+    printf("Flags: %llu\n", (unsigned long long)acq2.head.flags);
+    printf("Channel Mask[0]: %llu\n", (unsigned long long)acq2.head.channel_mask[0]);
+    printf("Channel Mask[1]: %llu\n", (unsigned long long)acq2.head.channel_mask[1]);
     printf("Channel 3 is %d\n", ismrmrd_is_channel_on(acq2.head.channel_mask, 3));
     printf("Channel 5 is %d\n", ismrmrd_is_channel_on(acq2.head.channel_mask, 5));
     

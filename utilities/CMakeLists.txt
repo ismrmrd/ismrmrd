@@ -1,7 +1,8 @@
 # Build the info application
 message("Building info application")
 include_directories(${CMAKE_BINARY_DIR}/include
-                    ${CMAKE_SOURCE_DIR}/include)
+                    ${CMAKE_SOURCE_DIR}/include
+		    ${CMAKE_SOURCE_DIR}/libsrc)
 
 add_executable(ismrmrd_info ismrmrd_info.cpp)
 target_link_libraries(ismrmrd_info ismrmrd)
@@ -10,6 +11,14 @@ install(TARGETS ismrmrd_info DESTINATION bin)
 add_executable(ismrmrd_read_timing_test read_timing_test.cpp)
 target_link_libraries(ismrmrd_read_timing_test ismrmrd)
 install(TARGETS ismrmrd_read_timing_test DESTINATION bin)
+
+if (NOT WIN32)
+  add_executable(ismrmrd_test_xml 
+    ismrmrd_test_xml.cpp 
+    ${CMAKE_SOURCE_DIR}/libsrc/pugixml.cpp )
+  target_link_libraries(ismrmrd_test_xml ismrmrd)
+  install(TARGETS ismrmrd_test_xml DESTINATION bin)
+endif(NOT WIN32)
 
 find_package(Boost COMPONENTS program_options)
 find_package(FFTW3 COMPONENTS single)
