@@ -20,6 +20,7 @@
 using namespace ISMRMRD;
 namespace po = boost::program_options;
 
+// MAIN APPLICATION
 int main(int argc, char** argv)
 {
 	/** TODO
