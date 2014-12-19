@@ -134,6 +134,11 @@ namespace ISMRMRD
     std::vector<ReferencedImageSequence> referencedImageSequence;
   };
 
+  struct CoilLabel
+  {
+    unsigned short coilNumber;
+    std::string coilName;
+  };
   
   struct AcquisitionSystemInformation
   {
@@ -142,6 +147,7 @@ namespace ISMRMRD
     Optional<float> systemFieldStrength_T;
     Optional<float> relativeReceiverNoiseBandwidth;
     Optional<unsigned short> receiverChannels;
+    std::vector<CoilLabel> coilLabel;
     Optional<std::string> institutionName;
     Optional<std::string> stationName;
   };

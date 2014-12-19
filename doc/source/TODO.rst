@@ -11,7 +11,7 @@ TODO
 
 	- Do we need more flags?
 
-* Converters for vendor raw data 
+* Converters for vendor raw data
 
 	- Siemens (Hansen)
 	- Philips (Kozerke? Boernert?)

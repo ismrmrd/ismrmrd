@@ -41,8 +41,49 @@ cdef dict ismrmrd_typenum_to_numpy_dtype = {
     cismrmrd.ISMRMRD_CXDOUBLE:  numpy.complex128,
 }
 
-# expose acquisition flags to Python namespace
-# TODO: encapsulate that to a class and let set_flag / clear_flag be the 
+# Expose ISMRMRD constants to python
+VERSION_MAJOR = cismrmrd.ISMRMRD_VERSION_MAJOR
+VERSION_MINOR = cismrmrd.ISMRMRD_VERSION_MINOR
+VERSION_PATCH = cismrmrd.ISMRMRD_VERSION_PATCH
+XMLHDR_VERSION = cismrmrd.ISMRMRD_XMLHDR_VERSION
+
+USER_INTS = cismrmrd.ISMRMRD_USER_INTS
+USER_FLOATS = cismrmrd.ISMRMRD_USER_FLOATS
+PHYS_STAMPS = cismrmrd.ISMRMRD_PHYS_STAMPS
+CHANNEL_MASKS = cismrmrd.ISMRMRD_CHANNEL_MASKS
+NDARRAY_MAXDIM = cismrmrd.ISMRMRD_NDARRAY_MAXDIM
+POSITION_LENGTH = cismrmrd.ISMRMRD_POSITION_LENGTH
+DIRECTION_LENGTH = cismrmrd.ISMRMRD_DIRECTION_LENGTH
+
+# Error codes
+BEGINERROR = cismrmrd.ISMRMRD_BEGINERROR
+NOERROR = cismrmrd.ISMRMRD_NOERROR
+MEMORYERROR = cismrmrd.ISMRMRD_MEMORYERROR
+FILEERROR = cismrmrd.ISMRMRD_FILEERROR
+TYPEERROR = cismrmrd.ISMRMRD_TYPEERROR
+RUNTIMEERROR = cismrmrd.ISMRMRD_RUNTIMEERROR
+HDF5ERROR = cismrmrd.ISMRMRD_HDF5ERROR
+ENDERROR = cismrmrd.ISMRMRD_ENDERROR
+
+# Data types
+USHORT = cismrmrd.ISMRMRD_USHORT
+SHORT = cismrmrd.ISMRMRD_SHORT
+UINT = cismrmrd.ISMRMRD_UINT
+INT = cismrmrd.ISMRMRD_INT
+FLOAT = cismrmrd.ISMRMRD_FLOAT
+DOUBLE = cismrmrd.ISMRMRD_DOUBLE
+CXFLOAT = cismrmrd.ISMRMRD_CXFLOAT
+CXDOUBLE = cismrmrd.ISMRMRD_CXDOUBLE
+
+# Image types
+IMTYPE_MAGNITUDE = cismrmrd.ISMRMRD_IMTYPE_MAGNITUDE
+IMTYPE_PHASE = cismrmrd.ISMRMRD_IMTYPE_PHASE
+IMTYPE_REAL = cismrmrd.ISMRMRD_IMTYPE_REAL
+IMTYPE_IMAG = cismrmrd.ISMRMRD_IMTYPE_IMAG
+IMTYPE_COMPLEX = cismrmrd.ISMRMRD_IMTYPE_COMPLEX
+
+# Acquisition flags
+# TODO: encapsulate that to a class and let set_flag / clear_flag be the
 # only interface
 ACQ_FIRST_IN_ENCODE_STEP1 = cismrmrd.ISMRMRD_ACQ_FIRST_IN_ENCODE_STEP1
 ACQ_LAST_IN_ENCODE_STEP1 = cismrmrd.ISMRMRD_ACQ_LAST_IN_ENCODE_STEP1
@@ -82,6 +123,17 @@ ACQ_USER6 = cismrmrd.ISMRMRD_ACQ_USER6
 ACQ_USER7 = cismrmrd.ISMRMRD_ACQ_USER7
 ACQ_USER8 = cismrmrd.ISMRMRD_ACQ_USER8
 
+# Image flags
+IMAGE_IS_NAVIGATION_DATA = cismrmrd.ISMRMRD_IMAGE_IS_NAVIGATION_DATA
+IMAGE_USER1 = cismrmrd.ISMRMRD_IMAGE_USER1
+IMAGE_USER2 = cismrmrd.ISMRMRD_IMAGE_USER2
+IMAGE_USER3 = cismrmrd.ISMRMRD_IMAGE_USER3
+IMAGE_USER4 = cismrmrd.ISMRMRD_IMAGE_USER4
+IMAGE_USER5 = cismrmrd.ISMRMRD_IMAGE_USER5
+IMAGE_USER6 = cismrmrd.ISMRMRD_IMAGE_USER6
+IMAGE_USER7 = cismrmrd.ISMRMRD_IMAGE_USER7
+IMAGE_USER8 = cismrmrd.ISMRMRD_IMAGE_USER8
+
 
 cdef bytes build_exception_string():
     cdef char *pfile = NULL
@@ -98,6 +150,25 @@ cdef bytes build_exception_string():
             <bytes> pmsg,
             )
     return err_string
+
+
+def sizeof_data_type(tp):
+    return cismrmrd.ismrmrd_sizeof_data_type(tp)
+
+def encoding_counters_from_bytes(buff):
+    e = EncodingCounters()
+    e._from_bytes(buff)
+    return e
+
+def acquisition_header_from_bytes(buff):
+    a = AcquisitionHeader()
+    a._from_bytes(buff)
+    return a
+
+def image_header_from_bytes(buff):
+    i = ImageHeader()
+    i._from_bytes(buff)
+    return i
 
 
 cdef class EncodingCounters:
@@ -120,6 +191,17 @@ cdef class EncodingCounters:
 
     cdef copy_to(self, cismrmrd.ISMRMRD_EncodingCounters *ptr):
         memcpy(ptr, self.thisptr, sizeof(cismrmrd.ISMRMRD_EncodingCounters))
+
+    @staticmethod
+    def _size_in_bytes():
+        return sizeof(cismrmrd.ISMRMRD_EncodingCounters)
+
+    def _from_bytes(self, s):
+        memcpy(self.thisptr, <char *>s, self._size_in_bytes())
+
+    def to_bytes(self):
+        c_string = <char *>(self.thisptr)
+        return c_string[:self._size_in_bytes()]
 
     property kspace_encode_step_1:
         def __get__(self): return self.thisptr.kspace_encode_step_1
@@ -191,6 +273,17 @@ cdef class AcquisitionHeader:
 
     cdef copy_to(self, cismrmrd.ISMRMRD_AcquisitionHeader *ptr):
         memcpy(ptr, self.thisptr, sizeof(cismrmrd.ISMRMRD_AcquisitionHeader))
+
+    @staticmethod
+    def _size_in_bytes():
+        return sizeof(cismrmrd.ISMRMRD_AcquisitionHeader)
+
+    def _from_bytes(self, s):
+        memcpy(self.thisptr, <char *>s, self._size_in_bytes())
+
+    def to_bytes(self):
+        c_string = <char *>(self.thisptr)
+        return c_string[:self._size_in_bytes()]
 
     property version:
         def __get__(self): return self.thisptr.version
@@ -414,6 +507,17 @@ cdef class ImageHeader:
     cdef copy_to(self, cismrmrd.ISMRMRD_ImageHeader *ptr):
         memcpy(ptr, self.thisptr, sizeof(cismrmrd.ISMRMRD_ImageHeader))
 
+    @staticmethod
+    def _size_in_bytes():
+        return sizeof(cismrmrd.ISMRMRD_ImageHeader)
+
+    def _from_bytes(self, s):
+        memcpy(self.thisptr, <char *>s, self._size_in_bytes())
+
+    def to_bytes(self):
+        c_string = <char *>(self.thisptr)
+        return c_string[:self._size_in_bytes()]
+
     property version:
         def __get__(self): return self.thisptr.version
         def __set__(self, val): self.thisptr.version = val
@@ -551,6 +655,10 @@ cdef class ImageHeader:
         def __set__(self, val):
             for i in range(cismrmrd.ISMRMRD_USER_FLOATS):
                 self.thisptr.user_int[i] = val[i]
+
+    property attribute_string_len:
+        def __get__(self): return self.thisptr.attribute_string_len
+        def __set__(self, val): self.thisptr.attribute_string_len = val
 
 
 cdef class Image:

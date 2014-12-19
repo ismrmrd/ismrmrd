@@ -1,5 +1,15 @@
+.. ISMRMRD documentation master file, created by
+   sphinx-quickstart on Thu Nov 13 10:11:39 2014.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
 ISMRM Raw Data Format (ISMRMRD)
-*******************************
+===================================
+
+Contents:
+
+.. toctree::
+   :maxdepth: 1
 
 .. contents::
 
@@ -7,7 +17,6 @@ Preamble
 ---------
 
 A prerequisite for sharing magnetic resonance (imaging) reconstruction algorithms and code is a common raw data format. This document describes such a common raw data format and attempts to capture the data fields that are require to describe enough details about the magnetic resonance experiment to reconstruct images from the data.
-
 This standard was developed by a subcommittee of the ISMRM Sedona 2013 workshop. Comments and requests for additions/modifications can be sent to:
 
 * Michael S. Hansen (michael DOT hansen AT nih DOT gov)
@@ -32,36 +41,31 @@ Developers/Contributors
 Obtaining and Installing
 -------------------------
 
-The source code, examples, and example datasets can be found on the ISMRM Raw Data Sourceforge website_.
+The source code, examples, and example datasets can be found on the ISMRM Raw Data Github website_.
 
-.. _website: http://sourceforge.net/projects/ismrmrd
+.. _website: https://github.com/ismrmrd/ismrmrd
 
 To download the source code, clone the git archive::
 
-  git clone git://git.code.sf.net/p/ismrmrd/code ismrmrd-code
+    git clone https://github.com/ismrmrd/ismrmrd
 
-Alternatively download the zip file with the source code::
-
-  wget https://sourceforge.net/projects/ismrmrd/files/src/ismrmrd_latest.zip
-
-API Documentation can be found at http://ismrmrd.sourceforge.net/api.
+API Documentation can be found at https://ismrmrd.github.io/ismrmrd/api/.
 
 
 Dependencies
 .............
 
-The ISMRM Raw Data format is described by an XML schema_ and some C-style structs with fixed memory layout and as such does not have dependencies. However, it uses HDF5 files for storage and a C++ library for reading and writing the ISMRMRD files is included in this distribution. Furthermore, since the XML header is defined with an XML schema_, we encourage using XML data binding when writing software using the format. In the ISMRMRD distribution we use the CodeSynthesis XSD (http://www.codesynthesis.com/products/xsd/) package to generate a C++ class representation of the XML schema. To compile all components of this distribution you need:
+The ISMRM Raw Data format is described by an XML schema_ and some C-style structs with fixed memory layout and as such does not have dependencies. However, it uses HDF5 files for storage and a C++ library for reading and writing the ISMRMRD files is included in this distribution. Furthermore, since the XML header is defined with an XML schema_, we encourage using XML data binding when writing software using the format. To compile all components of this distribution you need:
 
 
 * HDF5 (version 1.8 or higher) libraries. Available from http://www.hdfgroup.org/downloads/index.html.
 * Boost (http://www.boost.org/)
-* CodeSynthesis XSD (http://www.codesynthesis.com/products/xsd/)
-* Xerces-C XML parser library (http://xerces.apache.org/xerces-c/)
 * Cmake build tool (http://www.cmake.org/)
-* Doxygen if you would like to generate API documentation (http://www.doxygen.org)
 * Git if you would like to use the source code archive (http://git-scm.com/)
 * FFTW if you would like to compile some of the example applications
   (http://www.fftw.org)
+* Doxygen if you would like to generate API documentation (http://www.doxygen.org)
+* Sphinx (http://sphinx-doc.org/) and Sphinx Bootstrap Theme (https://pypi.python.org/pypi/sphinx-bootstrap-theme) to generate this project documentation
 
 .. note:: It is only necessary to install the dependencies if you wish to develop compiled C/C++ software, which uses the ISMRMRD format. The format can be read in Matlab without installing any additional software.
 
@@ -71,48 +75,44 @@ Linux installation
 
 The dependencies mentioned above should be included in most linux distributions. On Ubuntu you can install all required dependencies with::
 
-  sudo apt-get install libhdf5-serial-dev h5utils cmake cmake-curses-gui libboost-all-dev libxerces-c-dev xsdcxx doxygen git
+  sudo apt-get install libhdf5-serial-dev h5utils cmake cmake-curses-gui libboost-all-dev doxygen git
 
-After installation of dependencies, the library can be installed with::
+After installation of dependencies, the library can be installed with:
 
-  git clone git://git.code.sf.net/p/ismrmrd/code ismrmrd-code
-  cd ismrmrd-code/
-  mkdir build
-  cd build
-  cmake ../
-  make
-  sudo make install
+.. code:: bash
 
-Last command will install the library in ``/usr/local/ismrmrd``.
+    git clone https://github.com/ismrmrd/ismrmrd
+    cd ismrmrd/
+    mkdir build
+    cd build
+    cmake ../
+    make
+    sudo make install
+
+This will install the library in ``/usr/local/`` by default. To specify
+an alternative installation directory, pass ``-D CMAKE_INSTALL_PREFIX=<install dir>`` to ``cmake``.
 
 Mac OSX Installation
 .....................
 
-There are numerous different package management systems for Mac. In this example, we have used MacPorts (http://www.macports.org/). First install the dependencies available in MacPorts::
+There are numerous different package management systems for Mac. In this example, we have used Homebrew (http://brew.sh/). First install the dependencies::
 
-   sudo port install wget hdf5-18 h5utils boost xercesc3 git-core git-extras cmake doxygen
+    brew install wget hdf5 boost cmake doxygen fftw
 
-Next install CodeSynthesis XSD (http://www.codesynthesis.com/products/xsd/)::
+Then download and compile:
 
-   wget http://www.codesynthesis.com/download/xsd/3.3/macosx/i686/xsd-3.3.0-i686-macosx.tar.bz2
-   tar -xzf xsd-3.3.0-i686-macosx.tar.bz2
-   cd xsd-3.3.0-i686-macosx
-   sudo cp bin/xsd /usr/local/bin/
-   sudo cp -r libxsd/xsd /usr/local/include/
+.. code:: bash
 
-See faq_ for details on problems on some Mac OSX Lion systems.
+    git clone https://github.com/ismrmrd/ismrmrd
+    cd ismrmrd
+    mkdir build
+    cd build/
+    cmake ../
+    make
+    make install
 
-Last step is to download and compile::
-
-   git clone git://git.code.sf.net/p/ismrmrd/code ismrmrd-code
-   cd ismrmrd-code/
-   mkdir build
-   cd build/
-   cmake ../
-   make
-   sudo make install
-
-Last command will install the library in ``/usr/local/ismrmrd``.
+This will install the library in ``/usr/local/`` by default. To specify
+an alternative installation directory, pass ``-D CMAKE_INSTALL_PREFIX=<install dir>`` to ``cmake``.
 
 
 Windows Installation
@@ -130,8 +130,6 @@ Setting up a Windows development environment is usually a bit more challenging t
 
 * Install HDFView (http://www.hdfgroup.org/ftp/HDF5/hdf-java/hdfview/hdfview_install_win64.exe)
 
-* Install CodeSynthesis XSD (http://www.codesynthesis.com/download/xsd/3.3/windows/i686/xsd-3.3.msi)
-
 * Install Boost (http://boostpro.com/download/x64/boost_1_51_setup.exe)
 
   - Just install everything for VS2010 and worry about which versions you need later.
@@ -143,29 +141,30 @@ Setting up a Windows development environment is usually a bit more challenging t
 * Make sure the paths to your new libraries are in your PATH environment variable:
 
   - Boost libraries  (typically ``C:\Program Files\boost\boost_1_51\lib``)
-  - Code Synthesis XSD (typically ``C:\Program Files (x86)\CodeSynthesis XSD 3.3\bin\;C:\Program Files (x86)\CodeSynthesis XSD 3.3\bin64\``)
   - FFTW libraries (typically ``C:\MRILibraries\fftw3``)
   - HDF5 libraries (typically ``C:\Program Files\HDF Group\HDF5\1.8.9\bin``)
   - ISMRMRD (typically ``C:\Program Files\ismrmrd\bin;C:\Program Files\ismrmrd\bin``)
 
 This can seem a bit daunting, we have included a Windows powershell_ script, which you can use to guide you through the installation process.
 
-After installing all dependencies, download the code, e.g. from a git bash shell::
+.. _powershell: https://github.com/ismrmrd/ismrmrd/blob/master/doc/WindowsISMRMRDInstallDependencies.ps1
 
-   git clone git://git.code.sf.net/p/ismrmrd/code ismrmrd-code
-   cd ismrmrd-code/
-   mkdir build
-   cd build/
-   cmake-gui.exe
+After installing all dependencies, download the code, e.g. from a git bash shell:
+
+.. code:: bash
+
+    git clone https://github.com/ismrmrd/ismrmrd
+    cd ismrmrd/
+    mkdir build
+    cd build/
+    cmake-gui.exe
 
 Last command will open CMake's graphical user interface. Hit the configure button and deal with the dependencies that CMake is unable to find. Hit configure again and repeat the process until CMake has enough information to configure. Once the configuration is complete, you can hit generate to generate a Visual Studio project, which you can open and use to build ISMRMRD. There are step-by-step commands included in the powershell_ script below to guide you through the CMake configuration and build process from the command line. The command line CMake configuration line (assuming you have installed with the paths above), would look something like (backslashes are just there to break the command over multiple lines)::
 
-    cmake -G"Visual Studio 10 Win64" -DBOOST_ROOT=C:/Program Files/boost/boost_1_51 \
-	-DXERCESC_INCLUDE_DIR=C:/Program Files (x86)/CodeSynthesis XSD 3.3/include/xercesc \
-	-DXERCESC_LIBRARIES=C:/Program Files (x86)/CodeSynthesis XSD 3.3/lib64/vc-10.0/xerces-c_3.lib \
-	-DXSD_DIR=C:/Program Files (x86)/CodeSynthesis XSD 3.3 \
-	-DFFTW3_INCLUDE_DIR=C:/MRILibraries/fftw3 \
-	-DFFTW3F_LIBRARY=C:/MRILibraries/fftw3/libfftw3f-3.lib ../
+    cmake -G"Visual Studio 10 Win64" \
+        -DBOOST_ROOT=C:/Program Files/boost/boost_1_51 \
+        -DFFTW3_INCLUDE_DIR=C:/MRILibraries/fftw3 \
+        -DFFTW3F_LIBRARY=C:/MRILibraries/fftw3/libfftw3f-3.lib ../
 
 Again, you may have to adjust for your specific installation paths. After generating the Visual Studio project, you can build from a Visual Studio Command Prompt with::
 
@@ -189,8 +188,7 @@ The flexible data structure is defined by the xml schema definition in ``schema/
 
 An example of an XML file for a Cartesian 3D acquisition could look like:
 
-.. include:: ../schema/ismrmrd_example.xml
-   :literal:
+.. literalinclude:: ../../schema/ismrmrd_example.xml
 
 The most critical elements for image reconstruction are contained in the ``<encoding>`` section of the document, which describes the encoded spaced and also the target reconstructed space. Along with the ``<encodingLimits>`` this section allows the reconstruction program to determine matrix sizes, oversampling factors, partial Fourier, etc. In the example above, data is acquired with two-fold oversampling in the read-out (``x``) direction, which is reflected in the larger matrix size in the encoded space compared to the reconstruction space. The field of view is also twice as large in the encoded space. For the first phase encoding dimension (``y``), we have a combination of oversampling (20%), reduced phase resolution (only 83 lines of k-space acquired, and partial Fourier sampling, which is reflected in the asymmetric center of the encoding limits of the ``<kspace_encoding_step_1>``. Specifically, the data lines would be placed into the encoding space like this:
 
@@ -208,7 +206,7 @@ An experiment can have multiple encoding spaces and it is possible to indicate o
 
 In addition to the defined field in the xml header, it is possible to add an arbitrary number of user defined parameters to accommodate special sequence parameters. Please consult the xml schema_ to see how user parameters are defined. Briefly, the XML header can have a section at the end which looks like:
 
-::
+.. code:: xml
 
    <userParameters>
      <userParameterLong>
@@ -228,17 +226,15 @@ Fixed Data structures
 
 Each raw data acquisition is preceded by the following fixed layout structure:
 
-.. include:: ../ismrmrd.h
-   :literal:
-   :start-line: 134
-   :end-line: 161
+.. literalinclude:: ../../include/ismrmrd/ismrmrd.h
+   :start-after: typedef struct ISMRMRD_AcquisitionHeader {
+   :end-before: } ISMRMRD_AcquisitionHeader;
 
 Where EncodingCounters are defined as:
 
-.. include:: ../ismrmrd.h
-   :literal:
-   :start-line: 118
-   :end-line: 130
+.. literalinclude:: ../../include/ismrmrd/ismrmrd.h
+   :start-after: typedef struct ISMRMRD_EncodingCounters {
+   :end-before: } ISMRMRD_EncodingCounters;
 
 The interpretation of some of these fields may vary from sequence to sequence, i.e. for a Cartesian sequence, ``kspace_encode_step_1`` would be the phase encoding step, for a spiral sequence where phase encoding direction does not make sense, it would be the spiral interleave number. The ``encoding_space_ref`` enables the user to tie an acquisition to a specific encoding space (see above) in case there are multiple, e.g. in situations where a calibration scan may be integrated in the acquisition.
 
@@ -246,7 +242,7 @@ The flags field is a bit mask, which in principle can be used freely by the user
 
 The header contains a ``trajectory_dimensions`` field. If the value of this field is larger than 0, it means that trajectories are stored with each individual acquisition. For a 2D acquisition, the ``trajectory_dimensions`` would typically be 2 and the convention (for memory layout) is that the header is followed immediately by the trajectory before the complex data. There is an example of how this memory layout could be implemented with a C++ class in the ``ismrmrd.h`` file:
 
-::
+.. code:: c++
 
    class Acquisition
    {
@@ -269,12 +265,13 @@ This suggested memory layout is only a suggestion. The HDF5 interface (see below
 
 As mentioned above, the ISMRMRD format also suggests a way to store reconstructed images (or maybe image data used for calibration). An ``ImageHeader`` structure is defined in ``ismrmrd.h``:
 
-.. include:: ../ismrmrd.h
-   :literal:
-   :start-line: 197
-   :end-line: 225
+.. literalinclude:: ../../include/ismrmrd/ismrmrd.h
+   :start-after: typedef struct ISMRMRD_ImageHeader {
+   :end-before: } ISMRMRD_ImageHeader;
 
-In a similar fashion to the raw data acquisition data, the intention is to store a header followed by the image data. Since image data can be in several different format (e.g. float, complex, etc.), the memory layout is less well defined but can be described as::
+In a similar fashion to the raw data acquisition data, the intention is to store a header followed by the image data. Since image data can be in several different format (e.g. float, complex, etc.), the memory layout is less well defined but can be described as:
+
+.. code:: c++
 
   template <typename T> class Image {
 
@@ -284,13 +281,12 @@ In a similar fashion to the raw data acquisition data, the intention is to store
   };
 
 
-
 File Storage
 -------------
 
 The ISMRM Raw Data format is stored in HDF5 format. Details on this format can be found at the HDF5_ website. Briefly it is a hierarchical data format (much like a file system), which can contain multiple variable organized in groups (like folders in a file system). The variables can contain arrays of data values, custom defined structs, or simple text fields. It is the convention (but not a requirement) that the ISMRMRD datasets are stored in a group called ``/dataset``. The XML configuration is stored in the variable ``/dataset/xml`` and the data is stored in ``/dataset/data``. HDF5 files can be viewed with the HDFView application which is available on the HDF5 website for multiple platforms. Files can also be read directly in Matlab, in fact Matlab uses (since file format v7.3) HDF5 as its internal data format in the ``.mat`` files. As an example the data from an ISMRMRD file with name ``myfile.h5`` can be read in matlab with a command like:
 
-::
+.. code:: matlab
 
    >> data = h5read('simple_gre.h5', '/dataset/data');
    >> data
@@ -341,122 +337,67 @@ In addition to storing acquisition data and images as defined by the headers abo
 C++ Support Library
 --------------------
 
-To enable easy prototyping of C++ software using the ISMRMRD data format, a simple C++ wrapper class is provided (defined in ``ismrmrd_hdf5.h``):
+To enable easy prototyping of C++ software using the ISMRMRD data format, a simple C++ wrapper class is provided (defined in ``dataset.h``):
 
-::
-
-   class EXPORTISMRMRD IsmrmrdDataset
-   {
-    public:
-
-	IsmrmrdDataset(const char* filename, const char* groupname, bool create_file_if_needed = true)
-	: filename_(filename)
-	, groupname_(groupname)
-	, file_open_(false)
-	, dataset_open_(false)
-	, create_file_if_needed_(create_file_if_needed)
-	{
-		std::ifstream ifile(filename_.c_str());
-		file_exists_ = ifile;
-
-		if (openHDF5File() < 0) {
-			std::cerr << "IsmrmrdDataset: Error opening HDF file." << std::endl;
-		}
-
-		if (!linkExists(groupname_.c_str())) {
-			if (createGroupForDataset(groupname_.c_str()) < 0) {
-				std::cerr << "IsmrmrdDataset: Error create HDF5 group." << std::endl;
-			}
-		}
-
-		xml_header_path_ = groupname_ + std::string("/xml");
-		data_path_ = groupname_ + std::string("/data");
- 	}
-
-	int appendAcquisition(Acquisition* a);
-	boost::shared_ptr<Acquisition> readAcquisition(unsigned long index = 0);
-	unsigned long getNumberOfAcquisitions();
-
-	int writeHeader(std::string& xml);
-	boost::shared_ptr<std::string> readHeader();
-
-	template <typename T> int appendImage(Image<T>& m, const char* varname);
-	template <typename T> boost::shared_ptr< Image<T> > readImage(const char* varname, unsigned long index = 0);
-
-	int appendImageHeader(ImageHeader& h, const char* varname);
-	boost::shared_ptr< ImageHeader > readImageHeader(const char* varname, unsigned long index = 0);
-
-	template <typename T> int appendArray(NDArrayContainer<T>& a, const char* varname);
-	template <typename T> int appendArray(std::vector<unsigned int>& dimensions, T* data, const char* varname);
-	template <typename T> boost::shared_ptr< NDArrayContainer<T> > readArray(const char* varname, unsigned long index = 0);
-    };
-
+.. literalinclude:: ../../include/ismrmrd/dataset.h
+   :start-after: //  ISMRMRD Dataset C++ Interface
+   :end-before: };
 
 Using this wrapper, C++ applications can be programmed as:
 
-::
+.. code:: c++
 
-   boost::shared_ptr<ISMRMRD::IsmrmrdDataset> ismrmrd_dataset(new ISMRMRD::IsmrmrdDataset(hdf5_in_data_file,hdf5_in_group));
-   boost::shared_ptr<std::string> xml_config = ismrmrd_dataset->readHeader();
+    // Open dataset
+    ISMRMRD::Dataset d(datafile.c_str(), "dataset", false);
 
-   //Do something with the header
+    std::string xml;
+    d.readHeader(xml);
+    ISMRMRD::IsmrmrdHeader hdr;
+    ISMRMRD::deserialize(xml.c_str(),hdr);
 
-   unsigned long acquisitions = ismrmrd_dataset->getNumberOfAcquisitions();
+    // Do something with the header
 
-   for (unsigned long int i = 0; i < acquisitions; i++) {
-     boost::shared_ptr<ISMRMRD::Acquisition> acq_tmp = ismrmrd_dataset->readAcquisition(i);
-     //Do something with the data
-   }
+    unsigned int number_of_acquisitions = d.getNumberOfAcquisitions();
+    ISMRMRD::Acquisition acq;
+    for (unsigned int i = 0; i < number_of_acquisitions; i++) {
+        // Read one acquisition at a time
+        d.readAcquisition(i, acq);
 
-Since the XML part of the header is defined in the ``schema/ismrmrd.xsd`` file, it is possible to use XML data binding tools such as CodeSynthesys XSD to generate a C++ class representation of the header for easy access to the fields. The ``cmake`` build files that accompany the ISMRMRD distribution automatically tries to find CodeSynthesis XSD and generate such a binding. With the C++ representation of the header it can be parsed with something like:
+        // Do something with the data
+    }
 
-::
-
-   xml_schema::properties props;
-   props.schema_location ("http://www.ismrm.org/ISMRMRD",std::string("/full/path/to/ismrmrd.xsd"));
-   std::istringstream str_stream(xml, std::stringstream::in);
-   boost::shared_ptr<ISMRMRD::ismrmrdHeader> cfg;
-
-   try {
-      cfg = boost::shared_ptr<ISMRMRD::ismrmrdHeader>(ISMRMRD::ismrmrdHeader_ (str_stream,0,props));
-   }  catch (const xml_schema::exception& e) {
-      std::cout << "Failed to parse XML Parameters: " << e.what() << std::endl;
-   }
-
-   //Use the configuration, e.g.:
-   std::cout << "Number of encoding spaces: " << cfg->encoding().size() << std::endl;
-
-Again, this is not a requirement for using the ISMRMRD format, the XML can be parsed with numerous other xml parsing libraries. The schema file ``schema/ismrmrd.xsd`` gives the user the option of validating the XML header before parsing, which is recommended to reduce the chance of hard to detect errors in your code due to missing or malformed parameters.
+Since the XML header is defined in the ``schema/ismrmrd.xsd`` file, it can be
+parsed with numerous xml parsing libraries. The ISMRMRD library includes an API
+that allows for programmatically deserializing, manipulating, and serializing the
+XML header. See the code in the ``utilities`` directory for examples of how to
+use the XML API.
 
 C++ Example Applications
 ..........................
 
-The distribution includes two example applications, one that creates a simple 2D single-channel dataset from scratch and one that reconstructs this dataset (you need FFTW installed to compile these test applications). The data generation application looks like this (``test_create_dataset.cpp``):
+The distribution includes two example applications, one that creates a simple 2D single-channel dataset from scratch and one that reconstructs this dataset (you need FFTW installed to compile these test applications). The data generation application looks like this (``generate_cartesian_shepp_logan.cpp``):
 
-.. include:: ../examples/c++/test_create_dataset.cpp
-   :literal:
-   :start-after: /* MAIN APPLICATION */
+.. literalinclude:: ../../utilities/generate_cartesian_shepp_logan.cpp
+   :start-after: // MAIN APPLICATION
 
-To reconstruct this synthetic dataset, you can use the test reconstruction application (``test_recon_dataset.cpp``):
+To reconstruct this synthetic dataset, you can use the test reconstruction application (``recon_cartesian_2d.cpp``):
 
-.. include:: ../examples/c++/test_recon_dataset.cpp
-   :literal:
-   :start-after: /* MAIN APPLICATION */
+.. literalinclude:: ../../utilities/recon_cartesian_2d.cpp
+   :start-after: // MAIN APPLICATION
 
 
 Matlab Example Code and Datasets
 --------------------------------
 
-The ``examples`` folder contains some matlab code to illustrate simple interaction with the ISMRMRD data format. The examples use test data sets, wich can be downloaded from the Sourceforge website_. Go to the ``examples/data`` folder and type the following to download the data::
+The ``examples`` folder contains some matlab code to illustrate simple interaction with the ISMRMRD data format. The examples use test data sets, wich can be downloaded from the Github website_. Go to the ``examples/data`` folder and type the following to download the data::
 
   wget https://sourceforge.net/projects/ismrmrd/files/data/3D_partial_fourier.h5
   wget https://sourceforge.net/projects/ismrmrd/files/data/simple_gre.h5
   wget https://sourceforge.net/projects/ismrmrd/files/data/simple_spiral.h5
 
-
 For instance, to reconstruct a 2D Cartesian acquisition (10 image repetitions), type (from the ``examples/matlab`` folder):
 
-::
+.. code:: matlab
 
    >> images = simple_cartesian_recon('../data/simple_gre.h5');
    Reconstructing image 1....done
@@ -473,7 +414,7 @@ For instance, to reconstruct a 2D Cartesian acquisition (10 image repetitions), 
 
 You should see one of the reconstructed images display. An example is also given of a 3D acquisition with partial Fourier, phase and slice oversampling, etc. Reconstruct this dataset with:
 
-::
+.. code:: matlab
 
    >> images = simple_cartesian_recon('../data/3D_partial_fourier.h5');
    Reconstructing image 1....done
@@ -482,7 +423,7 @@ The center slice of the volume should be displayed at the end of the reconstruct
 
 Finally, there is also a spiral dataset. This dataset illustrates how the flexible section of the ``<trajectoryDescription>`` can be used to add user defined parameters and an identifier to describe the trajectory. This dataset is also an example of storing the trajectory with the data for direct reconstruction. Reconstruct this dataset with:
 
-::
+.. code:: matlab
 
    >> images = simple_spiral_recon('../data/simple_spiral.h5');
    Reconstructing image 1....done
@@ -500,34 +441,18 @@ Finally, there is also a spiral dataset. This dataset illustrates how the flexib
 Appendix
 ---------
 
-Frequently Asked Questions
-...........................
-.. _faq:
-
-*   I am trying to compile on Mac OSX Lion and I am getting strange errors.
-
-	in version 3.3.0 of CodeSynthesis XSD there is a problem with the clang compiler. It can build with clang on os x 10.7 (Lion) by editing
-	`/usr/local/include/xsd/cxx/zc-istream.txx`. Change line 35 from::
-
-      		setg (b, b, e);
-
-	to::
-
-      		std::streambuf::setg (b, b, e);
-
-	See also:
-	http://codesynthesis.com/pipermail/xsd-users/2011-May/003283.html
-
 XML Schema Definition
 ......................
+
 .. _schema:
 
-.. include:: ../schema/ismrmrd.xsd
-   :literal:
+.. literalinclude:: ../../schema/ismrmrd.xsd
 
-Windows 7 (64-bit) Powershell Install Script
-.............................................
-.. _powershell:
 
-.. include:: WindowsISMRMRDInstallDependencies.ps1
-   :literal:
+Indices and tables
+------------------
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+

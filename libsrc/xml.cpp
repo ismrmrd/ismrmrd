@@ -366,7 +366,7 @@ namespace ISMRMRD
 	    ReferencedImageSequence r;
 	    r.referencedSOPInstanceUID = ric.child_value();
 	    info.referencedImageSequence.push_back(r);
-	    ric = ric.next_sibling("referenceSOPInstanceIUID");
+	    ric = ric.next_sibling("referencedSOPInstanceUID");
 	  }
 	}
 
@@ -380,6 +380,14 @@ namespace ISMRMRD
 	info.systemFieldStrength_T = parse_optional_float(acquisitionSystemInformation, "systemFieldStrength_T");
 	info.relativeReceiverNoiseBandwidth = parse_optional_float(acquisitionSystemInformation, "relativeReceiverNoiseBandwidth");
 	info.receiverChannels = parse_optional_ushort(acquisitionSystemInformation, "receiverChannels");
+	pugi::xml_node coilLabel = acquisitionSystemInformation.child("coilLabel");
+	while (coilLabel) {
+	  CoilLabel l;
+	  l.coilNumber = std::atoi(coilLabel.child_value("coilNumber"));
+	  l.coilName = parse_string(coilLabel, "coilName");
+	  info.coilLabel.push_back(l);
+	  coilLabel = coilLabel.next_sibling("coilLabel");
+	}
 	info.institutionName = parse_optional_string(acquisitionSystemInformation, "institutionName");
 	info.stationName = parse_optional_string(acquisitionSystemInformation, "stationName");
 
@@ -589,6 +597,12 @@ namespace ISMRMRD
       append_optional_node(n1,"systemFieldStrength_T",h.acquisitionSystemInformation->systemFieldStrength_T);
       append_optional_node(n1,"relativeReceiverNoiseBandwidth",h.acquisitionSystemInformation->relativeReceiverNoiseBandwidth);
       append_optional_node(n1,"receiverChannels",h.acquisitionSystemInformation->receiverChannels);
+      for (size_t i = 0; i < h.acquisitionSystemInformation->coilLabel.size(); i++) {
+	n2 = n1.append_child();
+	n2.set_name("coilLabel");
+	append_node(n2,"coilNumber",h.acquisitionSystemInformation->coilLabel[i].coilNumber);
+	append_node(n2,"coilName",h.acquisitionSystemInformation->coilLabel[i].coilName);
+      }
       append_optional_node(n1,"institutionName",h.acquisitionSystemInformation->institutionName);
       append_optional_node(n1,"stationName",h.acquisitionSystemInformation->stationName);
     }

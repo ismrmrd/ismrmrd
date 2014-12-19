@@ -139,10 +139,7 @@ EXPORTISMRMRD uint32_t ismrmrd_get_number_of_arrays(const ISMRMRD_Dataset *dset,
 #ifdef __cplusplus
 } /* extern "C" */
 
-//
-//  ISMRMRD Datset C++ Interface
-//
-
+//  ISMRMRD Dataset C++ Interface
 class EXPORTISMRMRD Dataset {
 public:
     // Constructor and destructor

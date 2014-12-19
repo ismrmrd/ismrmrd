@@ -50,10 +50,10 @@ endif (WIN32)
 #the flexible header. The micro number changes when there are small changes
 #in the utility libraries, that don't affect the data format itself.
 set(ISMRMRD_VERSION_MAJOR 1)
-set(ISMRMRD_VERSION_MINOR 1)
+set(ISMRMRD_VERSION_MINOR 2)
 set(ISMRMRD_VERSION_PATCH 0) 
 
-set(ISMRMRD_XML_SCHEMA_SHA1 "5aa55db3d67187febb1b8bb8da54e67fc745ebd0")
+set(ISMRMRD_XML_SCHEMA_SHA1 "99a63f4e8cf08ffc268f5ee8b8c8b2a1edf69412")
 
 #Remove line breaks and white space that does not change the meaning of the schema
 file(STRINGS ${CMAKE_SOURCE_DIR}/schema/ismrmrd.xsd SCHEMA_STRINGS) #Read all strings from file 
@@ -94,8 +94,14 @@ set(ISMRMRD_SOVERSION ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR})
 # Generate the version.h header file
 find_package(Git)
 if (GIT_FOUND)
-  execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse HEAD WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE ISMRMRD_GIT_SHA1)
-  string(STRIP ${ISMRMRD_GIT_SHA1} ISMRMRD_GIT_SHA1)
+    execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse HEAD WORKING_DIRECTORY
+            ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE ISMRMRD_GIT_SHA1 ERROR_VARIABLE ISMRMRD_GIT_STDERR)
+    string(STRIP "${ISMRMRD_GIT_SHA1}" ISMRMRD_GIT_SHA1)
+    string(LENGTH "${ISMRMRD_GIT_SHA1}" ISMRMRD_GIT_SHA1_LEN)
+    if (${ISMRMRD_GIT_SHA1_LEN} LESS 40)
+        message(WARNING "Could not determine SHA-1 hash: ${ISMRMRD_GIT_STDERR}")
+        set(ISMRMRD_GIT_SHA1 "NA")
+    endif (${ISMRMRD_GIT_SHA1_LEN} LESS 40)
 else()
   set(ISMRMRD_GIT_SHA1 "NA")
 endif()
