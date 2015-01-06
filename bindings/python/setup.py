@@ -39,7 +39,7 @@ ext = Extension(
 
 setup(
     name='ismrmrd',
-    version='1.2.0',
+    version='1.2.1',
     author='ISMRMRD Developers',
     author_email='ismrmrd@googlegroups.com',
     description='Python bindings to ISMRMRD',
