@@ -217,11 +217,19 @@ if(EXISTS ${DPKG_PROGRAM})
   list(APPEND CPACK_GENERATOR "DEB")
 endif(EXISTS ${DPKG_PROGRAM})
 
-# set dependencies explicitly
+# Set dependencies explicitly
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libhdf5-7, libfftw3-3, libboost-program-options-dev")
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 
-# where the package metadata are
+# Enable/Disable component install for CPack generator DEB
+set(CPACK_DEB_COMPONENT_INSTALL ON)
+set(CPACK_COMPONENTS_IGNORE_GROUPS ON)
+set(CPACK_DEB_PACKAGE_COMPONENT ON)
+
+# Set component dependencies explicitly
+set(CPACK_DEB_main_PACKAGE_DEPENDS "libhdf5-7, libfftw3-3, libboost-program-options-dev")
+
+# Where the package metadata are
 set(ISMRMRD_CPACK_CFG_FILE "${PROJECT_BINARY_DIR}/cpack_options.cmake")
 
 # Where the package to be installed 
@@ -259,7 +267,7 @@ if(CPACK_GENERATOR)
     DISPLAY_NAME "Main"
     DESCRIPTION "Main blah blah blah"
     #GROUP Runtime
-    INSTALL_TYPES Runtime)
+    INSTALL_TYPES Developer Runtime Full)
   #cpack_add_component(testclient
   #  DISPLAY_NAME "Test Client"
   #  DESCRIPTION "Test Client blah blah blah"
