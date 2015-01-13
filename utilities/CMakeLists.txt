@@ -6,18 +6,18 @@ include_directories(${CMAKE_BINARY_DIR}/include
 
 add_executable(ismrmrd_info ismrmrd_info.cpp)
 target_link_libraries(ismrmrd_info ismrmrd)
-install(TARGETS ismrmrd_info DESTINATION bin)
+install(TARGETS ismrmrd_info DESTINATION bin COMPONENT main)
 
 add_executable(ismrmrd_read_timing_test read_timing_test.cpp)
 target_link_libraries(ismrmrd_read_timing_test ismrmrd)
-install(TARGETS ismrmrd_read_timing_test DESTINATION bin)
+install(TARGETS ismrmrd_read_timing_test DESTINATION bin COMPONENT main)
 
 if (NOT WIN32)
   add_executable(ismrmrd_test_xml 
     ismrmrd_test_xml.cpp 
     ${CMAKE_SOURCE_DIR}/libsrc/pugixml.cpp )
   target_link_libraries(ismrmrd_test_xml ismrmrd)
-  install(TARGETS ismrmrd_test_xml DESTINATION bin)
+  install(TARGETS ismrmrd_test_xml DESTINATION bin COMPONENT dev)
 endif(NOT WIN32)
 
 find_package(Boost COMPONENTS program_options)
@@ -50,7 +50,7 @@ if(FFTW3_FOUND AND Boost_FOUND)
             ${FFTW3_LIBRARIES})
     endif(WIN32)
     install(TARGETS ismrmrd_generate_cartesian_shepp_logan
-			DESTINATION bin)
+			DESTINATION bin COMPONENT main)
 
     # Shepp-Logan phantom
     add_executable(ismrmrd_recon_cartesian_2d
@@ -66,7 +66,7 @@ if(FFTW3_FOUND AND Boost_FOUND)
             ${FFTW3_LIBRARIES})
     endif(WIN32)
     install(TARGETS ismrmrd_recon_cartesian_2d
-			DESTINATION bin)
+			DESTINATION bin COMPONENT main)
 
 else(FFTW3_FOUND AND Boost_FOUND)
 	message("FFTW3 or Boost NOT Found, cannot build utilities")
