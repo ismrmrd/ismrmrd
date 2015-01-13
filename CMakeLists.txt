@@ -106,7 +106,7 @@ else()
   set(ISMRMRD_GIT_SHA1 "NA")
 endif()
 configure_file(include/version.in ${CMAKE_BINARY_DIR}/include/ismrmrd/version.h)
-install(FILES ${CMAKE_BINARY_DIR}/include/ismrmrd/version.h DESTINATION include/ismrmrd)
+install(FILES ${CMAKE_BINARY_DIR}/include/ismrmrd/version.h DESTINATION include/ismrmrd COMPONENT main)
 # note: for the utilities in this project that need ismrmrd/version.h
 # remember to add ${CMAKE_BINARY_DIR}/include to the include path
 
@@ -177,14 +177,13 @@ set_target_properties(ismrmrd PROPERTIES
 target_link_libraries(ismrmrd ${ISMRMRD_TARGET_LINK_LIBS})
 
 # install the main library
-install(TARGETS ismrmrd DESTINATION lib)
+install(TARGETS ismrmrd DESTINATION lib COMPONENT main)
 
 # install the headers
-install(DIRECTORY include/ismrmrd  DESTINATION include)
+install(DIRECTORY include/ismrmrd  DESTINATION include COMPONENT main)
 
 # install the schema file
-install(FILES schema/ismrmrd.xsd
-  DESTINATION share/ismrmrd/schema)
+install(FILES schema/ismrmrd.xsd DESTINATION share/ismrmrd/schema COMPONENT main)
 
 # install the cmake modules
 install(FILES
@@ -193,6 +192,7 @@ install(FILES
   cmake/FindNumPy.cmake
 DESTINATION
   share/ismrmrd/cmake
+COMPONENT main
 )
 
 #  ---   Main Library  (end) ----
@@ -206,17 +206,66 @@ add_subdirectory(examples/c)
 add_subdirectory(utilities)
 
 # install the matlab api
-install(DIRECTORY matlab DESTINATION share/ismrmrd)
+install(DIRECTORY matlab DESTINATION share/ismrmrd COMPONENT main)
 
 # TODO build and install the python bindings
 
 # Create package
+
+find_program(DPKG_PROGRAM dpkg)
+if(EXISTS ${DPKG_PROGRAM})
+  list(APPEND CPACK_GENERATOR "DEB")
+endif(EXISTS ${DPKG_PROGRAM})
+
+# set dependencies explicitly
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libhdf5-7, libfftw3-3, libboost-program-options-dev")
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+
+# where the package metadata are
+set(ISMRMRD_CPACK_CFG_FILE "${PROJECT_BINARY_DIR}/cpack_options.cmake")
+
+# Where the package to be installed 
+#set(CPACK_PACKAGE_INSTALL_DIRECTORY ${CMAKE_INSTALL_PREFIX})
+set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+message("CPACK_PACKAGING_INSTALL_PREFIX: " ${CPACK_PACKAGING_INSTALL_PREFIX})
+
 string(TOLOWER ${PROJECT_NAME} PROJECT_NAME_LOWER)
-include(${ISMRMRD_CMAKE_DIR}/ismrmrd_cpack.cmake)
+#include(${ISMRMRD_CMAKE_DIR}/ismrmrd_cpack.cmake)
 if(CPACK_GENERATOR)
   message(STATUS "Found CPack generators: ${CPACK_GENERATOR}")
   configure_file("${ISMRMRD_CMAKE_DIR}/cpack_options.cmake.in"
     ${ISMRMRD_CPACK_CFG_FILE} @ONLY)
   set(CPACK_PROJECT_CONFIG_FILE ${ISMRMRD_CPACK_CFG_FILE})
+  
+  # A list containing the names of all components that should be installed
+  set(CPACK_COMPONENTS_ALL main)
+
   include (CPack)
+
+  ##############################################################
+  # Installation types
+  cpack_add_install_type(Runtime DISPLAY_NAME "Runtime Files")
+  cpack_add_install_type(Developer DISPLAY_NAME "Developer Install")
+  cpack_add_install_type(Full DISPLAY_NAME "Full Install")
+
+  # Component groups
+  #cpack_add_component_group(Runtime)
+  #cpack_add_component_group(Development
+  #  EXPANDED
+  #  DESCRIPTION "All of the tools you'll ever need to develop software")
+
+  # Components
+  cpack_add_component(main
+    DISPLAY_NAME "Main"
+    DESCRIPTION "Main blah blah blah"
+    #GROUP Runtime
+    INSTALL_TYPES Runtime)
+  #cpack_add_component(testclient
+  #  DISPLAY_NAME "Test Client"
+  #  DESCRIPTION "Test Client blah blah blah"
+  #  #GROUP Runtime                                                                                                   
+  #  INSTALL_TYPES Runtime)
+
+############################################################
+
 endif()
