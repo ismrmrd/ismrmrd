@@ -205,6 +205,8 @@ install(DIRECTORY matlab DESTINATION share/ismrmrd COMPONENT dev)
 
 # Create package
 
+string(TOLOWER ${PROJECT_NAME} PROJECT_NAME_LOWER)
+
 find_program(DPKG_PROGRAM dpkg)
 if(EXISTS ${DPKG_PROGRAM})
   list(APPEND CPACK_GENERATOR "DEB")
@@ -222,6 +224,7 @@ set(CPACK_DEB_PACKAGE_COMPONENT ON)
 set(CPACK_DEB_lib_PACKAGE_DEPENDS "libhdf5-7, libfftw3-3, libboost-program-options-dev")
 set(CPACK_DEB_dev_PACKAGE_DEPENDS "ismrmrd-lib")
 set(CPACK_DEB_utils_PACKAGE_DEPENDS "ismrmrd-lib")
+set(CPACK_DEB_whole_PACKAGE_DEPENDS "ismrmrd-dev, ismrmrd-utils")
 
 # Where the package metadata are
 set(ISMRMRD_CPACK_CFG_FILE "${PROJECT_BINARY_DIR}/cpack_options.cmake")
@@ -229,74 +232,14 @@ set(ISMRMRD_CPACK_CFG_FILE "${PROJECT_BINARY_DIR}/cpack_options.cmake")
 # Where the package to be installed 
 #set(CPACK_PACKAGE_INSTALL_DIRECTORY ${CMAKE_INSTALL_PREFIX})
 set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
-message("CPACK_PACKAGING_INSTALL_PREFIX: " ${CPACK_PACKAGING_INSTALL_PREFIX})
 
-string(TOLOWER ${PROJECT_NAME} PROJECT_NAME_LOWER)
 #include(${ISMRMRD_CMAKE_DIR}/ismrmrd_cpack.cmake)
 if(CPACK_GENERATOR)
   message(STATUS "Found CPack generators: ${CPACK_GENERATOR}")
-  configure_file("${ISMRMRD_CMAKE_DIR}/cpack_options.cmake.in"
-    ${ISMRMRD_CPACK_CFG_FILE} @ONLY)
+  configure_file("${ISMRMRD_CMAKE_DIR}/cpack_options.cmake.in" ${ISMRMRD_CPACK_CFG_FILE} @ONLY)
   set(CPACK_PROJECT_CONFIG_FILE ${ISMRMRD_CPACK_CFG_FILE})
   
   # A list containing the names of all components that should be installed
-  set(CPACK_COMPONENTS_ALL lib dev utils)
+  set(CPACK_COMPONENTS_ALL lib dev utils whole)
   include(CPack)
-
-  ##############################################################
-
-  # Component groups
-  #cpack_add_component_group(EndUser)
-  #cpack_add_component_group(Developer)
-
-  # Components
-  #cpack_add_component(main
-  #  DISPLAY_NAME "Main"
-  #  DESCRIPTION "Main"
-  #  GROUP Developer)
-  #cpack_add_component(dev
-  #  DISPLAY_NAME "Dev"
-  #  DESCRIPTION "Dev"
-  #  GROUP Developer)
-
- ## Installation types
-  #cpack_add_install_type(Runtime DISPLAY_NAME "Runtime Files")
-  #cpack_add_install_type(Developer DISPLAY_NAME "Developer Install")
-  #cpack_add_install_type(Full DISPLAY_NAME "Full Install")
-  #
-  # Component groups
-  #cpack_add_component_group(Runtime)
-  #cpack_add_component_group(Development
-  #  EXPANDED
-  #  DESCRIPTION "All of the tools you'll ever need to develop software")
-  #
-  ## Components
-  #cpack_add_component(matlab
-  #  DISPLAY_NAME "Matlab"
-  #  DESCRIPTION "Matlab API"
-  #  GROUP Development
-  #  INSTALL_TYPES Developer Full)
-  #cpack_add_component(cmake
-  #  DISPLAY_NAME "CMake"
-  #  DESCRIPTION "CMake modules"
-  #  GROUP Development
-  #  INSTALL_TYPES Developer Full)
-  #cpack_add_component(headers
-  #  DISPLAY_NAME "Headers"
-  #  DESCRIPTION "Header files"
-  #  GROUP Development
-  #  INSTALL_TYPES Developer Full)
-  #
-  #cpack_add_component(schema
-  #  DISPLAY_NAME "Schema"
-  #  DESCRIPTION "ISMRMRD schema file"
-  #  GROUP Runtime
-  #  INSTALL_TYPES Runtime Developer Full)
-  #cpack_add_component(libraries
-  #  DISPLAY_NAME "Libraries"
-  #  DESCRIPTION "Libraries"
-  #  GROUP Runtime
-  #  INSTALL_TYPES Runtime Developer Full)
-  #
-############################################################
 endif()
