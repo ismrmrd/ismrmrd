@@ -183,7 +183,7 @@ install(TARGETS ismrmrd DESTINATION lib COMPONENT lib)
 install(DIRECTORY include/ismrmrd  DESTINATION include COMPONENT dev)
 
 # install the schema file
-install(FILES schema/ismrmrd.xsd DESTINATION share/ismrmrd/schema COMPONENT lib)
+install(FILES schema/ismrmrd.xsd DESTINATION share/ismrmrd/schema COMPONENT schema)
 
 # install the cmake modules
 install(FILES cmake/FindIsmrmrd.cmake cmake/FindFFTW3.cmake cmake/FindNumPy.cmake DESTINATION share/ismrmrd/cmake COMPONENT dev)
@@ -222,8 +222,9 @@ set(CPACK_DEB_PACKAGE_COMPONENT ON)
 
 # Set component dependencies explicitly
 set(CPACK_DEB_lib_PACKAGE_DEPENDS "libhdf5-7, libfftw3-3, libboost-program-options-dev")
-set(CPACK_DEB_dev_PACKAGE_DEPENDS "ismrmrd-lib")
-set(CPACK_DEB_utils_PACKAGE_DEPENDS "ismrmrd-lib")
+set(CPACK_DEB_dev_PACKAGE_DEPENDS "ismrmrd-lib, ismrmrd-schema")
+set(CPACK_DEB_schema_PACKAGE_DEPENDS "")
+set(CPACK_DEB_utils_PACKAGE_DEPENDS "ismrmrd-lib, ismrmrd-schema")
 set(CPACK_DEB_whole_PACKAGE_DEPENDS "ismrmrd-dev, ismrmrd-utils")
 
 # Where the package metadata are
@@ -240,6 +241,6 @@ if(CPACK_GENERATOR)
   set(CPACK_PROJECT_CONFIG_FILE ${ISMRMRD_CPACK_CFG_FILE})
   
   # A list containing the names of all components that should be installed
-  set(CPACK_COMPONENTS_ALL lib dev utils whole)
+  set(CPACK_COMPONENTS_ALL lib dev utils schema whole)
   include(CPack)
 endif()
