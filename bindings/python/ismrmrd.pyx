@@ -467,11 +467,17 @@ cdef class Acquisition:
             return numpy.PyArray_SimpleNewFromData(2, shape_data,
                     numpy.NPY_COMPLEX64, <void *>(self.thisptr.data))
         def __set__(self, val):
+            self.head.active_channels = val.shape[0]
+            self.head.number_of_samples = val.shape[1]
+            errno = cismrmrd.ismrmrd_make_consistent_acquisition(self.thisptr)
+            if errno != cismrmrd.ISMRMRD_NOERROR:
+                raise RuntimeError(build_exception_string())            
             self.data.ravel()[:] = numpy.asarray(val).ravel()[:]
 
     property traj:
         def __get__(self):
             cdef numpy.npy_intp shape_traj[2]
+            # trajectories index the dimension fastests
             shape_traj[0] = self.head.number_of_samples
             shape_traj[1] = self.head.trajectory_dimensions
             # careful here, thisptr is a R-W view
@@ -480,6 +486,12 @@ cdef class Acquisition:
             return numpy.PyArray_SimpleNewFromData(2, shape_traj,
                     numpy.NPY_FLOAT32, <void *>(self.thisptr.traj))
         def __set__(self, val):
+            if self.head.number_of_samples != val.shape[1]:
+                raise RuntimeError("Trajectory and data size mismatch.  Please set the data before setting the trajectory.")
+            self.head.trajectory_dimensions = val.shape[0]
+            errno = cismrmrd.ismrmrd_make_consistent_acquisition(self.thisptr)
+            if errno != cismrmrd.ISMRMRD_NOERROR:
+                raise RuntimeError(build_exception_string())
             self.data.ravel()[:] = numpy.asarray(val).ravel()[:]
 
 
