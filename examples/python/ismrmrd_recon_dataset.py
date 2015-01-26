@@ -34,20 +34,31 @@ rFOVy = enc.reconSpace.fieldOfView_mm.y
 rFOVz = enc.reconSpace.fieldOfView_mm.z
 
 # Number of Slices, Reps, Contrasts, etc.
-nslices = enc.encodingLimits.slice.maximum + 1
 ncoils = header.acquisitionSystemInformation.receiverChannels
-nreps = enc.encodingLimits.repetition.maximum + 1
-ncontrasts = enc.encodingLimits.contrast.maximum + 1
+if enc.encodingLimits.slice != None:
+    nslices = enc.encodingLimits.slice.maximum + 1
+else:
+    nslices = 1
 
-# TODO: Ignore noise scans
-for acqnum in range(dset.number_of_acquisitions):
-    acq = dset.read_acquisition(acqnum)
-    if acq.head.flags & ismrmrd.ACQ_IS_NOISE_MEASUREMENT:
-        print("Found noise measurement @ %d" % acqnum)
+if enc.encodingLimits.repetition != None:
+    nreps = enc.encodingLimits.repetition.maximum + 1
+else:
+    nreps = 1
+
+if enc.encodingLimits.contrast != None:
+    ncontrasts = enc.encodingLimits.contrast.maximum + 1
+else:
+    ncontrasts = 1
+
 
 all_data = np.zeros((nreps, ncontrasts, nslices, ncoils, eNz, eNy, eNx), dtype=np.complex64)
 for acqnum in range(dset.number_of_acquisitions):
     acq = dset.read_acquisition(acqnum)
+
+    # TODO: Currently ignoring noise scans
+    if acq.head.flags & ismrmrd.ACQ_IS_NOISE_MEASUREMENT:
+        continue
+        
     rep = acq.head.idx.repetition
     contrast = acq.head.idx.contrast
     slice = acq.head.idx.slice
