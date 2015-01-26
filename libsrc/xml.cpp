@@ -528,10 +528,10 @@ namespace ISMRMRD
     a = root.append_attribute("xsi:schemaLocation");
     a.set_value("http://www.ismrm.org/ISMRMRD ismrmrd.xsd");
 
-    a = root.append_attribute("version");
-    a.set_value(ISMRMRD_XMLHDR_VERSION);
-
     if (h.version) {
+      if (*h.version != ISMRMRD_XMLHDR_VERSION) {
+        throw std::runtime_error("XML header version does not match library schema version.");
+      }
       append_optional_node(root,"version",h.version);
     }
     
