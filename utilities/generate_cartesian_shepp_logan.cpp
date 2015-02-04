@@ -181,7 +181,7 @@ int main(int argc, char** argv)
         e.reconSpace.fieldOfView_mm.z = 6;
         e.trajectory = "cartesian";
         e.encodingLimits.kspace_encoding_step_1 = Limit(0, matrix_size-1,(matrix_size>>1));
-        e.encodingLimits.repetition = Limit(0, repetitions*acc_factor,0);
+        e.encodingLimits.repetition = Limit(0, repetitions*acc_factor - 1,0);
         
 	//e.g. parallel imaging
 	if (acc_factor > 1) {
