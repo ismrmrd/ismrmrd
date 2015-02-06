@@ -3,6 +3,7 @@
 #include <sstream>
 #include <stdexcept>
 
+#include <iostream>
 #include "ismrmrd/ismrmrd.h"
 
 namespace ISMRMRD {
@@ -201,22 +202,22 @@ float (&Acquisition::user_float()) [ISMRMRD_USER_FLOATS] {
 }
 
 // Sizes
-const size_t Acquisition::getNumberOfDataElements() {
+size_t Acquisition::getNumberOfDataElements() {
     size_t num = acq.head.number_of_samples * acq.head.active_channels;
     return num;
 }
 
-const size_t Acquisition::getDataSize() {
+size_t Acquisition::getDataSize() {
     size_t num = acq.head.number_of_samples * acq.head.active_channels;
     return num*sizeof(complex_float_t);
 }
 
-const size_t Acquisition::getNumberOfTrajElements() {
+size_t Acquisition::getNumberOfTrajElements() {
     size_t num = acq.head.number_of_samples * acq.head.trajectory_dimensions;
     return num;
 }
 
-const size_t Acquisition::getTrajSize() {
+size_t Acquisition::getTrajSize() {
     size_t num = acq.head.number_of_samples * acq.head.trajectory_dimensions;
     return num*sizeof(float);
 }
@@ -243,7 +244,7 @@ void Acquisition::resize(uint16_t num_samples, uint16_t active_channels, uint16_
        }
 }
 
-const complex_float_t * const Acquisition::getDataPtr() const {
+const complex_float_t * Acquisition::getDataPtr() {
     return acq.data;
 }
 
@@ -256,7 +257,7 @@ complex_float_t & Acquisition::data(uint16_t sample, uint16_t channel){
        return acq.data[index];
 }
 
-const float * const Acquisition::getTrajPtr() const {
+const float * Acquisition::getTrajPtr() {
     return acq.traj;
 }
 
@@ -918,13 +919,13 @@ template <typename T> void Image<T>::setAttributeString(const std::string attr)
     strcpy(im.attribute_string, attr.c_str());
 }
 
-template <typename T> const size_t Image<T>::getAttributeStringLength()
+template <typename T> size_t Image<T>::getAttributeStringLength()
 {
     return im.head.attribute_string_len;
 }
 
 // Data
-template <typename T> T * const Image<T>::getDataPtr() const {
+template <typename T> T * Image<T>::getDataPtr() {
      return static_cast<T*>(im.data);
 }
 
@@ -1015,15 +1016,15 @@ template <typename T> NDArray<T> & NDArray<T>::operator= (const NDArray<T> &othe
     return *this;
 }
 
-template <typename T> const uint16_t NDArray<T>::getVersion() {
+template <typename T> uint16_t NDArray<T>::getVersion() {
     return arr.version;
 };
 
-template <typename T> const ISMRMRD_DataTypes NDArray<T>::getDataType() {
+template <typename T> ISMRMRD_DataTypes NDArray<T>::getDataType() {
     return static_cast<ISMRMRD_DataTypes>( arr.data_type );
 }
 
-template <typename T> const uint16_t NDArray<T>::getNDim() {
+template <typename T> uint16_t NDArray<T>::getNDim() {
     return  arr.ndim;
 };
     
@@ -1048,11 +1049,11 @@ template <typename T> T * NDArray<T>::getDataPtr() {
     return static_cast<T*>(arr.data);
 }
 
-template <typename T> const size_t NDArray<T>::getDataSize() {
+template <typename T> size_t NDArray<T>::getDataSize() {
     return ismrmrd_size_of_ndarray_data(&arr);
 }
 
-template <typename T> const size_t NDArray<T>::getNumberOfElements() {
+template <typename T> size_t NDArray<T>::getNumberOfElements() {
     size_t num = 1;
     for (int n = 0; n < arr.ndim; n++) {
         size_t v = arr.dims[n];
