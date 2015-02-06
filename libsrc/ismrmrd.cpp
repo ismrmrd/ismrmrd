@@ -1055,7 +1055,11 @@ template <typename T> const size_t NDArray<T>::getDataSize() {
 template <typename T> const size_t NDArray<T>::getNumberOfElements() {
     size_t num = 1;
     for (int n = 0; n < arr.ndim; n++) {
-        num *= arr.dims[n];
+        size_t v = arr.dims[n];
+        // This is necessary to prevent bad GCC loop optimization!
+        if (v > 0) {
+            num *= v;
+        }
     }
     return num;
 }
