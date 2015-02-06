@@ -522,10 +522,10 @@ public:
 
     // Sizes
     void resize(uint16_t num_samples, uint16_t active_channels=1, uint16_t trajectory_dimensions=0);
-    const size_t getNumberOfDataElements();
-    const size_t getNumberOfTrajElements();
-    const size_t getDataSize();
-    const size_t getTrajSize();
+    size_t getNumberOfDataElements();
+    size_t getNumberOfTrajElements();
+    size_t getDataSize();
+    size_t getTrajSize();
 
     // Header, data and trajectory accessors
     const AcquisitionHeader &getHead();
@@ -534,7 +534,7 @@ public:
     /**
      * Returns a pointer to the data
      */
-    const complex_float_t * const getDataPtr() const ;
+    const complex_float_t * getDataPtr();
 
     /**
      * Returns a reference to the data
@@ -559,7 +559,7 @@ public:
     /**
      * Returns a pointer to the trajectory
      */
-    const float * const getTrajPtr() const;
+    const float * getTrajPtr();
     
     /**
      * Returns a reference to the trajectory
@@ -747,10 +747,10 @@ public:
     // Attribute string
     void getAttributeString(std::string &atrr) const;
     void setAttributeString(const std::string attr);
-    const size_t getAttributeStringLength();
+    size_t getAttributeStringLength();
     
     // Data
-    T * const getDataPtr() const;
+    T * getDataPtr();
     /** Returns the number of elements in the image data **/
     size_t getNumberOfDataElements() const;
     /** Returns the size of the image data in bytes **/
@@ -781,13 +781,13 @@ public:
     NDArray<T> & operator= (const NDArray<T> &other);
 
     // Accessors and mutators
-    const uint16_t getVersion();
-    const ISMRMRD_DataTypes getDataType();
-    const uint16_t getNDim();
+    uint16_t getVersion();
+    ISMRMRD_DataTypes getDataType();
+    uint16_t getNDim();
     const size_t (&getDims())[ISMRMRD_NDARRAY_MAXDIM];
-    const size_t getDataSize();
+    size_t getDataSize();
     void resize(const std::vector<size_t> dimvec);
-    const size_t getNumberOfElements();
+    size_t getNumberOfElements();
     T * getDataPtr();
     
     /** Returns iterator to the beginning of the array **/
