@@ -39,8 +39,8 @@ int main(int argc, char** argv)
 	float noise_level;
 	std::string outfile;
 	std::string dataset;
-	bool store_coordinates;
-	bool noise_calibration;
+	bool store_coordinates = false;
+	bool noise_calibration = false;
 
 	po::options_description desc("Allowed options");
 	desc.add_options()
