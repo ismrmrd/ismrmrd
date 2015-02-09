@@ -895,6 +895,16 @@ int ismrmrd_close_dataset(ISMRMRD_Dataset *dset) {
         return false;
     }
 
+    if (dset->filename != NULL) {
+        free(dset->filename);
+        dset->filename = NULL;
+    }
+
+    if (dset->groupname != NULL) {
+        free(dset->groupname);
+        dset->groupname = NULL;
+    }
+
     /* Check for a valid fileid before trying to close the file */
     if (dset->fileid > 0) {
         h5status = H5Fclose (dset->fileid);
@@ -935,6 +945,7 @@ int ismrmrd_write_header(const ISMRMRD_Dataset *dset, const char *xmlstring) {
     datatype = get_hdf5type_xmlheader();
     props = H5Pcreate (H5P_DATASET_CREATE);
     dataset = H5Dcreate2(dset->fileid, path, datatype, dataspace, H5P_DEFAULT, props,  H5P_DEFAULT);
+    free(path);
         
     /* Write it out */
     /* We have to wrap the xmlstring in an array */
