@@ -217,15 +217,15 @@ set(CPACK_DEBIAN_PACKAGE_DEPENDS "libhdf5-7, libfftw3-3, libboost-program-option
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 
 # Enable/Disable component install for CPack generator DEB
-set(CPACK_DEB_COMPONENT_INSTALL ON)
-set(CPACK_DEB_PACKAGE_COMPONENT ON)
+set(CPACK_DEB_COMPONENT_INSTALL OFF)
+set(CPACK_DEB_PACKAGE_COMPONENT OFF)
 
 # Set component dependencies explicitly
 set(CPACK_DEB_lib_PACKAGE_DEPENDS "libhdf5-7, libfftw3-3, libboost-program-options-dev")
 set(CPACK_DEB_dev_PACKAGE_DEPENDS "ismrmrd-lib, ismrmrd-schema")
 set(CPACK_DEB_schema_PACKAGE_DEPENDS "")
 set(CPACK_DEB_utils_PACKAGE_DEPENDS "ismrmrd-lib, ismrmrd-schema")
-set(CPACK_DEB_whole_PACKAGE_DEPENDS "ismrmrd-dev, ismrmrd-utils")
+set(CPACK_DEB_all_PACKAGE_DEPENDS "ismrmrd-dev, ismrmrd-utils")
 
 # Where the package metadata are
 set(ISMRMRD_CPACK_CFG_FILE "${PROJECT_BINARY_DIR}/cpack_options.cmake")
@@ -241,6 +241,6 @@ if(CPACK_GENERATOR)
   set(CPACK_PROJECT_CONFIG_FILE ${ISMRMRD_CPACK_CFG_FILE})
   
   # A list containing the names of all components that should be installed
-  set(CPACK_COMPONENTS_ALL lib dev utils schema whole)
+  set(CPACK_COMPONENTS_ALL lib dev utils schema all)
   include(CPack)
 endif()

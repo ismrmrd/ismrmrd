@@ -26,7 +26,6 @@ list(APPEND CPACK_SOURCE_IGNORE_FILES ";.git;.gitignore;todo.txt;_clang-format;b
 
 # set dependencies explicitly
 include(InstallRequiredSystemLibraries)
-set(DEBIAN_PACKAGE_DEPENDS "libhdf5-7, libfftw3-3, libboost-program-options-dev")
 # TODO: set(RPM_PACKAGE_DEPENDS "hdf5-devel")
 
 # where the package metadata are
