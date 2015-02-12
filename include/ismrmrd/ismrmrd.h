@@ -530,7 +530,7 @@ public:
 
     // Header, data and trajectory accessors
     const AcquisitionHeader &getHead() const;
-    void setHead(const AcquisitionHeader other);
+    void setHead(const AcquisitionHeader &other);
     
     /**
      * Returns a pointer to the data
@@ -751,7 +751,7 @@ public:
     
     // Attribute string
     void getAttributeString(std::string &atrr) const;
-    void setAttributeString(const std::string attr);
+    void setAttributeString(const std::string &attr);
     size_t getAttributeStringLength() const;
     
     // Data

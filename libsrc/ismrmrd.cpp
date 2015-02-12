@@ -228,7 +228,7 @@ const AcquisitionHeader & Acquisition::getHead() const {
     return *static_cast<const AcquisitionHeader *>(&acq.head);
 }
 
-void Acquisition::setHead(const AcquisitionHeader other) {
+void Acquisition::setHead(const AcquisitionHeader &other) {
     memcpy(&acq.head, &other, sizeof(AcquisitionHeader));
     if (ismrmrd_make_consistent_acquisition(&acq) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
@@ -912,15 +912,25 @@ template <typename T> void Image<T>::setHead(const ImageHeader &other) {
 // Attribute string
 template <typename T> void Image<T>::getAttributeString(std::string &attr) const
 {
-    attr = std::string(im.attribute_string);
+   if (im.attribute_string)
+      attr.assign(im.attribute_string);
+   else
+      attr.assign("");
 }
 
-template <typename T> void Image<T>::setAttributeString(const std::string attr)
+template <typename T> void Image<T>::setAttributeString(const std::string &attr)
 {
-    im.head.attribute_string_len = attr.length();
-    im.attribute_string = (char *)realloc(im.attribute_string, attr.length()+1);
-    // TODO error check?
-    strcpy(im.attribute_string, attr.c_str());
+    size_t length = attr.length();
+    im.head.attribute_string_len = static_cast<uint32_t>(length);
+
+    // Add null terminating character
+    length++;
+
+    im.attribute_string = (char *)realloc(im.attribute_string, length);
+    if (NULL==im.attribute_string) {
+        throw std::runtime_error(build_exception_string());
+    }
+    strncpy(im.attribute_string, attr.c_str(), length);
 }
 
 template <typename T> size_t Image<T>::getAttributeStringLength() const
