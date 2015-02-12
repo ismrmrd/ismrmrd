@@ -523,19 +523,19 @@ public:
 
     // Sizes
     void resize(uint16_t num_samples, uint16_t active_channels=1, uint16_t trajectory_dimensions=0);
-    size_t getNumberOfDataElements();
-    size_t getNumberOfTrajElements();
-    size_t getDataSize();
-    size_t getTrajSize();
+    size_t getNumberOfDataElements() const;
+    size_t getNumberOfTrajElements() const;
+    size_t getDataSize() const;
+    size_t getTrajSize() const;
 
     // Header, data and trajectory accessors
-    const AcquisitionHeader &getHead();
+    const AcquisitionHeader &getHead() const;
     void setHead(const AcquisitionHeader other);
     
     /**
      * Returns a pointer to the data
      */
-    const complex_float_t * getDataPtr();
+    const complex_float_t * getDataPtr() const;
 
     /**
      * Returns a reference to the data
@@ -560,7 +560,7 @@ public:
     /**
      * Returns a pointer to the trajectory
      */
-    const float * getTrajPtr();
+    const float * getTrajPtr() const;
     
     /**
      * Returns a reference to the trajectory
@@ -752,7 +752,7 @@ public:
     // Attribute string
     void getAttributeString(std::string &atrr) const;
     void setAttributeString(const std::string attr);
-    size_t getAttributeStringLength();
+    size_t getAttributeStringLength() const;
     
     // Data
     T * getDataPtr();
@@ -786,13 +786,13 @@ public:
     NDArray<T> & operator= (const NDArray<T> &other);
 
     // Accessors and mutators
-    uint16_t getVersion();
-    ISMRMRD_DataTypes getDataType();
-    uint16_t getNDim();
+    uint16_t getVersion() const;
+    ISMRMRD_DataTypes getDataType() const;
+    uint16_t getNDim() const;
     const size_t (&getDims())[ISMRMRD_NDARRAY_MAXDIM];
-    size_t getDataSize();
+    size_t getDataSize() const;
     void resize(const std::vector<size_t> dimvec);
-    size_t getNumberOfElements();
+    size_t getNumberOfElements() const;
     T * getDataPtr();
     
     /** Returns iterator to the beginning of the array **/
