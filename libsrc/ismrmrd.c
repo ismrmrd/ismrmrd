@@ -485,6 +485,14 @@ int ismrmrd_set_flag(uint64_t *flags, const uint64_t val) {
     return ISMRMRD_NOERROR;
 }
 
+int ismrmrd_set_flags(uint64_t *flags, const uint64_t val) {
+    if (flags==NULL) {
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
+    }
+    *flags = val;
+    return ISMRMRD_NOERROR;
+}
+
 int ismrmrd_clear_flag(uint64_t *flags, const uint64_t val) {
     uint64_t bitmask;
     if (flags==NULL) {

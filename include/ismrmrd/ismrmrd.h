@@ -367,6 +367,7 @@ EXPORTISMRMRD size_t ismrmrd_size_of_ndarray_data(const ISMRMRD_NDArray *arr);
  */
 EXPORTISMRMRD bool ismrmrd_is_flag_set(const uint64_t flags, const uint64_t val);
 EXPORTISMRMRD int ismrmrd_set_flag(uint64_t *flags, const uint64_t val);
+EXPORTISMRMRD int ismrmrd_set_flags(uint64_t *flags, const uint64_t val);
 EXPORTISMRMRD int ismrmrd_clear_flag(uint64_t *flags, const uint64_t val);
 EXPORTISMRMRD int ismrmrd_clear_all_flags(uint64_t *flags);
 /** @} */
@@ -586,6 +587,10 @@ public:
     void setFlag(const uint64_t val);
     void clearFlag(const uint64_t val);
     void clearAllFlags();
+
+    bool isFlagSet(const FlagBit &val)  { return isFlagSet(val.bitmask_); }
+    void setFlag(const FlagBit &val)    { setFlag(val.bitmask_); }
+    void clearFlag(const FlagBit &val)  { clearFlag(val.bitmask_); }
 
     // Channel mask methods
     bool isChannelActive(uint16_t channel_id);

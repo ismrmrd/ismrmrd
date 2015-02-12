@@ -880,6 +880,10 @@ template <typename T> void Image<T>::setFlag(const uint64_t val) {
     ismrmrd_set_flag(&(im.head.flags), val);
 }
 
+template <typename T> void Image<T>::setFlags(const uint64_t val) {
+    ismrmrd_set_flags(&(im.head.flags), val);
+}
+
 template <typename T> void Image<T>::clearFlag(const uint64_t val) {
     ismrmrd_clear_flag(&(im.head.flags), val);
 }
