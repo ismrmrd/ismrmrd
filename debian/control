@@ -1,0 +1,82 @@
+Source: ismrmrd
+Maintainer: Debian Science Maintainers <debian-science-maintainers@lists.alioth.debian.org>
+Uploaders: Ghislain Antony Vaillant <ghisvail@gmail.com>
+Section: science
+Priority: optional
+Build-Depends: cmake,
+               debhelper (>= 9),
+               doxygen,
+               libboost-program-options-dev,
+               libfftw3-dev,
+               libhdf5-serial-dev,
+               libpugixml-dev
+Standards-Version: 3.9.6
+Homepage: http://ismrmrd.github.io/
+
+Package: libismrmrd1.2
+Architecture: any
+Depends: ${misc:Depends},
+         ${shlibs:Depends}
+Description: ISMRM Raw Data format (ISMRMRD) - shared library
+ The ISMRMRD format combines a mix of flexible data structures (XML header) 
+ and fixed structures (equivalent to C-structs) to represent MRI data.
+ .
+ In addition, the ISMRMRD format also specifies an image header for storing 
+ reconstructed images and the accompanying C++ library provides a convenient 
+ way of writing such images into HDF5 files along with generic arrays for 
+ storing less well defined data structures, e.g. coil sensitivity maps or 
+ other calibration data.
+ .
+ This package provides the shared library.
+
+Package: libismrmrd-dev
+Architecture: any
+Section: libdevel
+Depends: ismrmrd-schema,
+         libismrmrd1.2 (= ${binary:Version}),
+         ${misc:Depends},
+         ${shlibs:Depends}
+Description: ISMRM Raw Data format (ISMRMRD) - development files
+ The ISMRMRD format combines a mix of flexible data structures (XML header) 
+ and fixed structures (equivalent to C-structs) to represent MRI data.
+ .
+ In addition, the ISMRMRD format also specifies an image header for storing 
+ reconstructed images and the accompanying C++ library provides a convenient 
+ way of writing such images into HDF5 files along with generic arrays for 
+ storing less well defined data structures, e.g. coil sensitivity maps or 
+ other calibration data.
+ .
+ This package provides the development files.
+
+Package: ismrmrd-tools
+Architecture: any
+Depends: ismrmrd-schema,
+         libismrmrd1.2 (= ${binary:Version}),
+         ${misc:Depends},
+         ${shlibs:Depends}
+Description: ISMRM Raw Data format (ISMRMRD) - binaries
+ The ISMRMRD format combines a mix of flexible data structures (XML header) 
+ and fixed structures (equivalent to C-structs) to represent MRI data.
+ .
+ In addition, the ISMRMRD format also specifies an image header for storing 
+ reconstructed images and the accompanying C++ library provides a convenient 
+ way of writing such images into HDF5 files along with generic arrays for 
+ storing less well defined data structures, e.g. coil sensitivity maps or 
+ other calibration data.
+ .
+ This package provides the binaries.
+
+Package: ismrmrd-schema
+Architecture: all
+Depends: ${misc:Depends}
+Description: ISMRM Raw Data format (ISMRMRD) - XML schema
+ The ISMRMRD format combines a mix of flexible data structures (XML header) 
+ and fixed structures (equivalent to C-structs) to represent MRI data.
+ .
+ In addition, the ISMRMRD format also specifies an image header for storing 
+ reconstructed images and the accompanying C++ library provides a convenient 
+ way of writing such images into HDF5 files along with generic arrays for 
+ storing less well defined data structures, e.g. coil sensitivity maps or 
+ other calibration data.
+ .
+ This package provides the XML schema.

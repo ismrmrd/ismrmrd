@@ -1,0 +1,5 @@
+ismrmrd (1.2.1-1) UNRELEASED; urgency=low
+
+  * Initial release (Closes: #732360)
+
+ -- Dusan Puletic <dusan.puletic@nih.gov>  Fri, 11 Feb 2015 15:29:55 +0000
