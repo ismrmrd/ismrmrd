@@ -426,7 +426,7 @@ size_t ismrmrd_size_of_ndarray_data(const ISMRMRD_NDArray *arr) {
     }
     
     for (n = 0; n < arr->ndim; n++) {
-        num_data *= arr->dims[n];
+        num_data *= (int) (arr->dims[n]);
     }
 
     data_size = num_data * ismrmrd_sizeof_data_type(arr->data_type);
@@ -593,13 +593,13 @@ void ismrmrd_directions_to_quaternion(float read_dir[3], float phase_dir[3],
     
     /* Compute quaternion parameters */
     /* http://www.cs.princeton.edu/~gewang/projects/darth/stuff/quat_faq.html#Q55 */
-    trace = 1.0l + r11 + r22 + r33;
-    if (trace > 0.00001l) { /* simplest case */
+    trace = 1.0 + r11 + r22 + r33;
+    if (trace > 0.00001) { /* simplest case */
         s = sqrt(trace) * 2;
         a = (r32 - r23) / s;
         b = (r13 - r31) / s;
         c = (r21 - r12) / s;
-        d = 0.25l * s;
+        d = 0.25 * s;
     } else {
         /* trickier case...
          * determine which major diagonal element has
@@ -610,7 +610,7 @@ void ismrmrd_directions_to_quaternion(float read_dir[3], float phase_dir[3],
         /* if r11 is the greatest */
         if (xd > 1.0) {
             s = 2.0 * sqrt(xd);
-            a = 0.25l * s;
+            a = 0.25 * s;
             b = (r21 + r12) / s;
             c = (r31 + r13) / s;
             d = (r32 - r23) / s;
@@ -619,7 +619,7 @@ void ismrmrd_directions_to_quaternion(float read_dir[3], float phase_dir[3],
         else if (yd > 1.0) {
             s = 2.0 * sqrt(yd);
             a = (r21 + r12) / s;
-            b = 0.25l * s;
+            b = 0.25 * s;
             c = (r32 + r23) / s;
             d = (r13 - r31) / s;
         }
@@ -628,11 +628,11 @@ void ismrmrd_directions_to_quaternion(float read_dir[3], float phase_dir[3],
             s = 2.0 * sqrt(zd);
             a = (r13 + r31) / s;
             b = (r23 + r32) / s;
-            c = 0.25l * s;
+            c = 0.25 * s;
             d = (r21 - r12) / s;
         }
 
-        if (a < 0.0l) {
+        if (a < 0.0) {
             b = -b;
             c = -c;
             d = -d;

@@ -356,7 +356,7 @@ template <typename T> Image<T>::Image(uint16_t matrix_size_x,
     if (ismrmrd_init_image(&im) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
-    im.head.data_type = get_data_type<T>();
+    im.head.data_type = static_cast<uint16_t>(get_data_type<T>());
     resize(matrix_size_x, matrix_size_y, matrix_size_z, channels);
 }
 
@@ -980,7 +980,7 @@ template <typename T> NDArray<T>::NDArray()
     if (ismrmrd_init_ndarray(&arr) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
-    arr.data_type = get_data_type<T>();
+    arr.data_type = static_cast<uint16_t>(get_data_type<T>());
 }
 
 template <typename T> NDArray<T>::NDArray(const std::vector<size_t> dimvec)
@@ -988,7 +988,7 @@ template <typename T> NDArray<T>::NDArray(const std::vector<size_t> dimvec)
     if (ismrmrd_init_ndarray(&arr) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
-    arr.data_type = get_data_type<T>();
+    arr.data_type = static_cast<uint16_t>(get_data_type<T>());
     resize(dimvec);
 }
 
@@ -1050,7 +1050,7 @@ template <typename T> void NDArray<T>::resize(const std::vector<size_t> dimvec) 
     if (dimvec.size() > ISMRMRD_NDARRAY_MAXDIM) {
         throw std::runtime_error("Input vector dimvec is too long.");
     }
-    arr.ndim = dimvec.size();
+    arr.ndim = static_cast<uint16_t>(dimvec.size());
     for (int n=0; n<arr.ndim; n++) {
         arr.dims[n] = dimvec[n];
     }
