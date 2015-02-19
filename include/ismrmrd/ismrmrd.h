@@ -747,6 +747,7 @@ public:
 
     // Header
     ImageHeader & getHead();
+    const ImageHeader & getHead() const;
     void setHead(const ImageHeader& head);
     
     // Attribute string
@@ -756,6 +757,7 @@ public:
     
     // Data
     T * getDataPtr();
+    const T * getDataPtr() const;
     /** Returns the number of elements in the image data **/
     size_t getNumberOfDataElements() const;
     /** Returns the size of the image data in bytes **/

@@ -898,6 +898,11 @@ template <typename T> ImageHeader &Image<T>::getHead() {
     return *static_cast<ImageHeader *>(&im.head);
 }
 
+template <typename T> const ImageHeader &Image<T>::getHead() const {
+    // This returns a reference
+    return *static_cast<const ImageHeader *>(&im.head);
+}
+
 template <typename T> void Image<T>::setHead(const ImageHeader &other) {
     if (other.data_type != im.head.data_type) {
         throw std::runtime_error("Cannot assign a header of a different data type.");
@@ -941,6 +946,10 @@ template <typename T> size_t Image<T>::getAttributeStringLength() const
 // Data
 template <typename T> T * Image<T>::getDataPtr() {
      return static_cast<T*>(im.data);
+}
+
+template <typename T> const T * Image<T>::getDataPtr() const {
+     return static_cast<const T*>(im.data);
 }
 
 template <typename T> size_t Image<T>::getNumberOfDataElements() const {
