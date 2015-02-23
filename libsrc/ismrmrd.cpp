@@ -958,7 +958,7 @@ template <typename T> size_t Image<T>::getNumberOfDataElements() const {
     num *= im.head.matrix_size[1];
     num *= im.head.matrix_size[2];
     num *= im.head.channels;
-    return ismrmrd_size_of_image_data(&im);
+    return num;
 }
 
 template <typename T> size_t Image<T>::getDataSize() const {
