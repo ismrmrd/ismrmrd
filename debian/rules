@@ -9,7 +9,10 @@ BUILDDIR = $(CURDIR)/debian/build
 	dh $@ --buildsystem=cmake --builddirectory=$(BUILDDIR) --parallel
 
 override_dh_auto_configure:
-	dh_auto_configure -- -DCMAKE_INSTALL_PREFIX=/usr -DUSE_SYSTEM_PUGIXML=ON
+	dh_auto_configure -- -DCMAKE_INSTALL_PREFIX=/usr
+
+#override_dh_auto_configure:
+#	dh_auto_configure -- -DCMAKE_INSTALL_PREFIX=/usr -DUSE_SYSTEM_PUGIXML=ON
 
 override_dh_auto_clean:
 	dh_auto_clean
