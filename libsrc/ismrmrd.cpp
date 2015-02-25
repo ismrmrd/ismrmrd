@@ -202,33 +202,33 @@ float (&Acquisition::user_float()) [ISMRMRD_USER_FLOATS] {
 }
 
 // Sizes
-size_t Acquisition::getNumberOfDataElements() {
+size_t Acquisition::getNumberOfDataElements() const {
     size_t num = acq.head.number_of_samples * acq.head.active_channels;
     return num;
 }
 
-size_t Acquisition::getDataSize() {
+size_t Acquisition::getDataSize() const {
     size_t num = acq.head.number_of_samples * acq.head.active_channels;
     return num*sizeof(complex_float_t);
 }
 
-size_t Acquisition::getNumberOfTrajElements() {
+size_t Acquisition::getNumberOfTrajElements() const {
     size_t num = acq.head.number_of_samples * acq.head.trajectory_dimensions;
     return num;
 }
 
-size_t Acquisition::getTrajSize() {
+size_t Acquisition::getTrajSize() const {
     size_t num = acq.head.number_of_samples * acq.head.trajectory_dimensions;
     return num*sizeof(float);
 }
 
 // Data and Trajectory accessors
-const AcquisitionHeader & Acquisition::getHead() {
+const AcquisitionHeader & Acquisition::getHead() const {
     // This returns a reference
-    return *static_cast<AcquisitionHeader *>(&acq.head);
+    return *static_cast<const AcquisitionHeader *>(&acq.head);
 }
 
-void Acquisition::setHead(const AcquisitionHeader other) {
+void Acquisition::setHead(const AcquisitionHeader &other) {
     memcpy(&acq.head, &other, sizeof(AcquisitionHeader));
     if (ismrmrd_make_consistent_acquisition(&acq) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
@@ -244,7 +244,11 @@ void Acquisition::resize(uint16_t num_samples, uint16_t active_channels, uint16_
        }
 }
 
-const complex_float_t * Acquisition::getDataPtr() {
+const complex_float_t * Acquisition::getDataPtr() const {
+    return acq.data;
+}
+
+complex_float_t * Acquisition::getDataPtr() {
     return acq.data;
 }
 
@@ -257,7 +261,11 @@ complex_float_t & Acquisition::data(uint16_t sample, uint16_t channel){
        return acq.data[index];
 }
 
-const float * Acquisition::getTrajPtr() {
+const float * Acquisition::getTrajPtr() const {
+    return acq.traj;
+}
+
+float * Acquisition::getTrajPtr() {
     return acq.traj;
 }
 
@@ -356,7 +364,7 @@ template <typename T> Image<T>::Image(uint16_t matrix_size_x,
     if (ismrmrd_init_image(&im) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
-    im.head.data_type = get_data_type<T>();
+    im.head.data_type = static_cast<uint16_t>(get_data_type<T>());
     resize(matrix_size_x, matrix_size_y, matrix_size_z, channels);
 }
 
@@ -880,6 +888,10 @@ template <typename T> void Image<T>::setFlag(const uint64_t val) {
     ismrmrd_set_flag(&(im.head.flags), val);
 }
 
+template <typename T> void Image<T>::setFlags(const uint64_t val) {
+    ismrmrd_set_flags(&(im.head.flags), val);
+}
+
 template <typename T> void Image<T>::clearFlag(const uint64_t val) {
     ismrmrd_clear_flag(&(im.head.flags), val);
 }
@@ -892,6 +904,11 @@ template <typename T> void Image<T>::clearAllFlags() {
 template <typename T> ImageHeader &Image<T>::getHead() {
     // This returns a reference
     return *static_cast<ImageHeader *>(&im.head);
+}
+
+template <typename T> const ImageHeader &Image<T>::getHead() const {
+    // This returns a reference
+    return *static_cast<const ImageHeader *>(&im.head);
 }
 
 template <typename T> void Image<T>::setHead(const ImageHeader &other) {
@@ -908,18 +925,28 @@ template <typename T> void Image<T>::setHead(const ImageHeader &other) {
 // Attribute string
 template <typename T> void Image<T>::getAttributeString(std::string &attr) const
 {
-    attr = std::string(im.attribute_string);
+   if (im.attribute_string)
+      attr.assign(im.attribute_string);
+   else
+      attr.assign("");
 }
 
-template <typename T> void Image<T>::setAttributeString(const std::string attr)
+template <typename T> void Image<T>::setAttributeString(const std::string &attr)
 {
-    im.head.attribute_string_len = attr.length();
-    im.attribute_string = (char *)realloc(im.attribute_string, attr.length()+1);
-    // TODO error check?
-    strcpy(im.attribute_string, attr.c_str());
+    size_t length = attr.length();
+    im.head.attribute_string_len = static_cast<uint32_t>(length);
+
+    // Add null terminating character
+    length++;
+
+    im.attribute_string = (char *)realloc(im.attribute_string, length);
+    if (NULL==im.attribute_string) {
+        throw std::runtime_error(build_exception_string());
+    }
+    strncpy(im.attribute_string, attr.c_str(), length);
 }
 
-template <typename T> size_t Image<T>::getAttributeStringLength()
+template <typename T> size_t Image<T>::getAttributeStringLength() const
 {
     return im.head.attribute_string_len;
 }
@@ -929,13 +956,17 @@ template <typename T> T * Image<T>::getDataPtr() {
      return static_cast<T*>(im.data);
 }
 
+template <typename T> const T * Image<T>::getDataPtr() const {
+     return static_cast<const T*>(im.data);
+}
+
 template <typename T> size_t Image<T>::getNumberOfDataElements() const {
     size_t num = 1;
     num *= im.head.matrix_size[0];
     num *= im.head.matrix_size[1];
     num *= im.head.matrix_size[2];
     num *= im.head.channels;
-    return ismrmrd_size_of_image_data(&im);
+    return num;
 }
 
 template <typename T> size_t Image<T>::getDataSize() const {
@@ -966,7 +997,7 @@ template <typename T> NDArray<T>::NDArray()
     if (ismrmrd_init_ndarray(&arr) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
-    arr.data_type = get_data_type<T>();
+    arr.data_type = static_cast<uint16_t>(get_data_type<T>());
 }
 
 template <typename T> NDArray<T>::NDArray(const std::vector<size_t> dimvec)
@@ -974,7 +1005,7 @@ template <typename T> NDArray<T>::NDArray(const std::vector<size_t> dimvec)
     if (ismrmrd_init_ndarray(&arr) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
-    arr.data_type = get_data_type<T>();
+    arr.data_type = static_cast<uint16_t>(get_data_type<T>());
     resize(dimvec);
 }
 
@@ -1016,15 +1047,15 @@ template <typename T> NDArray<T> & NDArray<T>::operator= (const NDArray<T> &othe
     return *this;
 }
 
-template <typename T> uint16_t NDArray<T>::getVersion() {
+template <typename T> uint16_t NDArray<T>::getVersion() const {
     return arr.version;
 };
 
-template <typename T> ISMRMRD_DataTypes NDArray<T>::getDataType() {
+template <typename T> ISMRMRD_DataTypes NDArray<T>::getDataType() const {
     return static_cast<ISMRMRD_DataTypes>( arr.data_type );
 }
 
-template <typename T> uint16_t NDArray<T>::getNDim() {
+template <typename T> uint16_t NDArray<T>::getNDim() const {
     return  arr.ndim;
 };
     
@@ -1036,7 +1067,7 @@ template <typename T> void NDArray<T>::resize(const std::vector<size_t> dimvec) 
     if (dimvec.size() > ISMRMRD_NDARRAY_MAXDIM) {
         throw std::runtime_error("Input vector dimvec is too long.");
     }
-    arr.ndim = dimvec.size();
+    arr.ndim = static_cast<uint16_t>(dimvec.size());
     for (int n=0; n<arr.ndim; n++) {
         arr.dims[n] = dimvec[n];
     }
@@ -1049,11 +1080,15 @@ template <typename T> T * NDArray<T>::getDataPtr() {
     return static_cast<T*>(arr.data);
 }
 
-template <typename T> size_t NDArray<T>::getDataSize() {
+template <typename T> const T * NDArray<T>::getDataPtr() const {
+    return static_cast<T*>(arr.data);
+}
+
+template <typename T> size_t NDArray<T>::getDataSize() const {
     return ismrmrd_size_of_ndarray_data(&arr);
 }
 
-template <typename T> size_t NDArray<T>::getNumberOfElements() {
+template <typename T> size_t NDArray<T>::getNumberOfElements() const {
     size_t num = 1;
     for (int n = 0; n < arr.ndim; n++) {
         size_t v = arr.dims[n];
