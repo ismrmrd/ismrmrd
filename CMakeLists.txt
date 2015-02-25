@@ -204,43 +204,11 @@ install(DIRECTORY matlab DESTINATION share/ismrmrd COMPONENT dev)
 # TODO build and install the python bindings
 
 # Create package
-
 string(TOLOWER ${PROJECT_NAME} PROJECT_NAME_LOWER)
-
-find_program(DPKG_PROGRAM dpkg)
-if(EXISTS ${DPKG_PROGRAM})
-  list(APPEND CPACK_GENERATOR "DEB")
-endif(EXISTS ${DPKG_PROGRAM})
-
-# Set dependencies explicitly
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libhdf5-7, libfftw3-3, libboost-program-options-dev")
-set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
-
-# Enable/Disable component install for CPack generator DEB
-set(CPACK_DEB_COMPONENT_INSTALL OFF)
-set(CPACK_DEB_PACKAGE_COMPONENT OFF)
-
-# Set component dependencies explicitly
-set(CPACK_DEB_lib_PACKAGE_DEPENDS "libhdf5-7, libfftw3-3, libboost-program-options-dev")
-set(CPACK_DEB_dev_PACKAGE_DEPENDS "ismrmrd-lib, ismrmrd-schema")
-set(CPACK_DEB_schema_PACKAGE_DEPENDS "")
-set(CPACK_DEB_utils_PACKAGE_DEPENDS "ismrmrd-lib, ismrmrd-schema")
-set(CPACK_DEB_all_PACKAGE_DEPENDS "ismrmrd-dev, ismrmrd-utils")
-
-# Where the package metadata are
-set(ISMRMRD_CPACK_CFG_FILE "${PROJECT_BINARY_DIR}/cpack_options.cmake")
-
-# Where the package to be installed 
-#set(CPACK_PACKAGE_INSTALL_DIRECTORY ${CMAKE_INSTALL_PREFIX})
-set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
-
-#include(${ISMRMRD_CMAKE_DIR}/ismrmrd_cpack.cmake)
+include(${ISMRMRD_CMAKE_DIR}/ismrmrd_cpack.cmake)
 if(CPACK_GENERATOR)
   message(STATUS "Found CPack generators: ${CPACK_GENERATOR}")
   configure_file("${ISMRMRD_CMAKE_DIR}/cpack_options.cmake.in" ${ISMRMRD_CPACK_CFG_FILE} @ONLY)
   set(CPACK_PROJECT_CONFIG_FILE ${ISMRMRD_CPACK_CFG_FILE})
-  
-  # A list containing the names of all components that should be installed
-  set(CPACK_COMPONENTS_ALL lib dev utils schema all)
   include(CPack)
-endif()
+endif(CPACK_GENERATOR)
