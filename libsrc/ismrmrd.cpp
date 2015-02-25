@@ -248,6 +248,10 @@ const complex_float_t * Acquisition::getDataPtr() const {
     return acq.data;
 }
 
+complex_float_t * Acquisition::getDataPtr() {
+    return acq.data;
+}
+
 void Acquisition::setData(complex_float_t * data) {
     memcpy(acq.data,data,this->getNumberOfDataElements()*sizeof(complex_float_t));
 }
@@ -258,6 +262,10 @@ complex_float_t & Acquisition::data(uint16_t sample, uint16_t channel){
 }
 
 const float * Acquisition::getTrajPtr() const {
+    return acq.traj;
+}
+
+float * Acquisition::getTrajPtr() {
     return acq.traj;
 }
 
@@ -1069,6 +1077,10 @@ template <typename T> void NDArray<T>::resize(const std::vector<size_t> dimvec) 
 }
 
 template <typename T> T * NDArray<T>::getDataPtr() {
+    return static_cast<T*>(arr.data);
+}
+
+template <typename T> const T * NDArray<T>::getDataPtr() const {
     return static_cast<T*>(arr.data);
 }
 

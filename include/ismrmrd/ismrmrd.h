@@ -538,6 +538,7 @@ public:
      * Returns a pointer to the data
      */
     const complex_float_t * getDataPtr() const;
+    complex_float_t * getDataPtr();
 
     /**
      * Returns a reference to the data
@@ -563,6 +564,7 @@ public:
      * Returns a pointer to the trajectory
      */
     const float * getTrajPtr() const;
+    float * getTrajPtr();
     
     /**
      * Returns a reference to the trajectory
@@ -798,6 +800,7 @@ public:
     void resize(const std::vector<size_t> dimvec);
     size_t getNumberOfElements() const;
     T * getDataPtr();
+    const T * getDataPtr() const;
     
     /** Returns iterator to the beginning of the array **/
     T * begin();
