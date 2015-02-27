@@ -97,6 +97,7 @@ Mac OSX Installation
 
 There are numerous different package management systems for Mac. In this example, we have used Homebrew (http://brew.sh/). First install the dependencies::
 
+    brew tap homebrew/science
     brew install wget hdf5 boost cmake doxygen fftw
 
 Then download and compile:

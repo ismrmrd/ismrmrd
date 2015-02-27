@@ -1,6 +1,0 @@
-ismrmrd.c
-*.so
-*.h5
-MANIFEST
-build/
-dist/

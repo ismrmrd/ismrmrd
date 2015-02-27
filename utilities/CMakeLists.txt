@@ -20,7 +20,7 @@ if (NOT WIN32)
   install(TARGETS ismrmrd_test_xml DESTINATION bin)
 endif(NOT WIN32)
 
-find_package(Boost COMPONENTS program_options)
+find_package(Boost 1.43 COMPONENTS program_options)
 find_package(FFTW3 COMPONENTS single)
 
 if(FFTW3_FOUND AND Boost_FOUND)

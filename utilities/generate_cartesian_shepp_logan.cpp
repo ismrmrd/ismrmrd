@@ -39,8 +39,8 @@ int main(int argc, char** argv)
 	float noise_level;
 	std::string outfile;
 	std::string dataset;
-	bool store_coordinates;
-	bool noise_calibration;
+	bool store_coordinates = false;
+	bool noise_calibration = false;
 
 	po::options_description desc("Allowed options");
 	desc.add_options()
@@ -181,7 +181,7 @@ int main(int argc, char** argv)
         e.reconSpace.fieldOfView_mm.z = 6;
         e.trajectory = "cartesian";
         e.encodingLimits.kspace_encoding_step_1 = Limit(0, matrix_size-1,(matrix_size>>1));
-        e.encodingLimits.repetition = Limit(0, repetitions*acc_factor,0);
+        e.encodingLimits.repetition = Limit(0, repetitions*acc_factor - 1,0);
         
 	//e.g. parallel imaging
 	if (acc_factor > 1) {

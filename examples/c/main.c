@@ -156,6 +156,7 @@ int main(void)
     numim = ismrmrd_get_number_of_images(&dataset2, "testimages");
     printf("Number of images stored = %d\n", numim);
     
+    ismrmrd_init_image(&im2);
     ismrmrd_read_image(&dataset2, "testimages", 1, &im2);
     printf("Image 1 attribute string = %s\n", im2.attribute_string);
     printf("Image 1 at position 10 has value = %f\n", ((float*)im2.data)[10]);
@@ -175,6 +176,7 @@ int main(void)
     printf("Number of arrays stored = %d\n", ismrmrd_get_number_of_arrays(&dataset2, "testarray"));
 
     /* Read it back in */
+    ismrmrd_init_ndarray(&arr2);
     ismrmrd_read_array(&dataset2, "testarray", 0, &arr2);
     printf("Array 2 at position 10 has value = %f\n", ((float*)arr2.data)[10]);
     

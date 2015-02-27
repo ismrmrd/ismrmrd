@@ -22,12 +22,14 @@
 /* Language and cross platform section for defining types */
 /* integers */
 #ifdef _MSC_VER /* MS compiler */
+#ifndef HAS_INT_TYPE
 typedef __int16 int16_t;
 typedef unsigned __int16 uint16_t;
 typedef __int32 int32_t;
 typedef unsigned __int32 uint32_t;
 typedef __int64 int64_t;
 typedef unsigned __int64 uint64_t;
+#endif
 #else /* non MS C or C++ compiler */
 #include <stdint.h>
 #include <stddef.h>     /* for size_t */
@@ -367,6 +369,7 @@ EXPORTISMRMRD size_t ismrmrd_size_of_ndarray_data(const ISMRMRD_NDArray *arr);
  */
 EXPORTISMRMRD bool ismrmrd_is_flag_set(const uint64_t flags, const uint64_t val);
 EXPORTISMRMRD int ismrmrd_set_flag(uint64_t *flags, const uint64_t val);
+EXPORTISMRMRD int ismrmrd_set_flags(uint64_t *flags, const uint64_t val);
 EXPORTISMRMRD int ismrmrd_clear_flag(uint64_t *flags, const uint64_t val);
 EXPORTISMRMRD int ismrmrd_clear_all_flags(uint64_t *flags);
 /** @} */
@@ -522,19 +525,20 @@ public:
 
     // Sizes
     void resize(uint16_t num_samples, uint16_t active_channels=1, uint16_t trajectory_dimensions=0);
-    const size_t getNumberOfDataElements();
-    const size_t getNumberOfTrajElements();
-    const size_t getDataSize();
-    const size_t getTrajSize();
+    size_t getNumberOfDataElements() const;
+    size_t getNumberOfTrajElements() const;
+    size_t getDataSize() const;
+    size_t getTrajSize() const;
 
     // Header, data and trajectory accessors
-    const AcquisitionHeader &getHead();
-    void setHead(const AcquisitionHeader other);
+    const AcquisitionHeader &getHead() const;
+    void setHead(const AcquisitionHeader &other);
     
     /**
      * Returns a pointer to the data
      */
-    const complex_float_t * const getDataPtr() const ;
+    const complex_float_t * getDataPtr() const;
+    complex_float_t * getDataPtr();
 
     /**
      * Returns a reference to the data
@@ -559,7 +563,8 @@ public:
     /**
      * Returns a pointer to the trajectory
      */
-    const float * const getTrajPtr() const;
+    const float * getTrajPtr() const;
+    float * getTrajPtr();
     
     /**
      * Returns a reference to the trajectory
@@ -586,6 +591,10 @@ public:
     void setFlag(const uint64_t val);
     void clearFlag(const uint64_t val);
     void clearAllFlags();
+
+    bool isFlagSet(const FlagBit &val)  { return isFlagSet(val.bitmask_); }
+    void setFlag(const FlagBit &val)    { setFlag(val.bitmask_); }
+    void clearFlag(const FlagBit &val)  { clearFlag(val.bitmask_); }
 
     // Channel mask methods
     bool isChannelActive(uint16_t channel_id);
@@ -742,15 +751,17 @@ public:
 
     // Header
     ImageHeader & getHead();
+    const ImageHeader & getHead() const;
     void setHead(const ImageHeader& head);
     
     // Attribute string
     void getAttributeString(std::string &atrr) const;
-    void setAttributeString(const std::string attr);
-    const size_t getAttributeStringLength();
+    void setAttributeString(const std::string &attr);
+    size_t getAttributeStringLength() const;
     
     // Data
-    T * const getDataPtr() const;
+    T * getDataPtr();
+    const T * getDataPtr() const;
     /** Returns the number of elements in the image data **/
     size_t getNumberOfDataElements() const;
     /** Returns the size of the image data in bytes **/
@@ -781,14 +792,15 @@ public:
     NDArray<T> & operator= (const NDArray<T> &other);
 
     // Accessors and mutators
-    const uint16_t getVersion();
-    const ISMRMRD_DataTypes getDataType();
-    const uint16_t getNDim();
+    uint16_t getVersion() const;
+    ISMRMRD_DataTypes getDataType() const;
+    uint16_t getNDim() const;
     const size_t (&getDims())[ISMRMRD_NDARRAY_MAXDIM];
-    const size_t getDataSize();
+    size_t getDataSize() const;
     void resize(const std::vector<size_t> dimvec);
-    const size_t getNumberOfElements();
+    size_t getNumberOfElements() const;
     T * getDataPtr();
+    const T * getDataPtr() const;
     
     /** Returns iterator to the beginning of the array **/
     T * begin();
