@@ -1,3 +1,0 @@
-usr/include/ismrmrd
-usr/lib/*.so
-usr/share/ismrmrd/cmake/FindIsmrmrd.cmake
