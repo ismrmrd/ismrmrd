@@ -1,0 +1,6 @@
+ismrmrd-tools: binary-without-manpage usr/bin/ismrmrd_c_demo
+ismrmrd-tools: binary-without-manpage usr/bin/ismrmrd_generate_cartesian_shepp_logan
+ismrmrd-tools: binary-without-manpage usr/bin/ismrmrd_info
+ismrmrd-tools: binary-without-manpage usr/bin/ismrmrd_read_timing_test
+ismrmrd-tools: binary-without-manpage usr/bin/ismrmrd_recon_cartesian_2d
+ismrmrd-tools: binary-without-manpage usr/bin/ismrmrd_test_xml
