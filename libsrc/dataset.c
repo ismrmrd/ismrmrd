@@ -1021,45 +1021,47 @@ char * ismrmrd_read_header(const ISMRMRD_Dataset *dset) {
     /* The path to the xml header */
     path = make_path(dset, "xml");
 
-    if (link_exists(dset, path)) {
-        void *buff[1] = { NULL };
-        dataset = H5Dopen2(dset->fileid, path, H5P_DEFAULT);
-        datatype = get_hdf5type_xmlheader();
-        /* Read it into a 1D buffer*/
-        h5status = H5Dread(dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, buff);
-        if (h5status < 0 || buff[0] == NULL) {
-            H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
-            ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to read header.");
-            goto cleanup_path;
-        }
-
-        /* Unpack */
-        xmlstring = (char *) malloc(strlen(buff[0])+1);
-        if (NULL == xmlstring) {
-            ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to malloc xmlstring");
-            goto cleanup_path;
-        } else {
-            memcpy(xmlstring, buff[0], strlen(buff[0])+1);
-        }
-
-        /* Clean up */
-        h5status = H5Tclose(datatype);
-        if (h5status < 0) {
-            H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
-            ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to close XML header HDF5 datatype.");
-            goto cleanup_xmlstring;
-        }
-        h5status = H5Dclose(dataset);
-        if (h5status < 0) {
-            H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
-            ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to close XML header HDF5 dataset.");
-            goto cleanup_xmlstring;
-        }
-    }
-    else {
+    if (!link_exists(dset, path)) {
         /* No XML String found */
         ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "No XML Header found.");
+        goto cleanup_path;
     }
+
+    void *buff[1] = { NULL };
+    dataset = H5Dopen2(dset->fileid, path, H5P_DEFAULT);
+    datatype = get_hdf5type_xmlheader();
+    /* Read it into a 1D buffer*/
+    h5status = H5Dread(dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, buff);
+    if (h5status < 0 || buff[0] == NULL) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to read header.");
+        goto cleanup_path;
+    }
+
+    /* Unpack */
+    xmlstring = (char *) malloc(strlen(buff[0])+1);
+    if (NULL == xmlstring) {
+        ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to malloc xmlstring");
+        goto cleanup_path;
+    } else {
+        memcpy(xmlstring, buff[0], strlen(buff[0])+1);
+    }
+
+    /* Clean up */
+    h5status = H5Tclose(datatype);
+    if (h5status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to close XML header HDF5 datatype.");
+        goto cleanup_xmlstring;
+    }
+    h5status = H5Dclose(dataset);
+    if (h5status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to close XML header HDF5 dataset.");
+        goto cleanup_xmlstring;
+    }
+
+    goto cleanup_path;
 
 cleanup_xmlstring:
     free(xmlstring);
