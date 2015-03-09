@@ -183,17 +183,10 @@ install(TARGETS ismrmrd DESTINATION lib)
 install(DIRECTORY include/ismrmrd  DESTINATION include)
 
 # install the schema file
-install(FILES schema/ismrmrd.xsd
-  DESTINATION share/ismrmrd/schema)
+install(FILES schema/ismrmrd.xsd DESTINATION share/ismrmrd/schema)
 
 # install the cmake modules
-install(FILES
-  cmake/FindIsmrmrd.cmake
-  cmake/FindFFTW3.cmake
-  cmake/FindNumPy.cmake
-DESTINATION
-  share/ismrmrd/cmake
-)
+install(FILES cmake/FindIsmrmrd.cmake cmake/FindFFTW3.cmake cmake/FindNumPy.cmake DESTINATION share/ismrmrd/cmake)
 
 #  ---   Main Library  (end) ----
 
@@ -215,8 +208,7 @@ string(TOLOWER ${PROJECT_NAME} PROJECT_NAME_LOWER)
 include(${ISMRMRD_CMAKE_DIR}/ismrmrd_cpack.cmake)
 if(CPACK_GENERATOR)
   message(STATUS "Found CPack generators: ${CPACK_GENERATOR}")
-  configure_file("${ISMRMRD_CMAKE_DIR}/cpack_options.cmake.in"
-    ${ISMRMRD_CPACK_CFG_FILE} @ONLY)
+  configure_file("${ISMRMRD_CMAKE_DIR}/cpack_options.cmake.in" ${ISMRMRD_CPACK_CFG_FILE} @ONLY)
   set(CPACK_PROJECT_CONFIG_FILE ${ISMRMRD_CPACK_CFG_FILE})
-  include (CPack)
-endif()
+  include(CPack)
+endif(CPACK_GENERATOR)
