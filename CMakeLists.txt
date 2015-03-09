@@ -106,7 +106,7 @@ else()
   set(ISMRMRD_GIT_SHA1 "NA")
 endif()
 configure_file(include/version.in ${CMAKE_BINARY_DIR}/include/ismrmrd/version.h)
-install(FILES ${CMAKE_BINARY_DIR}/include/ismrmrd/version.h DESTINATION include/ismrmrd COMPONENT dev)
+install(FILES ${CMAKE_BINARY_DIR}/include/ismrmrd/version.h DESTINATION include/ismrmrd)
 # note: for the utilities in this project that need ismrmrd/version.h
 # remember to add ${CMAKE_BINARY_DIR}/include to the include path
 
@@ -177,16 +177,16 @@ set_target_properties(ismrmrd PROPERTIES
 target_link_libraries(ismrmrd ${ISMRMRD_TARGET_LINK_LIBS})
 
 # install the main library
-install(TARGETS ismrmrd DESTINATION lib COMPONENT lib)
+install(TARGETS ismrmrd DESTINATION lib)
 
 # install the headers
-install(DIRECTORY include/ismrmrd  DESTINATION include COMPONENT dev)
+install(DIRECTORY include/ismrmrd  DESTINATION include)
 
 # install the schema file
-install(FILES schema/ismrmrd.xsd DESTINATION share/ismrmrd/schema COMPONENT schema)
+install(FILES schema/ismrmrd.xsd DESTINATION share/ismrmrd/schema)
 
 # install the cmake modules
-install(FILES cmake/FindIsmrmrd.cmake cmake/FindFFTW3.cmake cmake/FindNumPy.cmake DESTINATION share/ismrmrd/cmake COMPONENT dev)
+install(FILES cmake/FindIsmrmrd.cmake cmake/FindFFTW3.cmake cmake/FindNumPy.cmake DESTINATION share/ismrmrd/cmake)
 
 #  ---   Main Library  (end) ----
 
@@ -199,7 +199,7 @@ add_subdirectory(examples/c)
 add_subdirectory(utilities)
 
 # install the matlab api
-install(DIRECTORY matlab DESTINATION share/ismrmrd COMPONENT dev)
+install(DIRECTORY matlab DESTINATION share/ismrmrd)
 
 # TODO build and install the python bindings
 
