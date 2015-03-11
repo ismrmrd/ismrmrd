@@ -49,8 +49,7 @@ if(FFTW3_FOUND AND Boost_FOUND)
             ${Boost_PROGRAM_OPTIONS_LIBRARY}
             ${FFTW3_LIBRARIES})
     endif(WIN32)
-    install(TARGETS ismrmrd_generate_cartesian_shepp_logan
-			DESTINATION bin)
+    install(TARGETS ismrmrd_generate_cartesian_shepp_logan DESTINATION bin)
 
     # Shepp-Logan phantom
     add_executable(ismrmrd_recon_cartesian_2d
@@ -65,8 +64,7 @@ if(FFTW3_FOUND AND Boost_FOUND)
             ${Boost_PROGRAM_OPTIONS_LIBRARY}
             ${FFTW3_LIBRARIES})
     endif(WIN32)
-    install(TARGETS ismrmrd_recon_cartesian_2d
-			DESTINATION bin)
+    install(TARGETS ismrmrd_recon_cartesian_2d DESTINATION bin)
 
 else(FFTW3_FOUND AND Boost_FOUND)
 	message("FFTW3 or Boost NOT Found, cannot build utilities")
