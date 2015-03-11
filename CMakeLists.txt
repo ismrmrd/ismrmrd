@@ -190,13 +190,11 @@ install(FILES cmake/FindIsmrmrd.cmake cmake/FindFFTW3.cmake cmake/FindNumPy.cmak
 
 #  ---   Main Library  (end) ----
 
-# turn on testing
-enable_testing()
-
 # process subdirectories
 add_subdirectory(doc)
 add_subdirectory(examples/c)
 add_subdirectory(utilities)
+add_subdirectory(tests)
 
 # install the matlab api
 install(DIRECTORY matlab DESTINATION share/ismrmrd)
