@@ -9,3 +9,5 @@ include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include)
 
 add_executable(test_ismrmrd test_main.cpp test_acquisitions.cpp test_quaternions.cpp)
 target_link_libraries(test_ismrmrd ismrmrd ${Boost_LIBRARIES})
+
+add_custom_target(check COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_ismrmrd DEPENDS test_ismrmrd)
