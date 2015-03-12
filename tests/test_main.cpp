@@ -12,7 +12,13 @@ void silent_error_handler(const char *file, int line,
 
 struct GlobalConfig {
     // global setup
-    GlobalConfig() { ismrmrd_set_error_handler(silent_error_handler); }
+    GlobalConfig()
+    {
+        // enable more verbose testing output
+        boost::unit_test::unit_test_log.set_threshold_level(boost::unit_test::log_test_units);
+        // silence ISMRMRD errors on stdout
+        ismrmrd_set_error_handler(silent_error_handler);
+    }
     // global teardown
     ~GlobalConfig() { }
 };

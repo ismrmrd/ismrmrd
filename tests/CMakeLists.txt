@@ -7,7 +7,15 @@ endif (NOT Boost_FOUND)
 
 include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include)
 
-add_executable(test_ismrmrd test_main.cpp test_acquisitions.cpp test_quaternions.cpp)
+add_executable(test_ismrmrd
+    test_main.cpp
+    test_acquisitions.cpp
+    test_images.cpp
+    test_ndarray.cpp
+    test_flags.cpp
+    test_channels.cpp
+    test_quaternions.cpp)
+
 target_link_libraries(test_ismrmrd ismrmrd ${Boost_LIBRARIES})
 
 add_custom_target(check COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_ismrmrd DEPENDS test_ismrmrd)
