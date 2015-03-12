@@ -528,8 +528,8 @@ int ismrmrd_set_channel_on(uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS], const u
     if (channel_mask==NULL) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer to channel_mask should not be NULL.");
     }
-    bitmask = 1 << (chan % ISMRMRD_CHANNEL_MASKS);
-    offset = chan / ISMRMRD_CHANNEL_MASKS;
+    bitmask = 1 << (chan % 64);
+    offset = chan / 64;
     channel_mask[offset] |= bitmask;
     return ISMRMRD_NOERROR;
 }
