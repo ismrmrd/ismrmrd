@@ -194,7 +194,11 @@ install(FILES cmake/FindIsmrmrd.cmake cmake/FindFFTW3.cmake cmake/FindNumPy.cmak
 add_subdirectory(doc)
 add_subdirectory(examples/c)
 add_subdirectory(utilities)
-add_subdirectory(tests)
+
+# TODO: make this work on Windows
+if (NOT WIN32)
+    add_subdirectory(tests)
+endif (NOT WIN32)
 
 # install the matlab api
 install(DIRECTORY matlab DESTINATION share/ismrmrd)
