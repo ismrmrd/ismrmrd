@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/naegelejd/ismrmrd.svg?branch=unit-tests)](https://travis-ci.org/naegelejd/ismrmrd)
+[![Build Status](https://travis-ci.org/ismrmrd/ismrmrd.svg?branch=master)](https://travis-ci.org/ismrmrd/ismrmrd)
 
 ISMRM Raw Data Format (ISMRMRD)
 ===============================
