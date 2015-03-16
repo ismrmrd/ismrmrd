@@ -931,9 +931,19 @@ template <typename T> void Image<T>::getAttributeString(std::string &attr) const
       attr.assign("");
 }
 
+template <typename T> const char *Image<T>::getAttributeString() const
+{
+   return im.attribute_string;
+}
+
 template <typename T> void Image<T>::setAttributeString(const std::string &attr)
 {
-    size_t length = attr.length();
+    this->setAttributeString(attr.c_str());
+}
+
+template <typename T> void Image<T>::setAttributeString(const char *attr)
+{
+    size_t length = strlen(attr);
     im.head.attribute_string_len = static_cast<uint32_t>(length);
 
     // Add null terminating character
@@ -943,7 +953,7 @@ template <typename T> void Image<T>::setAttributeString(const std::string &attr)
     if (NULL==im.attribute_string) {
         throw std::runtime_error(build_exception_string());
     }
-    strncpy(im.attribute_string, attr.c_str(), length);
+    strncpy(im.attribute_string, attr, length);
 }
 
 template <typename T> size_t Image<T>::getAttributeStringLength() const
