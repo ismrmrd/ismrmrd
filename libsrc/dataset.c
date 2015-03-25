@@ -512,7 +512,7 @@ static uint16_t get_ndarray_data_type(hid_t hdf5type) {
     H5Tclose(t);
 
     if (dtype == 0) {
-        //ISMRMRD_PUSH_ERR(ISMRMRD_TYPEERROR, "Failed to get data type from HDF5 data type.");
+        /* ISMRMRD_PUSH_ERR(ISMRMRD_TYPEERROR, "Failed to get data type from HDF5 data type."); */
     }
     
     return dtype;
@@ -1012,6 +1012,7 @@ char * ismrmrd_read_header(const ISMRMRD_Dataset *dset) {
     herr_t h5status;
     char* xmlstring = NULL;
     char* path = NULL;
+    void *buff[1] = { NULL };
 
     if (dset==NULL) {
         ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
@@ -1027,7 +1028,6 @@ char * ismrmrd_read_header(const ISMRMRD_Dataset *dset) {
         goto cleanup_path;
     }
 
-    void *buff[1] = { NULL };
     dataset = H5Dopen2(dset->fileid, path, H5P_DEFAULT);
     datatype = get_hdf5type_xmlheader();
     /* Read it into a 1D buffer*/
