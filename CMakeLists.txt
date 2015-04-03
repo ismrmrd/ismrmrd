@@ -91,6 +91,19 @@ endif()
 set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
 set(ISMRMRD_SOVERSION ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR})
 
+# Find HDF5 for dataset support
+find_package(HDF5 1.8 COMPONENTS C)
+
+if (HDF5_FOUND)
+    set (ISMRMRD_DATASET_SUPPORT true)
+    set (ISMRMRD_DATASET_SOURCES libsrc/dataset.c libsrc/dataset.cpp)
+    set (ISMRMRD_DATASET_INCLUDE_DIR ${HDF5_C_INCLUDE_DIR})
+    set (ISMRMRD_DATASET_LIBRARIES ${HDF5_LIBRARIES})
+else (HDF5_FOUND)
+    set (ISMRMRD_DATASET_SUPPORT false)
+    message (WARNING "HDF5 not found. Dataset and file support unavailable!")
+endif (HDF5_FOUND)
+
 # Generate the version.h header file
 find_package(Git)
 if (GIT_FOUND)
@@ -111,43 +124,35 @@ install(FILES ${CMAKE_BINARY_DIR}/include/ismrmrd/version.h DESTINATION include/
 # remember to add ${CMAKE_BINARY_DIR}/include to the include path
 
 #  ---   VERSIONING  (end) ----
- 
-#  ---   Main Library  (begin) ----
-# required packages for main library
-find_package(HDF5 1.8 COMPONENTS C REQUIRED)
 
+#  ---   Main Library  (begin) ----
 # in windows, install the HDF5 dependencies
-if (WIN32)
-    if (ISMRMRD_INSTALL_DEPENDENCIES)
-        if ( HDF5_FOUND )
-            if(DEFINED ENV{HDF5_ROOT})
-                set(HDF5_BIN_DIR $ENV{HDF5_ROOT}/bin)
-            else (DEFINED ENV{HDF5_ROOT})
-                set(HDF5_BIN_DIR ${HDF5_C_INCLUDE_DIR}/../bin)
-            endif (DEFINED ENV{HDF5_ROOT})
-            message("Install hdf5 libraries from ${HDF5_BIN_DIR} ")
-            install( DIRECTORY ${HDF5_BIN_DIR} DESTINATION bin/.. FILES_MATCHING PATTERN "*.dll" )
-        endif (HDF5_FOUND)
-    endif (ISMRMRD_INSTALL_DEPENDENCIES)
-endif (WIN32)
+if (HDF5_FOUND AND WIN32 AND ISMRMRD_INSTALL_DEPENDENCIES)
+    if(DEFINED ENV{HDF5_ROOT})
+        set(HDF5_BIN_DIR $ENV{HDF5_ROOT}/bin)
+    else (DEFINED ENV{HDF5_ROOT})
+        set(HDF5_BIN_DIR ${HDF5_C_INCLUDE_DIR}/../bin)
+    endif (DEFINED ENV{HDF5_ROOT})
+    message("Install hdf5 libraries from ${HDF5_BIN_DIR} ")
+    install( DIRECTORY ${HDF5_BIN_DIR} DESTINATION bin/.. FILES_MATCHING PATTERN "*.dll" )
+endif (HDF5_FOUND AND WIN32 AND ISMRMRD_INSTALL_DEPENDENCIES)
 
 # include directories for main library
 set(ISMRMRD_TARGET_INCLUDE_DIRS
   include
   ${CMAKE_BINARY_DIR}/include
-  ${HDF5_C_INCLUDE_DIR}
+  ${ISMRMRD_DATASET_INCLUDE_DIR}
 )
 
 set(ISMRMRD_TARGET_SOURCES
   libsrc/ismrmrd.c
   libsrc/ismrmrd.cpp
-  libsrc/dataset.c
-  libsrc/dataset.cpp
   libsrc/xml.cpp
   libsrc/meta.cpp
+  ${ISMRMRD_DATASET_SOURCES}
 )
 
-set(ISMRMRD_TARGET_LINK_LIBS ${HDF5_LIBRARIES})
+set(ISMRMRD_TARGET_LINK_LIBS ${ISMRMRD_DATASET_LIBRARIES})
 
 # optional handling of system-installed pugixml
 if(USE_SYSTEM_PUGIXML)
@@ -192,8 +197,11 @@ install(FILES cmake/FindIsmrmrd.cmake cmake/FindFFTW3.cmake cmake/FindNumPy.cmak
 
 # process subdirectories
 add_subdirectory(doc)
-add_subdirectory(examples/c)
+
 add_subdirectory(utilities)
+if (HDF5_FOUND)
+    add_subdirectory(examples/c)
+endif (HDF5_FOUND)
 
 # TODO: make this work on Windows
 if (NOT WIN32)
