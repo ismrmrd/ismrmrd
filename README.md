@@ -14,7 +14,7 @@ To download the source code, clone the git archive:
 
 API Documentation can be found at https://ismrmrd.github.io/api/.
 
-You will need CMake, HDF5, Boost and optionally Doxygen and FFTW to build the C/C++ code. Please see the ISMRMRD documentation for specific installation instructions for [Linux](https://ismrmrd.github.io/index.html#linux-installation), [Mac OS X](https://ismrmrd.github.io/index.html#mac-osx-installation), and [Windows](https://ismrmrd.github.io/index.html#windows-installation).
+You will need CMake, HDF5, and optionally Boost and FFTW to build the C/C++ code. To generate the API documentation you will need Doxygen. Please see the ISMRMRD documentation for specific installation instructions for [Linux](https://ismrmrd.github.io/index.html#linux-installation), [Mac OS X](https://ismrmrd.github.io/index.html#mac-osx-installation), and [Windows](https://ismrmrd.github.io/index.html#windows-installation).
 
 Overview
 ---------
@@ -28,3 +28,8 @@ A raw data set consist mainly of 2 sections:
 1.  Raw data section. This section contains all the acquired data in the experiment. Each data item is preceded by a C-struct with encoding numbers, etc. Following this data header is a channel header and data for each acquired channel. The raw data headers are defined in a C/C++ header file (ismrmrd.h).  Please see the [C header](https://github.com/ismrmrd/ismrmrd/blob/master/include/ismrmrd/ismrmrd.h) and the [documentation](https://ismrmrd.github.io/index.html#fixed-data-structures) for more information.
 
 In addition to these sections, the ISMRMRD format also specifies an image header for storing reconstructed images and the accompanying C/C++ library provides a convenient way of writing such images into HDF5 files along with generic arrays for storing less well defined data structures, e.g. coil sensitivity maps or other calibration data.
+
+Other Resources
+---------------
+
+- [Python implementation](https://www.github.com/ismrmrd/ismrmrd-python)

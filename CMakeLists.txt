@@ -191,7 +191,7 @@ install(DIRECTORY include/ismrmrd  DESTINATION include)
 install(FILES schema/ismrmrd.xsd DESTINATION share/ismrmrd/schema)
 
 # install the cmake modules
-install(FILES cmake/FindIsmrmrd.cmake cmake/FindFFTW3.cmake cmake/FindNumPy.cmake DESTINATION share/ismrmrd/cmake)
+install(FILES cmake/FindIsmrmrd.cmake cmake/FindFFTW3.cmake DESTINATION share/ismrmrd/cmake)
 
 #  ---   Main Library  (end) ----
 
@@ -210,8 +210,6 @@ endif (NOT WIN32)
 
 # install the matlab api
 install(DIRECTORY matlab DESTINATION share/ismrmrd)
-
-# TODO build and install the python bindings
 
 # Create package
 string(TOLOWER ${PROJECT_NAME} PROJECT_NAME_LOWER)
