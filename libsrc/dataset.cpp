@@ -111,6 +111,16 @@ template <typename T> void Dataset::readImage(const std::string &var, uint32_t i
     }
 }
 
+// Specific instantiations
+template EXPORTISMRMRD void Dataset::readImage(const std::string &var, uint32_t index, Image<uint16_t> &im);
+template EXPORTISMRMRD void Dataset::readImage(const std::string &var, uint32_t index, Image<int16_t> &im);
+template EXPORTISMRMRD void Dataset::readImage(const std::string &var, uint32_t index, Image<uint32_t> &im);
+template EXPORTISMRMRD void Dataset::readImage(const std::string &var, uint32_t index, Image<int32_t> &im);
+template EXPORTISMRMRD void Dataset::readImage(const std::string &var, uint32_t index, Image<float> &im);
+template EXPORTISMRMRD void Dataset::readImage(const std::string &var, uint32_t index, Image<double> &im);
+template EXPORTISMRMRD void Dataset::readImage(const std::string &var, uint32_t index, Image<complex_float_t> &im);
+template EXPORTISMRMRD void Dataset::readImage(const std::string &var, uint32_t index, Image<complex_double_t> &im);
+
 uint32_t Dataset::getNumberOfImages(const std::string &var)
 {
     uint32_t num =  ismrmrd_get_number_of_images(&dset_, var.c_str());
@@ -151,6 +161,16 @@ template <typename T> void Dataset::readNDArray(const std::string &var, uint32_t
         throw std::runtime_error(build_exception_string());
     }
 }
+
+// Specific instantiations
+template EXPORTISMRMRD void Dataset::readNDArray(const std::string &var, uint32_t index, NDArray<uint16_t> &arr);
+template EXPORTISMRMRD void Dataset::readNDArray(const std::string &var, uint32_t index, NDArray<int16_t> &arr);
+template EXPORTISMRMRD void Dataset::readNDArray(const std::string &var, uint32_t index, NDArray<uint32_t> &arr);
+template EXPORTISMRMRD void Dataset::readNDArray(const std::string &var, uint32_t index, NDArray<int32_t> &arr);
+template EXPORTISMRMRD void Dataset::readNDArray(const std::string &var, uint32_t index, NDArray<float> &arr);
+template EXPORTISMRMRD void Dataset::readNDArray(const std::string &var, uint32_t index, NDArray<double> &arr);
+template EXPORTISMRMRD void Dataset::readNDArray(const std::string &var, uint32_t index, NDArray<complex_float_t> &arr);
+template EXPORTISMRMRD void Dataset::readNDArray(const std::string &var, uint32_t index, NDArray<complex_double_t> &arr);
 
 uint32_t Dataset::getNumberOfNDArrays(const std::string &var)
 {
