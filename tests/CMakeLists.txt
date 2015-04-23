@@ -5,7 +5,7 @@ if (NOT Boost_UNIT_TEST_FRAMEWORK_FOUND)
     return()
 endif (NOT Boost_UNIT_TEST_FRAMEWORK_FOUND)
 
-include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include ${Boost_INCLUDE_DIR})
 
 add_executable(test_ismrmrd
     test_main.cpp
