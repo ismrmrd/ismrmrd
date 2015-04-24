@@ -268,10 +268,13 @@ int ismrmrd_make_consistent_image(ISMRMRD_Image *im) {
    
     attr_size = ismrmrd_size_of_image_attribute_string(im);
     if (attr_size > 0) {
-        im->attribute_string = (char *)realloc(im->attribute_string, attr_size);
+        // Allocate space plus a null-terminating character
+        im->attribute_string = (char *)realloc(im->attribute_string, attr_size+sizeof(*im->attribute_string));
         if (im->attribute_string == NULL) {
             return ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to realloc image attribute string");
         }
+        // Set the null terminating character
+        im->attribute_string[im->head.attribute_string_len] = '\0';
     }
         
     data_size = ismrmrd_size_of_image_data(im);
