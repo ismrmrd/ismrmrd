@@ -943,16 +943,20 @@ template <typename T> void Image<T>::setAttributeString(const std::string &attr)
 
 template <typename T> void Image<T>::setAttributeString(const char *attr)
 {
-    size_t length = strlen(attr);
-    im.head.attribute_string_len = static_cast<uint32_t>(length);
+    // Get the length and include the null terminating character
+    size_t length = strlen(attr) + 1;
 
-    // Add null terminating character
-    length++;
-
-    im.attribute_string = (char *)realloc(im.attribute_string, length);
-    if (NULL==im.attribute_string) {
+    // Allocate space and check for success
+    char *newPointer = (char *)realloc(im.attribute_string, length);
+    if (NULL==newPointer) {
         throw std::runtime_error(build_exception_string());
     }
+
+    // Make changes only if reallocation was successful
+    im.attribute_string = newPointer;
+    im.head.attribute_string_len = static_cast<uint32_t>(length);
+
+    // Copy the string
     strncpy(im.attribute_string, attr, length);
 }
 
