@@ -755,8 +755,10 @@ public:
     void setHead(const ImageHeader& head);
     
     // Attribute string
-    void getAttributeString(std::string &atrr) const;
+    void getAttributeString(std::string &attr) const;
+    const char *getAttributeString() const;
     void setAttributeString(const std::string &attr);
+    void setAttributeString(const char *attr);
     size_t getAttributeStringLength() const;
     
     // Data

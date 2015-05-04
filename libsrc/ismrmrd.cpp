@@ -931,19 +931,34 @@ template <typename T> void Image<T>::getAttributeString(std::string &attr) const
       attr.assign("");
 }
 
+template <typename T> const char *Image<T>::getAttributeString() const
+{
+   return im.attribute_string;
+}
+
 template <typename T> void Image<T>::setAttributeString(const std::string &attr)
 {
-    size_t length = attr.length();
-    im.head.attribute_string_len = static_cast<uint32_t>(length);
+    this->setAttributeString(attr.c_str());
+}
 
-    // Add null terminating character
-    length++;
+template <typename T> void Image<T>::setAttributeString(const char *attr)
+{
+    // Get the string length
+    size_t length = strlen(attr);
 
-    im.attribute_string = (char *)realloc(im.attribute_string, length);
-    if (NULL==im.attribute_string) {
+    // Allocate space plus a null terminator and check for success
+    char *newPointer = (char *)realloc(im.attribute_string, (length+1) * sizeof(*im.attribute_string));
+    if (NULL==newPointer) {
         throw std::runtime_error(build_exception_string());
     }
-    strncpy(im.attribute_string, attr.c_str(), length);
+
+    // Make changes only if reallocation was successful
+    im.attribute_string = newPointer;
+    im.head.attribute_string_len = static_cast<uint32_t>(length);
+
+    // Set the null terminator and copy the string
+    im.attribute_string[length] = '\0';
+    strncpy(im.attribute_string, attr, length);
 }
 
 template <typename T> size_t Image<T>::getAttributeStringLength() const
