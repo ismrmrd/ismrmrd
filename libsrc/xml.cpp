@@ -400,6 +400,7 @@ namespace ISMRMRD
 	p.TE = parse_vector_float(sequenceParameters,"TE");
 	p.TI = parse_vector_float(sequenceParameters,"TI");
 	p.flipAngle_deg = parse_vector_float(sequenceParameters, "flipAngle_deg");
+    p.sequence_type = parse_optional_string(sequenceParameters, "sequence_type");
 
 	h.sequenceParameters = p;
       }
@@ -674,6 +675,8 @@ namespace ISMRMRD
       for (size_t i = 0; i < h.sequenceParameters->flipAngle_deg.size(); i++) {
 	append_node(n1,"flipAngle_deg",h.sequenceParameters->flipAngle_deg[i]);
       }
+
+      append_optional_node(n2, "sequence_type", h.sequenceParameters->sequence_type);
     }
 
     if (h.userParameters) {

@@ -306,6 +306,7 @@ namespace ISMRMRD
     std::vector<float> TE;
     std::vector<float> TI;
     std::vector<float> flipAngle_deg;
+    Optional<std::string> sequence_type;
   };
 
   struct IsmrmrdHeader
