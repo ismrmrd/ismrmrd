@@ -302,11 +302,12 @@ namespace ISMRMRD
 
   struct SequenceParameters
   {
-    std::vector<float> TR;
-    std::vector<float> TE;
-    std::vector<float> TI;
-    std::vector<float> flipAngle_deg;
+    Optional<std::vector<float> > TR;
+    Optional<std::vector<float> > TE;
+    Optional<std::vector<float> > TI;
+    Optional<std::vector<float> > flipAngle_deg;
     Optional<std::string> sequence_type;
+    Optional<std::vector<float> > echo_spacing;
   };
 
   struct IsmrmrdHeader
