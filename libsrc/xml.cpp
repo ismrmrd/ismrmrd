@@ -91,25 +91,6 @@ namespace ISMRMRD
     return r;
   }
 
-  Optional<std::vector<float> > parse_optional_vector_float(pugi::xml_node& n, const char* child)
-  {
-      Optional<std::vector<float> > r;
-
-      pugi::xml_node nc = n.child(child);
-
-      std::vector<float> vr;
-
-      while (nc) {
-          float f = std::atof(nc.child_value());
-          vr.push_back(f);
-          nc = nc.next_sibling(child);
-      }
-
-      if (!vr.empty()) r = vr;
-
-      return r;
-  }
-
   std::vector<float> parse_vector_float(pugi::xml_node& n, const char* child) 
   {
     std::vector<float> r;
@@ -415,12 +396,24 @@ namespace ISMRMRD
 
       if (sequenceParameters) {
 	SequenceParameters p;
-    p.TR = parse_optional_vector_float(sequenceParameters, "TR");
-    p.TE = parse_optional_vector_float(sequenceParameters, "TE");
-    p.TI = parse_optional_vector_float(sequenceParameters, "TI");
-    p.flipAngle_deg = parse_optional_vector_float(sequenceParameters, "flipAngle_deg");
+
+    std::vector<float> r;
+    r = parse_vector_float(sequenceParameters, "TR");
+    if (!r.empty()) p.TR = r;
+
+    r = parse_vector_float(sequenceParameters, "TE");
+    if (!r.empty()) p.TE = r;
+
+    r = parse_vector_float(sequenceParameters, "TI");
+    if (!r.empty()) p.TI = r;
+
+    r = parse_vector_float(sequenceParameters, "flipAngle_deg");
+    if (!r.empty()) p.flipAngle_deg = r;
+
     p.sequence_type = parse_optional_string(sequenceParameters, "sequence_type");
-    p.echo_spacing = parse_optional_vector_float(sequenceParameters, "echo_spacing");
+
+    r = parse_vector_float(sequenceParameters, "echo_spacing");
+    if (!r.empty()) p.echo_spacing = r;
 
 	h.sequenceParameters = p;
       }
