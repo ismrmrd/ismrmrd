@@ -175,6 +175,8 @@ if isfield(header,'sequenceParameters')
     append_optional(docNode,n1,sequenceParameters,'TE',@num2str);
     append_optional(docNode,n1,sequenceParameters,'TI',@num2str);
     append_optional(docNode,n1,sequenceParameters,'flipAngle_deg',@num2str);
+    append_optional(docNode,n1,sequenceParameters,'sequence_type');
+    append_optional(docNode,n1,sequenceParameters,'echo_spacing',@num2str);
     docRootNode.appendChild(n1);
 end
 
