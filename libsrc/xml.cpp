@@ -396,10 +396,24 @@ namespace ISMRMRD
 
       if (sequenceParameters) {
 	SequenceParameters p;
-	p.TR = parse_vector_float(sequenceParameters,"TR");
-	p.TE = parse_vector_float(sequenceParameters,"TE");
-	p.TI = parse_vector_float(sequenceParameters,"TI");
-	p.flipAngle_deg = parse_vector_float(sequenceParameters, "flipAngle_deg");
+
+    std::vector<float> r;
+    r = parse_vector_float(sequenceParameters, "TR");
+    if (!r.empty()) p.TR = r;
+
+    r = parse_vector_float(sequenceParameters, "TE");
+    if (!r.empty()) p.TE = r;
+
+    r = parse_vector_float(sequenceParameters, "TI");
+    if (!r.empty()) p.TI = r;
+
+    r = parse_vector_float(sequenceParameters, "flipAngle_deg");
+    if (!r.empty()) p.flipAngle_deg = r;
+
+    p.sequence_type = parse_optional_string(sequenceParameters, "sequence_type");
+
+    r = parse_vector_float(sequenceParameters, "echo_spacing");
+    if (!r.empty()) p.echo_spacing = r;
 
 	h.sequenceParameters = p;
       }
@@ -655,24 +669,42 @@ namespace ISMRMRD
 
     if (h.sequenceParameters) {
       n1 = root.append_child("sequenceParameters");
-      if (!h.sequenceParameters->TR.size()) {
-	throw std::runtime_error("TR section of sequenceParameters does not contain any values");
-      }
-      if (!h.sequenceParameters->TE.size()) {
-	throw std::runtime_error("TE section of sequenceParameters does not contain any values");
+
+      if (h.sequenceParameters->TR.is_present())
+      {
+          for (size_t i = 0; i < h.sequenceParameters->TR->size(); i++) {
+              append_node(n1, "TR", h.sequenceParameters->TR->operator[](i));
+          }
       }
 
-      for (size_t i = 0; i < h.sequenceParameters->TR.size(); i++) {
-	append_node(n1,"TR",h.sequenceParameters->TR[i]);
+      if (h.sequenceParameters->TE.is_present())
+      {
+          for (size_t i = 0; i < h.sequenceParameters->TE->size(); i++) {
+              append_node(n1, "TE", h.sequenceParameters->TE->operator[](i));
+          }
       }
-      for (size_t i = 0; i < h.sequenceParameters->TE.size(); i++) {
-	append_node(n1,"TE",h.sequenceParameters->TE[i]);
+
+      if (h.sequenceParameters->TI.is_present())
+      {
+          for (size_t i = 0; i < h.sequenceParameters->TI->size(); i++) {
+              append_node(n1, "TI", h.sequenceParameters->TI->operator[](i));
+          }
       }
-      for (size_t i = 0; i < h.sequenceParameters->TI.size(); i++) {
-	append_node(n1,"TI",h.sequenceParameters->TI[i]);
+
+      if (h.sequenceParameters->flipAngle_deg.is_present())
+      {
+          for (size_t i = 0; i < h.sequenceParameters->flipAngle_deg->size(); i++) {
+              append_node(n1, "flipAngle_deg", h.sequenceParameters->flipAngle_deg->operator[](i));
+          }
       }
-      for (size_t i = 0; i < h.sequenceParameters->flipAngle_deg.size(); i++) {
-	append_node(n1,"flipAngle_deg",h.sequenceParameters->flipAngle_deg[i]);
+
+      append_optional_node(n2, "sequence_type", h.sequenceParameters->sequence_type);
+
+      if (h.sequenceParameters->echo_spacing.is_present())
+      {
+          for (size_t i = 0; i < h.sequenceParameters->echo_spacing->size(); i++) {
+              append_node(n1, "echo_spacing", h.sequenceParameters->echo_spacing->operator[](i));
+          }
       }
     }
 

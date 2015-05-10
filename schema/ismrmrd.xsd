@@ -187,10 +187,12 @@
 
   <xs:complexType name="sequenceParametersType">
     <xs:sequence>
-      <xs:element minOccurs="1" maxOccurs="unbounded" type="xs:float" name="TR"/>
-      <xs:element minOccurs="1" maxOccurs="unbounded" type="xs:float" name="TE"/>
+      <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="TR"/>
+      <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="TE"/>
       <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="TI"/>
       <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="flipAngle_deg"/>
+      <xs:element minOccurs="0" maxOccurs="1" type="xs:string" name="sequence_type"/>
+      <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="echo_spacing"/>
 
     </xs:sequence>
   </xs:complexType>
