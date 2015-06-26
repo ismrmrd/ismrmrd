@@ -858,7 +858,7 @@ int ismrmrd_init_dataset(ISMRMRD_Dataset *dset, const char *filename,
 
     dset->filename = (char *) malloc(strlen(filename) + 1);
     if (dset->filename == NULL) {
-        return ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to malloc dataset groupname");
+        return ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to malloc dataset filename");
     }
     strcpy(dset->filename, filename);
 
@@ -889,9 +889,16 @@ int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool create_if_needed) {
         dset->fileid = fileid;
     }
     else if (create_if_needed == false) {
-        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
-        /* Some sort of error opening the file - Maybe it doesn't exist? */
-        return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to open file.");
+        /*Try opening the file as read-only*/
+        fileid = H5Fopen(dset->filename, H5F_ACC_RDONLY, H5P_DEFAULT);
+        if (fileid > 0) {
+            dset->fileid = fileid;
+        }
+        else{
+            H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+            /* Some sort of error opening the file - Maybe it doesn't exist? */
+            return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to open file.");
+        }
     }
     else {
         /* Try creating a new file using the default properties. */
