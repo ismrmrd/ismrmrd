@@ -70,67 +70,86 @@ int main(int argc, char** argv)
     ISMRMRD::EncodingSpace e_space = hdr.encoding[0].encodedSpace;
     ISMRMRD::EncodingSpace r_space = hdr.encoding[0].reconSpace;
 
-    std::cout << "Encoding Matrix Size        : [" << e_space.matrixSize.x << ", " << e_space.matrixSize.y << ", " << e_space.matrixSize.z << "]" << std::endl;
-    std::cout << "Reconstruction Matrix Size  : [" << r_space.matrixSize.x << ", " << r_space.matrixSize.y << ", " << r_space.matrixSize.z << "]" << std::endl;
-    std::cout << "Number of acquisitions      : " << d.getNumberOfAcquisitions() << std::endl;
-
     if (e_space.matrixSize.z != 1) {
         std::cout << "This simple reconstruction application only supports 2D encoding spaces" << std::endl;
         return -1;
     }
+    
+    uint16_t nX = e_space.matrixSize.x;
+    uint16_t nY = e_space.matrixSize.y;
+    
+    // The number of channels is optional, so read the first line
+    ISMRMRD::Acquisition acq;
+    d.readAcquisition(0, acq);
+    uint16_t nCoils = acq.active_channels();
+    
+    std::cout << "Encoding Matrix Size        : [" << e_space.matrixSize.x << ", " << e_space.matrixSize.y << ", " << e_space.matrixSize.z << "]" << std::endl;
+    std::cout << "Reconstruction Matrix Size  : [" << r_space.matrixSize.x << ", " << r_space.matrixSize.y << ", " << r_space.matrixSize.z << "]" << std::endl;
+    std::cout << "Number of Channels          : " << nCoils << std::endl;
+    std::cout << "Number of acquisitions      : " << d.getNumberOfAcquisitions() << std::endl;
 
     //Allocate a buffer for the data
     std::vector<size_t> dims;
-    dims.push_back(e_space.matrixSize.x);
-    dims.push_back(e_space.matrixSize.y);
+    dims.push_back(nX);
+    dims.push_back(nY);
+    dims.push_back(nCoils);
     ISMRMRD::NDArray<complex_float_t> buffer(dims);
+    memset(buffer.getDataPtr(), 0, sizeof(complex_float_t)*nX*nY*nCoils);
     
     //Now loop through and copy data
     unsigned int number_of_acquisitions = d.getNumberOfAcquisitions();
-    ISMRMRD::Acquisition acq;
     for (unsigned int i = 0; i < number_of_acquisitions; i++) {
         //Read one acquisition at a time
         d.readAcquisition(i, acq);
 
         //Copy data, we should probably be more careful here and do more tests....
-        //We are not considering multiple channels here.
-        unsigned int offset = acq.idx().kspace_encode_step_1*dims[0];
-        memcpy(&buffer.getDataPtr()[offset], acq.getDataPtr(),sizeof(complex_float_t)*dims[0]);
+        for (uint16_t c=0; c<nCoils; c++) {
+            memcpy(&buffer(0,acq.idx().kspace_encode_step_1,c), &acq.data(0, c), sizeof(complex_float_t)*nX);
+        }
     }
 
-    //Let's FFT the k-space to image
-    fftwf_complex* tmp = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex)*buffer.getNumberOfElements());
+    // Do the recon one slice at a time
+    for (uint16_t c=0; c<nCoils; c++) {
+        
+        //Let's FFT the k-space to image (in-place)
+        fftwf_complex* tmp = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex)*(nX*nY));
 
-    if (!tmp) {
-        std::cout << "Error allocating temporary storage for FFTW" << std::endl;
-        return -1;
+        if (!tmp) {
+            std::cout << "Error allocating temporary storage for FFTW" << std::endl;
+            return -1;
+        }
+    
+        //Create the FFTW plan
+        fftwf_plan p = fftwf_plan_dft_2d(nY, nX, tmp ,tmp, FFTW_BACKWARD, FFTW_ESTIMATE);
+
+        //FFTSHIFT
+        fftshift(reinterpret_cast<complex_float_t*>(tmp), &buffer(0,0,c), nX, nY);
+        
+        //Execute the FFT
+        fftwf_execute(p);
+        
+        //FFTSHIFT
+        fftshift( &buffer(0,0,c), reinterpret_cast<std::complex<float>*>(tmp), nX, nY);
+
+        //Clean up.
+        fftwf_destroy_plan(p);
+        fftwf_free(tmp);
+
     }
-
-    //FFTSHIFT
-    fftshift(reinterpret_cast<complex_float_t*>(tmp), buffer.getDataPtr(), dims[0], dims[1]);
-
-    //Create the FFTW plan
-    fftwf_plan p = fftwf_plan_dft_2d(dims[1], dims[0], tmp ,tmp, FFTW_BACKWARD, FFTW_ESTIMATE);
-
-    //Execute the FFT
-    fftwf_execute(p);
-
-    //FFTSHIFT
-    fftshift( buffer.getDataPtr(), reinterpret_cast<std::complex<float>*>(tmp), dims[0], dims[1]);
-
-    //Clean up.
-    fftwf_destroy_plan(p);
-    fftwf_free(tmp);
 
     //Allocate an image
     ISMRMRD::Image<float> img_out(r_space.matrixSize.x, r_space.matrixSize.y, 1, 1);
-
+    memset(img_out.getDataPtr(), 0, sizeof(float_t)*r_space.matrixSize.x*r_space.matrixSize.y);
+           
     //f there is oversampling in the readout direction remove it
-    //Take the magnitude
-    size_t offset = ((e_space.matrixSize.x - r_space.matrixSize.x)>>1);
-    for (unsigned int y = 0; y < r_space.matrixSize.y; y++) {
-        for (unsigned int x = 0; x < r_space.matrixSize.x; x++) {
-            img_out(x,y) = std::abs(buffer(x+offset, y));
+    //Take the sqrt of the sum of squares
+    uint16_t offset = ((e_space.matrixSize.x - r_space.matrixSize.x)>>1);
+    for (uint16_t y = 0; y < r_space.matrixSize.y; y++) {
+        for (uint16_t x = 0; x < r_space.matrixSize.x; x++) {
+            for (uint16_t c=0; c<nCoils; c++) {
+                img_out(x,y) += (std::abs(buffer(x+offset, y, c)))*(std::abs(buffer(x+offset, y, c)));
+            }
+            img_out(x,y) = std::sqrt(img_out(x,y));            
         }
     }
     
@@ -141,7 +160,7 @@ int main(int argc, char** argv)
     //And so on
     
     //Let's write the reconstructed image into the same data file
-    d.appendImage("myimage", img_out);
+    d.appendImage("cpp", img_out);
 
     return 0;
 }
