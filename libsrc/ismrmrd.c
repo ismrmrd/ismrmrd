@@ -479,7 +479,7 @@ size_t ismrmrd_sizeof_data_type(int data_type)
 
 /* Misc. functions */
 bool ismrmrd_is_flag_set(const uint64_t flags, const uint64_t val) {
-    uint64_t bitmask = 1 << (val - 1);
+    uint64_t bitmask = (uint64_t)(1) << (val - 1);
     return (flags & bitmask) > 0;
 }
 
@@ -488,7 +488,7 @@ int ismrmrd_set_flag(uint64_t *flags, const uint64_t val) {
     if (flags==NULL) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
     }
-    bitmask = 1 << (val - 1);
+    bitmask = (uint64_t)(1) << (val - 1);
     *flags |= bitmask;
     return ISMRMRD_NOERROR;
 }
@@ -506,7 +506,7 @@ int ismrmrd_clear_flag(uint64_t *flags, const uint64_t val) {
     if (flags==NULL) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
     }
-    bitmask = 1 << (val - 1);
+    bitmask = (uint64_t)(1) << (val - 1);
     *flags &= ~bitmask;
     return ISMRMRD_NOERROR;
 }
@@ -525,7 +525,7 @@ bool ismrmrd_is_channel_on(const uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS], c
     if (channel_mask==NULL) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer to channel_mask should not be NULL.");
     }
-    bitmask = 1 << (chan % 64);
+    bitmask = (uint64_t)(1) << (chan % 64);
     offset = chan / 64;
     return (channel_mask[offset] & bitmask) > 0;
 }
@@ -536,7 +536,7 @@ int ismrmrd_set_channel_on(uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS], const u
     if (channel_mask==NULL) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer to channel_mask should not be NULL.");
     }
-    bitmask = 1 << (chan % 64);
+    bitmask = (uint64_t)(1) << (chan % 64);
     offset = chan / 64;
     channel_mask[offset] |= bitmask;
     return ISMRMRD_NOERROR;
