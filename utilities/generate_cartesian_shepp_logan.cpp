@@ -91,7 +91,7 @@ int main(int argc, char** argv)
 
         //Let's append the data to the file
         //Create if needed
-	Dataset d(outfile.c_str(),dataset.c_str(), true);
+	Dataset d(outfile.c_str(), dataset.c_str());
 	Acquisition<complex_float_t> acq;
         size_t readout = matrix_size*ros;
         

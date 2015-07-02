@@ -850,6 +850,16 @@ cleanup:
 /********************/
 /* Public functions */
 /********************/
+bool ismrmrd_dataset_exists(const char* filename)
+{
+    hid_t id;
+    if ((id = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT)) < 0) {
+        return false;
+    }
+    H5Fclose(id);
+    return true;
+}
+
 int ismrmrd_init_dataset(ISMRMRD_Dataset *dset, const char *filename,
         const char *groupname)
 {
@@ -872,51 +882,48 @@ int ismrmrd_init_dataset(ISMRMRD_Dataset *dset, const char *filename,
     }
     strcpy(dset->groupname, groupname);
 
-    dset->fileid = 0;
+    dset->fileid = -1;
     return ISMRMRD_NOERROR;
 }
 
-int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool create_if_needed) {
-    /* TODO add a mode for clobbering the dataset if it exists. */
+int ismrmrd_create_dataset(ISMRMRD_Dataset *dset)
+{
     hid_t fileid;
 
     if (NULL == dset) {
-        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
-        return false;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL dataset parameter");
+    }
+
+    fileid = H5Fcreate(dset->filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    if (fileid < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to create file.");
+    }
+    dset->fileid = fileid;
+
+    return ISMRMRD_NOERROR;
+}
+
+int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool read_only) {
+    hid_t fileid;
+    unsigned flag = read_only ? H5F_ACC_RDONLY : H5F_ACC_RDWR;
+
+    if (NULL == dset) {
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
     }
 
     /* Try opening the file */
     /* Note the is_hdf5 function doesn't work well when trying to open multiple files */
-    fileid = H5Fopen(dset->filename, H5F_ACC_RDWR, H5P_DEFAULT);
+    fileid = H5Fopen(dset->filename, flag, H5P_DEFAULT);
 
-    if (fileid > 0) {
-        dset->fileid = fileid;
+    if (fileid < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        /* Some sort of error opening the file - Maybe it doesn't exist? */
+        return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to open file.");
     }
-    else if (create_if_needed == false) {
-        /*Try opening the file as read-only*/
-        fileid = H5Fopen(dset->filename, H5F_ACC_RDONLY, H5P_DEFAULT);
-        if (fileid > 0) {
-            dset->fileid = fileid;
-        }
-        else{
-            H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
-            /* Some sort of error opening the file - Maybe it doesn't exist? */
-            return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to open file.");
-        }
-    }
-    else {
-        /* Try creating a new file using the default properties. */
-        /* this will be readwrite */
-        fileid = H5Fcreate(dset->filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-        if (fileid > 0) {
-            dset->fileid = fileid;
-        }
-        else {
-            /* Error opening the file */
-            H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
-            return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to open file.");
-        }
-    }
+
+    dset->fileid = fileid;
+
     /* Open the existing dataset */
     /* ensure that /groupname exists */
     create_link(dset, dset->groupname);
@@ -926,8 +933,7 @@ int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool create_if_needed) {
 
 int ismrmrd_close_dataset(ISMRMRD_Dataset *dset) {
     if (NULL == dset) {
-        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
-        return false;
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
     }
 
     if (dset->filename != NULL) {

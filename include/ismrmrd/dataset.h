@@ -31,17 +31,30 @@ typedef struct ISMRMRD_Dataset {
     int fileid;
 } ISMRMRD_Dataset;
 
+
+/**
+ * Determines whether an ISMRMRD dataset with the given filename exists
+ */
+EXPORTISMRMRD bool ismrmrd_dataset_exists(const char* filename);
+
 /**
  * Initializes an ISMRMRD dataset structure
  *
  */
 EXPORTISMRMRD int ismrmrd_init_dataset(ISMRMRD_Dataset *dset, const char *filename, const char *groupname);
-            
+
+/**
+ * Creates a new dataset (truncating if it already exists)
+ *
+ * Note: this does not open the dataset. See `ismrmrd_open_dataset`.
+ */
+EXPORTISMRMRD int ismrmrd_create_dataset(ISMRMRD_Dataset *dset);
+
 /**
  * Opens an ISMRMRD dataset.
  *
  */
-EXPORTISMRMRD int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool create_if_neded);
+EXPORTISMRMRD int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool read_only);
 
 /**
  * Closes all references to the underlying HDF5 file.
@@ -144,9 +157,11 @@ EXPORTISMRMRD uint32_t ismrmrd_get_number_of_arrays(const ISMRMRD_Dataset *dset,
 class EXPORTISMRMRD Dataset {
 public:
     // Constructor and destructor
-    Dataset(const char* filename, const char* groupname, bool create_file_if_needed = true);
+    Dataset(const char* filename, const char* groupname, bool create_file_if_needed=true, bool read_only=false);
     ~Dataset();
-    
+
+    // Helper functions
+    static bool exists(const char* filename);
     // Methods
     // XML Header
     void writeHeader(const std::string &xmlstring);

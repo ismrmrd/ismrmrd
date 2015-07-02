@@ -39,7 +39,10 @@ int main(void)
     /************/
     /* Create a data set */
     ismrmrd_init_dataset(&dataset1, filename, groupname);
-    ismrmrd_open_dataset(&dataset1, true);
+    if (!ismrmrd_dataset_exists(filename)) {
+        ismrmrd_create_dataset(&dataset1);
+    }
+    ismrmrd_open_dataset(&dataset1, false);
 
     /* Write an XML header */
     ismrmrd_write_header(&dataset1, xmlhdr);

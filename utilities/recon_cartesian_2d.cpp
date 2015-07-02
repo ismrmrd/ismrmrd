@@ -46,7 +46,7 @@ int main(int argc, char** argv)
     std::cout << "   - filename: " << datafile << std::endl;
 
     //Let's open the existing dataset
-    ISMRMRD::Dataset d(datafile.c_str(),"dataset", false);
+    ISMRMRD::Dataset d(datafile.c_str(),"dataset");
 
     std::string xml;
     d.readHeader(xml);

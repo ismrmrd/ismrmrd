@@ -65,6 +65,7 @@ int main(int argc, char** argv)
   if (argc != 2) {
     std::cout << "Usage: " << std::endl;
     std::cout << "  " << argv[0] << " <FILENAME>" << std::endl;
+    return 1;
   } 
 
   std::cout << "Opening file " << argv[1] << std::endl;
@@ -72,7 +73,7 @@ int main(int argc, char** argv)
 
   {
     Timer t("READ TIMER");
-    ISMRMRD::Dataset d(argv[1],"dataset", false);
+    ISMRMRD::Dataset d(argv[1],"dataset", false, true); // open in read-only mode
     uint32_t number_of_acquisitions = d.getNumberOfAcquisitions();
     ISMRMRD::Acquisition<complex_float_t> acq;
     for (uint32_t i = 0; i < number_of_acquisitions; i++) {

@@ -10,7 +10,7 @@ namespace ISMRMRD {
 // Dataset class implementation
 //
 // Constructor
-Dataset::Dataset(const char* filename, const char* groupname, bool create_file_if_needed)
+Dataset::Dataset(const char* filename, const char* groupname, bool create_file_if_needed, bool read_only)
 {
     // TODO error checking and exception throwing
     // Initialize the dataset
@@ -19,8 +19,21 @@ Dataset::Dataset(const char* filename, const char* groupname, bool create_file_i
     if (status != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
+
+    // Check if file exists. If not, create as necessary
+    if (!ismrmrd_dataset_exists(filename)) {
+        if (create_file_if_needed) {
+            status = ismrmrd_create_dataset(&dset_);
+            if (status != ISMRMRD_NOERROR) {
+                throw std::runtime_error(build_exception_string());
+            }
+        } else {
+            throw std::runtime_error("File does not exist");
+        }
+    }
+
     // Open the file
-    status = ismrmrd_open_dataset(&dset_, create_file_if_needed);
+    status = ismrmrd_open_dataset(&dset_, read_only);
     if (status != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
@@ -33,6 +46,11 @@ Dataset::~Dataset()
     if (status != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
+}
+
+bool Dataset::exists(const char* filename)
+{
+    return ismrmrd_dataset_exists(filename);
 }
 
 // XML Header
