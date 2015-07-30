@@ -222,7 +222,7 @@ namespace ISMRMRD
 	throw std::runtime_error("experimentalConditions not defined in ismrmrdHeader");
       } else {
 	ExperimentalConditions e;
-	e.H1resonanceFrequency_Hz = std::atoi(experimentalConditions.child_value("H1resonanceFrequency_Hz"));
+	e.H1resonanceFrequency_Hz = std::atol(experimentalConditions.child_value("H1resonanceFrequency_Hz"));
 	h.experimentalConditions = e;
       }
       
