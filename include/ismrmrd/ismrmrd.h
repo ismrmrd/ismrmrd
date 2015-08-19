@@ -11,16 +11,12 @@
 
 /**
  * @file ismrmrd.h
- * @defgroup capi C API
- * @defgroup cxxapi C++ API
  */
 
 #pragma once
 #ifndef ISMRMRD_H
 #define ISMRMRD_H
 
-/* Language and cross platform section for defining types */
-/* integers */
 #ifdef _MSC_VER /* MS compiler */
 #ifndef HAS_INT_TYPE
 typedef __int16 int16_t;
@@ -29,64 +25,28 @@ typedef __int32 int32_t;
 typedef unsigned __int32 uint32_t;
 typedef __int64 int64_t;
 typedef unsigned __int64 uint64_t;
-#endif
+#endif /* HAS_INT_TYPE */
 #else /* non MS C or C++ compiler */
-#include <stdint.h>
-#include <stddef.h>     /* for size_t */
+#include <cstdint>
+#include <cstddef>     /* for size_t */
 #endif /* _MSC_VER */
 
 /* Complex numbers */
-#ifdef __cplusplus
 #include <complex>
-typedef std::complex<float> complex_float_t;
-typedef std::complex<double> complex_double_t;
-#else
-#ifdef _MSC_VER /* MS C compiler */
-typedef struct complex_float_t{
-    float real;
-    float imag;
-}complex_float_t;
-typedef struct complex_double_t{
-    double real;
-    double imag;
-}complex_double_t;
-#else /* C99 compiler */
-#include <complex.h>
-typedef float complex complex_float_t;
-typedef double complex complex_double_t;
-#endif /* _MSC_VER */
-#endif /* __cplusplus */
+/* typedef std::complex<float> complex_float_t; */
+/* typedef std::complex<double> complex_double_t; */
 
-/* Booleans - part of C++ */
-#ifndef __cplusplus
-#ifdef _MSC_VER /* MS C compiler */
-typedef int bool;
-#define false 0
-#define true 1
-#else /* C99 compiler */
-#include <stdbool.h>
-#endif /* _MSC_VER */
-#endif /* __cplusplus */
-
-/* Vectors */
-#ifdef __cplusplus
 #include <vector>
-#endif /* __cplusplus */
 
 /* Exports needed for MS C++ */
 #include "ismrmrd/export.h"
 
 #pragma pack(push, 2) /* Use 2 byte alignment */
 
-#ifdef __cplusplus
 namespace ISMRMRD {
-extern "C" {
-#endif
 
-/**
- * Constants
- */
-enum ISMRMRD_Constants {
+/** Global Constants */
+enum Constant {
     ISMRMRD_USER_INTS = 8,
     ISMRMRD_USER_FLOATS = 8,
     ISMRMRD_PHYS_STAMPS = 3,
@@ -96,25 +56,8 @@ enum ISMRMRD_Constants {
     ISMRMRD_DIRECTION_LENGTH = 3
 };
 
-
-/**
- * Constants
- */
-enum ISMRMRD_ErrorCodes {
-    ISMRMRD_BEGINERROR=-1,
-    ISMRMRD_NOERROR,
-    ISMRMRD_MEMORYERROR,
-    ISMRMRD_FILEERROR,
-    ISMRMRD_TYPEERROR,
-    ISMRMRD_RUNTIMEERROR,
-    ISMRMRD_HDF5ERROR,
-    ISMRMRD_ENDERROR
-};
-
-/**
- * Data Types
- */
-enum ISMRMRD_DataTypes {
+/** Data Types */
+enum DataType {
     ISMRMRD_USHORT   = 1, /**< corresponds to uint16_t */
     ISMRMRD_SHORT    = 2, /**< corresponds to int16_t */
     ISMRMRD_UINT     = 3, /**< corresponds to uint32_t */
@@ -125,13 +68,11 @@ enum ISMRMRD_DataTypes {
     ISMRMRD_CXDOUBLE = 8  /**< corresponds to complex double */
 };
 
-/** Returns the size in bytes of an ISMRMRD_DataType */
+/** Returns the size in bytes of an DataType */
 size_t ismrmrd_sizeof_data_type(int data_type);
 
-/**
- * Acquisition Flags
- */
-enum ISMRMRD_AcquisitionFlags {
+/** Acquisition Flags */
+enum AcquisitionFlags {
     ISMRMRD_ACQ_FIRST_IN_ENCODE_STEP1               =  1,
     ISMRMRD_ACQ_LAST_IN_ENCODE_STEP1                =  2,
     ISMRMRD_ACQ_FIRST_IN_ENCODE_STEP2               =  3,
@@ -172,10 +113,8 @@ enum ISMRMRD_AcquisitionFlags {
     ISMRMRD_ACQ_USER8                               = 64
 };
 
-/**
- * Image Types
- */
-enum ISMRMRD_ImageTypes {
+/** Image Types */
+enum ImageTypes {
     ISMRMRD_IMTYPE_MAGNITUDE = 1,
     ISMRMRD_IMTYPE_PHASE     = 2,
     ISMRMRD_IMTYPE_REAL      = 3,
@@ -183,10 +122,8 @@ enum ISMRMRD_ImageTypes {
     ISMRMRD_IMTYPE_COMPLEX   = 5
 };
 
-/**
- * Image Flags
- */
-enum ISMRMRD_ImageFlags {
+/** Image Flags */
+enum ImageFlags {
     ISMRMRD_IMAGE_IS_NAVIGATION_DATA =  1,
     ISMRMRD_IMAGE_USER1              = 57,
     ISMRMRD_IMAGE_USER2              = 58,
@@ -198,10 +135,8 @@ enum ISMRMRD_ImageFlags {
     ISMRMRD_IMAGE_USER8              = 64
 };
 
-/**
- * Struct used for keeping track of typical loop counters in MR experiment.
- */
-typedef struct ISMRMRD_EncodingCounters {
+/** EncodingCounters keeps track of typical loop counters in MR experiment. */
+struct EncodingCounters {
     uint16_t kspace_encode_step_1;    /**< e.g. phase encoding line number */
     uint16_t kspace_encode_step_2;    /**< e.g. partition encoding number */
     uint16_t average;                 /**< e.g. signal average number */
@@ -212,12 +147,10 @@ typedef struct ISMRMRD_EncodingCounters {
     uint16_t set;                     /**< e.g. flow encoding set */
     uint16_t segment;                 /**< e.g. segment number for segmented acquisition */
     uint16_t user[ISMRMRD_USER_INTS]; /**< Free user parameters */
-} ISMRMRD_EncodingCounters;
+};
 
-/**
- * Header for each MR acquisition.
- */
-typedef struct ISMRMRD_AcquisitionHeader {
+/** Header for each MR acquisition. */
+struct AcquisitionHeader {
     uint16_t version;                                    /**< First unsigned int indicates the version */
     uint16_t storage_type;                               /**< numeric type of each sample */
     uint16_t stream_number;                              /**< which stream this belongs to */
@@ -241,46 +174,13 @@ typedef struct ISMRMRD_AcquisitionHeader {
     float phase_dir[3];                                  /**< Directional cosines of the phase */
     float slice_dir[3];                                  /**< Directional cosines of the slice direction */
     float patient_table_position[3];                     /**< Patient table off-center */
-    ISMRMRD_EncodingCounters idx;                        /**< Encoding loop counters, see above */
+    EncodingCounters idx;                                /**< Encoding loop counters, see above */
     int32_t user_int[ISMRMRD_USER_INTS];                 /**< Free user parameters */
     float user_float[ISMRMRD_USER_FLOATS];               /**< Free user parameters */
-} ISMRMRD_AcquisitionHeader;
+};
 
-/**
- * Initialize an Acquisition Header
- * @ingroup capi
- *
- */
-EXPORTISMRMRD int ismrmrd_init_acquisition_header(ISMRMRD_AcquisitionHeader *hdr);
-
-/** Individual MR acquisition. */
-typedef struct ISMRMRD_Acquisition {
-    ISMRMRD_AcquisitionHeader head; /**< Header, see above */
-    float *traj;
-    void *data;
-} ISMRMRD_Acquisition;
-
-/** @addtogroup capi
- *  @{
- */
-EXPORTISMRMRD ISMRMRD_Acquisition * ismrmrd_create_acquisition();
-EXPORTISMRMRD int ismrmrd_free_acquisition(ISMRMRD_Acquisition *acq);
-EXPORTISMRMRD int ismrmrd_init_acquisition(ISMRMRD_Acquisition *acq);
-EXPORTISMRMRD int ismrmrd_cleanup_acquisition(ISMRMRD_Acquisition *acq);
-EXPORTISMRMRD int ismrmrd_copy_acquisition(ISMRMRD_Acquisition *acqdest, const ISMRMRD_Acquisition *acqsource);
-EXPORTISMRMRD int ismrmrd_make_consistent_acquisition(ISMRMRD_Acquisition *acq);
-EXPORTISMRMRD size_t ismrmrd_size_of_acquisition_traj(const ISMRMRD_Acquisition *acq);
-EXPORTISMRMRD size_t ismrmrd_size_of_acquisition_data(const ISMRMRD_Acquisition *acq);
-/** @} */
-
-/**********/
-/* Images */
-/**********/
-
-/**
- *  Header for each Image
- */
-typedef struct ISMRMRD_ImageHeader {
+/** Header for each Image. */
+struct ImageHeader {
     uint16_t version;                                    /**< First unsigned int indicates the version */
     uint16_t data_type;                                  /**< e.g. unsigned short, float, complex float, etc. */
     uint64_t flags;                                      /**< bit field with flags */
@@ -307,145 +207,16 @@ typedef struct ISMRMRD_ImageHeader {
     int32_t user_int[ISMRMRD_USER_INTS];                 /**< Free user parameters */
     float user_float[ISMRMRD_USER_FLOATS];               /**< Free user parameters */
     uint32_t attribute_string_len;                       /**< Length of attributes string */
-} ISMRMRD_ImageHeader;
-
-/** @ingroup capi */
-EXPORTISMRMRD int ismrmrd_init_image_header(ISMRMRD_ImageHeader *hdr);
-
-/**
- *  An individual Image
- *  @ingroup capi
- */
-typedef struct ISMRMRD_Image {
-    ISMRMRD_ImageHeader head;
-    char *attribute_string;
-    void *data;
-} ISMRMRD_Image;
-
-
-/** @addtogroup capi
- *  @{
- */
-EXPORTISMRMRD ISMRMRD_Image * ismrmrd_create_image();
-EXPORTISMRMRD int ismrmrd_free_image(ISMRMRD_Image *im);
-EXPORTISMRMRD int ismrmrd_init_image(ISMRMRD_Image *im);
-EXPORTISMRMRD int ismrmrd_cleanup_image(ISMRMRD_Image *im);
-EXPORTISMRMRD int ismrmrd_copy_image(ISMRMRD_Image *imdest, const ISMRMRD_Image *imsource);
-EXPORTISMRMRD int ismrmrd_make_consistent_image(ISMRMRD_Image *im);
-EXPORTISMRMRD size_t ismrmrd_size_of_image_attribute_string(const ISMRMRD_Image *im);
-EXPORTISMRMRD size_t ismrmrd_size_of_image_data(const ISMRMRD_Image *im);
-/** @} */
-
-/************/
-/* NDArrays */
-/************/
-
-/**
- *  A simple N dimensional array
- */
-typedef struct ISMRMRD_NDArray {
-    uint16_t version;                      /**< First unsigned int indicates the version */
-    uint16_t data_type;                    /**< e.g. unsigned short, float, complex float, etc. */
-    uint16_t ndim;                         /**< Number of dimensions */
-    size_t   dims[ISMRMRD_NDARRAY_MAXDIM]; /**< Dimensions */
-    void     *data;                        /**< Pointer to data */
-} ISMRMRD_NDArray;
-
-/** @addtogroup capi
- *  @{
- */
-EXPORTISMRMRD ISMRMRD_NDArray * ismrmrd_create_ndarray();
-EXPORTISMRMRD int ismrmrd_free_ndarray(ISMRMRD_NDArray *arr);
-EXPORTISMRMRD int ismrmrd_init_ndarray(ISMRMRD_NDArray *arr);
-EXPORTISMRMRD int ismrmrd_cleanup_ndarray(ISMRMRD_NDArray *arr);
-EXPORTISMRMRD int ismrmrd_copy_ndarray(ISMRMRD_NDArray *arrdest, const ISMRMRD_NDArray *arrsource);
-EXPORTISMRMRD int ismrmrd_make_consistent_ndarray(ISMRMRD_NDArray *arr);
-EXPORTISMRMRD size_t ismrmrd_size_of_ndarray_data(const ISMRMRD_NDArray *arr);
-/** @} */
-
-/*********/
-/* Flags */
-/*********/
-/** @addtogroup capi
- *  @{
- */
-EXPORTISMRMRD bool ismrmrd_is_flag_set(const uint64_t flags, const uint64_t val);
-EXPORTISMRMRD int ismrmrd_set_flag(uint64_t *flags, const uint64_t val);
-EXPORTISMRMRD int ismrmrd_set_flags(uint64_t *flags, const uint64_t val);
-EXPORTISMRMRD int ismrmrd_clear_flag(uint64_t *flags, const uint64_t val);
-EXPORTISMRMRD int ismrmrd_clear_all_flags(uint64_t *flags);
-/** @} */
-
-/*****************/
-/* Channel Masks */
-/*****************/
-/** @addtogroup capi
- *  @{
- */
-EXPORTISMRMRD bool ismrmrd_is_channel_on(const uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS], const uint16_t chan);
-EXPORTISMRMRD int ismrmrd_set_channel_on(uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS], const uint16_t chan);
-EXPORTISMRMRD int ismrmrd_set_channel_off(uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS], const uint16_t chan);
-EXPORTISMRMRD int ismrmrd_set_all_channels_off(uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS]);
-/** @} */
-
-/******************/
-/* Error Handling */
-/******************/
-/** @addtogroup capi
- *  @{
- */
-typedef void (*ismrmrd_error_handler_t)(const char *file, int line,
-        const char *function, int code, const char *msg);
-#define ISMRMRD_PUSH_ERR(code, msg) ismrmrd_push_error(__FILE__, __LINE__, \
-        __func__, (code), (msg))
-int ismrmrd_push_error(const char *file, const int line, const char *func,
-        const int code, const char *msg);
-/** Sets a custom error handler */
-EXPORTISMRMRD void ismrmrd_set_error_handler(ismrmrd_error_handler_t);
-/** Returns message for corresponding error code */
-EXPORTISMRMRD char *ismrmrd_strerror(int code);
-/** @} */
-
-/** Populates parameters (if non-NULL) with error information
- * @returns true if there was error information to return, false otherwise */
-bool ismrmrd_pop_error(char **file, int *line, char **func,
-        int *code, char **msg);
-
-/*****************************/
-/* Rotations and Quaternions */
-/*****************************/
-/** @addtogroup capi
- *  @{
- */
-/** Calculates the determinant of the matrix and return the sign */
-EXPORTISMRMRD int ismrmrd_sign_of_directions(float read_dir[3], float phase_dir[3], float slice_dir[3]);
-
-/** Creates a normalized quaternion from a 3x3 rotation matrix */
-EXPORTISMRMRD void ismrmrd_directions_to_quaternion(float read_dir[3], float phase_dir[3], float slice_dir[3], float quat[4]);
-
-/** Converts a quaternion of the form | a b c d | to a 3x3 rotation matrix */
-EXPORTISMRMRD void ismrmrd_quaternion_to_directions(float quat[4], float read_dir[3], float phase_dir[3], float slice_dir[3]);
-/** @} */
+};
 
 #pragma pack(pop) /* Restore old alignment */
-
-#ifdef __cplusplus
-} // extern "C"
-
-///  ISMRMRD C++ Interface
-
-/// Construct exception message from ISMRMRD error stack
-std::string build_exception_string(void);
-
-/// Some typedefs to beautify the namespace
-typedef  ISMRMRD_EncodingCounters EncodingCounters;
 
 /** @addtogroup cxxapi
  *  @{
  */
 
 /// Allowed data types for Images and NDArrays
-template <typename T> EXPORTISMRMRD ISMRMRD_DataTypes get_data_type();
+template <typename T> EXPORTISMRMRD DataType get_data_type();
 
 /// Convenience class for flags
 class EXPORTISMRMRD FlagBit
@@ -468,160 +239,155 @@ public:
 
 };
 
-/// Header for MR Acquisition type
-class EXPORTISMRMRD AcquisitionHeader: public ISMRMRD_AcquisitionHeader {
-public:
-    // Constructors
-    AcquisitionHeader();
-
-    // Flag methods
-    bool isFlagSet(const ISMRMRD_AcquisitionFlags val);
-    void setFlag(const ISMRMRD_AcquisitionFlags val);
-    void clearFlag(const ISMRMRD_AcquisitionFlags val);
-    void clearAllFlags();
-
-    // Channel mask methods
-    bool isChannelActive(uint16_t channel_id);
-    void setChannelActive(uint16_t channel_id);
-    void setChannelNotActive(uint16_t channel_id);
-    void setAllChannelsNotActive();
-
-};
-
 /// MR Acquisition type
-template <typename T> class EXPORTISMRMRD Acquisition {
+class EXPORTISMRMRD Acquisition {
     friend class Dataset;
 public:
-    // Constructors, assignment, destructor
     Acquisition();
     Acquisition(uint16_t num_samples, uint16_t active_channels=1, uint16_t trajectory_dimensions=0);
-    Acquisition(const Acquisition &other);
-    Acquisition & operator= (const Acquisition &other);
-    ~Acquisition();
 
-    // Accessors and mutators
-    const uint16_t &version();
-    uint16_t &storage_type();
-    uint16_t &stream_number();
-    const uint64_t &flags();
-    uint32_t &measurement_uid();
-    uint32_t &scan_counter();
-    uint32_t &acquisition_time_stamp();
-    uint32_t (&physiology_time_stamp())[ISMRMRD_PHYS_STAMPS];
-    const uint16_t &number_of_samples();
-    uint16_t &available_channels();
-    const uint16_t &active_channels();
-    const uint64_t (&channel_mask())[ISMRMRD_CHANNEL_MASKS];
-    uint16_t &discard_pre();
-    uint16_t &discard_post();
-    uint16_t &center_sample();
-    uint16_t &encoding_space_ref();
-    const uint16_t &trajectory_dimensions();
-    float &sample_time_us();
-    float (&position())[3];
-    float (&read_dir())[3];
-    float (&phase_dir())[3];
-    float (&slice_dir())[3];
-    float (&patient_table_position())[3];
-    ISMRMRD_EncodingCounters &idx();
-    int32_t (&user_int())[ISMRMRD_USER_INTS];
-    float (&user_float())[ISMRMRD_USER_FLOATS];
+    uint16_t getVersion() const;
+
+    uint32_t getMeasurementUID() const;
+    void setMeasurementUID(uint32_t);
+
+    uint32_t getScanCounter() const;
+    void setScanCounter(uint32_t);
+
+    uint32_t getAcquisitionTimeStamp() const;
+    void setAcquisitionTimeStamp(uint32_t);
+
+    uint32_t getPhysiologyTimeStamp(int idx);
+    void setPhysiologyTimeStamp(int idx, uint32_t ts);
+
+    uint16_t getNumberOfSamples() const;
+    void setNumberOfSamples(uint16_t);
+
+    uint16_t getAvailableChannels() const;
+    void setAvailableChannels(uint16_t);
+
+    uint16_t getActiveChannels() const;
+    void setActiveChannels(uint16_t);
+
+    uint64_t getChannelMask(int idx);
+    void setChannelMask(int idx, uint64_t mask);
+
+    uint16_t getDiscardPre() const;
+    void setDiscardPre(uint16_t);
+
+    uint16_t getDiscardPost() const;
+    void setDiscardPost(uint16_t);
+
+    uint16_t getCenterSample() const;
+    void setCenterSample(uint16_t);
+
+    uint16_t getEncodingSpaceRef() const;
+    void setEncodingSpaceRef(uint16_t);
+
+    uint16_t getTrajectoryDimensions() const;
+    void setTrajectoryDimensions(uint16_t);
+
+    float getSampleTime_us() const;
+    void setSampleTime_us(float);
+
+    float getPositionX() const;
+    float getPositionY() const;
+    float getPositionZ() const;
+    void setPosition(float, float, float);
+    void setPositionX(float);
+    void setPositionY(float);
+    void setPositionZ(float);
+
+    float getReadDirectionX() const;
+    float getReadDirectionY() const;
+    float getReadDirectionZ() const;
+    void setReadDirection(float, float, float);
+    void setReadDirectionX(float);
+    void setReadDirectionY(float);
+    void setReadDirectionZ(float);
+
+    float getPhaseDirectionX() const;
+    float getPhaseDirectionY() const;
+    float getPhaseDirectionZ() const;
+    void setPhaseDirection(float, float, float);
+    void setPhaseDirectionX(float);
+    void setPhaseDirectionY(float);
+    void setPhaseDirectionZ(float);
+
+    float getSliceDirectionX() const;
+    float getSliceDirectionY() const;
+    float getSliceDirectionZ() const;
+    void setSliceDirection(float, float, float);
+    void setSliceDirectionX(float);
+    void setSliceDirectionY(float);
+    void setSliceDirectionZ(float);
+
+    float getPatientTablePositionX() const;
+    float getPatientTablePositionY() const;
+    float getPatientTablePositionZ() const;
+    void setPatientTablePosition(float, float, float);
+    void setPatientTablePositionX(float);
+    void setPatientTablePositionY(float);
+    void setPatientTablePositionZ(float);
+
+    const EncodingCounters& getIdx() const;
+    void setIdx(const EncodingCounters&);
+
+    int32_t getUserInt(int idx) const;
+    void setUserInt(int idx, int32_t val);
+
+    float getUserFloat(int idx) const;
+    void setUserFloat(int idx, float val);
 
     // Sizes
-    void resize(uint16_t num_samples, uint16_t active_channels=1, uint16_t trajectory_dimensions=0);
+    void resize(uint16_t num_samples, uint16_t active_channels=1,
+            uint16_t trajectory_dimensions=0);
     size_t getNumberOfDataElements() const;
     size_t getNumberOfTrajElements() const;
     size_t getDataSize() const;
     size_t getTrajSize() const;
 
     // Header, data and trajectory accessors
-    const AcquisitionHeader &getHead() const;
+    AcquisitionHeader& getHead();
+    const AcquisitionHeader& getHead() const;
     void setHead(const AcquisitionHeader &other);
-    
-    /**
-     * Returns a pointer to the data
-     */
-    const T* getDataPtr() const;
-    T* getDataPtr();
 
-    /**
-     * Returns a reference to the data
-     */    
-    T& data(uint16_t sample, uint16_t channel);
+    const std::vector<std::complex<float> >& getData() const;
+    void setData(const std::vector<std::complex<float> >& data);
+    /** Returns a reference to a data point */
+    std::complex<float>& getDataAt(uint16_t sample, uint16_t channel);
 
-    /**
-     * Sets the datay.  Must set sizes properly first
-     */    
-    void setData(T* data);
-
-    /**
-     * Returns an iterator to the beginning of the data
-     */
-    const T* data_begin() const;
-    
-    /**
-     * Returns an iterator of the end of the data
-     */
-    const T* data_end() const;
-    
-    /**
-     * Returns a pointer to the trajectory
-     */
-    const float * getTrajPtr() const;
-    float * getTrajPtr();
-    
-    /**
-     * Returns a reference to the trajectory
-     */
-    float & traj(uint16_t dimension, uint16_t sample);
-    
-    /**
-     * Sets the trajectory.  Must set sizes properly first
-     */
-    void setTraj(float * traj);
-    
-    /**
-     * Returns an iterator to the beginning of the trajectories
-     */
-    float * traj_begin() const;
-    
-    /**
-     * Returns an iterator to the end of the trajectories
-     */
-    float * traj_end() const;
+    const std::vector<float>& getTraj() const;
+    void setTraj(const std::vector<float>& traj);
+    /** Returns a reference to a trajectory point */
+    float& getTrajAt(uint16_t dimension, uint16_t sample);
 
     // Flag methods
-    bool isFlagSet(const uint64_t val);
-    void setFlag(const uint64_t val);
-    void clearFlag(const uint64_t val);
+    uint64_t getFlags() const;
+    void setFlags(uint64_t val);
+    bool isFlagSet(uint64_t val) const;
+    void setFlag(uint64_t val);
+    void clearFlag(uint64_t val);
     void clearAllFlags();
 
-    bool isFlagSet(const FlagBit &val)  { return isFlagSet(val.bitmask_); }
-    void setFlag(const FlagBit &val)    { setFlag(val.bitmask_); }
-    void clearFlag(const FlagBit &val)  { clearFlag(val.bitmask_); }
+    bool isFlagSet(const FlagBit &val) const { return isFlagSet(val.bitmask_); }
+    void setFlag(const FlagBit &val) { setFlag(val.bitmask_); }
+    void clearFlag(const FlagBit &val) { clearFlag(val.bitmask_); }
 
     // Channel mask methods
-    bool isChannelActive(uint16_t channel_id);
-    void setChannelActive(uint16_t channel_id);
-    void setChannelNotActive(uint16_t channel_id);
+    bool isChannelActive(uint16_t chan) const;
+    void setChannelActive(uint16_t chan);
+    void setChannelNotActive(uint16_t chan);
     void setAllChannelsNotActive();
 
 protected:
-    ISMRMRD_Acquisition acq;
+    void makeConsistent();
+
+    AcquisitionHeader head;
+    std::vector<float> traj;
+    std::vector<std::complex<float> > data;
 };
 
-/// Header for MR Image type
-class EXPORTISMRMRD ImageHeader: public ISMRMRD_ImageHeader {
-public:
-    // Constructor
-    ImageHeader();
-
-    // Flag methods
-    bool isFlagSet(const uint64_t val);
-    void setFlag(const uint64_t val);
-    void clearFlag(const uint64_t val);
-    void clearAllFlags();
-};
 
 /// MR Image type
 template <typename T> class EXPORTISMRMRD Image {
@@ -637,85 +403,87 @@ public:
     // Image dimensions
     void resize(uint16_t matrix_size_x, uint16_t matrix_size_y, uint16_t matrix_size_z, uint16_t channels);
     uint16_t getMatrixSizeX() const;
-    void setMatrixSizeX(uint16_t matrix_size_x);
     uint16_t getMatrixSizeY() const;
-    void setMatrixSizeY(uint16_t matrix_size_y);
     uint16_t getMatrixSizeZ() const;
-    void setMatrixSizeZ(uint16_t matrix_size_z);
+    void setMatrixSizeX(uint16_t x);
+    void setMatrixSizeY(uint16_t y);
+    void setMatrixSizeZ(uint16_t z);
+
     uint16_t getNumberOfChannels() const;
     void setNumberOfChannels(uint16_t channels);
 
     // Field of view
-    void setFieldOfView(float fov_x, float fov_y, float fov_z);
     float getFieldOfViewX() const;
-    void setFieldOfViewX(float f);
     float getFieldOfViewY() const;
-    void setFieldOfViewY(float f);
     float getFieldOfViewZ() const;
+    void setFieldOfView(float fov_x, float fov_y, float fov_z);
+    void setFieldOfViewX(float f);
+    void setFieldOfViewY(float f);
     void setFieldOfViewZ(float f);
 
     // Positions and orientations
-    void setPosition(float x, float y, float z);    
     float getPositionX() const;
-    void setPositionX(float x);
     float getPositionY() const;
-    void setPositionY(float y);
     float getPositionZ() const;
+    void setPosition(float x, float y, float z);
+    void setPositionX(float x);
+    void setPositionY(float y);
     void setPositionZ(float z);
 
-    void setReadDirection(float x, float y, float z);
     float getReadDirectionX() const;
-    void setReadDirectionX(float x);
     float getReadDirectionY() const;
-    void setReadDirectionY(float y);
     float getReadDirectionZ() const;
+    void setReadDirection(float x, float y, float z);
+    void setReadDirectionX(float x);
+    void setReadDirectionY(float y);
     void setReadDirectionZ(float z);
-    
-    void setPhaseDirection(float x, float y, float z);
+
     float getPhaseDirectionX() const;
-    void setPhaseDirectionX(float x);
     float getPhaseDirectionY() const;
-    void setPhaseDirectionY(float y);
     float getPhaseDirectionZ() const;
+    void setPhaseDirection(float x, float y, float z);
+    void setPhaseDirectionX(float x);
+    void setPhaseDirectionY(float y);
     void setPhaseDirectionZ(float z);
 
-    void setSliceDirection(float x, float y, float z);
     float getSliceDirectionX() const;
-    void setSliceDirectionX(float x);
     float getSliceDirectionY() const;
-    void setSliceDirectionY(float y);
     float getSliceDirectionZ() const;
+    void setSliceDirection(float x, float y, float z);
+    void setSliceDirectionX(float x);
+    void setSliceDirectionY(float y);
     void setSliceDirectionZ(float z);
-    
-    void setPatientTablePosition(float x, float y, float z);
+
     float getPatientTablePositionX() const;
-    void setPatientTablePositionX(float x);
     float getPatientTablePositionY() const;
-    void setPatientTablePositionY(float y);
     float getPatientTablePositionZ() const;
+    void setPatientTablePosition(float x, float y, float z);
+    void setPatientTablePositionX(float x);
+    void setPatientTablePositionY(float y);
     void setPatientTablePositionZ(float z);
 
-    
+
     // Attributes
     uint16_t getVersion() const;
-    ISMRMRD_DataTypes getDataType() const;
+
+    DataType getDataType() const;
 
     // Counters and labels
-    uint32_t getMeasurementUid() const;
-    void setMeasurementUid(uint32_t measurement_uid);
+    uint32_t getMeasurementUID() const;
+    void setMeasurementUID(uint32_t measurement_uid);
 
     uint16_t getAverage() const;
     void setAverage(uint16_t average);
 
     uint16_t getSlice() const;
     void setSlice(uint16_t slice);
-    
+
     uint16_t getContrast() const;
     void setContrast(uint16_t contrast);
 
     uint16_t getPhase() const;
     void setPhase(uint16_t phase);
-    
+
     uint16_t getRepetition() const;
     void setRepetition(uint16_t repetition);
 
@@ -725,9 +493,9 @@ public:
     uint32_t getAcquisitionTimeStamp() const;
     void setAcquisitionTimeStamp(uint32_t acquisition_time_stamp);
 
-    uint32_t getPhysiologyTimeStamp(unsigned int stamp_id) const;
-    void setPhysiologyTimeStamp(unsigned int stamp_id, uint32_t value);
-    
+    uint32_t getPhysiologyTimeStamp(unsigned int idx) const;
+    void setPhysiologyTimeStamp(unsigned int idx, uint32_t value);
+
     uint16_t getImageType() const;
     void setImageType(uint16_t image_type);
 
@@ -736,7 +504,7 @@ public:
 
     uint16_t getImageSeriesIndex() const;
     void setImageSeriesIndex(uint16_t image_series_index);
-    
+
     // User parameters
     float getUserFloat(unsigned int index) const;
     void setUserFloat(unsigned int index, float value);
@@ -746,43 +514,40 @@ public:
 
     // Flags
     uint64_t getFlags() const;
-    void setFlags(const uint64_t flags);
-    bool isFlagSet(const uint64_t val) const;
-    void setFlag(const uint64_t val);
-    void clearFlag(const uint64_t val);
+    void setFlags(uint64_t flags);
+    bool isFlagSet(uint64_t val) const;
+    void setFlag(uint64_t val);
+    void clearFlag(uint64_t val);
     void clearAllFlags();
 
     // Header
-    ImageHeader & getHead();
-    const ImageHeader & getHead() const;
+    ImageHeader& getHead();
+    const ImageHeader& getHead() const;
     void setHead(const ImageHeader& head);
-    
+
     // Attribute string
     void getAttributeString(std::string &attr) const;
-    const char *getAttributeString() const;
+    const std::string& getAttributeString() const;
     void setAttributeString(const std::string &attr);
-    void setAttributeString(const char *attr);
     size_t getAttributeStringLength() const;
-    
+
     // Data
-    T * getDataPtr();
-    const T * getDataPtr() const;
+    std::vector<T>& getData();
+    const std::vector<T>& getData() const;
     /** Returns the number of elements in the image data **/
     size_t getNumberOfDataElements() const;
     /** Returns the size of the image data in bytes **/
     size_t getDataSize() const;
 
-    /** Returns iterator to the beginning of the image data **/
-    const T* begin() const;
-
-    /** Returns iterator to the end of the image data **/
-    const T* end() const;
-
     /** Returns a reference to the image data **/
-    T & operator () (uint16_t x, uint16_t y=0, uint16_t z=0 , uint16_t channel =0);
+    T& operator () (uint16_t x, uint16_t y=0, uint16_t z=0, uint16_t channel=0);
 
 protected:
-    ISMRMRD_Image im;
+    void makeConsistent();
+
+    ImageHeader head;
+    std::string attribute_string;
+    std::vector<T> data;
 };
 
 /// N-Dimensional array type
@@ -791,40 +556,36 @@ template <typename T> class EXPORTISMRMRD NDArray {
 public:
     // Constructors, destructor and copy
     NDArray();
-    NDArray(const std::vector<size_t> dimvec);
+    NDArray(const std::vector<size_t>& dims);
     NDArray(const NDArray<T> &other);
     ~NDArray();
     NDArray<T> & operator= (const NDArray<T> &other);
 
     // Accessors and mutators
     uint16_t getVersion() const;
-    ISMRMRD_DataTypes getDataType() const;
+    DataType getDataType() const;
     uint16_t getNDim() const;
-    const size_t (&getDims())[ISMRMRD_NDARRAY_MAXDIM];
+    const std::vector<size_t>& getDims();
     size_t getDataSize() const;
-    void resize(const std::vector<size_t> dimvec);
+    void resize(const std::vector<size_t>& dims);
     size_t getNumberOfElements() const;
-    T * getDataPtr();
-    const T * getDataPtr() const;
-    
-    /** Returns iterator to the beginning of the array **/
-    T * begin();
-
-    /** Returns iterator to the end of the array **/
-    T* end();
+    std::vector<T>& getData();
+    const std::vector<T>& getData() const;
 
     /** Returns a reference to the image data **/
-    T & operator () (uint16_t x, uint16_t y=0, uint16_t z=0, uint16_t w=0, uint16_t n=0, uint16_t m=0, uint16_t l=0);
+    /* T & operator () (uint16_t x, uint16_t y=0, uint16_t z=0, uint16_t w=0, uint16_t n=0, uint16_t m=0, uint16_t l=0); */
 
 protected:
-    ISMRMRD_NDArray arr;
+    void makeConsistent();
+
+    uint16_t version;
+    std::vector<size_t> dims;
+    std::vector<T> data;
 };
 
 
 /** @} */
 
 } // namespace ISMRMRD
-
-#endif
 
 #endif /* ISMRMRD_H */

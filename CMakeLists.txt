@@ -145,11 +145,11 @@ set(ISMRMRD_TARGET_INCLUDE_DIRS
 )
 
 set(ISMRMRD_TARGET_SOURCES
-  libsrc/ismrmrd.c
+  #libsrc/ismrmrd.c
   libsrc/ismrmrd.cpp
   libsrc/xml.cpp
   libsrc/meta.cpp
-  ${ISMRMRD_DATASET_SOURCES}
+  #${ISMRMRD_DATASET_SOURCES}
 )
 
 set(ISMRMRD_TARGET_LINK_LIBS ${ISMRMRD_DATASET_LIBRARIES})
@@ -203,7 +203,7 @@ add_subdirectory(examples)
 
 # TODO: make this work on Windows
 if (NOT WIN32)
-    add_subdirectory(tests)
+    #add_subdirectory(tests)
 endif (NOT WIN32)
 
 # install the matlab api

@@ -13,7 +13,7 @@
 
 #endif /* __cplusplus */
 
-#include "ismrmrd/ismrmrd.h"
+#include "ismrmrd/ismrmrd-c.h"
 #include "ismrmrd/version.h"
 
 #ifdef __cplusplus
