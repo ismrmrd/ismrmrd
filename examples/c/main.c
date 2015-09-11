@@ -45,12 +45,9 @@ int main(void)
     ismrmrd_write_header(&dataset1, xmlhdr);
 
     /* Append some acquisitions */
-    /* must initialize an acquisition before you can use it */
-    ismrmrd_init_acquisition(&acq);
     nacq_write = 5;
     for (n=0; n < nacq_write; n++) {
-        /* must free an acquisition before you can reinitialize it */
-        ismrmrd_init_acquisition(&acq);
+        /* must initialize an acquisition before you can use it */
         ismrmrd_init_acquisition(&acq);
         acq.head.number_of_samples = 128;
         acq.head.active_channels = 4;
@@ -76,6 +73,7 @@ int main(void)
             ismrmrd_set_flag(&(acq.head.flags), ISMRMRD_ACQ_LAST_IN_SLICE);
         }
         ismrmrd_append_acquisition(&dataset1, &acq);
+        ismrmrd_cleanup_acquisition(&acq);
     }
     
     /* Close the dataset */
@@ -91,6 +89,7 @@ int main(void)
     /* Read the header */
     xmlstring = ismrmrd_read_header(&dataset2);
     printf("Header: %s\n", xmlstring);
+    free(xmlstring);
 
     /* Get the number of acquisitions */
     nacq_read = ismrmrd_get_number_of_acquisitions(&dataset2);
@@ -131,6 +130,8 @@ int main(void)
 #else
     printf("Data 3: %f\t 2: %f\n", creal(acq3.data[4]), creal(acq2.data[4]));
 #endif
+    ismrmrd_cleanup_acquisition(&acq2);
+    ismrmrd_cleanup_acquisition(&acq3);
 
     /* Create and store an image */
     ismrmrd_init_image(&im);
@@ -152,6 +153,7 @@ int main(void)
         ((float*)im.data)[loc] = 2.0;
     }
     ismrmrd_append_image(&dataset2, "testimages", &im);
+    ismrmrd_cleanup_image(&im);
 
     numim = ismrmrd_get_number_of_images(&dataset2, "testimages");
     printf("Number of images stored = %d\n", numim);
@@ -160,6 +162,7 @@ int main(void)
     ismrmrd_read_image(&dataset2, "testimages", 1, &im2);
     printf("Image 1 attribute string = %s\n", im2.attribute_string);
     printf("Image 1 at position 10 has value = %f\n", ((float*)im2.data)[10]);
+    ismrmrd_cleanup_image(&im2);
 
     /* Create and store an array */
     ismrmrd_init_ndarray(&arr);
@@ -174,19 +177,14 @@ int main(void)
     }
     ismrmrd_append_array(&dataset2, "testarray", &arr);
     printf("Number of arrays stored = %d\n", ismrmrd_get_number_of_arrays(&dataset2, "testarray"));
+    ismrmrd_cleanup_ndarray(&arr);
 
     /* Read it back in */
     ismrmrd_init_ndarray(&arr2);
     ismrmrd_read_array(&dataset2, "testarray", 0, &arr2);
     printf("Array 2 at position 10 has value = %f\n", ((float*)arr2.data)[10]);
+    ismrmrd_cleanup_ndarray(&arr2);
     
-    /* Clean up */
-    /* This frees the internal memory of the acquisitions */
-    ismrmrd_cleanup_acquisition(&acq);
-    ismrmrd_cleanup_acquisition(&acq2);
-    ismrmrd_cleanup_acquisition(&acq3);
-    free(xmlstring);
-
     /* Close the dataset */
     ismrmrd_close_dataset(&dataset2);
 
