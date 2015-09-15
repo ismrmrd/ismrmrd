@@ -219,6 +219,8 @@ typedef struct ISMRMRD_EncodingCounters {
  */
 typedef struct ISMRMRD_AcquisitionHeader {
     uint16_t version;                                    /**< First unsigned int indicates the version */
+    uint16_t storage_type;                               /**< numeric type of each sample */
+    uint16_t stream_number;                              /**< which stream this belongs to */
     uint64_t flags;                                      /**< bit field with flags */
     uint32_t measurement_uid;                            /**< Unique ID for the measurement */
     uint32_t scan_counter;                               /**< Current acquisition number in the measurement */
@@ -255,7 +257,7 @@ EXPORTISMRMRD int ismrmrd_init_acquisition_header(ISMRMRD_AcquisitionHeader *hdr
 typedef struct ISMRMRD_Acquisition {
     ISMRMRD_AcquisitionHeader head; /**< Header, see above */
     float *traj;
-    complex_float_t *data;
+    void *data;
 } ISMRMRD_Acquisition;
 
 /** @addtogroup capi
@@ -487,7 +489,7 @@ public:
 };
 
 /// MR Acquisition type
-class EXPORTISMRMRD Acquisition {
+template <typename T> class EXPORTISMRMRD Acquisition {
     friend class Dataset;
 public:
     // Constructors, assignment, destructor
@@ -499,6 +501,8 @@ public:
 
     // Accessors and mutators
     const uint16_t &version();
+    uint16_t &storage_type();
+    uint16_t &stream_number();
     const uint64_t &flags();
     uint32_t &measurement_uid();
     uint32_t &scan_counter();
@@ -537,28 +541,28 @@ public:
     /**
      * Returns a pointer to the data
      */
-    const complex_float_t * getDataPtr() const;
-    complex_float_t * getDataPtr();
+    const T* getDataPtr() const;
+    T* getDataPtr();
 
     /**
      * Returns a reference to the data
      */    
-    complex_float_t & data(uint16_t sample, uint16_t channel);
+    T& data(uint16_t sample, uint16_t channel);
 
     /**
      * Sets the datay.  Must set sizes properly first
      */    
-    void setData(complex_float_t * data);
+    void setData(T* data);
 
     /**
      * Returns an iterator to the beginning of the data
      */
-    complex_float_t * data_begin() const;
+    const T* data_begin() const;
     
     /**
      * Returns an iterator of the end of the data
      */
-    complex_float_t * data_end() const;
+    const T* data_end() const;
     
     /**
      * Returns a pointer to the trajectory
@@ -617,7 +621,6 @@ public:
     void setFlag(const uint64_t val);
     void clearFlag(const uint64_t val);
     void clearAllFlags();
-
 };
 
 /// MR Image type
@@ -770,10 +773,10 @@ public:
     size_t getDataSize() const;
 
     /** Returns iterator to the beginning of the image data **/
-    T* begin();
+    const T* begin() const;
 
     /** Returns iterator to the end of the image data **/
-    T* end();
+    const T* end() const;
 
     /** Returns a reference to the image data **/
     T & operator () (uint16_t x, uint16_t y=0, uint16_t z=0 , uint16_t channel =0);

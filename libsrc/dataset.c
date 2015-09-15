@@ -173,7 +173,7 @@ static hid_t get_hdf5type_uint32(void) {
     hid_t datatype = H5Tcopy(H5T_NATIVE_UINT32);
     return datatype;
 }
-    
+
 static hid_t get_hdf5type_int32(void) {
     hid_t datatype = H5Tcopy(H5T_NATIVE_INT32);
     return datatype;
@@ -208,7 +208,7 @@ static hid_t get_hdf5type_complexfloat(void) {
     }
     return datatype;
 }
-    
+
 static hid_t get_hdf5type_complexdouble(void) {
     hid_t datatype;
     herr_t h5status;
@@ -265,35 +265,37 @@ static hid_t get_hdf5type_acquisitionheader(void) {
     herr_t h5status;
     hsize_t arraydims[1];
     hid_t vartype;
-    
+
     datatype = H5Tcreate(H5T_COMPOUND, sizeof(ISMRMRD_AcquisitionHeader));
     h5status = H5Tinsert(datatype, "version", HOFFSET(ISMRMRD_AcquisitionHeader, version), H5T_NATIVE_UINT16);
+    h5status = H5Tinsert(datatype, "storage_type", HOFFSET(ISMRMRD_AcquisitionHeader, storage_type), H5T_NATIVE_UINT16);
+    h5status = H5Tinsert(datatype, "stream_number", HOFFSET(ISMRMRD_AcquisitionHeader, stream_number), H5T_NATIVE_UINT16);
     h5status = H5Tinsert(datatype, "flags", HOFFSET(ISMRMRD_AcquisitionHeader, flags), H5T_NATIVE_UINT64);
     h5status = H5Tinsert(datatype, "measurement_uid", HOFFSET(ISMRMRD_AcquisitionHeader,  measurement_uid), H5T_NATIVE_UINT32);
     h5status = H5Tinsert(datatype, "scan_counter", HOFFSET(ISMRMRD_AcquisitionHeader, scan_counter), H5T_NATIVE_UINT32);
     h5status = H5Tinsert(datatype, "acquisition_time_stamp", HOFFSET(ISMRMRD_AcquisitionHeader, acquisition_time_stamp), H5T_NATIVE_UINT32);
-    
+
     arraydims[0] = ISMRMRD_PHYS_STAMPS;
     vartype = H5Tarray_create2(H5T_NATIVE_UINT32, 1, arraydims);
     h5status = H5Tinsert(datatype, "physiology_time_stamp", HOFFSET(ISMRMRD_AcquisitionHeader, physiology_time_stamp), vartype);
     H5Tclose(vartype);
-    
+
     h5status = H5Tinsert(datatype, "number_of_samples", HOFFSET(ISMRMRD_AcquisitionHeader, number_of_samples), H5T_NATIVE_UINT16);
     h5status = H5Tinsert(datatype, "available_channels", HOFFSET(ISMRMRD_AcquisitionHeader, available_channels), H5T_NATIVE_UINT16);
     h5status = H5Tinsert(datatype, "active_channels", HOFFSET(ISMRMRD_AcquisitionHeader, active_channels), H5T_NATIVE_UINT16);
-    
+
     arraydims[0] = ISMRMRD_CHANNEL_MASKS;
     vartype = H5Tarray_create2(H5T_NATIVE_UINT64, 1, arraydims);
     h5status = H5Tinsert(datatype, "channel_mask", HOFFSET(ISMRMRD_AcquisitionHeader, channel_mask), vartype);
     H5Tclose(vartype);
-    
+
     h5status = H5Tinsert(datatype, "discard_pre", HOFFSET(ISMRMRD_AcquisitionHeader, discard_pre), H5T_NATIVE_UINT16);
     h5status = H5Tinsert(datatype, "discard_post", HOFFSET(ISMRMRD_AcquisitionHeader, discard_post), H5T_NATIVE_UINT16);
     h5status = H5Tinsert(datatype, "center_sample", HOFFSET(ISMRMRD_AcquisitionHeader, center_sample), H5T_NATIVE_UINT16);
     h5status = H5Tinsert(datatype, "encoding_space_ref", HOFFSET(ISMRMRD_AcquisitionHeader, encoding_space_ref), H5T_NATIVE_UINT16);
     h5status = H5Tinsert(datatype, "trajectory_dimensions", HOFFSET(ISMRMRD_AcquisitionHeader, trajectory_dimensions), H5T_NATIVE_UINT16);
     h5status = H5Tinsert(datatype, "sample_time_us", HOFFSET(ISMRMRD_AcquisitionHeader, sample_time_us), H5T_NATIVE_FLOAT);
-    
+
     arraydims[0] = 3;
     vartype = H5Tarray_create2(H5T_NATIVE_FLOAT, 1, arraydims);
     h5status = H5Tinsert(datatype, "position", HOFFSET(ISMRMRD_AcquisitionHeader, position), vartype);
@@ -302,33 +304,33 @@ static hid_t get_hdf5type_acquisitionheader(void) {
     h5status = H5Tinsert(datatype, "slice_dir", HOFFSET(ISMRMRD_AcquisitionHeader, slice_dir), vartype);
     h5status = H5Tinsert(datatype, "patient_table_position", HOFFSET(ISMRMRD_AcquisitionHeader, patient_table_position), vartype);
     H5Tclose(vartype);
-    
+
     vartype = get_hdf5type_encoding();
     h5status = H5Tinsert(datatype, "idx", HOFFSET(ISMRMRD_AcquisitionHeader, idx), vartype);
     H5Tclose(vartype);
-    
+
     arraydims[0] = ISMRMRD_USER_INTS;
     vartype = H5Tarray_create2(H5T_NATIVE_INT32, 1, arraydims);
     h5status = H5Tinsert(datatype, "user_int", HOFFSET(ISMRMRD_AcquisitionHeader, user_int), vartype);
     H5Tclose(vartype);
-    
+
     arraydims[0] = ISMRMRD_USER_FLOATS;
     vartype = H5Tarray_create2(H5T_NATIVE_FLOAT, 1, arraydims);
     h5status = H5Tinsert(datatype, "user_float", HOFFSET(ISMRMRD_AcquisitionHeader, user_float), vartype);
     H5Tclose(vartype);
-    
+
     /* Clean up */
     if (h5status < 0) {
         ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get acquisitionheader data type");
     }
-    
-    return datatype;   
+
+    return datatype;
 }
 
 static hid_t get_hdf5type_acquisition(void) {
     hid_t datatype, vartype, vlvartype;
     herr_t h5status;
-    
+
     datatype = H5Tcreate(H5T_COMPOUND, sizeof(HDF5_Acquisition));
     vartype = get_hdf5type_acquisitionheader();
     h5status = H5Tinsert(datatype, "head", HOFFSET(HDF5_Acquisition, head), vartype);
@@ -338,18 +340,18 @@ static hid_t get_hdf5type_acquisition(void) {
     h5status = H5Tinsert(datatype, "traj", HOFFSET(HDF5_Acquisition, traj), vlvartype);
     H5Tclose(vartype);
     H5Tclose(vlvartype);
-    
+
     /* Store acquisition data as an array of floats */
     vartype = get_hdf5type_float();
     vlvartype = H5Tvlen_create(vartype);
     h5status = H5Tinsert(datatype, "data", HOFFSET(HDF5_Acquisition, data), vlvartype);
     H5Tclose(vartype);
     H5Tclose(vlvartype);
-    
+
     if (h5status < 0) {
         ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get acquisition data type");
     }
-    
+
     return datatype;
 }
 
@@ -358,7 +360,7 @@ static hid_t get_hdf5type_imageheader(void) {
     herr_t h5status;
     hsize_t arraydims[1];
     hid_t vartype;
-    
+
     datatype = H5Tcreate(H5T_COMPOUND, sizeof(ISMRMRD_ImageHeader));
     h5status = H5Tinsert(datatype, "version", HOFFSET(ISMRMRD_ImageHeader, version), H5T_NATIVE_UINT16);
     h5status = H5Tinsert(datatype, "data_type", HOFFSET(ISMRMRD_ImageHeader, data_type), H5T_NATIVE_UINT16);
@@ -394,7 +396,7 @@ static hid_t get_hdf5type_imageheader(void) {
     h5status = H5Tinsert(datatype, "image_type", HOFFSET(ISMRMRD_ImageHeader, image_type), H5T_NATIVE_UINT16);
     h5status = H5Tinsert(datatype, "image_index", HOFFSET(ISMRMRD_ImageHeader, image_index), H5T_NATIVE_UINT16);
     h5status = H5Tinsert(datatype, "image_series_index", HOFFSET(ISMRMRD_ImageHeader, image_series_index), H5T_NATIVE_UINT16);
-    
+
     arraydims[0] = ISMRMRD_USER_INTS;
     vartype = H5Tarray_create2(H5T_NATIVE_INT32, 1, arraydims);
     h5status = H5Tinsert(datatype, "user_int", HOFFSET(ISMRMRD_ImageHeader, user_int), vartype);
@@ -406,13 +408,13 @@ static hid_t get_hdf5type_imageheader(void) {
     H5Tclose(vartype);
 
     h5status = H5Tinsert(datatype, "attribute_string_len", HOFFSET(ISMRMRD_ImageHeader, attribute_string_len), H5T_NATIVE_UINT32);
-    
+
     /* Clean up */
     if (h5status < 0) {
         ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get imageheader data type");
     }
-    
-    return datatype;   
+
+    return datatype;
 }
 
 static hid_t get_hdf5type_image_attribute_string(void) {
@@ -424,9 +426,9 @@ static hid_t get_hdf5type_image_attribute_string(void) {
     }
     return datatype;
 }
-    
+
 static hid_t get_hdf5type_ndarray(uint16_t data_type) {
-    
+
     hid_t hdfdatatype = -1;
     switch (data_type) {
         case ISMRMRD_USHORT:
@@ -463,7 +465,7 @@ static uint16_t get_ndarray_data_type(hid_t hdf5type) {
 
     uint16_t dtype = 0;
     hid_t t;
-    
+
     t = get_hdf5type_uint16();
     if (H5Tequal(hdf5type, t)) {
         dtype = ISMRMRD_USHORT;
@@ -515,7 +517,7 @@ static uint16_t get_ndarray_data_type(hid_t hdf5type) {
     if (dtype == 0) {
         //ISMRMRD_PUSH_ERR(ISMRMRD_TYPEERROR, "Failed to get data type from HDF5 data type.");
     }
-    
+
     return dtype;
 }
 
@@ -553,7 +555,7 @@ static uint32_t get_number_of_elements(const ISMRMRD_Dataset *dset, const char *
         /* none */
         num = 0;
     }
-    
+
     return num;
 }
 
@@ -565,7 +567,7 @@ static int append_element(const ISMRMRD_Dataset * dset, const char * path,
     herr_t h5status = 0;
     hsize_t *hdfdims = NULL, *ext_dims = NULL, *offset = NULL, *maxdims = NULL, *chunk_dims = NULL;
     int n = 0, rank = 0;
-    
+
     if (NULL == dset) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
     }
@@ -1079,7 +1081,7 @@ uint32_t ismrmrd_get_number_of_acquisitions(const ISMRMRD_Dataset *dset) {
         ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
         return 0;
     }
-    /* The path to the acqusition data */    
+    /* The path to the acqusition data */
     path = make_path(dset, "data");
     numacq = get_number_of_elements(dset, path);
     free(path);
@@ -1099,7 +1101,7 @@ int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquis
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Acquisition pointer should not be NULL.");
     }
 
-    /* The path to the acqusition data */    
+    /* The path to the acqusition data */
     path = make_path(dset, "data");
 
     /* The acquisition datatype */
@@ -1130,7 +1132,7 @@ int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquis
     return ISMRMRD_NOERROR;
 }
 
-int ismrmrd_read_acquisition(const ISMRMRD_Dataset *dset, uint32_t index, ISMRMRD_Acquisition *acq)
+int ismrmrd_read_acquisition(const ISMRMRD_Dataset *dset, uint16_t stream_number, uint32_t index, ISMRMRD_Acquisition *acq)
 {
     hid_t datatype;
     herr_t status;
@@ -1190,7 +1192,7 @@ int ismrmrd_append_image(const ISMRMRD_Dataset *dset, const char *varname, const
     /* /groupname/varname */
     path = make_path(dset, varname);
     /* Make sure the path exists */
-    create_link(dset, path);        
+    create_link(dset, path);
 
     /* Handle the header */
     headerpath = append_to_path(dset, path, "header");
@@ -1407,7 +1409,7 @@ uint32_t ismrmrd_get_number_of_arrays(const ISMRMRD_Dataset *dset, const char *v
 }
 
 int ismrmrd_read_array(const ISMRMRD_Dataset *dset, const char *varname,
-        const uint32_t index, ISMRMRD_NDArray *arr) {    
+        const uint32_t index, ISMRMRD_NDArray *arr) {
     int status;
     hid_t datatype;
     char *path;

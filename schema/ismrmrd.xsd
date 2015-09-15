@@ -13,6 +13,7 @@
         <xs:element maxOccurs="1" minOccurs="1" name="experimentalConditions" type="experimentalConditionsType"/>
         <xs:element maxOccurs="unbounded" minOccurs="1" name="encoding" type="encoding"/>
         <xs:element maxOccurs="1" minOccurs="0" name="sequenceParameters" type="sequenceParametersType"/>
+        <xs:element maxOccurs="1" minOccurs="0" name="streams" type="streams"/>
         <xs:element maxOccurs="1" minOccurs="0" name="userParameters" type="userParameters"/>
       </xs:sequence>
     </xs:complexType>
@@ -193,9 +194,42 @@
       <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="flipAngle_deg"/>
       <xs:element minOccurs="0" maxOccurs="1" type="xs:string" name="sequence_type"/>
       <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="echo_spacing"/>
-
     </xs:sequence>
   </xs:complexType>
+
+  <xs:complexType name="streams">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="stream" type="streamType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="streamType">
+    <xs:all>
+        <xs:element minOccurs="0" maxOccurs="1" name="name" type="xs:string" />
+        <xs:element minOccurs="1" maxOccurs="1" name="dataType" type="dataType" />
+        <xs:element minOccurs="1" maxOccurs="1" name="storageType" type="storageType" />
+        <xs:element minOccurs="1" maxOccurs="1" name="number" type="xs:long"/>
+    </xs:all>
+  </xs:complexType>
+
+  <xs:simpleType name="dataType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="MRAcquisition"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="storageType">
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="ushort"/>
+        <xs:enumeration value="short"/>
+        <xs:enumeration value="uint"/>
+        <xs:enumeration value="int"/>
+        <xs:enumeration value="float"/>
+        <xs:enumeration value="double"/>
+        <xs:enumeration value="cxfloat"/>
+        <xs:enumeration value="cxdouble"/>
+    </xs:restriction>
+  </xs:simpleType>
 
   <xs:complexType name="userParameterLongType">
     <xs:all>

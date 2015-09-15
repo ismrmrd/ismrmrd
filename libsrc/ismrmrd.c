@@ -45,6 +45,7 @@ int ismrmrd_init_acquisition_header(ISMRMRD_AcquisitionHeader *hdr) {
 
     memset(hdr, 0, sizeof(ISMRMRD_AcquisitionHeader));
     hdr->version = ISMRMRD_VERSION_MAJOR;
+    hdr->storage_type = ISMRMRD_FLOAT;
     hdr->number_of_samples = 0;
     hdr->available_channels = 1;
     hdr->active_channels = 1;
@@ -142,7 +143,7 @@ int ismrmrd_make_consistent_acquisition(ISMRMRD_Acquisition *acq) {
         
     data_size = ismrmrd_size_of_acquisition_data(acq);
     if (data_size > 0) {
-        acq->data = (complex_float_t *)realloc(acq->data, data_size);
+        acq->data = realloc(acq->data, data_size);
         if (acq->data == NULL) {
             return ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR,
                           "Failed to realloc acquisition data array");
@@ -175,7 +176,7 @@ size_t ismrmrd_size_of_acquisition_data(const ISMRMRD_Acquisition *acq) {
     }
 
     num_data = acq->head.number_of_samples * acq->head.active_channels;
-    return num_data * sizeof(*acq->data);
+    return num_data * ismrmrd_sizeof_data_type(acq->head.storage_type);
 
 }
 

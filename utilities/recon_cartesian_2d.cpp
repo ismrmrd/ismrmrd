@@ -79,8 +79,8 @@ int main(int argc, char** argv)
     uint16_t nY = e_space.matrixSize.y;
     
     // The number of channels is optional, so read the first line
-    ISMRMRD::Acquisition acq;
-    d.readAcquisition(0, acq);
+    ISMRMRD::Acquisition<complex_float_t> acq;
+    d.readAcquisition(0, 0, acq);
     uint16_t nCoils = acq.active_channels();
     
     std::cout << "Encoding Matrix Size        : [" << e_space.matrixSize.x << ", " << e_space.matrixSize.y << ", " << e_space.matrixSize.z << "]" << std::endl;
@@ -100,7 +100,7 @@ int main(int argc, char** argv)
     unsigned int number_of_acquisitions = d.getNumberOfAcquisitions();
     for (unsigned int i = 0; i < number_of_acquisitions; i++) {
         //Read one acquisition at a time
-        d.readAcquisition(i, acq);
+        d.readAcquisition(0, i, acq);
 
         //Copy data, we should probably be more careful here and do more tests....
         for (uint16_t c=0; c<nCoils; c++) {

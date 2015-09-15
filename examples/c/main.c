@@ -59,10 +59,10 @@ int main(void)
             for (c=0; c<acq.head.active_channels; c++) {
 #ifdef _MSC_VER
                 /* Windows C compilers don't have a good complex type */
-                acq.data[k*acq.head.active_channels + c].real = n;
-                acq.data[k*acq.head.active_channels + c].imag = n;
+                ((complex_float_t*)acq.data)[k*acq.head.active_channels + c].real = n;
+                ((complex_float_t*)acq.data)[k*acq.head.active_channels + c].imag = n;
 #else
-                acq.data[k*acq.head.active_channels + c] = n + I*n;
+                ((complex_float_t*)acq.data)[k*acq.head.active_channels + c] = n + I*n;
 #endif
             }
         }
@@ -105,7 +105,7 @@ int main(void)
         index = 0;
     }
     printf("Acquisition index: %u\n", index);
-    ismrmrd_read_acquisition(&dataset2, index, &acq2);
+    ismrmrd_read_acquisition(&dataset2, 0, index, &acq2);
     printf("Number of samples: %u\n", acq2.head.number_of_samples);
     printf("Flags: %llu\n", (unsigned long long)acq2.head.flags);
     printf("Channel Mask[0]: %llu\n", (unsigned long long)acq2.head.channel_mask[0]);
@@ -113,22 +113,24 @@ int main(void)
     printf("Channel 3 is %d\n", ismrmrd_is_channel_on(acq2.head.channel_mask, 3));
     printf("Channel 5 is %d\n", ismrmrd_is_channel_on(acq2.head.channel_mask, 5));
     
+    complex_float_t sample2 = ((complex_float_t*)acq2.data)[4];
 #ifdef _MSC_VER
     /* Windows C compilers don't have a good complex type */
-    printf("Data 3: %f\t 2: %f\n", acq2.data[4].real, acq2.data[4].imag);
+    printf("Data 3: %f\t 2: %f\n", sample2.real, sample2.imag);
 #else
-    printf("Data[4]: %f, %f\n", creal(acq2.data[4]), cimag(acq2.data[4]));
+    printf("Data[4]: %f, %f\n", creal(sample2), cimag(sample2));
 #endif
     
     ismrmrd_init_acquisition(&acq3);
     ismrmrd_copy_acquisition(&acq3, &acq2);
     
     printf("Pointers 3: %p\t 2: %p\n", (void *) acq3.data, (void *) acq2.data);
+    complex_float_t sample3 = ((complex_float_t*)acq3.data)[4];
 #ifdef _MSC_VER
     /* Windows C compilers don't have a good complex type */
-    printf("Data 3: %f\t 2: %f\n", acq3.data[4].real, acq2.data[4].real);
+    printf("Data 3: %f\t 2: %f\n", sample3.real, sample2.real);
 #else
-    printf("Data 3: %f\t 2: %f\n", creal(acq3.data[4]), creal(acq2.data[4]));
+    printf("Data 3: %f\t 2: %f\n", creal(sample3), creal(sample2));
 #endif
     ismrmrd_cleanup_acquisition(&acq2);
     ismrmrd_cleanup_acquisition(&acq3);

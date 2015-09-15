@@ -54,21 +54,22 @@ void AcquisitionHeader::setAllChannelsNotActive() {
 // Acquisition class Implementation
 //
 // Constructors, assignment operator, destructor
-Acquisition::Acquisition() {
+template <typename T> Acquisition<T>::Acquisition() {
     if (ismrmrd_init_acquisition(&acq) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
+    acq.head.storage_type = static_cast<uint16_t>(get_data_type<T>());
 }
 
-
-Acquisition::Acquisition(uint16_t num_samples, uint16_t active_channels, uint16_t trajectory_dimensions){
+template <typename T> Acquisition<T>::Acquisition(uint16_t num_samples, uint16_t active_channels, uint16_t trajectory_dimensions){
     if (ismrmrd_init_acquisition(&acq) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
-    this->resize(num_samples,active_channels,trajectory_dimensions);
+    acq.head.storage_type = static_cast<uint16_t>(get_data_type<T>());
+    this->resize(num_samples, active_channels, trajectory_dimensions);
 }
 
-Acquisition::Acquisition(const Acquisition &other) {
+template <typename T> Acquisition<T>::Acquisition(const Acquisition &other) {
     int err = 0;
     // This is a deep copy
     err = ismrmrd_init_acquisition(&acq);
@@ -81,7 +82,7 @@ Acquisition::Acquisition(const Acquisition &other) {
     }
 }
 
-Acquisition & Acquisition::operator= (const Acquisition &other) {
+template <typename T> Acquisition<T>& Acquisition<T>::operator= (const Acquisition &other) {
     // Assignment makes a copy
     int err = 0;
     if (this != &other )
@@ -98,227 +99,231 @@ Acquisition & Acquisition::operator= (const Acquisition &other) {
     return *this;
 }
 
-Acquisition::~Acquisition() {
+template <typename T> Acquisition<T>::~Acquisition() {
     if (ismrmrd_cleanup_acquisition(&acq) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
 }
 
 // Accessors and mutators
-const uint16_t &Acquisition::version() {
+template <typename T> const uint16_t & Acquisition<T>::version() {
     return acq.head.version;
 }
 
-const uint64_t &Acquisition::flags() {
+template <typename T> uint16_t& Acquisition<T>::storage_type() {
+    return acq.head.storage_type;
+}
+
+template <typename T> uint16_t& Acquisition<T>::stream_number() {
+    return acq.head.stream_number;
+}
+
+template <typename T> const uint64_t & Acquisition<T>::flags() {
     return acq.head.flags;
 }
 
-uint32_t &Acquisition::measurement_uid() {
+template <typename T> uint32_t & Acquisition<T>::measurement_uid() {
     return acq.head.measurement_uid;
 }
 
-uint32_t &Acquisition::scan_counter() {
+template <typename T> uint32_t & Acquisition<T>::scan_counter() {
     return acq.head.scan_counter;
 }
 
-uint32_t &Acquisition::acquisition_time_stamp() {
+template <typename T> uint32_t & Acquisition<T>::acquisition_time_stamp() {
     return acq.head.acquisition_time_stamp;
 }
 
-uint32_t (&Acquisition::physiology_time_stamp()) [ISMRMRD_PHYS_STAMPS] {
+template <typename T> uint32_t (& Acquisition<T>::physiology_time_stamp()) [ISMRMRD_PHYS_STAMPS] {
     return acq.head.physiology_time_stamp;
 }
 
-const uint16_t &Acquisition::number_of_samples() {
+template <typename T> const uint16_t & Acquisition<T>::number_of_samples() {
     return acq.head.number_of_samples;
 }
 
-uint16_t &Acquisition::available_channels() {
+template <typename T> uint16_t & Acquisition<T>::available_channels() {
     return acq.head.available_channels;
 }
 
-const uint16_t &Acquisition::active_channels() {
+template <typename T> const uint16_t & Acquisition<T>::active_channels() {
     return acq.head.active_channels;
 }
 
-const uint64_t (&Acquisition::channel_mask()) [ISMRMRD_CHANNEL_MASKS] {
+template <typename T> const uint64_t (& Acquisition<T>::channel_mask()) [ISMRMRD_CHANNEL_MASKS] {
     return acq.head.channel_mask;
 }
 
-uint16_t &Acquisition::discard_pre() {
+template <typename T> uint16_t & Acquisition<T>::discard_pre() {
     return acq.head.discard_pre;
 }
 
-uint16_t &Acquisition::discard_post() {
+template <typename T> uint16_t & Acquisition<T>::discard_post() {
     return acq.head.discard_post;
 }
 
-uint16_t &Acquisition::center_sample() {
+template <typename T> uint16_t & Acquisition<T>::center_sample() {
     return acq.head.center_sample;
 }
 
-uint16_t &Acquisition::encoding_space_ref() {
+template <typename T> uint16_t & Acquisition<T>::encoding_space_ref() {
     return acq.head.encoding_space_ref;
 }
 
-const uint16_t &Acquisition::trajectory_dimensions() {
+template <typename T> const uint16_t & Acquisition<T>::trajectory_dimensions() {
     return acq.head.trajectory_dimensions;
 }
 
-float &Acquisition::sample_time_us() {
+template <typename T> float & Acquisition<T>::sample_time_us() {
     return acq.head.sample_time_us;
 }
 
-float (&Acquisition::position())[3] {
+template <typename T> float (& Acquisition<T>::position())[3] {
     return acq.head.position;
 }
 
-float (&Acquisition::read_dir())[3] {
+template <typename T> float (& Acquisition<T>::read_dir())[3] {
     return acq.head.read_dir;
 }
 
-float (&Acquisition::phase_dir())[3] {
+template <typename T> float (& Acquisition<T>::phase_dir())[3] {
     return acq.head.phase_dir;
 }
 
-float (&Acquisition::slice_dir())[3] {
+template <typename T> float (& Acquisition<T>::slice_dir())[3] {
     return acq.head.slice_dir;
 }
 
-float (&Acquisition::patient_table_position())[3] {
+template <typename T> float (& Acquisition<T>::patient_table_position())[3] {
     return acq.head.patient_table_position;
 }
 
-ISMRMRD_EncodingCounters &Acquisition::idx() {
+template <typename T> ISMRMRD_EncodingCounters & Acquisition<T>::idx() {
     return acq.head.idx;
 }
 
-int32_t (&Acquisition::user_int()) [ISMRMRD_USER_INTS] {
+template <typename T> int32_t (& Acquisition<T>::user_int()) [ISMRMRD_USER_INTS] {
     return acq.head.user_int;
 }
 
-float (&Acquisition::user_float()) [ISMRMRD_USER_FLOATS] {
+template <typename T> float (& Acquisition<T>::user_float()) [ISMRMRD_USER_FLOATS] {
     return acq.head.user_float;
 }
 
 // Sizes
-size_t Acquisition::getNumberOfDataElements() const {
-    size_t num = acq.head.number_of_samples * acq.head.active_channels;
-    return num;
+template <typename T> size_t Acquisition<T>::getNumberOfDataElements() const {
+    return acq.head.number_of_samples * acq.head.active_channels;
 }
 
-size_t Acquisition::getDataSize() const {
-    size_t num = acq.head.number_of_samples * acq.head.active_channels;
-    return num*sizeof(complex_float_t);
+template <typename T> size_t Acquisition<T>::getDataSize() const {
+    return getNumberOfDataElements() * sizeof(T);
 }
 
-size_t Acquisition::getNumberOfTrajElements() const {
-    size_t num = acq.head.number_of_samples * acq.head.trajectory_dimensions;
-    return num;
+template <typename T> size_t Acquisition<T>::getNumberOfTrajElements() const {
+    return acq.head.number_of_samples * acq.head.trajectory_dimensions;
 }
 
-size_t Acquisition::getTrajSize() const {
-    size_t num = acq.head.number_of_samples * acq.head.trajectory_dimensions;
-    return num*sizeof(float);
+template <typename T> size_t Acquisition<T>::getTrajSize() const {
+    return getNumberOfTrajElements() * sizeof(float);
 }
 
 // Data and Trajectory accessors
-const AcquisitionHeader & Acquisition::getHead() const {
+template <typename T> const AcquisitionHeader & Acquisition<T>::getHead() const {
     // This returns a reference
     return *static_cast<const AcquisitionHeader *>(&acq.head);
 }
 
-void Acquisition::setHead(const AcquisitionHeader &other) {
+template <typename T> void Acquisition<T>::setHead(const AcquisitionHeader &other) {
     memcpy(&acq.head, &other, sizeof(AcquisitionHeader));
     if (ismrmrd_make_consistent_acquisition(&acq) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
 }
 
-void Acquisition::resize(uint16_t num_samples, uint16_t active_channels, uint16_t trajectory_dimensions){
-       acq.head.number_of_samples = num_samples;
-       acq.head.active_channels = active_channels;
-       acq.head.trajectory_dimensions = trajectory_dimensions;
-       if (ismrmrd_make_consistent_acquisition(&acq) != ISMRMRD_NOERROR) {
-           throw std::runtime_error(build_exception_string());
-       }
+template <typename T> void Acquisition<T>::resize(uint16_t num_samples, uint16_t active_channels, uint16_t trajectory_dimensions){
+    acq.head.number_of_samples = num_samples;
+    acq.head.active_channels = active_channels;
+    acq.head.trajectory_dimensions = trajectory_dimensions;
+    if (ismrmrd_make_consistent_acquisition(&acq) != ISMRMRD_NOERROR) {
+        throw std::runtime_error(build_exception_string());
+    }
 }
 
-const complex_float_t * Acquisition::getDataPtr() const {
-    return acq.data;
+template <typename T> const T* Acquisition<T>::getDataPtr() const {
+    return static_cast<const T*>(acq.data);
 }
 
-complex_float_t * Acquisition::getDataPtr() {
-    return acq.data;
+template <typename T> T* Acquisition<T>::getDataPtr() {
+    return static_cast<T*>(acq.data);
 }
 
-void Acquisition::setData(complex_float_t * data) {
-    memcpy(acq.data,data,this->getNumberOfDataElements()*sizeof(complex_float_t));
+template <typename T> void Acquisition<T>::setData(T* data) {
+    memcpy(acq.data, data, getDataSize());
 }
 
-complex_float_t & Acquisition::data(uint16_t sample, uint16_t channel){
-       size_t index = size_t(sample)+size_t(channel)*size_t(acq.head.number_of_samples);
-       return acq.data[index];
+template <typename T> T& Acquisition<T>::data(uint16_t sample, uint16_t channel){
+    size_t index = size_t(sample) + size_t(channel) * size_t(acq.head.number_of_samples);
+    return getDataPtr()[index];
 }
 
-const float * Acquisition::getTrajPtr() const {
+template <typename T> const float * Acquisition<T>::getTrajPtr() const {
     return acq.traj;
 }
 
-float * Acquisition::getTrajPtr() {
+template <typename T> float * Acquisition<T>::getTrajPtr() {
     return acq.traj;
 }
 
-void Acquisition::setTraj(float* traj) {
-       memcpy(acq.traj,traj,this->getNumberOfTrajElements()*sizeof(float));
+template <typename T> void Acquisition<T>::setTraj(float* traj) {
+       memcpy(acq.traj, traj, getTrajSize());
 }
 
-float & Acquisition::traj(uint16_t dimension, uint16_t sample){
-    size_t index = size_t(sample)*size_t(acq.head.trajectory_dimensions)+size_t(dimension);
+template <typename T> float & Acquisition<T>::traj(uint16_t dimension, uint16_t sample){
+    size_t index = size_t(sample) * size_t(acq.head.trajectory_dimensions) + size_t(dimension);
     return acq.traj[index];
 }
 
-complex_float_t * Acquisition::data_begin() const{
-       return acq.data;
+template <typename T> const T* Acquisition<T>::data_begin() const{
+       return getDataPtr();
 }
 
-complex_float_t * Acquisition::data_end() const {
-       return acq.data+size_t(acq.head.number_of_samples)*size_t(acq.head.active_channels);
+template <typename T> const T* Acquisition<T>::data_end() const {
+       return getDataPtr() + getNumberOfDataElements();
 }
 
-float * Acquisition::traj_begin() const {
+template <typename T> float * Acquisition<T>::traj_begin() const {
        return acq.traj;
 }
 
-float * Acquisition::traj_end() const {
-       return acq.traj+size_t(acq.head.number_of_samples)*size_t(acq.head.trajectory_dimensions);
+template <typename T> float * Acquisition<T>::traj_end() const {
+       return acq.traj + getNumberOfTrajElements();
 }
 
 // Flag methods
-bool Acquisition::isFlagSet(const uint64_t val) {
+template <typename T> bool Acquisition<T>::isFlagSet(const uint64_t val) {
     return ismrmrd_is_flag_set(acq.head.flags, val);
 }
-void Acquisition::setFlag(const uint64_t val) {
+template <typename T> void Acquisition<T>::setFlag(const uint64_t val) {
     ismrmrd_set_flag(&acq.head.flags, val);
 }
-void Acquisition::clearFlag(const uint64_t val) {
+template <typename T> void Acquisition<T>::clearFlag(const uint64_t val) {
     ismrmrd_clear_flag(&acq.head.flags, val);
 }
-void Acquisition::clearAllFlags() {
+template <typename T> void Acquisition<T>::clearAllFlags() {
     ismrmrd_clear_all_flags(&acq.head.flags);
 }
 
 // Channel mask methods
-bool Acquisition::isChannelActive(uint16_t channel_id) {
+template <typename T> bool Acquisition<T>::isChannelActive(uint16_t channel_id) {
     return ismrmrd_is_channel_on(acq.head.channel_mask, channel_id);
 }
-void Acquisition::setChannelActive(uint16_t channel_id) {
+template <typename T> void Acquisition<T>::setChannelActive(uint16_t channel_id) {
     ismrmrd_set_channel_on(acq.head.channel_mask, channel_id);
 }
-void Acquisition::setChannelNotActive(uint16_t channel_id) {
+template <typename T> void Acquisition<T>::setChannelNotActive(uint16_t channel_id) {
     ismrmrd_set_channel_off(acq.head.channel_mask, channel_id);
 }
-void Acquisition::setAllChannelsNotActive() {
+template <typename T> void Acquisition<T>::setAllChannelsNotActive() {
     ismrmrd_set_all_channels_off(acq.head.channel_mask);
 }
 
@@ -988,12 +993,12 @@ template <typename T> size_t Image<T>::getDataSize() const {
     return ismrmrd_size_of_image_data(&im);
 }
 
-template <typename T> T * Image<T>::begin() {
-     return static_cast<T*>(im.data);
+template <typename T> const T * Image<T>::begin() const {
+     return getDataPtr();
 }
 
-template <typename T> T * Image<T>::end() {
-     return static_cast<T*>(im.data)+this->getNumberOfDataElements();
+template <typename T> const T * Image<T>::end() const {
+     return getDataPtr() + this->getNumberOfDataElements();
 }
 
 template <typename T> T & Image<T>::operator () (uint16_t ix, uint16_t iy, uint16_t iz, uint16_t channel) {
@@ -1001,7 +1006,7 @@ template <typename T> T & Image<T>::operator () (uint16_t ix, uint16_t iy, uint1
              + size_t(im.head.matrix_size[0])*iy \
              + size_t(im.head.matrix_size[1])*size_t(im.head.matrix_size[0])*iz \
              + size_t(im.head.matrix_size[1])*size_t(im.head.matrix_size[0])*size_t(im.head.matrix_size[2])*channel;
-     return static_cast<T*>(im.data)[index];
+     return getDataPtr()[index];
 }
 
 //
@@ -1096,7 +1101,7 @@ template <typename T> T * NDArray<T>::getDataPtr() {
 }
 
 template <typename T> const T * NDArray<T>::getDataPtr() const {
-    return static_cast<T*>(arr.data);
+    return static_cast<const T*>(arr.data);
 }
 
 template <typename T> size_t NDArray<T>::getDataSize() const {
@@ -1116,11 +1121,11 @@ template <typename T> size_t NDArray<T>::getNumberOfElements() const {
 }
 
 template <typename T> T * NDArray<T>::begin() {
-    return static_cast<T*>(arr.data);
+    return getDataPtr();
 }
 
 template <typename T> T * NDArray<T>::end() {
-    return static_cast<T*>(arr.data)+this->getNumberOfElements();
+    return getDataPtr() + this->getNumberOfElements();
 }
 
 template <typename T> T & NDArray<T>::operator () (uint16_t x, uint16_t y, uint16_t z, uint16_t w, uint16_t n, uint16_t m, uint16_t l){
@@ -1132,7 +1137,7 @@ template <typename T> T & NDArray<T>::operator () (uint16_t x, uint16_t y, uint1
                stride *= arr.dims[i];
        }
 
-       return static_cast<T*>(arr.data)[index];
+       return getDataPtr()[index];
 }
 
 // Specializations
@@ -1176,6 +1181,16 @@ template <> EXPORTISMRMRD inline ISMRMRD_DataTypes get_data_type<complex_double_
 {
     return ISMRMRD_CXDOUBLE;
 }
+
+// Acquisitions
+template EXPORTISMRMRD class Acquisition<uint16_t>;
+template EXPORTISMRMRD class Acquisition<int16_t>;
+template EXPORTISMRMRD class Acquisition<uint32_t>;
+template EXPORTISMRMRD class Acquisition<int32_t>;
+template EXPORTISMRMRD class Acquisition<float>;
+template EXPORTISMRMRD class Acquisition<double>;
+template EXPORTISMRMRD class Acquisition<complex_float_t>;
+template EXPORTISMRMRD class Acquisition<complex_double_t>;
 
 // Images
 template EXPORTISMRMRD class Image<uint16_t>;

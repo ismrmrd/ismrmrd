@@ -75,7 +75,8 @@ EXPORTISMRMRD int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const 
 /**
  *  Reads the acquisition with the specified index from the dataset.
  */
-EXPORTISMRMRD int ismrmrd_read_acquisition(const ISMRMRD_Dataset *dset, uint32_t index, ISMRMRD_Acquisition *acq);
+EXPORTISMRMRD int ismrmrd_read_acquisition(const ISMRMRD_Dataset *dset,
+        uint16_t stream_number, uint32_t index, ISMRMRD_Acquisition *acq);
 
 /**
  *  Return the number of acquisitions in the dataset.
@@ -151,14 +152,17 @@ public:
     void writeHeader(const std::string &xmlstring);
     void readHeader(std::string& xmlstring);
     // Acquisitions
-    void appendAcquisition(const Acquisition &acq);
-    void readAcquisition(uint32_t index, Acquisition &acq);
+    template <typename T> void appendAcquisition(const Acquisition<T> &acq);
+    void appendAcquisition(const ISMRMRD_Acquisition* acq);
+    template <typename T> void readAcquisition(uint16_t stream_number, uint32_t index, Acquisition<T> &acq);
     uint32_t getNumberOfAcquisitions();
+
     // Images
     template <typename T> void appendImage(const std::string &var, const Image<T> &im);
     void appendImage(const std::string &var, const ISMRMRD_Image *im);
     template <typename T> void readImage(const std::string &var, uint32_t index, Image<T> &im);
     uint32_t getNumberOfImages(const std::string &var);
+
     // NDArrays
     template <typename T> void appendNDArray(const std::string &var, const NDArray<T> &arr);
     void appendNDArray(const std::string &var, const ISMRMRD_NDArray *arr);

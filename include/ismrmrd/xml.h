@@ -247,6 +247,14 @@ namespace ISMRMRD
     long value;
   };
 
+  struct Stream
+  {
+    std::string name;
+    std::string dataType;
+    long storageType;
+    long number;
+  };
+
   struct UserParameterDouble
   {
     std::string name;
@@ -319,6 +327,7 @@ namespace ISMRMRD
     Optional<AcquisitionSystemInformation> acquisitionSystemInformation;
     ExperimentalConditions experimentalConditions;
     std::vector<Encoding> encoding;
+    std::vector<Stream> streams;
     Optional<SequenceParameters> sequenceParameters;
     Optional<UserParameters> userParameters;    
   };

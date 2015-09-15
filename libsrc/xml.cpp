@@ -1,4 +1,5 @@
 #include "ismrmrd/xml.h"
+#include "ismrmrd/ismrmrd.h"
 #include "ismrmrd/version.h"
 #include "pugixml.hpp"
 #include <cstdlib>
@@ -118,6 +119,52 @@ namespace ISMRMRD
     return r;
   }
 
+  std::vector<Stream> parse_streams(pugi::xml_node& n, const char* child)
+  {
+    std::vector<Stream> streams;
+
+    pugi::xml_node nc = n.child(child);
+    while (nc) {
+        Stream s;
+        pugi::xml_node name = nc.child("name");
+        pugi::xml_node dataType = nc.child("dataType");
+        pugi::xml_node storageType = nc.child("storageType");
+        pugi::xml_node number = nc.child("number");
+
+        if (name) {
+            s.name = std::string(name.child_value());
+        }
+
+        s.dataType = std::string(dataType.child_value());
+        s.number = std::atoi(number.child_value());
+
+        std::string storage(storageType.child_value());
+        if (storage == "ushort") {
+            s.storageType = ISMRMRD_USHORT;
+        } else if (storage == "short") {
+            s.storageType = ISMRMRD_SHORT;
+        } else if (storage == "uint") {
+            s.storageType = ISMRMRD_UINT;
+        } else if (storage == "int") {
+            s.storageType = ISMRMRD_INT;
+        } else if (storage == "float") {
+            s.storageType = ISMRMRD_FLOAT;
+        } else if (storage == "double") {
+            s.storageType = ISMRMRD_DOUBLE;
+        } else if (storage == "cxfloat") {
+            s.storageType = ISMRMRD_CXFLOAT;
+        } else if (storage == "cxdouble") {
+            s.storageType = ISMRMRD_CXDOUBLE;
+        } else {
+            throw std::runtime_error("Invalid storageType (" + storage + ")");
+        }
+
+        streams.push_back(s);
+        nc = nc.next_sibling(child);
+    }
+    return streams;
+  }
+
   std::vector<UserParameterLong> parse_user_parameter_long(pugi::xml_node& n, const char* child) 
   {
     std::vector<UserParameterLong> r;
@@ -211,6 +258,7 @@ namespace ISMRMRD
       pugi::xml_node acquisitionSystemInformation = root.child("acquisitionSystemInformation");
       pugi::xml_node experimentalConditions = root.child("experimentalConditions");
       pugi::xml_node encoding = root.child("encoding");
+      pugi::xml_node streams = root.child("streams");
       pugi::xml_node sequenceParameters = root.child("sequenceParameters");
       pugi::xml_node userParameters = root.child("userParameters");
 
@@ -394,6 +442,10 @@ namespace ISMRMRD
 	h.acquisitionSystemInformation = info;
       }
 
+    if (streams) {
+        h.streams = parse_streams(streams, "stream");
+    }
+
       if (sequenceParameters) {
 	SequenceParameters p;
 
@@ -506,6 +558,46 @@ namespace ISMRMRD
       append_node(n2,"maximum",l->maximum);
       append_node(n2,"center",l->center);
     }
+  }
+
+  void append_stream(pugi::xml_node& parent, const Stream& stream)
+  {
+    pugi::xml_node s = parent.append_child("stream");
+    append_node(s, "name", stream.name);
+    append_node(s, "dataType", stream.dataType);
+    append_node(s, "number", stream.number);
+
+    std::string storageType;
+    switch (stream.storageType) {
+    case ISMRMRD_USHORT:
+        storageType = "ushort";
+        break;
+    case ISMRMRD_SHORT:
+        storageType = "short";
+        break;
+    case ISMRMRD_UINT:
+        storageType = "uint";
+        break;
+    case ISMRMRD_INT:
+        storageType = "int";
+        break;
+    case ISMRMRD_FLOAT:
+        storageType = "float";
+        break;
+    case ISMRMRD_DOUBLE:
+        storageType = "double";
+        break;
+    case ISMRMRD_CXFLOAT:
+        storageType = "cxfloat";
+        break;
+    case ISMRMRD_CXDOUBLE:
+        storageType = "cxdouble";
+        break;
+    default:
+        throw std::runtime_error("Invalid storageType ID.");
+    }
+
+    append_node(s, "storageType", storageType);
   }
 
   template <class T> 
@@ -665,6 +757,13 @@ namespace ISMRMRD
 
       append_optional_node(n1, "echoTrainLength", h.encoding[i].echoTrainLength);
 
+    }
+
+    if (h.streams.size() > 0) {
+        n1 = root.append_child("streams");
+        for (size_t i = 0; i < h.streams.size(); i++) {
+            append_stream(n1, h.streams[i]);
+        }
     }
 
     if (h.sequenceParameters) {

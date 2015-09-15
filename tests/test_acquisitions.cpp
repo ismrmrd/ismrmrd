@@ -13,7 +13,7 @@ BOOST_AUTO_TEST_CASE(test_acquisition_header)
     ISMRMRD_AcquisitionHeader chead;
 
     // Check that header is of expected size
-    size_t expected_size = 9 * sizeof(uint16_t) +
+    size_t expected_size = 11 * sizeof(uint16_t) +
             (3 + ISMRMRD_PHYS_STAMPS) * sizeof(uint32_t) +
             ISMRMRD_USER_INTS * sizeof(int32_t) +
             (1 + ISMRMRD_CHANNEL_MASKS) * sizeof(uint64_t) +
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(test_acquisition_make_consistent)
     acq.head.trajectory_dimensions = ntrajd;
 
     BOOST_CHECK_EQUAL(ismrmrd_size_of_acquisition_traj(&acq), nsamples * ntrajd * sizeof(*acq.traj));
-    BOOST_CHECK_EQUAL(ismrmrd_size_of_acquisition_data(&acq), nsamples * nchannels * sizeof(*acq.data));
+    BOOST_CHECK_EQUAL(ismrmrd_size_of_acquisition_data(&acq), nsamples * nchannels * ismrmrd_sizeof_data_type(acq.head.storage_type));
     BOOST_CHECK_EQUAL(ismrmrd_make_consistent_acquisition(&acq), ISMRMRD_NOERROR);
 
     BOOST_CHECK_EQUAL(acq.head.available_channels, nchannels);

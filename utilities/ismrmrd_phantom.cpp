@@ -122,7 +122,7 @@ int add_noise(NDArray<complex_float_t> & a, float sd)
     return 0;
 }
 
-int add_noise(Acquisition& a, float sd)
+int add_noise(Acquisition<complex_float_t>& a, float sd)
 {
 
     boost::normal_distribution<float> nd(0.0, sd);

@@ -92,7 +92,7 @@ int main(int argc, char** argv)
         //Let's append the data to the file
         //Create if needed
 	Dataset d(outfile.c_str(),dataset.c_str(), true);
-	Acquisition acq;
+	Acquisition<complex_float_t> acq;
         size_t readout = matrix_size*ros;
         
 	if (noise_calibration)
@@ -194,6 +194,15 @@ int main(int argc, char** argv)
 
 	//Add the encoding section to the header
 	h.encoding.push_back(e);
+
+        //Add the description of the only acquisition stream to the header
+        Stream stream;
+        // stream.name = "data";
+        stream.storageType = ISMRMRD_CXFLOAT;
+        stream.dataType = "MRAcquisition";
+        stream.number = 0;
+
+        h.streams.push_back(stream);
 
 	//Add any additional fields that you may want would go here....
 
