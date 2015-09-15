@@ -130,7 +130,6 @@ static char * append_to_path(const ISMRMRD_Dataset *dset,
 
 static int delete_var(const ISMRMRD_Dataset *dset, const char *var) {
     int status = ISMRMRD_NOERROR;
-    herr_t h5status;
     char *path = NULL;
 
     if (NULL == dset) {
@@ -139,7 +138,7 @@ static int delete_var(const ISMRMRD_Dataset *dset, const char *var) {
 
     path = make_path(dset, var);
     if (link_exists(dset, path)) {
-        h5status = H5Ldelete(dset->fileid, path, H5P_DEFAULT);
+        herr_t h5status = H5Ldelete(dset->fileid, path, H5P_DEFAULT);
         if (h5status < 0) {
             H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
             status = ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to delete H5 path");
@@ -238,21 +237,21 @@ static hid_t get_hdf5type_xmlheader(void) {
 
 static hid_t get_hdf5type_encoding(void) {
     hid_t datatype;
-    herr_t h5status;
+    herr_t h5status = 0;
     hsize_t arraydims[] = {ISMRMRD_USER_INTS};
     hid_t arraytype;
     datatype = H5Tcreate(H5T_COMPOUND, sizeof(ISMRMRD_EncodingCounters));
-    h5status = H5Tinsert(datatype, "kspace_encode_step_1", HOFFSET(ISMRMRD_EncodingCounters, kspace_encode_step_1),  H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "kspace_encode_step_2", HOFFSET(ISMRMRD_EncodingCounters, kspace_encode_step_2), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "average", HOFFSET(ISMRMRD_EncodingCounters, average), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "slice", HOFFSET(ISMRMRD_EncodingCounters, slice), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "contrast", HOFFSET(ISMRMRD_EncodingCounters, contrast), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "phase", HOFFSET(ISMRMRD_EncodingCounters, phase), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "repetition", HOFFSET(ISMRMRD_EncodingCounters, repetition), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "set", HOFFSET(ISMRMRD_EncodingCounters, set), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "segment", HOFFSET(ISMRMRD_EncodingCounters, segment), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "kspace_encode_step_1", HOFFSET(ISMRMRD_EncodingCounters, kspace_encode_step_1),  H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "kspace_encode_step_2", HOFFSET(ISMRMRD_EncodingCounters, kspace_encode_step_2), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "average", HOFFSET(ISMRMRD_EncodingCounters, average), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "slice", HOFFSET(ISMRMRD_EncodingCounters, slice), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "contrast", HOFFSET(ISMRMRD_EncodingCounters, contrast), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "phase", HOFFSET(ISMRMRD_EncodingCounters, phase), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "repetition", HOFFSET(ISMRMRD_EncodingCounters, repetition), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "set", HOFFSET(ISMRMRD_EncodingCounters, set), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "segment", HOFFSET(ISMRMRD_EncodingCounters, segment), H5T_NATIVE_UINT16);
     arraytype = H5Tarray_create2(H5T_NATIVE_UINT16, 1, arraydims);
-    h5status = H5Tinsert(datatype, "user", HOFFSET(ISMRMRD_EncodingCounters, user), arraytype);
+    h5status |= H5Tinsert(datatype, "user", HOFFSET(ISMRMRD_EncodingCounters, user), arraytype);
     if (h5status < 0) {
         ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get endoding data type");
     }
@@ -262,61 +261,61 @@ static hid_t get_hdf5type_encoding(void) {
 
 static hid_t get_hdf5type_acquisitionheader(void) {
     hid_t datatype;
-    herr_t h5status;
+    herr_t h5status = 0;
     hsize_t arraydims[1];
     hid_t vartype;
 
     datatype = H5Tcreate(H5T_COMPOUND, sizeof(ISMRMRD_AcquisitionHeader));
-    h5status = H5Tinsert(datatype, "version", HOFFSET(ISMRMRD_AcquisitionHeader, version), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "storage_type", HOFFSET(ISMRMRD_AcquisitionHeader, storage_type), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "stream_number", HOFFSET(ISMRMRD_AcquisitionHeader, stream_number), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "flags", HOFFSET(ISMRMRD_AcquisitionHeader, flags), H5T_NATIVE_UINT64);
-    h5status = H5Tinsert(datatype, "measurement_uid", HOFFSET(ISMRMRD_AcquisitionHeader,  measurement_uid), H5T_NATIVE_UINT32);
-    h5status = H5Tinsert(datatype, "scan_counter", HOFFSET(ISMRMRD_AcquisitionHeader, scan_counter), H5T_NATIVE_UINT32);
-    h5status = H5Tinsert(datatype, "acquisition_time_stamp", HOFFSET(ISMRMRD_AcquisitionHeader, acquisition_time_stamp), H5T_NATIVE_UINT32);
+    h5status |= H5Tinsert(datatype, "version", HOFFSET(ISMRMRD_AcquisitionHeader, version), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "storage_type", HOFFSET(ISMRMRD_AcquisitionHeader, storage_type), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "stream_number", HOFFSET(ISMRMRD_AcquisitionHeader, stream_number), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "flags", HOFFSET(ISMRMRD_AcquisitionHeader, flags), H5T_NATIVE_UINT64);
+    h5status |= H5Tinsert(datatype, "measurement_uid", HOFFSET(ISMRMRD_AcquisitionHeader,  measurement_uid), H5T_NATIVE_UINT32);
+    h5status |= H5Tinsert(datatype, "scan_counter", HOFFSET(ISMRMRD_AcquisitionHeader, scan_counter), H5T_NATIVE_UINT32);
+    h5status |= H5Tinsert(datatype, "acquisition_time_stamp", HOFFSET(ISMRMRD_AcquisitionHeader, acquisition_time_stamp), H5T_NATIVE_UINT32);
 
     arraydims[0] = ISMRMRD_PHYS_STAMPS;
     vartype = H5Tarray_create2(H5T_NATIVE_UINT32, 1, arraydims);
-    h5status = H5Tinsert(datatype, "physiology_time_stamp", HOFFSET(ISMRMRD_AcquisitionHeader, physiology_time_stamp), vartype);
+    h5status |= H5Tinsert(datatype, "physiology_time_stamp", HOFFSET(ISMRMRD_AcquisitionHeader, physiology_time_stamp), vartype);
     H5Tclose(vartype);
 
-    h5status = H5Tinsert(datatype, "number_of_samples", HOFFSET(ISMRMRD_AcquisitionHeader, number_of_samples), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "available_channels", HOFFSET(ISMRMRD_AcquisitionHeader, available_channels), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "active_channels", HOFFSET(ISMRMRD_AcquisitionHeader, active_channels), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "number_of_samples", HOFFSET(ISMRMRD_AcquisitionHeader, number_of_samples), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "available_channels", HOFFSET(ISMRMRD_AcquisitionHeader, available_channels), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "active_channels", HOFFSET(ISMRMRD_AcquisitionHeader, active_channels), H5T_NATIVE_UINT16);
 
     arraydims[0] = ISMRMRD_CHANNEL_MASKS;
     vartype = H5Tarray_create2(H5T_NATIVE_UINT64, 1, arraydims);
-    h5status = H5Tinsert(datatype, "channel_mask", HOFFSET(ISMRMRD_AcquisitionHeader, channel_mask), vartype);
+    h5status |= H5Tinsert(datatype, "channel_mask", HOFFSET(ISMRMRD_AcquisitionHeader, channel_mask), vartype);
     H5Tclose(vartype);
 
-    h5status = H5Tinsert(datatype, "discard_pre", HOFFSET(ISMRMRD_AcquisitionHeader, discard_pre), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "discard_post", HOFFSET(ISMRMRD_AcquisitionHeader, discard_post), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "center_sample", HOFFSET(ISMRMRD_AcquisitionHeader, center_sample), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "encoding_space_ref", HOFFSET(ISMRMRD_AcquisitionHeader, encoding_space_ref), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "trajectory_dimensions", HOFFSET(ISMRMRD_AcquisitionHeader, trajectory_dimensions), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "sample_time_us", HOFFSET(ISMRMRD_AcquisitionHeader, sample_time_us), H5T_NATIVE_FLOAT);
+    h5status |= H5Tinsert(datatype, "discard_pre", HOFFSET(ISMRMRD_AcquisitionHeader, discard_pre), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "discard_post", HOFFSET(ISMRMRD_AcquisitionHeader, discard_post), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "center_sample", HOFFSET(ISMRMRD_AcquisitionHeader, center_sample), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "encoding_space_ref", HOFFSET(ISMRMRD_AcquisitionHeader, encoding_space_ref), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "trajectory_dimensions", HOFFSET(ISMRMRD_AcquisitionHeader, trajectory_dimensions), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "sample_time_us", HOFFSET(ISMRMRD_AcquisitionHeader, sample_time_us), H5T_NATIVE_FLOAT);
 
     arraydims[0] = 3;
     vartype = H5Tarray_create2(H5T_NATIVE_FLOAT, 1, arraydims);
-    h5status = H5Tinsert(datatype, "position", HOFFSET(ISMRMRD_AcquisitionHeader, position), vartype);
-    h5status = H5Tinsert(datatype, "read_dir", HOFFSET(ISMRMRD_AcquisitionHeader, read_dir), vartype);
-    h5status = H5Tinsert(datatype, "phase_dir", HOFFSET(ISMRMRD_AcquisitionHeader, phase_dir), vartype);
-    h5status = H5Tinsert(datatype, "slice_dir", HOFFSET(ISMRMRD_AcquisitionHeader, slice_dir), vartype);
-    h5status = H5Tinsert(datatype, "patient_table_position", HOFFSET(ISMRMRD_AcquisitionHeader, patient_table_position), vartype);
+    h5status |= H5Tinsert(datatype, "position", HOFFSET(ISMRMRD_AcquisitionHeader, position), vartype);
+    h5status |= H5Tinsert(datatype, "read_dir", HOFFSET(ISMRMRD_AcquisitionHeader, read_dir), vartype);
+    h5status |= H5Tinsert(datatype, "phase_dir", HOFFSET(ISMRMRD_AcquisitionHeader, phase_dir), vartype);
+    h5status |= H5Tinsert(datatype, "slice_dir", HOFFSET(ISMRMRD_AcquisitionHeader, slice_dir), vartype);
+    h5status |= H5Tinsert(datatype, "patient_table_position", HOFFSET(ISMRMRD_AcquisitionHeader, patient_table_position), vartype);
     H5Tclose(vartype);
 
     vartype = get_hdf5type_encoding();
-    h5status = H5Tinsert(datatype, "idx", HOFFSET(ISMRMRD_AcquisitionHeader, idx), vartype);
+    h5status |= H5Tinsert(datatype, "idx", HOFFSET(ISMRMRD_AcquisitionHeader, idx), vartype);
     H5Tclose(vartype);
 
     arraydims[0] = ISMRMRD_USER_INTS;
     vartype = H5Tarray_create2(H5T_NATIVE_INT32, 1, arraydims);
-    h5status = H5Tinsert(datatype, "user_int", HOFFSET(ISMRMRD_AcquisitionHeader, user_int), vartype);
+    h5status |= H5Tinsert(datatype, "user_int", HOFFSET(ISMRMRD_AcquisitionHeader, user_int), vartype);
     H5Tclose(vartype);
 
     arraydims[0] = ISMRMRD_USER_FLOATS;
     vartype = H5Tarray_create2(H5T_NATIVE_FLOAT, 1, arraydims);
-    h5status = H5Tinsert(datatype, "user_float", HOFFSET(ISMRMRD_AcquisitionHeader, user_float), vartype);
+    h5status |= H5Tinsert(datatype, "user_float", HOFFSET(ISMRMRD_AcquisitionHeader, user_float), vartype);
     H5Tclose(vartype);
 
     /* Clean up */
@@ -329,22 +328,22 @@ static hid_t get_hdf5type_acquisitionheader(void) {
 
 static hid_t get_hdf5type_acquisition(void) {
     hid_t datatype, vartype, vlvartype;
-    herr_t h5status;
+    herr_t h5status = 0;
 
     datatype = H5Tcreate(H5T_COMPOUND, sizeof(HDF5_Acquisition));
     vartype = get_hdf5type_acquisitionheader();
-    h5status = H5Tinsert(datatype, "head", HOFFSET(HDF5_Acquisition, head), vartype);
+    h5status |= H5Tinsert(datatype, "head", HOFFSET(HDF5_Acquisition, head), vartype);
     H5Tclose(vartype);
     vartype =  get_hdf5type_float();
     vlvartype = H5Tvlen_create(vartype);
-    h5status = H5Tinsert(datatype, "traj", HOFFSET(HDF5_Acquisition, traj), vlvartype);
+    h5status |= H5Tinsert(datatype, "traj", HOFFSET(HDF5_Acquisition, traj), vlvartype);
     H5Tclose(vartype);
     H5Tclose(vlvartype);
 
     /* Store acquisition data as an array of floats */
     vartype = get_hdf5type_float();
     vlvartype = H5Tvlen_create(vartype);
-    h5status = H5Tinsert(datatype, "data", HOFFSET(HDF5_Acquisition, data), vlvartype);
+    h5status |= H5Tinsert(datatype, "data", HOFFSET(HDF5_Acquisition, data), vlvartype);
     H5Tclose(vartype);
     H5Tclose(vlvartype);
 
@@ -357,57 +356,57 @@ static hid_t get_hdf5type_acquisition(void) {
 
 static hid_t get_hdf5type_imageheader(void) {
     hid_t datatype;
-    herr_t h5status;
+    herr_t h5status = 0;
     hsize_t arraydims[1];
     hid_t vartype;
 
     datatype = H5Tcreate(H5T_COMPOUND, sizeof(ISMRMRD_ImageHeader));
-    h5status = H5Tinsert(datatype, "version", HOFFSET(ISMRMRD_ImageHeader, version), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "data_type", HOFFSET(ISMRMRD_ImageHeader, data_type), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "flags", HOFFSET(ISMRMRD_ImageHeader, flags), H5T_NATIVE_UINT64);
-    h5status = H5Tinsert(datatype, "measurement_uid", HOFFSET(ISMRMRD_ImageHeader,  measurement_uid), H5T_NATIVE_UINT32);
+    h5status |= H5Tinsert(datatype, "version", HOFFSET(ISMRMRD_ImageHeader, version), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "data_type", HOFFSET(ISMRMRD_ImageHeader, data_type), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "flags", HOFFSET(ISMRMRD_ImageHeader, flags), H5T_NATIVE_UINT64);
+    h5status |= H5Tinsert(datatype, "measurement_uid", HOFFSET(ISMRMRD_ImageHeader,  measurement_uid), H5T_NATIVE_UINT32);
     arraydims[0] = 3;
     vartype = H5Tarray_create2(H5T_NATIVE_UINT16, 1, arraydims);
-    h5status = H5Tinsert(datatype, "matrix_size", HOFFSET(ISMRMRD_ImageHeader, matrix_size), vartype);
+    h5status |= H5Tinsert(datatype, "matrix_size", HOFFSET(ISMRMRD_ImageHeader, matrix_size), vartype);
     H5Tclose(vartype);
 
     vartype = H5Tarray_create2(H5T_NATIVE_FLOAT, 1, arraydims);
-    h5status = H5Tinsert(datatype, "field_of_view", HOFFSET(ISMRMRD_ImageHeader, field_of_view), vartype);
-    h5status = H5Tinsert(datatype, "channels", HOFFSET(ISMRMRD_ImageHeader, channels), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "position", HOFFSET(ISMRMRD_ImageHeader, position), vartype);
-    h5status = H5Tinsert(datatype, "read_dir", HOFFSET(ISMRMRD_ImageHeader, read_dir), vartype);
-    h5status = H5Tinsert(datatype, "phase_dir", HOFFSET(ISMRMRD_ImageHeader, phase_dir), vartype);
-    h5status = H5Tinsert(datatype, "slice_dir", HOFFSET(ISMRMRD_ImageHeader, slice_dir), vartype);
-    h5status = H5Tinsert(datatype, "patient_table_position", HOFFSET(ISMRMRD_ImageHeader, patient_table_position), vartype);
+    h5status |= H5Tinsert(datatype, "field_of_view", HOFFSET(ISMRMRD_ImageHeader, field_of_view), vartype);
+    h5status |= H5Tinsert(datatype, "channels", HOFFSET(ISMRMRD_ImageHeader, channels), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "position", HOFFSET(ISMRMRD_ImageHeader, position), vartype);
+    h5status |= H5Tinsert(datatype, "read_dir", HOFFSET(ISMRMRD_ImageHeader, read_dir), vartype);
+    h5status |= H5Tinsert(datatype, "phase_dir", HOFFSET(ISMRMRD_ImageHeader, phase_dir), vartype);
+    h5status |= H5Tinsert(datatype, "slice_dir", HOFFSET(ISMRMRD_ImageHeader, slice_dir), vartype);
+    h5status |= H5Tinsert(datatype, "patient_table_position", HOFFSET(ISMRMRD_ImageHeader, patient_table_position), vartype);
     H5Tclose(vartype);
 
-    h5status = H5Tinsert(datatype, "average", HOFFSET(ISMRMRD_ImageHeader, average), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "slice", HOFFSET(ISMRMRD_ImageHeader, slice), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "contrast", HOFFSET(ISMRMRD_ImageHeader, contrast), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "phase", HOFFSET(ISMRMRD_ImageHeader, phase), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "repetition", HOFFSET(ISMRMRD_ImageHeader, repetition), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "set", HOFFSET(ISMRMRD_ImageHeader, set), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "acquisition_time_stamp", HOFFSET(ISMRMRD_ImageHeader, acquisition_time_stamp), H5T_NATIVE_UINT32);
+    h5status |= H5Tinsert(datatype, "average", HOFFSET(ISMRMRD_ImageHeader, average), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "slice", HOFFSET(ISMRMRD_ImageHeader, slice), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "contrast", HOFFSET(ISMRMRD_ImageHeader, contrast), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "phase", HOFFSET(ISMRMRD_ImageHeader, phase), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "repetition", HOFFSET(ISMRMRD_ImageHeader, repetition), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "set", HOFFSET(ISMRMRD_ImageHeader, set), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "acquisition_time_stamp", HOFFSET(ISMRMRD_ImageHeader, acquisition_time_stamp), H5T_NATIVE_UINT32);
     arraydims[0] = ISMRMRD_PHYS_STAMPS;
     vartype = H5Tarray_create2(H5T_NATIVE_UINT32, 1, arraydims);
-    h5status = H5Tinsert(datatype, "physiology_time_stamp", HOFFSET(ISMRMRD_ImageHeader, physiology_time_stamp), vartype);
+    h5status |= H5Tinsert(datatype, "physiology_time_stamp", HOFFSET(ISMRMRD_ImageHeader, physiology_time_stamp), vartype);
     H5Tclose(vartype);
 
-    h5status = H5Tinsert(datatype, "image_type", HOFFSET(ISMRMRD_ImageHeader, image_type), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "image_index", HOFFSET(ISMRMRD_ImageHeader, image_index), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "image_series_index", HOFFSET(ISMRMRD_ImageHeader, image_series_index), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "image_type", HOFFSET(ISMRMRD_ImageHeader, image_type), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "image_index", HOFFSET(ISMRMRD_ImageHeader, image_index), H5T_NATIVE_UINT16);
+    h5status |= H5Tinsert(datatype, "image_series_index", HOFFSET(ISMRMRD_ImageHeader, image_series_index), H5T_NATIVE_UINT16);
 
     arraydims[0] = ISMRMRD_USER_INTS;
     vartype = H5Tarray_create2(H5T_NATIVE_INT32, 1, arraydims);
-    h5status = H5Tinsert(datatype, "user_int", HOFFSET(ISMRMRD_ImageHeader, user_int), vartype);
+    h5status |= H5Tinsert(datatype, "user_int", HOFFSET(ISMRMRD_ImageHeader, user_int), vartype);
     H5Tclose(vartype);
 
     arraydims[0] = ISMRMRD_USER_FLOATS;
     vartype = H5Tarray_create2(H5T_NATIVE_FLOAT, 1, arraydims);
-    h5status = H5Tinsert(datatype, "user_float", HOFFSET(ISMRMRD_ImageHeader, user_float), vartype);
+    h5status |= H5Tinsert(datatype, "user_float", HOFFSET(ISMRMRD_ImageHeader, user_float), vartype);
     H5Tclose(vartype);
 
-    h5status = H5Tinsert(datatype, "attribute_string_len", HOFFSET(ISMRMRD_ImageHeader, attribute_string_len), H5T_NATIVE_UINT32);
+    h5status |= H5Tinsert(datatype, "attribute_string_len", HOFFSET(ISMRMRD_ImageHeader, attribute_string_len), H5T_NATIVE_UINT32);
 
     /* Clean up */
     if (h5status < 0) {
@@ -523,7 +522,6 @@ static uint16_t get_ndarray_data_type(hid_t hdf5type) {
 
 static uint32_t get_number_of_elements(const ISMRMRD_Dataset *dset, const char * path)
 {
-    herr_t h5status;
     uint32_t num;
 
     if (NULL == dset) {
@@ -532,6 +530,7 @@ static uint32_t get_number_of_elements(const ISMRMRD_Dataset *dset, const char *
     }
 
     if (link_exists(dset, path)) {
+        herr_t h5status = 0;
         hid_t dataset, dataspace;
         hsize_t rank, *dims, *maxdims;
         dataset = H5Dopen2(dset->fileid, path, H5P_DEFAULT);
@@ -539,12 +538,12 @@ static uint32_t get_number_of_elements(const ISMRMRD_Dataset *dset, const char *
         rank = H5Sget_simple_extent_ndims(dataspace);
         dims = (hsize_t *) malloc(rank*sizeof(hsize_t));
         maxdims = (hsize_t *) malloc(rank*sizeof(hsize_t));
-        h5status = H5Sget_simple_extent_dims(dataspace, dims, maxdims);
+        h5status |= H5Sget_simple_extent_dims(dataspace, dims, maxdims);
         num = dims[0];
         free(dims);
         free(maxdims);
-        h5status = H5Sclose(dataspace);
-        h5status= H5Dclose(dataset);
+        h5status |= H5Sclose(dataspace);
+        h5status |= H5Dclose(dataset);
         if (h5status < 0) {
             H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
             ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR,
@@ -596,7 +595,7 @@ static int append_element(const ISMRMRD_Dataset * dset, const char * path,
 
     /* extend or create if needed, and select the last block */
     if (link_exists(dset, path)) {
-        h5status = H5Sget_simple_extent_dims(dataspace, hdfdims, maxdims);
+        h5status |= H5Sget_simple_extent_dims(dataspace, hdfdims, maxdims);
         for (n = 0; n<ndim; n++) {
             if (dims[n] != hdfdims[n+1]) {
                 free(hdfdims);
@@ -609,7 +608,7 @@ static int append_element(const ISMRMRD_Dataset * dset, const char * path,
         }
         /* extend it by one */
         hdfdims[0] += 1;
-        h5status = H5Dset_extent(dataset, hdfdims);
+        h5status |= H5Dset_extent(dataset, hdfdims);
         /* Select the last block */
         ext_dims[0] = 1;
         for (n = 0; n < ndim; n++) {
@@ -631,7 +630,7 @@ static int append_element(const ISMRMRD_Dataset * dset, const char * path,
         dataspace = H5Screate_simple(rank, hdfdims, maxdims);
         props = H5Pcreate(H5P_DATASET_CREATE);
         /* enable chunking so that the dataset is extensible */
-        h5status = H5Pset_chunk (props, rank, chunk_dims);
+        h5status |= H5Pset_chunk (props, rank, chunk_dims);
         /* create */
         dataset = H5Dcreate2(dset->fileid, path, datatype, dataspace, H5P_DEFAULT, props,  H5P_DEFAULT);
         if (dataset < 0) {
@@ -643,7 +642,7 @@ static int append_element(const ISMRMRD_Dataset * dset, const char * path,
             H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
             return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to create dataset");
         }
-        h5status = H5Pclose(props);
+        h5status |= H5Pclose(props);
         if (h5status < 0) {
             free(hdfdims);
             free(ext_dims);
@@ -658,7 +657,7 @@ static int append_element(const ISMRMRD_Dataset * dset, const char * path,
     /* Select the last block */
     offset[0] = hdfdims[0]-1;
     filespace = H5Dget_space(dataset);
-    h5status  = H5Sselect_hyperslab (filespace, H5S_SELECT_SET, offset, NULL, ext_dims, NULL);
+    h5status |= H5Sselect_hyperslab (filespace, H5S_SELECT_SET, offset, NULL, ext_dims, NULL);
     memspace = H5Screate_simple(rank, ext_dims, NULL);
 
     free(hdfdims);
@@ -669,7 +668,7 @@ static int append_element(const ISMRMRD_Dataset * dset, const char * path,
 
     /* Write it */
     /* since this is a 1 element array we can just pass the pointer to the header */
-    h5status = H5Dwrite(dataset, datatype, memspace, filespace, H5P_DEFAULT, elem);
+    h5status |= H5Dwrite(dataset, datatype, memspace, filespace, H5P_DEFAULT, elem);
     if (h5status < 0) {
         H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
         return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to write dataset");
@@ -732,7 +731,7 @@ static int get_array_properties(const ISMRMRD_Dataset *dset, const char *path,
 
     /* get the dimensions */
     hdfdims = (hsize_t *)malloc(rank * sizeof(*hdfdims));
-    h5status = H5Sget_simple_extent_dims(filespace, hdfdims, NULL);
+    h5status |= H5Sget_simple_extent_dims(filespace, hdfdims, NULL);
 
     /* set the return values - permute dimensions */
     *data_type = get_ndarray_data_type(hdf5type);
@@ -744,7 +743,7 @@ static int get_array_properties(const ISMRMRD_Dataset *dset, const char *path,
     free(hdfdims);
 
     /* clean up */
-    h5status = H5Tclose(hdf5type);
+    h5status |= H5Tclose(hdf5type);
     if (h5status < 0) {
         H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
         return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to close datatype.");
@@ -796,7 +795,7 @@ int read_element(const ISMRMRD_Dataset *dset, const char *path, void *elem,
     offset = (hsize_t *)malloc(rank * sizeof(*offset));
     count = (hsize_t *)malloc(rank * sizeof(*count));
 
-    h5status = H5Sget_simple_extent_dims(filespace, hdfdims, NULL);
+    h5status |= H5Sget_simple_extent_dims(filespace, hdfdims, NULL);
 
     if (index >= hdfdims[0]) {
         ret_code = ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Index out of range.");
@@ -810,12 +809,12 @@ int read_element(const ISMRMRD_Dataset *dset, const char *path, void *elem,
         count[n] = hdfdims[n];
     }
 
-    h5status = H5Sselect_hyperslab(filespace, H5S_SELECT_SET, offset, NULL, count, NULL);
+    h5status |= H5Sselect_hyperslab(filespace, H5S_SELECT_SET, offset, NULL, count, NULL);
 
     /* create space for one */
     memspace = H5Screate_simple(rank, count, NULL);
 
-    h5status = H5Dread(dataset, datatype, memspace, filespace, H5P_DEFAULT, elem);
+    h5status |= H5Dread(dataset, datatype, memspace, filespace, H5P_DEFAULT, elem);
     if (h5status < 0) {
         H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
         ret_code = ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to read from dataset.");
@@ -926,8 +925,6 @@ int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool create_if_needed) {
 }
 
 int ismrmrd_close_dataset(ISMRMRD_Dataset *dset) {
-    herr_t h5status;
-
     if (NULL == dset) {
         ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
         return false;
@@ -945,7 +942,7 @@ int ismrmrd_close_dataset(ISMRMRD_Dataset *dset) {
 
     /* Check for a valid fileid before trying to close the file */
     if (dset->fileid > 0) {
-        h5status = H5Fclose (dset->fileid);
+        herr_t h5status = H5Fclose (dset->fileid);
         dset->fileid = 0;
         if (h5status < 0) {
             H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
@@ -959,7 +956,7 @@ int ismrmrd_close_dataset(ISMRMRD_Dataset *dset) {
 int ismrmrd_write_header(const ISMRMRD_Dataset *dset, const char *xmlstring) {
     hid_t dataset, dataspace, datatype, props;
     hsize_t dims[] = {1};
-    herr_t h5status;
+    herr_t h5status = 0;
     void *buff[1];
     char * path;
 
@@ -975,7 +972,7 @@ int ismrmrd_write_header(const ISMRMRD_Dataset *dset, const char *xmlstring) {
     path = make_path(dset, "xml");
 
     /* Delete the old header if it exists */
-    h5status = delete_var(dset, "xml");
+    h5status |= delete_var(dset, "xml");
 
     /* Create a new dataset for the xmlstring */
     /* i.e. create the memory type, data space, and data set */
@@ -988,7 +985,7 @@ int ismrmrd_write_header(const ISMRMRD_Dataset *dset, const char *xmlstring) {
     /* Write it out */
     /* We have to wrap the xmlstring in an array */
     buff[0] = (void *) xmlstring;  /* safe to get rid of const the type */
-    h5status = H5Dwrite(dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, buff);
+    h5status |= H5Dwrite(dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, buff);
     if (h5status < 0) {
         H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
         return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to write xml string to dataset");
