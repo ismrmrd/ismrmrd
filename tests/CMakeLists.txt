@@ -14,7 +14,9 @@ add_executable(test_ismrmrd
     test_ndarray.cpp
     test_flags.cpp
     test_channels.cpp
-    test_quaternions.cpp)
+    test_quaternions.cpp
+    test_xml.cpp
+    )
 
 target_link_libraries(test_ismrmrd ismrmrd ${Boost_LIBRARIES})
 
