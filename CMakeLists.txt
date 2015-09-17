@@ -51,7 +51,7 @@ endif (WIN32)
 #in the utility libraries, that don't affect the data format itself.
 set(ISMRMRD_VERSION_MAJOR 1)
 set(ISMRMRD_VERSION_MINOR 3)
-set(ISMRMRD_VERSION_PATCH 0)
+set(ISMRMRD_VERSION_PATCH 1)
 
 set(ISMRMRD_XML_SCHEMA_SHA1 "9b899c6ad806bc2388c70461d6e5affe5cc6d750")
 
