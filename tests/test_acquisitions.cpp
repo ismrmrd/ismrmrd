@@ -59,8 +59,6 @@ BOOST_AUTO_TEST_CASE(test_acquisition_create_free)
     // Check cleanup
     BOOST_CHECK_EQUAL(ismrmrd_free_acquisition(NULL), ISMRMRD_RUNTIMEERROR);
     BOOST_CHECK_EQUAL(ismrmrd_free_acquisition(cacqp), ISMRMRD_NOERROR);
-    BOOST_CHECK(!cacqp->traj);
-    BOOST_CHECK(!cacqp->data);
 }
 
 BOOST_AUTO_TEST_CASE(test_acquisition_copy)
