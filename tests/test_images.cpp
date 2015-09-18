@@ -59,8 +59,6 @@ BOOST_AUTO_TEST_CASE(test_image_create_free)
     // Check cleanup
     BOOST_CHECK_EQUAL(ismrmrd_free_image(NULL), ISMRMRD_RUNTIMEERROR);
     BOOST_CHECK_EQUAL(ismrmrd_free_image(cimgp), ISMRMRD_NOERROR);
-    BOOST_CHECK(!cimgp->attribute_string);
-    BOOST_CHECK(!cimgp->data);
 }
 
 BOOST_AUTO_TEST_CASE(test_image_copy)
