@@ -16,6 +16,7 @@ add_executable(test_ismrmrd
     test_channels.cpp
     test_quaternions.cpp
     test_xml.cpp
+    test_meta.cpp
     )
 
 target_link_libraries(test_ismrmrd ismrmrd ${Boost_LIBRARIES})
