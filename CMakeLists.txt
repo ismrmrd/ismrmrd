@@ -199,9 +199,7 @@ install(FILES cmake/FindIsmrmrd.cmake cmake/FindFFTW3.cmake DESTINATION share/is
 add_subdirectory(doc)
 
 add_subdirectory(utilities)
-if (HDF5_FOUND)
-    add_subdirectory(examples/c)
-endif (HDF5_FOUND)
+add_subdirectory(examples)
 
 # TODO: make this work on Windows
 if (NOT WIN32)
