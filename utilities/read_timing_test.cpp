@@ -75,7 +75,7 @@ int main(int argc, char** argv)
     Timer t("READ TIMER");
     ISMRMRD::Dataset d(argv[1],"dataset", false, true); // open in read-only mode
     uint32_t number_of_acquisitions = d.getNumberOfAcquisitions();
-    ISMRMRD::Acquisition<complex_float_t> acq;
+    ISMRMRD::Acquisition acq;
     for (uint32_t i = 0; i < number_of_acquisitions; i++) {
         d.readAcquisition(0, i, acq);
         //We'll just throw the data away here. 

@@ -13,7 +13,7 @@
 #include "fftw3.h"
 
 //Helper function for the FFTW library
-void circshift(complex_float_t *out, const complex_float_t *in, int xdim, int ydim, int xshift, int yshift)
+void circshift(std::complex<float> *out, const std::complex<float> *in, int xdim, int ydim, int xshift, int yshift)
 {
     for (int i =0; i < ydim; i++) {
         int ii = (i + yshift) % ydim;
@@ -79,7 +79,7 @@ int main(int argc, char** argv)
     uint16_t nY = e_space.matrixSize.y;
     
     // The number of channels is optional, so read the first line
-    ISMRMRD::Acquisition<complex_float_t> acq;
+    ISMRMRD::Acquisition<std::complex<float> > acq;
     d.readAcquisition(0, 0, acq);
     uint16_t nCoils = acq.active_channels();
     
@@ -93,8 +93,8 @@ int main(int argc, char** argv)
     dims.push_back(nX);
     dims.push_back(nY);
     dims.push_back(nCoils);
-    ISMRMRD::NDArray<complex_float_t> buffer(dims);
-    memset(buffer.getDataPtr(), 0, sizeof(complex_float_t)*nX*nY*nCoils);
+    ISMRMRD::NDArray<std::complex<float> > buffer(dims);
+    memset(buffer.getDataPtr(), 0, sizeof(std::complex<float>)*nX*nY*nCoils);
     
     //Now loop through and copy data
     unsigned int number_of_acquisitions = d.getNumberOfAcquisitions();
@@ -104,7 +104,7 @@ int main(int argc, char** argv)
 
         //Copy data, we should probably be more careful here and do more tests....
         for (uint16_t c=0; c<nCoils; c++) {
-            memcpy(&buffer(0,acq.idx().kspace_encode_step_1,c), &acq.data(0, c), sizeof(complex_float_t)*nX);
+            memcpy(&buffer(0,acq.idx().kspace_encode_step_1,c), &acq.data(0, c), sizeof(std::complex<float>)*nX);
         }
     }
 
@@ -123,7 +123,7 @@ int main(int argc, char** argv)
         fftwf_plan p = fftwf_plan_dft_2d(nY, nX, tmp ,tmp, FFTW_BACKWARD, FFTW_ESTIMATE);
 
         //FFTSHIFT
-        fftshift(reinterpret_cast<complex_float_t*>(tmp), &buffer(0,0,c), nX, nY);
+        fftshift(reinterpret_cast<std::complex<float>*>(tmp), &buffer(0,0,c), nX, nY);
         
         //Execute the FFT
         fftwf_execute(p);
@@ -143,7 +143,7 @@ int main(int argc, char** argv)
            
     //f there is oversampling in the readout direction remove it
     //Take the sqrt of the sum of squares
-    uint16_t offset = ((e_space.matrixSize.x - r_space.matrixSize.x)>>1);
+    uint16_t offset = ((e_space.matrixSize.x - r_space.matrixSize.x) / 2);
     for (uint16_t y = 0; y < r_space.matrixSize.y; y++) {
         for (uint16_t x = 0; x < r_space.matrixSize.x; x++) {
             for (uint16_t c=0; c<nCoils; c++) {

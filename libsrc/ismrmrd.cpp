@@ -300,11 +300,15 @@ void Acquisition::setPatientTablePositionZ(float z) {
     head.patient_table_position[2] = z;
 }
 
-const EncodingCounters& Acquisition::getIdx() const {
+EncodingCounters& Acquisition::getEncodingCounters() {
     return head.idx;
 }
 
-void Acquisition::setIdx(const EncodingCounters& idx) {
+const EncodingCounters& Acquisition::getEncodingCounters() const {
+    return head.idx;
+}
+
+void Acquisition::setEncodingCounters(const EncodingCounters& idx) {
     head.idx = idx;
 }
 
@@ -374,6 +378,10 @@ void Acquisition::makeConsistent() {
     data.resize(data_nelem);
 }
 
+std::vector<std::complex<float> >& Acquisition::getData() {
+    return data;
+}
+
 const std::vector<std::complex<float> >& Acquisition::getData() const {
     return data;
 }
@@ -383,7 +391,7 @@ void Acquisition::setData(const std::vector<std::complex<float> >& data) {
     this->data = data;
 }
 
-std::complex<float>& Acquisition::getDataAt(uint16_t sample, uint16_t channel){
+std::complex<float>& Acquisition::dataAt(uint16_t sample, uint16_t channel){
     // TODO: bounds checking
     size_t index = size_t(sample) + size_t(channel) * size_t(head.number_of_samples);
     return data[index];
@@ -397,7 +405,7 @@ void Acquisition::setTraj(const std::vector<float>& traj) {
     this->traj = traj;
 }
 
-float& Acquisition::getTrajAt(uint16_t dimension, uint16_t sample){
+float& Acquisition::trajAt(uint16_t dimension, uint16_t sample){
     size_t index = size_t(sample) * size_t(head.trajectory_dimensions) + size_t(dimension);
     return traj[index];
 }
@@ -1073,17 +1081,19 @@ template <typename T> size_t NDArray<T>::getDataSize() const {
     return getNumberOfElements() * sizeof(T);
 }
 
-/* template <typename T> T & NDArray<T>::operator () (uint16_t x, uint16_t y, uint16_t z, uint16_t w, uint16_t n, uint16_t m, uint16_t l){ */
-/*        size_t index = 0; */
-/*        uint16_t indices[ISMRMRD_NDARRAY_MAXDIM] = {x,y,z,w,n,m,l}; */
-/*        size_t stride = 1; */
-/*        for (uint16_t i = 0; i < arr.ndim; i++){ */
-/*                index += indices[i]*stride; */
-/*                stride *= arr.dims[i]; */
-/*        } */
+template <typename T> T& NDArray<T>::operator() (uint16_t x, uint16_t y, uint16_t z,
+        uint16_t w, uint16_t n, uint16_t m, uint16_t l)
+{
+    size_t index = 0;
+    uint16_t indices[ISMRMRD_NDARRAY_MAXDIM] = {x,y,z,w,n,m,l};
+    size_t stride = 1;
+    for (uint16_t i = 0; i < dims.size(); i++){
+        index += indices[i] * stride;
+        stride *= dims[i];
+    }
 
-/*        return static_cast<T*>(arr.data)[index]; */
-/* } */
+    return data[index];
+}
 
 // Specializations
 // Allowed data types for Images and NDArrays

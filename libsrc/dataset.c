@@ -11,7 +11,7 @@
 #endif /* __cplusplus */
 
 #include <hdf5.h>
-#include "ismrmrd/dataset.h"
+#include "ismrmrd-c/dataset.h"
 
 #ifdef __cplusplus
 namespace ISMRMRD {

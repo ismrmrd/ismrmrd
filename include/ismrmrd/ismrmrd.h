@@ -330,8 +330,9 @@ public:
     void setPatientTablePositionY(float);
     void setPatientTablePositionZ(float);
 
-    const EncodingCounters& getIdx() const;
-    void setIdx(const EncodingCounters&);
+    EncodingCounters& getEncodingCounters();
+    const EncodingCounters& getEncodingCounters() const;
+    void setEncodingCounters(const EncodingCounters&);
 
     int32_t getUserInt(int idx) const;
     void setUserInt(int idx, int32_t val);
@@ -352,15 +353,16 @@ public:
     const AcquisitionHeader& getHead() const;
     void setHead(const AcquisitionHeader &other);
 
+    std::vector<std::complex<float> >& getData();
     const std::vector<std::complex<float> >& getData() const;
     void setData(const std::vector<std::complex<float> >& data);
     /** Returns a reference to a data point */
-    std::complex<float>& getDataAt(uint16_t sample, uint16_t channel);
+    std::complex<float>& dataAt(uint16_t sample, uint16_t channel);
 
     const std::vector<float>& getTraj() const;
     void setTraj(const std::vector<float>& traj);
     /** Returns a reference to a trajectory point */
-    float& getTrajAt(uint16_t dimension, uint16_t sample);
+    float& trajAt(uint16_t dimension, uint16_t sample);
 
     // Flag methods
     uint64_t getFlags() const;
@@ -572,8 +574,8 @@ public:
     std::vector<T>& getData();
     const std::vector<T>& getData() const;
 
-    /** Returns a reference to the image data **/
-    /* T & operator () (uint16_t x, uint16_t y=0, uint16_t z=0, uint16_t w=0, uint16_t n=0, uint16_t m=0, uint16_t l=0); */
+    // Returns a reference to the image data
+    T& operator() (uint16_t x, uint16_t y=0, uint16_t z=0, uint16_t w=0, uint16_t n=0, uint16_t m=0, uint16_t l=0);
 
 protected:
     void makeConsistent();

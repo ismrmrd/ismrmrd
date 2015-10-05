@@ -59,11 +59,13 @@ namespace ISMRMRD {
 
 	boost::shared_ptr< std::vector<PhantomEllipse> > shepp_logan_ellipses();
         boost::shared_ptr< std::vector<PhantomEllipse> > modified_shepp_logan_ellipses();
-        boost::shared_ptr<NDArray<complex_float_t> > phantom(std::vector<PhantomEllipse>& coefficients, unsigned int matrix_size);
-        boost::shared_ptr<NDArray<complex_float_t> > shepp_logan_phantom(unsigned int matrix_size);
-        boost::shared_ptr<NDArray<complex_float_t> > generate_birdcage_sensititivies(unsigned int matrix_size, unsigned int ncoils, float relative_radius);
-	int add_noise(NDArray<complex_float_t> & a, float sd);
-	int add_noise(Acquisition<complex_float_t> & a, float sd);
+        boost::shared_ptr<NDArray<std::complex<float> > > phantom(
+                std::vector<PhantomEllipse>& coefficients, unsigned int matrix_size);
+        boost::shared_ptr<NDArray<std::complex<float> > > shepp_logan_phantom(unsigned int matrix_size);
+        boost::shared_ptr<NDArray<std::complex<float> > > generate_birdcage_sensititivies(
+                unsigned int matrix_size, unsigned int ncoils, float relative_radius);
+	int add_noise(NDArray<std::complex<float> > & a, float sd);
+	int add_noise(Acquisition& a, float sd);
 
 };
 

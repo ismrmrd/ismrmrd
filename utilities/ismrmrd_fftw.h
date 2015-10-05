@@ -23,7 +23,7 @@ template<typename TI, typename TO> void circshift(TO *out, const TI *in, int xdi
 #define fftshift(out, in, x, y) circshift(out, in, x, y, (x/2), (y/2))
 
 
-int fft2c(NDArray<complex_float_t> &a, bool forward)
+int fft2c(NDArray<std::complex<float> > &a, bool forward)
 {
     if (a.getNDim() < 2) {
 		std::cout << "fft2c Error: input array must have at least two dimensions" << std::endl;
@@ -62,17 +62,17 @@ int fft2c(NDArray<complex_float_t> &a, bool forward)
 
 	std::complex<float> scale(std::sqrt(1.0f*elements),0.0);
         for (size_t n=0; n<a.getNumberOfElements(); n++) {
-            a.getDataPtr()[n] /= scale;
+            a.getData()[n] /= scale;
         }
 	fftwf_free(tmp);
 	return 0;
 }
 
-int fft2c(NDArray<complex_float_t> &a) {
+int fft2c(NDArray<std::complex<float> > &a) {
     return fft2c(a,true);
 }
 
-int ifft2c(NDArray<complex_float_t> &a) {
+int ifft2c(NDArray<std::complex<float> > &a) {
     return fft2c(a,false);
 }
 
