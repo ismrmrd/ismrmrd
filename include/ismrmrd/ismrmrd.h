@@ -215,6 +215,9 @@ struct ImageHeader {
  *  @{
  */
 
+bool operator==(const AcquisitionHeader& h1, const AcquisitionHeader& h2);
+bool operator==(const ImageHeader& h1, const ImageHeader& h2);
+
 /// Allowed data types for Images and NDArrays
 template <typename T> EXPORTISMRMRD StorageType get_storage_type();
 
@@ -577,6 +580,18 @@ protected:
     std::vector<size_t> dims;
     std::vector<T> data;
 };
+
+
+// Rotations and Quaternions
+
+/// Calculates the determinant of the matrix and return the sign
+EXPORTISMRMRD int sign_of_directions(float read_dir[3], float phase_dir[3], float slice_dir[3]);
+
+/// Creates a normalized quaternion from a 3x3 rotation matrix
+EXPORTISMRMRD void directions_to_quaternion(float read_dir[3], float phase_dir[3], float slice_dir[3], float quat[4]);
+
+/// Converts a quaternion of the form | a b c d | to a 3x3 rotation matrix
+EXPORTISMRMRD void quaternion_to_directions(float quat[4], float read_dir[3], float phase_dir[3], float slice_dir[3]);
 
 
 /** @} */

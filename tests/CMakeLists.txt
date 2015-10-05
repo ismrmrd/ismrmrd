@@ -11,9 +11,9 @@ add_executable(test_ismrmrd
     test_main.cpp
     test_acquisitions.cpp
     test_images.cpp
-    test_ndarray.cpp
-    test_flags.cpp
-    test_channels.cpp
+    #test_ndarray.cpp
+    #test_flags.cpp
+    #test_channels.cpp
     test_quaternions.cpp
     test_xml.cpp
     test_meta.cpp

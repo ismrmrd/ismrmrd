@@ -127,22 +127,6 @@ EXPORTISMRMRD int ismrmrd_set_channel_off(uint64_t channel_mask[ISMRMRD_CHANNEL_
 EXPORTISMRMRD int ismrmrd_set_all_channels_off(uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS]);
 /** @} */
 
-/*****************************/
-/* Rotations and Quaternions */
-/*****************************/
-/** @addtogroup capi
- *  @{
- */
-/** Calculates the determinant of the matrix and return the sign */
-EXPORTISMRMRD int ismrmrd_sign_of_directions(float read_dir[3], float phase_dir[3], float slice_dir[3]);
-
-/** Creates a normalized quaternion from a 3x3 rotation matrix */
-EXPORTISMRMRD void ismrmrd_directions_to_quaternion(float read_dir[3], float phase_dir[3], float slice_dir[3], float quat[4]);
-
-/** Converts a quaternion of the form | a b c d | to a 3x3 rotation matrix */
-EXPORTISMRMRD void ismrmrd_quaternion_to_directions(float quat[4], float read_dir[3], float phase_dir[3], float slice_dir[3]);
-/** @} */
-
 /******************/
 /* Error Handling */
 /******************/

@@ -202,7 +202,7 @@ add_subdirectory(examples)
 
 # TODO: make this work on Windows
 if (NOT WIN32)
-    #add_subdirectory(tests)
+    add_subdirectory(tests)
 endif (NOT WIN32)
 
 # install the matlab api
