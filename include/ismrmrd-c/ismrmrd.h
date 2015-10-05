@@ -26,7 +26,6 @@ enum ErrorCodes {
 struct ISMRMRD_AcquisitionHeader;
 typedef struct ISMRMRD_AcquisitionHeader ISMRMRD_AcquisitionHeader;
 
-
 /**
  * Initialize an Acquisition Header
  * @ingroup capi

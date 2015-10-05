@@ -9,17 +9,6 @@
 
 namespace ISMRMRD {
 
-//
-// AcquisitionHeader class implementation
-//
-// Constructors
-Acquisition::Acquisition() {
-    head.version = ISMRMRD_VERSION_MAJOR;
-    head.number_of_samples = 0;
-    head.available_channels = 1;
-    head.active_channels = 1;
-}
-
 Acquisition::Acquisition(uint16_t num_samples, uint16_t active_channels, uint16_t trajectory_dimensions)
 {
     head.version = ISMRMRD_VERSION_MAJOR;
@@ -391,7 +380,7 @@ void Acquisition::setData(const std::vector<std::complex<float> >& data) {
     this->data = data;
 }
 
-std::complex<float>& Acquisition::dataAt(uint16_t sample, uint16_t channel){
+std::complex<float>& Acquisition::at(uint16_t sample, uint16_t channel){
     // TODO: bounds checking
     size_t index = size_t(sample) + size_t(channel) * size_t(head.number_of_samples);
     return data[index];
@@ -468,7 +457,7 @@ template <typename T> Image<T>::Image(uint16_t matrix_size_x,
                                       uint16_t channels)
 {
     head.version = ISMRMRD_VERSION_MAJOR;
-    head.data_type = static_cast<uint16_t>(get_data_type<T>());
+    head.storage_type = static_cast<uint16_t>(get_storage_type<T>());
     this->resize(matrix_size_x, matrix_size_y, matrix_size_z, channels);
 }
 
@@ -777,9 +766,9 @@ template <typename T> uint16_t Image<T>::getVersion() const
     return head.version;
 }
 
-template <typename T> DataType Image<T>::getDataType() const
+template <typename T> StorageType Image<T>::getStorageType() const
 {
-    return static_cast<DataType>(head.data_type);
+    return static_cast<StorageType>(head.storage_type);
 }
 
 template <typename T> uint32_t Image<T>::getMeasurementUID() const
@@ -965,7 +954,7 @@ template <typename T> const ImageHeader &Image<T>::getHead() const {
 }
 
 template <typename T> void Image<T>::setHead(const ImageHeader& other) {
-    if (other.data_type != head.data_type) {
+    if (other.storage_type != head.storage_type) {
         throw std::runtime_error("Cannot assign a header of a different data type.");
     }
 
@@ -1012,7 +1001,8 @@ template <typename T> size_t Image<T>::getDataSize() const {
     return getNumberOfDataElements() * sizeof(T);
 }
 
-template <typename T> T& Image<T>::operator () (uint16_t ix, uint16_t iy, uint16_t iz, uint16_t channel) {
+template <typename T> T& Image<T>::at(uint16_t ix, uint16_t iy, uint16_t iz, uint16_t channel) {
+    // TODO: bounds checking
     size_t sx = getMatrixSizeX();
     size_t sy = getMatrixSizeY();
     size_t sz = getMatrixSizeZ();
@@ -1037,8 +1027,8 @@ template <typename T> uint16_t NDArray<T>::getVersion() const {
     return version;
 };
 
-template <typename T> DataType NDArray<T>::getDataType() const {
-    return static_cast<DataType>(get_data_type<T>());
+template <typename T> StorageType NDArray<T>::getStorageType() const {
+    return static_cast<StorageType>(get_storage_type<T>());
 }
 
 template <typename T> uint16_t NDArray<T>::getNDim() const {
@@ -1081,9 +1071,10 @@ template <typename T> size_t NDArray<T>::getDataSize() const {
     return getNumberOfElements() * sizeof(T);
 }
 
-template <typename T> T& NDArray<T>::operator() (uint16_t x, uint16_t y, uint16_t z,
+template <typename T> T& NDArray<T>::at(uint16_t x, uint16_t y, uint16_t z,
         uint16_t w, uint16_t n, uint16_t m, uint16_t l)
 {
+    // TODO: bounds checking
     size_t index = 0;
     uint16_t indices[ISMRMRD_NDARRAY_MAXDIM] = {x,y,z,w,n,m,l};
     size_t stride = 1;
@@ -1097,42 +1088,42 @@ template <typename T> T& NDArray<T>::operator() (uint16_t x, uint16_t y, uint16_
 
 // Specializations
 // Allowed data types for Images and NDArrays
-template <> EXPORTISMRMRD DataType get_data_type<uint16_t>()
+template <> EXPORTISMRMRD StorageType get_storage_type<uint16_t>()
 {
     return ISMRMRD_USHORT;
 }
 
-template <> EXPORTISMRMRD DataType get_data_type<int16_t>()
+template <> EXPORTISMRMRD StorageType get_storage_type<int16_t>()
 {
     return ISMRMRD_SHORT;
 }
 
-template <> EXPORTISMRMRD DataType get_data_type<uint32_t>()
+template <> EXPORTISMRMRD StorageType get_storage_type<uint32_t>()
 {
     return ISMRMRD_UINT;
 }
 
-template <> EXPORTISMRMRD DataType get_data_type<int32_t>()
+template <> EXPORTISMRMRD StorageType get_storage_type<int32_t>()
 {
     return ISMRMRD_INT;
 }
 
-template <> EXPORTISMRMRD DataType get_data_type<float>()
+template <> EXPORTISMRMRD StorageType get_storage_type<float>()
 {
     return ISMRMRD_FLOAT;
 }
 
-template <> EXPORTISMRMRD DataType get_data_type<double>()
+template <> EXPORTISMRMRD StorageType get_storage_type<double>()
 {
     return ISMRMRD_DOUBLE;
 }
 
-template <> EXPORTISMRMRD DataType get_data_type<std::complex<float> >()
+template <> EXPORTISMRMRD StorageType get_storage_type<std::complex<float> >()
 {
     return ISMRMRD_CXFLOAT;
 }
 
-template <> EXPORTISMRMRD DataType get_data_type<std::complex<double> >()
+template <> EXPORTISMRMRD StorageType get_storage_type<std::complex<double> >()
 {
     return ISMRMRD_CXDOUBLE;
 }

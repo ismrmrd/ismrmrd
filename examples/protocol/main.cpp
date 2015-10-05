@@ -147,8 +147,7 @@ int main(int argc, char* argv[])
     ISMRMRD::Dataset dataset(in_fname.c_str(), in_hdf5_group.c_str());
 
     // Read and deserialize XML header
-    std::string xml;
-    dataset.readHeader(xml);
+    std::string xml = dataset.readHeader();
 
     // Establish connection to server
     boost::asio::io_service io_service;

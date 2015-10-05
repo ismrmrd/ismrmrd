@@ -48,8 +48,7 @@ int main(int argc, char** argv)
     //Let's open the existing dataset
     ISMRMRD::Dataset d(datafile.c_str(),"dataset");
 
-    std::string xml;
-    d.readHeader(xml);
+    std::string xml = d.readHeader();
     ISMRMRD::IsmrmrdHeader hdr;
     ISMRMRD::deserialize(xml.c_str(),hdr);
 
@@ -79,14 +78,13 @@ int main(int argc, char** argv)
     uint16_t nY = e_space.matrixSize.y;
     
     // The number of channels is optional, so read the first line
-    ISMRMRD::Acquisition<std::complex<float> > acq;
-    d.readAcquisition(0, 0, acq);
-    uint16_t nCoils = acq.active_channels();
+    ISMRMRD::Acquisition acq = d.readAcquisition(0, 0);
+    uint16_t nCoils = acq.getActiveChannels();
     
     std::cout << "Encoding Matrix Size        : [" << e_space.matrixSize.x << ", " << e_space.matrixSize.y << ", " << e_space.matrixSize.z << "]" << std::endl;
     std::cout << "Reconstruction Matrix Size  : [" << r_space.matrixSize.x << ", " << r_space.matrixSize.y << ", " << r_space.matrixSize.z << "]" << std::endl;
     std::cout << "Number of Channels          : " << nCoils << std::endl;
-    std::cout << "Number of acquisitions      : " << d.getNumberOfAcquisitions() << std::endl;
+    std::cout << "Number of acquisitions      : " << d.getNumberOfAcquisitions(0) << std::endl;
 
     //Allocate a buffer for the data
     std::vector<size_t> dims;
@@ -94,17 +92,17 @@ int main(int argc, char** argv)
     dims.push_back(nY);
     dims.push_back(nCoils);
     ISMRMRD::NDArray<std::complex<float> > buffer(dims);
-    memset(buffer.getDataPtr(), 0, sizeof(std::complex<float>)*nX*nY*nCoils);
     
     //Now loop through and copy data
-    unsigned int number_of_acquisitions = d.getNumberOfAcquisitions();
+    unsigned int number_of_acquisitions = d.getNumberOfAcquisitions(0);
     for (unsigned int i = 0; i < number_of_acquisitions; i++) {
         //Read one acquisition at a time
-        d.readAcquisition(0, i, acq);
+        acq = d.readAcquisition(0, i);
 
         //Copy data, we should probably be more careful here and do more tests....
         for (uint16_t c=0; c<nCoils; c++) {
-            memcpy(&buffer(0,acq.idx().kspace_encode_step_1,c), &acq.data(0, c), sizeof(std::complex<float>)*nX);
+            memcpy(&buffer.at(0, acq.getEncodingCounters().kspace_encode_step_1, c),
+                    &acq.at(0, c), sizeof(std::complex<float>) * nX);
         }
     }
 
@@ -123,13 +121,13 @@ int main(int argc, char** argv)
         fftwf_plan p = fftwf_plan_dft_2d(nY, nX, tmp ,tmp, FFTW_BACKWARD, FFTW_ESTIMATE);
 
         //FFTSHIFT
-        fftshift(reinterpret_cast<std::complex<float>*>(tmp), &buffer(0,0,c), nX, nY);
+        fftshift(reinterpret_cast<std::complex<float>*>(tmp), &buffer.at(0,0,c), nX, nY);
         
         //Execute the FFT
         fftwf_execute(p);
         
         //FFTSHIFT
-        fftshift( &buffer(0,0,c), reinterpret_cast<std::complex<float>*>(tmp), nX, nY);
+        fftshift(&buffer.at(0,0,c), reinterpret_cast<std::complex<float>*>(tmp), nX, nY);
 
         //Clean up.
         fftwf_destroy_plan(p);
@@ -139,7 +137,6 @@ int main(int argc, char** argv)
 
     //Allocate an image
     ISMRMRD::Image<float> img_out(r_space.matrixSize.x, r_space.matrixSize.y, 1, 1);
-    memset(img_out.getDataPtr(), 0, sizeof(float_t)*r_space.matrixSize.x*r_space.matrixSize.y);
            
     //f there is oversampling in the readout direction remove it
     //Take the sqrt of the sum of squares
@@ -147,9 +144,9 @@ int main(int argc, char** argv)
     for (uint16_t y = 0; y < r_space.matrixSize.y; y++) {
         for (uint16_t x = 0; x < r_space.matrixSize.x; x++) {
             for (uint16_t c=0; c<nCoils; c++) {
-                img_out(x,y) += (std::abs(buffer(x+offset, y, c)))*(std::abs(buffer(x+offset, y, c)));
+                img_out.at(x,y) += (std::abs(buffer.at(x+offset, y, c))) * (std::abs(buffer.at(x+offset, y, c)));
             }
-            img_out(x,y) = std::sqrt(img_out(x,y));            
+            img_out.at(x,y) = std::sqrt(img_out.at(x,y));            
         }
     }
     

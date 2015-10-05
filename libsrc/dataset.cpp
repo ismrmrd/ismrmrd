@@ -1,9 +1,8 @@
 #include "ismrmrd/dataset.h"
 
-// for memcpy and free in older compilers
-#include <string.h>
-#include <stdlib.h>
-#include <stdexcept>
+#include <boost/algorithm/string.hpp>
+
+#include <fstream>
 
 namespace ISMRMRD {
 //
@@ -11,207 +10,232 @@ namespace ISMRMRD {
 //
 // Constructor
 Dataset::Dataset(const char* filename, const char* groupname, bool create_file_if_needed, bool read_only)
+  : filename_(filename),
+    groupname_(groupname),
+    read_only_(read_only),
+    file_open_(false),
+    dataset_open_(false)
 {
-    // TODO error checking and exception throwing
-    // Initialize the dataset
-    int status;
-    status = ismrmrd_init_dataset(&dset_, filename, groupname);
-    if (status != ISMRMRD_NOERROR) {
-        throw std::runtime_error(build_exception_string());
-    }
+    std::ifstream ifile(filename_.c_str());
+    bool file_exists = ifile.is_open();
 
-    // Check if file exists. If not, create as necessary
-    if (!ismrmrd_dataset_exists(filename)) {
-        if (create_file_if_needed) {
-            status = ismrmrd_create_dataset(&dset_);
-            if (status != ISMRMRD_NOERROR) {
-                throw std::runtime_error(build_exception_string());
-            }
-        } else {
-            throw std::runtime_error("File does not exist");
+    int open_flag = read_only ? H5F_ACC_RDONLY : H5F_ACC_RDWR;
+
+    if (file_exists) {
+        if (!H5File::isHdf5(filename_.c_str())) {
+            throw std::runtime_error("Not an HDF file");
         }
+        // TODO: use std::make_unique
+        file_ = std::unique_ptr<H5File>(new H5File(filename_, open_flag));
+    } else if (create_file_if_needed) {
+        file_ = std::unique_ptr<H5File>(new H5File(filename_, H5F_ACC_TRUNC));
+        // We will close and then immediately open the file again.
+        // We need to make sure the file is saved as an HDF5 file in case other processes and functions
+        // need to access it immediately. The line above does not cause the file to be marked as and HDF5 file.
+        // H5File::isHdf5(filename_.c_str()) will return false at this point.
+        file_->close();
+        file_ = std::unique_ptr<H5File>(new H5File(filename_, open_flag));
+        file_open_ = true;
+    } else {
+        throw std::runtime_error("file not found");
     }
 
-    // Open the file
-    status = ismrmrd_open_dataset(&dset_, read_only);
-    if (status != ISMRMRD_NOERROR) {
-        throw std::runtime_error(build_exception_string());
+    if (!linkExists(groupname)) {
+        createGroup(groupname);
     }
+
+    xml_header_path_ = groupname_ + "/xml";
+    data_path_ = groupname_ + "/data";
 }
 
 // Destructor
 Dataset::~Dataset()
+{ }
+
+bool Dataset::linkExists(const std::string& path)
 {
-    int status = ismrmrd_close_dataset(&dset_);
-    if (status != ISMRMRD_NOERROR) {
-        throw std::runtime_error(build_exception_string());
+    std::vector<std::string> elements;
+    std::string delimiter("/");
+    boost::split(elements, path, boost::is_any_of("/"));
+    std::string current_path;
+    for (auto it = elements.begin(); it != elements.end(); ++it) {
+        if (it->size() > 0) {
+            current_path += "/" + *it;
+            if (!H5Lexists(file_->getId(), current_path.c_str(), H5P_DEFAULT)) {
+                return false;
+            }
+        }
     }
+    return true;
 }
 
-bool Dataset::exists(const char* filename)
+void Dataset::createGroup(const std::string& path)
 {
-    return ismrmrd_dataset_exists(filename);
+    std::vector<std::string> elements;
+    boost::split(elements, path, boost::is_any_of("/"));
+    std::string current_path;
+    for (auto it = elements.begin(); it != elements.end(); ++it) {
+        if (it->size() > 0) {
+            current_path += "/" + *it;
+            if (!H5Lexists(file_->getId(), current_path.c_str(), H5P_DEFAULT)) {
+                file_->createGroup(current_path.c_str());
+            }
+        }
+    }
 }
 
 // XML Header
-void Dataset::writeHeader(const std::string &xmlstring)
+void Dataset::writeHeader(const std::string& xml)
 {
-    int status = ismrmrd_write_header(&dset_, xmlstring.c_str());
-    if (status != ISMRMRD_NOERROR) {
-        throw std::runtime_error(build_exception_string());
-    }
-}
+    std::vector<hsize_t> dims(1, 1);
+    std::vector<hsize_t> max_dims(1, 1);
 
-void Dataset::readHeader(std::string& xmlstring){
-    char * temp = ismrmrd_read_header(&dset_);
-    if (NULL == temp) {
-        throw std::runtime_error(build_exception_string());
+    std::unique_ptr<DataSet> xml_dataset;
+    auto datatype = std::unique_ptr<DataType>(new StrType(0, H5T_VARIABLE));
+
+    if (!linkExists(xml_header_path_)) {
+        DataSpace mspace1(dims.size(), &dims[0], &max_dims[0]);
+        xml_dataset = std::unique_ptr<DataSet>(
+                new DataSet(file_->createDataSet(xml_header_path_.c_str(), *datatype, mspace1)));
     } else {
-        xmlstring = std::string(temp);
-        free(temp);
+        xml_dataset = std::unique_ptr<DataSet>(
+                new DataSet(file_->openDataSet(xml_header_path_.c_str())));
+        DataType mtype = xml_dataset->getDataType();
+        // no `!=` operator for DataType so we use (!(expr)) here
+        if (!(mtype == *datatype)) {
+            throw std::runtime_error("conflicting HDF5 types for XML header");
+        }
     }
+
+    DataSpace mspace1 = xml_dataset->getSpace();
+    xml_dataset->write(xml, *datatype, mspace1);
 }
 
-// Acquisitions
+std::string Dataset::readHeader()
+{
+    if (!linkExists(xml_header_path_)) {
+        throw std::runtime_error("XML header not found in file");
+    }
+
+    std::unique_ptr<DataSet> xml_dataset(new DataSet(file_->openDataSet(xml_header_path_.c_str())));
+    auto datatype = std::unique_ptr<DataType>(new StrType(0, H5T_VARIABLE));
+
+    DataType dt = xml_dataset->getDataType();
+
+    std::string xml;
+    xml_dataset->read(xml, dt);
+
+    return xml;
+}
+
+void Dataset::appendAcquisition(const Acquisition& acq)
+{
+    /* OLD */
+    /* int status = ismrmrd_append_acquisition(&dset_, acq); */
+    /* if (status != ISMRMRD_NOERROR) { */
+    /*     throw std::runtime_error(build_exception_string()); */
+    /* } */
+}
+
+Acquisition Dataset::readAcquisition(uint16_t stream_number, uint32_t index) {
+    /* OLD */
+    /* int status = ismrmrd_read_acquisition(&dset_, stream_number, index, &acq.acq); */
+    /* if (status != ISMRMRD_NOERROR) { */
+    /*     throw std::runtime_error(build_exception_string()); */
+    /* } */
+    return std::move(Acquisition());
+}
+
+unsigned long Dataset::getNumberOfAcquisitions(uint16_t stream_number)
+{
+    unsigned long nacq = 0;
+
+    if (!linkExists(data_path_)) {
+        throw std::runtime_error("Data path does not exist in dataset");
+    }
+
+    // TODO: implement
+
+    return nacq;
+}
+
+template <typename T> void Dataset::appendImage(const std::string& var, const Image<T>& im)
+{
+    // TODO: implement
+}
+
+template EXPORTISMRMRD void Dataset::appendImage(const std::string& var, const Image<uint16_t>& im);
+template EXPORTISMRMRD void Dataset::appendImage(const std::string& var, const Image<int16_t>& im);
+template EXPORTISMRMRD void Dataset::appendImage(const std::string& var, const Image<uint32_t>& im);
+template EXPORTISMRMRD void Dataset::appendImage(const std::string& var, const Image<int32_t>& im);
+template EXPORTISMRMRD void Dataset::appendImage(const std::string& var, const Image<float>& im);
+template EXPORTISMRMRD void Dataset::appendImage(const std::string& var, const Image<double>& im);
+template EXPORTISMRMRD void Dataset::appendImage(const std::string& var, const Image<std::complex<float> >& im);
+template EXPORTISMRMRD void Dataset::appendImage(const std::string& var, const Image<std::complex<double> >& im);
+
+
 template <typename T>
-void Dataset::appendAcquisition(const Acquisition<T> &acq)
+Image<T> Dataset::readImage(const std::string& var, uint32_t index)
 {
-    this->appendAcquisition(&acq.acq);
+    // TODO: implement
+    return std::move(Image<T>());
 }
 
-void Dataset::appendAcquisition(const ISMRMRD_Acquisition *acq)
+template EXPORTISMRMRD Image<uint16_t> Dataset::readImage(const std::string& var, uint32_t index);
+template EXPORTISMRMRD Image<int16_t> Dataset::readImage(const std::string& var, uint32_t index);
+template EXPORTISMRMRD Image<uint32_t> Dataset::readImage(const std::string& var, uint32_t index);
+template EXPORTISMRMRD Image<int32_t> Dataset::readImage(const std::string& var, uint32_t index);
+template EXPORTISMRMRD Image<float> Dataset::readImage(const std::string& var, uint32_t index);
+template EXPORTISMRMRD Image<double> Dataset::readImage(const std::string& var, uint32_t index);
+template EXPORTISMRMRD Image<std::complex<float> > Dataset::readImage(const std::string& var, uint32_t index);
+template EXPORTISMRMRD Image<std::complex<double> > Dataset::readImage(const std::string& var, uint32_t index);
+
+unsigned long Dataset::getNumberOfImages(const std::string& var)
 {
-    int status = ismrmrd_append_acquisition(&dset_, acq);
-    if (status != ISMRMRD_NOERROR) {
-        throw std::runtime_error(build_exception_string());
-    }
+    unsigned long nimg = 0;
+
+    // TODO: implement
+
+    return nimg;
 }
 
-template EXPORTISMRMRD void Dataset::appendAcquisition(const Acquisition<uint16_t>& acq);
-template EXPORTISMRMRD void Dataset::appendAcquisition(const Acquisition<int16_t>& acq);
-template EXPORTISMRMRD void Dataset::appendAcquisition(const Acquisition<uint32_t>& acq);
-template EXPORTISMRMRD void Dataset::appendAcquisition(const Acquisition<int32_t>& acq);
-template EXPORTISMRMRD void Dataset::appendAcquisition(const Acquisition<float>& acq);
-template EXPORTISMRMRD void Dataset::appendAcquisition(const Acquisition<double>& acq);
-template EXPORTISMRMRD void Dataset::appendAcquisition(const Acquisition<complex_float_t>& acq);
-template EXPORTISMRMRD void Dataset::appendAcquisition(const Acquisition<complex_double_t>& acq);
+template <typename T> void Dataset::appendNDArray(const std::string& var, const NDArray<T>& arr)
+{
+    // TODO: implement
+}
+
+template EXPORTISMRMRD void Dataset::appendNDArray(const std::string& var, const NDArray<uint16_t>& arr);
+template EXPORTISMRMRD void Dataset::appendNDArray(const std::string& var, const NDArray<int16_t>& arr);
+template EXPORTISMRMRD void Dataset::appendNDArray(const std::string& var, const NDArray<uint32_t>& arr);
+template EXPORTISMRMRD void Dataset::appendNDArray(const std::string& var, const NDArray<int32_t>& arr);
+template EXPORTISMRMRD void Dataset::appendNDArray(const std::string& var, const NDArray<float>& arr);
+template EXPORTISMRMRD void Dataset::appendNDArray(const std::string& var, const NDArray<double>& arr);
+template EXPORTISMRMRD void Dataset::appendNDArray(const std::string& var, const NDArray<std::complex<float> >& arr);
+template EXPORTISMRMRD void Dataset::appendNDArray(const std::string& var, const NDArray<std::complex<double> >& arr);
 
 template <typename T>
-void Dataset::readAcquisition(uint16_t stream_number, uint32_t index, Acquisition<T>& acq) {
-    int status = ismrmrd_read_acquisition(&dset_, stream_number, index, &acq.acq);//reinterpret_cast<ISMRMRD_Acquisition*>(&acq));
-    if (status != ISMRMRD_NOERROR) {
-        throw std::runtime_error(build_exception_string());
-    }
-}
-
-template EXPORTISMRMRD void Dataset::readAcquisition(uint16_t, uint32_t, Acquisition<uint16_t>& acq);
-template EXPORTISMRMRD void Dataset::readAcquisition(uint16_t, uint32_t, Acquisition<int16_t>& acq);
-template EXPORTISMRMRD void Dataset::readAcquisition(uint16_t, uint32_t, Acquisition<uint32_t>& acq);
-template EXPORTISMRMRD void Dataset::readAcquisition(uint16_t, uint32_t, Acquisition<int32_t>& acq);
-template EXPORTISMRMRD void Dataset::readAcquisition(uint16_t, uint32_t, Acquisition<float>& acq);
-template EXPORTISMRMRD void Dataset::readAcquisition(uint16_t, uint32_t, Acquisition<double>& acq);
-template EXPORTISMRMRD void Dataset::readAcquisition(uint16_t, uint32_t, Acquisition<complex_float_t>& acq);
-template EXPORTISMRMRD void Dataset::readAcquisition(uint16_t, uint32_t, Acquisition<complex_double_t>& acq);
-
-uint32_t Dataset::getNumberOfAcquisitions()
+NDArray<T> Dataset::readNDArray(const std::string& var, uint32_t index)
 {
-    uint32_t num = ismrmrd_get_number_of_acquisitions(&dset_);
-    return num;
+    // TODO: implement
+    return std::move(NDArray<T>());
 }
 
-// Images
-template <typename T> void Dataset::appendImage(const std::string &var, const Image<T> &im)
+template EXPORTISMRMRD NDArray<uint16_t> Dataset::readNDArray(const std::string& var, uint32_t index);
+template EXPORTISMRMRD NDArray<int16_t> Dataset::readNDArray(const std::string& var, uint32_t index);
+template EXPORTISMRMRD NDArray<uint32_t> Dataset::readNDArray(const std::string& var, uint32_t index);
+template EXPORTISMRMRD NDArray<int32_t> Dataset::readNDArray(const std::string& var, uint32_t index);
+template EXPORTISMRMRD NDArray<float> Dataset::readNDArray(const std::string& var, uint32_t index);
+template EXPORTISMRMRD NDArray<double> Dataset::readNDArray(const std::string& var, uint32_t index);
+template EXPORTISMRMRD NDArray<std::complex<float> > Dataset::readNDArray(const std::string& var, uint32_t index);
+template EXPORTISMRMRD NDArray<std::complex<double> > Dataset::readNDArray(const std::string& var, uint32_t index);
+
+unsigned long Dataset::getNumberOfNDArrays(const std::string& var)
 {
-    this->appendImage(var, &im.im);
-}
+    unsigned long narr = 0;
 
-void Dataset::appendImage(const std::string &var, const ISMRMRD_Image *im)
-{
-    int status = ismrmrd_append_image(&dset_, var.c_str(), im);
-    if (status != ISMRMRD_NOERROR) {
-        throw std::runtime_error(build_exception_string());
-    }
-}
-// Specific instantiations
-template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const Image<uint16_t> &im);
-template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const Image<int16_t> &im);
-template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const Image<uint32_t> &im);
-template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const Image<int32_t> &im);
-template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const Image<float> &im);
-template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const Image<double> &im);
-template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const Image<complex_float_t> &im);
-template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const Image<complex_double_t> &im);
+    // TODO: implement
 
-
-template <typename T> void Dataset::readImage(const std::string &var, uint32_t index, Image<T> &im) {
-    int status = ismrmrd_read_image(&dset_, var.c_str(), index, &im.im);
-    if (status != ISMRMRD_NOERROR) {
-        throw std::runtime_error(build_exception_string());
-    }
-}
-
-// Specific instantiations
-template EXPORTISMRMRD void Dataset::readImage(const std::string &var, uint32_t index, Image<uint16_t> &im);
-template EXPORTISMRMRD void Dataset::readImage(const std::string &var, uint32_t index, Image<int16_t> &im);
-template EXPORTISMRMRD void Dataset::readImage(const std::string &var, uint32_t index, Image<uint32_t> &im);
-template EXPORTISMRMRD void Dataset::readImage(const std::string &var, uint32_t index, Image<int32_t> &im);
-template EXPORTISMRMRD void Dataset::readImage(const std::string &var, uint32_t index, Image<float> &im);
-template EXPORTISMRMRD void Dataset::readImage(const std::string &var, uint32_t index, Image<double> &im);
-template EXPORTISMRMRD void Dataset::readImage(const std::string &var, uint32_t index, Image<complex_float_t> &im);
-template EXPORTISMRMRD void Dataset::readImage(const std::string &var, uint32_t index, Image<complex_double_t> &im);
-
-uint32_t Dataset::getNumberOfImages(const std::string &var)
-{
-    uint32_t num =  ismrmrd_get_number_of_images(&dset_, var.c_str());
-    return num;
-}
-
-
-// NDArrays
-template <typename T> void Dataset::appendNDArray(const std::string &var, const NDArray<T> &arr)
-{
-    appendNDArray(var, &arr.arr);
-}
-
-void Dataset::appendNDArray(const std::string &var, const ISMRMRD_NDArray *arr)
-{
-    int status = ismrmrd_append_array(&dset_, var.c_str(), arr);
-    if (status != ISMRMRD_NOERROR) {
-        throw std::runtime_error(build_exception_string());
-    }
-}
-
-// Specific instantiations
-template EXPORTISMRMRD void Dataset::appendNDArray(const std::string &var, const NDArray<uint16_t> &arr);
-template EXPORTISMRMRD void Dataset::appendNDArray(const std::string &var, const NDArray<int16_t> &arr);
-template EXPORTISMRMRD void Dataset::appendNDArray(const std::string &var, const NDArray<uint32_t> &arr);
-template EXPORTISMRMRD void Dataset::appendNDArray(const std::string &var, const NDArray<int32_t> &arr);
-template EXPORTISMRMRD void Dataset::appendNDArray(const std::string &var, const NDArray<float> &arr);
-template EXPORTISMRMRD void Dataset::appendNDArray(const std::string &var, const NDArray<double> &arr);
-template EXPORTISMRMRD void Dataset::appendNDArray(const std::string &var, const NDArray<complex_float_t> &arr);
-template EXPORTISMRMRD void Dataset::appendNDArray(const std::string &var, const NDArray<complex_double_t> &arr);
-
-template <typename T> void Dataset::readNDArray(const std::string &var, uint32_t index, NDArray<T> &arr) {
-    int status = ismrmrd_read_array(&dset_, var.c_str(), index, &arr.arr);
-    if (status != ISMRMRD_NOERROR) {
-        throw std::runtime_error(build_exception_string());
-    }
-}
-
-// Specific instantiations
-template EXPORTISMRMRD void Dataset::readNDArray(const std::string &var, uint32_t index, NDArray<uint16_t> &arr);
-template EXPORTISMRMRD void Dataset::readNDArray(const std::string &var, uint32_t index, NDArray<int16_t> &arr);
-template EXPORTISMRMRD void Dataset::readNDArray(const std::string &var, uint32_t index, NDArray<uint32_t> &arr);
-template EXPORTISMRMRD void Dataset::readNDArray(const std::string &var, uint32_t index, NDArray<int32_t> &arr);
-template EXPORTISMRMRD void Dataset::readNDArray(const std::string &var, uint32_t index, NDArray<float> &arr);
-template EXPORTISMRMRD void Dataset::readNDArray(const std::string &var, uint32_t index, NDArray<double> &arr);
-template EXPORTISMRMRD void Dataset::readNDArray(const std::string &var, uint32_t index, NDArray<complex_float_t> &arr);
-template EXPORTISMRMRD void Dataset::readNDArray(const std::string &var, uint32_t index, NDArray<complex_double_t> &arr);
-
-uint32_t Dataset::getNumberOfNDArrays(const std::string &var)
-{
-    uint32_t num = ismrmrd_get_number_of_arrays(&dset_, var.c_str());
-    return num;
+    return narr;
 }
 
 } // namespace ISMRMRD

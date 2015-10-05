@@ -78,13 +78,12 @@ int main(int argc, char** argv)
     dims.push_back(ncoils);
 
     NDArray<std::complex<float> > coil_images(dims);
-    memset(&coil_images.getData()[0], 0, coil_images.getDataSize());
 
     for (unsigned int c = 0; c < ncoils; c++) {
         for (unsigned int y = 0; y < matrix_size; y++) {
             for (unsigned int x = 0; x < matrix_size; x++) {
                 uint16_t xout = x + (matrix_size*ros-matrix_size)/2;
-                coil_images(xout,y,c) = (*phantom)(x,y) * (*coils)(x,y,c);
+                coil_images.at(xout, y, c) = phantom->at(x,y) * coils->at(x,y,c);
             }
         }
     }
@@ -98,7 +97,6 @@ int main(int argc, char** argv)
     if (noise_calibration)
     {
         acq.resize(readout, ncoils);
-        memset(&acq.getData()[0], 0, acq.getDataSize());
         acq.setFlag(ISMRMRD_ACQ_IS_NOISE_MEASUREMENT);
         add_noise(acq,noise_level);
         acq.setSampleTime_us(5.0);
@@ -110,7 +108,6 @@ int main(int argc, char** argv)
     } else {
         acq.resize(readout, ncoils);
     }
-    memset(&acq.getData()[0], 0, acq.getDataSize());
 
     acq.setAvailableChannels(ncoils);
     acq.setCenterSample(readout / 2);
@@ -136,7 +133,7 @@ int main(int argc, char** argv)
                 acq.setSampleTime_us(5.0);
                 for (size_t c = 0; c < ncoils; c++) {
                     for (size_t s = 0; s < readout; s++) {
-                        acq.dataAt(s, c) = cm(s, i, c);
+                        acq.at(s, c) = cm.at(s, i, c);
                     }
                 }
 

@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "ismrmrd/ismrmrd.h"
-#include "ismrmrd/dataset.h"
+#include "ismrmrd-c/ismrmrd.h"
+#include "ismrmrd-c/dataset.h"
 
 void myerror(const char *file, int line, const char *func, int code, const char *msg) {
     char *msgtype = ismrmrd_strerror(code);

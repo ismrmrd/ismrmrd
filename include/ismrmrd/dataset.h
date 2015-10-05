@@ -20,37 +20,36 @@ public:
     Dataset(const char* filename, const char* groupname, bool create_file_if_needed=true, bool read_only=false);
     ~Dataset();
 
-    // Helper functions
-    static bool exists(const char* filename);
-
     // XML Header
     void writeHeader(const std::string &xmlstring);
-    void readHeader(std::string& xmlstring);
+    std::string readHeader();
 
     // Acquisitions
     void appendAcquisition(const Acquisition& acq);
-    void readAcquisition(uint16_t stream_number, uint32_t index, Acquisition &acq);
-    uint32_t getNumberOfAcquisitions();
+    Acquisition readAcquisition(uint16_t stream_number, uint32_t index);
+    unsigned long getNumberOfAcquisitions(uint16_t stream_number);
 
     // Images
     template <typename T> void appendImage(const std::string &var, const Image<T> &im);
-    template <typename T> void readImage(const std::string &var, uint32_t index, Image<T> &im);
-    uint32_t getNumberOfImages(const std::string &var);
+    template <typename T> Image<T> readImage(const std::string &var, uint32_t index);
+    unsigned long getNumberOfImages(const std::string &var);
 
     // NDArrays
     template <typename T> void appendNDArray(const std::string &var, const NDArray<T> &arr);
-    template <typename T> void readNDArray(const std::string &var, uint32_t index, NDArray<T> &arr);
-    uint32_t getNumberOfNDArrays(const std::string &var);
+    template <typename T> NDArray<T> readNDArray(const std::string &var, uint32_t index);
+    unsigned long getNumberOfNDArrays(const std::string &var);
 
 protected:
+    bool linkExists(const std::string& path);
+    void createGroup(const std::string& path);
+
     std::string filename_;
     std::string groupname_;
     std::string xml_header_path_;
     std::string data_path_;
 
+    bool read_only_;
     bool file_open_;
-    bool file_exists_;
-    bool create_file_if_needed_;
     bool dataset_open_;
 
     std::unique_ptr<H5File> file_;

@@ -43,7 +43,7 @@ int fft2c(NDArray<std::complex<float> > &a, bool forward)
 
 	for (size_t f = 0; f < ffts; f++) {
 
-            fftshift(reinterpret_cast<std::complex<float>*>(tmp),&a(0,0,f),a.getDims()[0],a.getDims()[1]);
+            fftshift(reinterpret_cast<std::complex<float>*>(tmp), &a.at(0,0,f), a.getDims()[0], a.getDims()[1]);
 
             //Create the FFTW plan
             fftwf_plan p;
@@ -54,7 +54,7 @@ int fft2c(NDArray<std::complex<float> > &a, bool forward)
             }
             fftwf_execute(p);
             
-            fftshift(&a(0,0,f),reinterpret_cast<std::complex<float>*>(tmp),a.getDims()[0],a.getDims()[1]);
+            fftshift(&a.at(0,0,f), reinterpret_cast<std::complex<float>*>(tmp), a.getDims()[0], a.getDims()[1]);
             
             //Clean up.
             fftwf_destroy_plan(p);

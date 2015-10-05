@@ -56,8 +56,8 @@ enum Constant {
     ISMRMRD_DIRECTION_LENGTH = 3
 };
 
-/** Data Types */
-enum DataType {
+/** Storage Types */
+enum StorageType {
     ISMRMRD_USHORT   = 1, /**< corresponds to uint16_t */
     ISMRMRD_SHORT    = 2, /**< corresponds to int16_t */
     ISMRMRD_UINT     = 3, /**< corresponds to uint32_t */
@@ -68,8 +68,8 @@ enum DataType {
     ISMRMRD_CXDOUBLE = 8  /**< corresponds to complex double */
 };
 
-/** Returns the size in bytes of an DataType */
-size_t ismrmrd_sizeof_data_type(int data_type);
+/** Returns the size in bytes of an StorageType */
+size_t ismrmrd_sizeof_storage_type(int storage_type);
 
 /** Acquisition Flags */
 enum AcquisitionFlags {
@@ -182,7 +182,7 @@ struct AcquisitionHeader {
 /** Header for each Image. */
 struct ImageHeader {
     uint16_t version;                                    /**< First unsigned int indicates the version */
-    uint16_t data_type;                                  /**< e.g. unsigned short, float, complex float, etc. */
+    uint16_t storage_type;                               /**< e.g. unsigned short, float, complex float, etc. */
     uint64_t flags;                                      /**< bit field with flags */
     uint32_t measurement_uid;                            /**< Unique ID for the measurement  */
     uint16_t matrix_size[3];                             /**< Pixels in the 3 spatial dimensions */
@@ -216,7 +216,7 @@ struct ImageHeader {
  */
 
 /// Allowed data types for Images and NDArrays
-template <typename T> EXPORTISMRMRD DataType get_data_type();
+template <typename T> EXPORTISMRMRD StorageType get_storage_type();
 
 /// Convenience class for flags
 class EXPORTISMRMRD FlagBit
@@ -243,8 +243,7 @@ public:
 class EXPORTISMRMRD Acquisition {
     friend class Dataset;
 public:
-    Acquisition();
-    Acquisition(uint16_t num_samples, uint16_t active_channels=1, uint16_t trajectory_dimensions=0);
+    Acquisition(uint16_t num_samples=0, uint16_t active_channels=1, uint16_t trajectory_dimensions=0);
 
     uint16_t getVersion() const;
 
@@ -357,7 +356,7 @@ public:
     const std::vector<std::complex<float> >& getData() const;
     void setData(const std::vector<std::complex<float> >& data);
     /** Returns a reference to a data point */
-    std::complex<float>& dataAt(uint16_t sample, uint16_t channel);
+    std::complex<float>& at(uint16_t sample, uint16_t channel);
 
     const std::vector<float>& getTraj() const;
     void setTraj(const std::vector<float>& traj);
@@ -398,9 +397,6 @@ public:
     // Constructors
     Image(uint16_t matrix_size_x = 0, uint16_t matrix_size_y = 1,
           uint16_t matrix_size_z = 1, uint16_t channels = 1);
-    Image(const Image &other);
-    Image & operator= (const Image &other);
-    ~Image();
 
     // Image dimensions
     void resize(uint16_t matrix_size_x, uint16_t matrix_size_y, uint16_t matrix_size_z, uint16_t channels);
@@ -468,7 +464,7 @@ public:
     // Attributes
     uint16_t getVersion() const;
 
-    DataType getDataType() const;
+    StorageType getStorageType() const;
 
     // Counters and labels
     uint32_t getMeasurementUID() const;
@@ -542,7 +538,7 @@ public:
     size_t getDataSize() const;
 
     /** Returns a reference to the image data **/
-    T& operator () (uint16_t x, uint16_t y=0, uint16_t z=0, uint16_t channel=0);
+    T& at(uint16_t x, uint16_t y=0, uint16_t z=0, uint16_t channel=0);
 
 protected:
     void makeConsistent();
@@ -559,13 +555,10 @@ public:
     // Constructors, destructor and copy
     NDArray();
     NDArray(const std::vector<size_t>& dims);
-    NDArray(const NDArray<T> &other);
-    ~NDArray();
-    NDArray<T> & operator= (const NDArray<T> &other);
 
     // Accessors and mutators
     uint16_t getVersion() const;
-    DataType getDataType() const;
+    StorageType getStorageType() const;
     uint16_t getNDim() const;
     const std::vector<size_t>& getDims();
     size_t getDataSize() const;
@@ -575,7 +568,7 @@ public:
     const std::vector<T>& getData() const;
 
     // Returns a reference to the image data
-    T& operator() (uint16_t x, uint16_t y=0, uint16_t z=0, uint16_t w=0, uint16_t n=0, uint16_t m=0, uint16_t l=0);
+    T& at(uint16_t x, uint16_t y=0, uint16_t z=0, uint16_t w=0, uint16_t n=0, uint16_t m=0, uint16_t l=0);
 
 protected:
     void makeConsistent();

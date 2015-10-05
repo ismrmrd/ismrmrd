@@ -24,7 +24,7 @@ boost::shared_ptr<NDArray<std::complex<float> > > phantom(std::vector<PhantomEll
             for (unsigned int x = 0; x < matrix_size; x++) {
                 float x_co = (1.0*x-(matrix_size / 2))/(matrix_size / 2);
                 if (it->isInside(x_co,y_co)) {
-                    (*out)(x,y) += std::complex<float>(it->getAmplitude(),0.0);
+                    out->at(x,y) += std::complex<float>(it->getAmplitude(), 0.0);
                 }
             }
         }
@@ -93,7 +93,7 @@ boost::shared_ptr<NDArray<std::complex<float> > > generate_birdcage_sensititivie
                 float x_co = (1.0*x-(matrix_size / 2))/(matrix_size / 2)-coilx;
                 float rr = std::sqrt(x_co*x_co+y_co*y_co);
                 float phi = atan2(x_co, -y_co) + coil_phase;
-                (*out)(x,y,c) = std::polar(1 / rr, phi);
+                out->at(x,y,c) = std::polar(1 / rr, phi);
             }
         }
     }
@@ -130,7 +130,7 @@ int add_noise(Acquisition& a, float sd)
 
     for (uint16_t c=0; c<a.getActiveChannels(); c++) {
         for (uint16_t s=0; s<a.getNumberOfSamples(); s++) {
-            a.dataAt(s,c) += std::complex<float>(var_nor(), var_nor());
+            a.at(s,c) += std::complex<float>(var_nor(), var_nor());
         }
     }
 
