@@ -419,17 +419,17 @@ void Acquisition::setFlags(uint64_t val) {
 }
 
 bool Acquisition::isFlagSet(uint64_t val) const {
-    uint64_t bitmask = 1 << (val - 1);
+    uint64_t bitmask = 1UL << (val - 1UL);
     return (head.flags & bitmask) > 0;
 }
 
 void Acquisition::setFlag(uint64_t val) {
-    uint64_t bitmask = 1 << (val - 1);
+    uint64_t bitmask = 1UL << (val - 1UL);
     head.flags |= bitmask;
 }
 
 void Acquisition::clearFlag(uint64_t val) {
-    uint64_t bitmask = 1 << (val - 1);
+    uint64_t bitmask = 1UL << (val - 1UL);
     head.flags &= ~bitmask;
 }
 
@@ -438,20 +438,20 @@ void Acquisition::clearAllFlags() {
 }
 
 bool Acquisition::isChannelActive(uint16_t chan) const {
-    uint64_t bitmask = 1 << (chan % 64);
-    size_t offset = chan / 64;
+    uint64_t bitmask = 1UL << (chan % 64UL);
+    size_t offset = chan / 64UL;
     return (head.channel_mask[offset] & bitmask) > 0;
 }
 
 void Acquisition::setChannelActive(uint16_t chan) {
-    uint64_t bitmask = 1 << (chan % 64);
-    size_t offset = chan / 64;
+    uint64_t bitmask = 1UL << (chan % 64UL);
+    size_t offset = chan / 64UL;
     head.channel_mask[offset] |= bitmask;
 }
 
 void Acquisition::setChannelNotActive(uint16_t chan) {
-    uint64_t bitmask = 1 << (chan % 64);
-    size_t offset = chan / 64;
+    uint64_t bitmask = 1UL << (chan % 64UL);
+    size_t offset = chan / 64UL;
     head.channel_mask[offset] &= ~bitmask;
 }
 
@@ -939,17 +939,17 @@ template <typename T> void Image<T>::setFlags(uint64_t val) {
 }
 
 template <typename T> bool Image<T>::isFlagSet(uint64_t val) const {
-    uint64_t bitmask = 1 << (val - 1);
+    uint64_t bitmask = 1UL << (val - 1UL);
     return (head.flags & bitmask) > 0;
 }
 
 template <typename T> void Image<T>::setFlag(uint64_t val) {
-    uint64_t bitmask = 1 << (val - 1);
+    uint64_t bitmask = 1UL << (val - 1UL);
     head.flags |= bitmask;
 }
 
 template <typename T> void Image<T>::clearFlag(uint64_t val) {
-    uint64_t bitmask = 1 << (val - 1);
+    uint64_t bitmask = 1UL << (val - 1UL);
     head.flags &= ~bitmask;
 }
 
@@ -1057,7 +1057,19 @@ template <typename T> void NDArray<T>::resize(const std::vector<size_t>& dims) {
 }
 
 template <typename T> void NDArray<T>::makeConsistent() {
-    data.resize(getNumberOfElements());
+    if (dims.size() == 0) {
+        data.resize(0);
+        return;
+    }
+
+    size_t size = 1;
+    for (auto it = dims.begin(); it != dims.end(); ++it) {
+        // This is necessary to prevent bad GCC loop optimization!
+        if (*it != 0) {
+            size *= *it;
+        }
+    }
+    data.resize(size);
 }
 
 template <typename T> std::vector<T>& NDArray<T>::getData() {
@@ -1069,14 +1081,7 @@ template <typename T> const std::vector<T>& NDArray<T>::getData() const {
 }
 
 template <typename T> size_t NDArray<T>::getNumberOfElements() const {
-    size_t num = 1;
-    for (std::vector<size_t>::const_iterator it = dims.begin(); it != dims.end(); ++it) {
-        // This is necessary to prevent bad GCC loop optimization!
-        if (*it > 0) {
-            num *= *it;
-        }
-    }
-    return num;
+    return data.size();
 }
 
 template <typename T> size_t NDArray<T>::getDataSize() const {

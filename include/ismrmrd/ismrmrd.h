@@ -225,21 +225,20 @@ template <typename T> EXPORTISMRMRD StorageType get_storage_type();
 class EXPORTISMRMRD FlagBit
 {
 public:
- FlagBit(unsigned short b)
-   : bitmask_(0)
-    {
-      if (b > 0) {
-    bitmask_ = 1;
-    bitmask_ = (bitmask_ << (b-1));
-      }
+FlagBit(unsigned short b)
+    : bitmask_(0)
+{
+    if (b > 0) {
+        bitmask_ = 1;
+        bitmask_ = (bitmask_ << (b-1));
     }
+}
 
-  bool isSet(const uint64_t& m) const {
+bool isSet(const uint64_t& m) const {
     return ((m & bitmask_)>0);
-  }
+}
 
-  uint64_t bitmask_;
-
+uint64_t bitmask_;
 };
 
 /// MR Acquisition type

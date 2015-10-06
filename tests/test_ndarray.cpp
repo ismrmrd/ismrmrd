@@ -4,68 +4,54 @@
 
 using namespace ISMRMRD;
 
-BOOST_AUTO_TEST_SUITE(NDArrayTest)
+BOOST_AUTO_TEST_SUITE(NDArrays)
 
-BOOST_AUTO_TEST_CASE(test_ndarray_init_cleanup)
+BOOST_AUTO_TEST_CASE(ndarray_create)
 {
-    ISMRMRD_NDArray carr;
+    NDArray<uint16_t> arr;
 
-    // Check initialization of ndarray
-    BOOST_CHECK_EQUAL(ismrmrd_init_ndarray(NULL), ISMRMRD_RUNTIMEERROR);
-    BOOST_CHECK_EQUAL(ismrmrd_init_ndarray(&carr), ISMRMRD_NOERROR);
-    BOOST_CHECK_EQUAL(carr.version, ISMRMRD_VERSION_MAJOR);
-    BOOST_CHECK_EQUAL(carr.data_type, 0);   // TODO: enumerate ISMRMRD_NO_DATATYPE
-    BOOST_CHECK_EQUAL(carr.ndim, 0);
-    for (int idx = 0; idx < ISMRMRD_NDARRAY_MAXDIM; idx++) {
-        BOOST_CHECK_EQUAL(carr.dims[idx], 0);
-    }
-    BOOST_CHECK(!carr.data);
-
-    // Check cleanup of ndarray
-    BOOST_CHECK_EQUAL(ismrmrd_cleanup_ndarray(NULL), ISMRMRD_RUNTIMEERROR);
-    BOOST_CHECK_EQUAL(ismrmrd_cleanup_ndarray(&carr), ISMRMRD_NOERROR);
-    BOOST_CHECK(!carr.data);
+    BOOST_CHECK_EQUAL(arr.getVersion(), ISMRMRD_VERSION_MAJOR);
+    BOOST_CHECK_EQUAL(arr.getData().size(), 0);
+    BOOST_CHECK_EQUAL(arr.getNDim(), 0);
+    BOOST_CHECK_EQUAL(arr.getDims().size(), 0);
 }
 
-BOOST_AUTO_TEST_CASE(test_ndarray_create_free)
+BOOST_AUTO_TEST_CASE(ndarray_copy)
 {
-    ISMRMRD_NDArray* carrp = NULL;
+    std::vector<size_t> dims;
+    dims.push_back(42);
+    dims.push_back(42);
+    dims.push_back(7);
+    NDArray<double> arr1(dims);
+    NDArray<double> arr2(arr1);
 
-    // Check creation of new ndarray
-    BOOST_CHECK(carrp = ismrmrd_create_ndarray());
-    BOOST_CHECK_EQUAL(carrp->version, ISMRMRD_VERSION_MAJOR);
-    BOOST_CHECK_EQUAL(carrp->data_type, 0);   // TODO: enumerate ISMRMRD_NO_DATATYPE
-    BOOST_CHECK_EQUAL(carrp->ndim, 0);
-    for (int idx = 0; idx < ISMRMRD_NDARRAY_MAXDIM; idx++) {
-        BOOST_CHECK_EQUAL(carrp->dims[idx], 0);
-    }
-    BOOST_CHECK(!carrp->data);
-
-    // Check cleanup
-    BOOST_CHECK_EQUAL(ismrmrd_free_ndarray(NULL), ISMRMRD_RUNTIMEERROR);
-    BOOST_CHECK_EQUAL(ismrmrd_free_ndarray(carrp), ISMRMRD_NOERROR);
-    BOOST_CHECK(!carrp->data);
+    BOOST_CHECK_EQUAL(arr1.getData().size(), arr2.getData().size());
+    BOOST_CHECK_EQUAL(arr1.getNDim(), arr2.getNDim());
+    BOOST_CHECK_EQUAL_COLLECTIONS(arr1.getDims().begin(), arr1.getDims().end(),
+            arr2.getDims().begin(), arr2.getDims().end());
 }
 
-BOOST_AUTO_TEST_CASE(test_ndarray_copy)
+BOOST_AUTO_TEST_CASE(ndarray_resize)
 {
-    // Weak check of ndarray copying
-    ISMRMRD_NDArray csrc, cdst;
-    BOOST_CHECK_EQUAL(ismrmrd_init_ndarray(&csrc), ISMRMRD_NOERROR);
-    // NOTE: it is necessary to call init_ndarray on the destination ndarray
-    // before copying, in case its data is non-NULL!
-    BOOST_CHECK_EQUAL(ismrmrd_init_ndarray(&cdst), ISMRMRD_NOERROR);
-    BOOST_CHECK_EQUAL(ismrmrd_copy_ndarray(&cdst, NULL), ISMRMRD_RUNTIMEERROR);
-    BOOST_CHECK_EQUAL(ismrmrd_copy_ndarray(NULL, &csrc), ISMRMRD_RUNTIMEERROR);
-    BOOST_CHECK_EQUAL(ismrmrd_copy_ndarray(NULL, NULL), ISMRMRD_RUNTIMEERROR);
-    BOOST_CHECK_EQUAL(ismrmrd_copy_ndarray(&cdst, &csrc), ISMRMRD_NOERROR);
-    BOOST_CHECK_EQUAL(cdst.version, ISMRMRD_VERSION_MAJOR);
-    BOOST_CHECK_EQUAL(cdst.data_type, 0);   // TODO: enumerate ISMRMRD_NO_DATATYPE
-    BOOST_CHECK_EQUAL(cdst.ndim, 0);
-    for (int idx = 0; idx < ISMRMRD_NDARRAY_MAXDIM; idx++) {
-        BOOST_CHECK_EQUAL(cdst.dims[idx], 0);
-    }
-    BOOST_CHECK(!cdst.data);
+    size_t d1[] = {4, 8, 12};
+    std::vector<size_t> dims1(std::begin(d1), std::end(d1));
+    NDArray<float> arr(dims1);
+    BOOST_CHECK_EQUAL(arr.getNDim(), 3);
+    BOOST_CHECK_EQUAL(arr.getData().size(), 4*8*12);
+
+    size_t d2[] = {16, 24, 32, 40};
+    std::vector<size_t> dims2(std::begin(d2), std::end(d2));
+    arr.resize(dims2);
+    BOOST_CHECK_EQUAL(arr.getNDim(), 4);
+    BOOST_CHECK_EQUAL(arr.getData().size(), 16*24*32*40);
+
+    std::vector<float> zeros(16*24*32*40, 0);
+    BOOST_CHECK_EQUAL_COLLECTIONS(zeros.begin(), zeros.end(),
+            arr.getData().begin(), arr.getData().end());
+
+    arr.resize(std::vector<size_t>());
+    BOOST_CHECK_EQUAL(arr.getNDim(), 0);
+    BOOST_CHECK_EQUAL(arr.getData().size(), 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

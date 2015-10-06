@@ -4,72 +4,51 @@
 
 using namespace ISMRMRD;
 
-BOOST_AUTO_TEST_SUITE(ChannelTest)
+BOOST_AUTO_TEST_SUITE(Channels)
 
-void fill_channels(uint64_t mask[ISMRMRD_CHANNEL_MASKS])
+BOOST_AUTO_TEST_CASE(set_channel_active)
 {
-    for (int i = 0; i < ISMRMRD_CHANNEL_MASKS; i++) {
-        mask[i] = 0xFFFFFFFFFFFFFFFF;
+    Acquisition acq;
+
+    for (int chan = 0; chan < 64 * ISMRMRD_CHANNEL_MASKS; chan++) {
+        BOOST_CHECK_EQUAL(acq.isChannelActive(chan), false);
+    }
+
+    for (int i = 0; i < ISMRMRD_CHANNEL_MASKS * 64; i++) {
+        acq.setChannelActive(i);
+    }
+
+    for (int chan = 0; chan < 64 * ISMRMRD_CHANNEL_MASKS; chan++) {
+        BOOST_CHECK_EQUAL(acq.isChannelActive(chan), true);
     }
 }
 
-BOOST_AUTO_TEST_CASE(test_is_channel_on)
+BOOST_AUTO_TEST_CASE(set_channel_not_active)
 {
-    uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS] = {0};
+    Acquisition acq;
 
-    // TODO: this returns and ISMRMRD_RUNTIMEERROR, which casts to "true"
-    /* BOOST_CHECK_EQUAL(ismrmrd_is_channel_on(NULL, 0), false); */
-
-    for (int chan = 0; chan < 64 * ISMRMRD_CHANNEL_MASKS; chan++) {
-        BOOST_CHECK_EQUAL(ismrmrd_is_channel_on(channel_mask, chan), false);
+    for (int i = 0; i < ISMRMRD_CHANNEL_MASKS * 64; i++) {
+        acq.setChannelActive(i);
     }
 
-    fill_channels(channel_mask);
     for (int chan = 0; chan < 64 * ISMRMRD_CHANNEL_MASKS; chan++) {
-        BOOST_CHECK_EQUAL(ismrmrd_is_channel_on(channel_mask, chan), true);
+        acq.setChannelNotActive(chan);
+        BOOST_CHECK_EQUAL(acq.isChannelActive(chan), false);
     }
 }
 
-BOOST_AUTO_TEST_CASE(test_set_channel_on)
+BOOST_AUTO_TEST_CASE(set_all_channels_not_active)
 {
-    uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS] = {0};
+    Acquisition acq;
 
-    BOOST_CHECK_EQUAL(ismrmrd_set_channel_on(NULL, 0), ISMRMRD_RUNTIMEERROR);
+    for (int i = 0; i < ISMRMRD_CHANNEL_MASKS * 64; i++) {
+        acq.setChannelActive(i);
+    }
+
+    acq.setAllChannelsNotActive();
 
     for (int chan = 0; chan < 64 * ISMRMRD_CHANNEL_MASKS; chan++) {
-        BOOST_CHECK_EQUAL(ismrmrd_set_channel_on(channel_mask, chan), ISMRMRD_NOERROR);
-        uint64_t bitmask = 1 << (chan % 64);
-        size_t offset = chan / 64;
-        BOOST_REQUIRE((channel_mask[offset] & bitmask) != 0);
-    }
-}
-
-BOOST_AUTO_TEST_CASE(test_set_channel_off)
-{
-    uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS] = {0};
-    fill_channels(channel_mask);
-
-    BOOST_CHECK_EQUAL(ismrmrd_set_channel_off(NULL, 0), ISMRMRD_RUNTIMEERROR);
-
-    for (int chan = 0; chan < 64 * ISMRMRD_CHANNEL_MASKS; chan++) {
-        BOOST_CHECK_EQUAL(ismrmrd_set_channel_off(channel_mask, chan), ISMRMRD_NOERROR);
-
-        uint64_t bitmask = 1 << (chan % 64);
-        size_t offset = chan / 64;
-        BOOST_REQUIRE((channel_mask[offset] & bitmask) == 0);
-    }
-}
-
-BOOST_AUTO_TEST_CASE(test_set_all_channels_off)
-{
-    uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS] = {0};
-    fill_channels(channel_mask);
-
-    BOOST_CHECK_EQUAL(ismrmrd_set_all_channels_off(NULL), ISMRMRD_RUNTIMEERROR);
-
-    BOOST_CHECK_EQUAL(ismrmrd_set_all_channels_off(channel_mask), ISMRMRD_NOERROR);
-    for (int idx = 0; idx < ISMRMRD_CHANNEL_MASKS; idx++) {
-        BOOST_REQUIRE(channel_mask[idx] == 0);
+        BOOST_CHECK_EQUAL(acq.isChannelActive(chan), false);
     }
 }
 
