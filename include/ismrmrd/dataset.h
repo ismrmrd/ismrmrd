@@ -7,6 +7,8 @@
 
 #include <H5Cpp.h>
 
+#include <map>
+
 #ifndef H5_NO_NAMESPACE
 using namespace H5;
 #endif
@@ -17,7 +19,8 @@ namespace ISMRMRD {
 class EXPORTISMRMRD Dataset {
 public:
     // Constructor and destructor
-    Dataset(const char* filename, const char* groupname, bool create_file_if_needed=true, bool read_only=false);
+    Dataset(const std::string& filename, const std::string& groupname,
+            bool create_file_if_needed=true, bool read_only=false);
     ~Dataset();
 
     // XML Header
@@ -25,35 +28,39 @@ public:
     std::string readHeader();
 
     // Acquisitions
-    void appendAcquisition(const Acquisition& acq);
-    Acquisition readAcquisition(uint16_t stream_number, uint32_t index);
-    unsigned long getNumberOfAcquisitions(uint16_t stream_number);
+    void appendAcquisition(const Acquisition& acq, int stream_number=-1);
+    Acquisition readAcquisition(unsigned long index, int stream_number=-1);
+    unsigned long getNumberOfAcquisitions(int stream_number=-1);
 
     // Images
     template <typename T> void appendImage(const std::string &var, const Image<T> &im);
-    template <typename T> Image<T> readImage(const std::string &var, uint32_t index);
+    template <typename T> Image<T> readImage(const std::string &var, unsigned long index);
     unsigned long getNumberOfImages(const std::string &var);
 
     // NDArrays
     template <typename T> void appendNDArray(const std::string &var, const NDArray<T> &arr);
-    template <typename T> NDArray<T> readNDArray(const std::string &var, uint32_t index);
+    template <typename T> NDArray<T> readNDArray(const std::string &var, unsigned long index);
     unsigned long getNumberOfNDArrays(const std::string &var);
 
 protected:
     bool linkExists(const std::string& path);
     void createGroup(const std::string& path);
+    std::string constructDataPath(unsigned int stream_number);
 
     std::string filename_;
     std::string groupname_;
     std::string xml_header_path_;
     std::string data_path_;
+    std::string index_path_;
+
+    std::map<std::string, DataSet> datasets_;
 
     bool read_only_;
     bool file_open_;
     bool dataset_open_;
 
     std::unique_ptr<H5File> file_;
-    std::unique_ptr<DataSet> dataset_;
+    //std::unique_ptr<DataSet> dataset_;
 };
 
 } /* namespace ISMRMRD */

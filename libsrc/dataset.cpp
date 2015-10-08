@@ -4,12 +4,124 @@
 
 #include <fstream>
 
+// TODO: remove this
+#include <iostream>
+
 namespace ISMRMRD {
-//
-// Dataset class implementation
-//
-// Constructor
-Dataset::Dataset(const char* filename, const char* groupname, bool create_file_if_needed, bool read_only)
+
+struct AcquisitionHeader_with_data
+{
+    AcquisitionHeader head;
+    hvl_t traj;
+    hvl_t data;
+};
+
+template <typename T>
+DataType get_hdf5_data_type();
+
+template <> DataType get_hdf5_data_type<EncodingCounters>()
+{
+    CompType dtype(sizeof(EncodingCounters));
+
+    dtype.insertMember("kspace_encode_step_1", HOFFSET(EncodingCounters, kspace_encode_step_1), PredType::NATIVE_UINT16);
+    dtype.insertMember("kspace_encode_step_2", HOFFSET(EncodingCounters, kspace_encode_step_2), PredType::NATIVE_UINT16);
+    dtype.insertMember("average", HOFFSET(EncodingCounters, average), PredType::NATIVE_UINT16);
+    dtype.insertMember("slice", HOFFSET(EncodingCounters, slice), PredType::NATIVE_UINT16);
+    dtype.insertMember("contrast", HOFFSET(EncodingCounters, contrast), PredType::NATIVE_UINT16);
+    dtype.insertMember("phase", HOFFSET(EncodingCounters, phase), PredType::NATIVE_UINT16);
+    dtype.insertMember("repetition", HOFFSET(EncodingCounters, repetition), PredType::NATIVE_UINT16);
+    dtype.insertMember("set", HOFFSET(EncodingCounters, set), PredType::NATIVE_UINT16);
+    dtype.insertMember("segment", HOFFSET(EncodingCounters, segment), PredType::NATIVE_UINT16);
+
+    std::vector<hsize_t> dims(1, ISMRMRD_USER_INTS);
+    DataType array_type = ArrayType(PredType::NATIVE_UINT16, 1, &dims[0]);
+    dtype.insertMember("user", HOFFSET(EncodingCounters, user), array_type);
+
+    return dtype;
+}
+
+template <> DataType get_hdf5_data_type<AcquisitionHeader>()
+{
+    CompType dtype(sizeof(AcquisitionHeader));
+
+    dtype.insertMember("version", HOFFSET(AcquisitionHeader, version),  PredType::NATIVE_UINT16);
+    dtype.insertMember("storage_type", HOFFSET(AcquisitionHeader, storage_type),  PredType::NATIVE_UINT16);
+    dtype.insertMember("stream_number", HOFFSET(AcquisitionHeader, stream_number),  PredType::NATIVE_UINT16);
+    dtype.insertMember("flags",  HOFFSET(AcquisitionHeader, flags),  PredType::NATIVE_UINT64);
+    dtype.insertMember("measurement_uid",  HOFFSET(AcquisitionHeader, measurement_uid),  PredType::NATIVE_UINT32);
+    dtype.insertMember("scan_counter",  HOFFSET(AcquisitionHeader, scan_counter),  PredType::NATIVE_UINT32);
+    dtype.insertMember("acquisition_time_stamp",  HOFFSET(AcquisitionHeader, acquisition_time_stamp), PredType::NATIVE_UINT32);
+
+    // TODO: use the size defines and not hard coded numbers.
+    std::vector<hsize_t> dims(1, ISMRMRD_PHYS_STAMPS);
+    DataType array_type = ArrayType(PredType::NATIVE_UINT32, 1, &dims[0]);
+    dtype.insertMember("physiology_time_stamp", HOFFSET(AcquisitionHeader, physiology_time_stamp), array_type);
+
+    dtype.insertMember("number_of_samples",  HOFFSET(AcquisitionHeader, number_of_samples),  PredType::NATIVE_UINT16);
+    dtype.insertMember("available_channels",  HOFFSET(AcquisitionHeader, available_channels),  PredType::NATIVE_UINT16);
+    dtype.insertMember("active_channels",  HOFFSET(AcquisitionHeader, active_channels),  PredType::NATIVE_UINT16);
+
+    dims[0] = ISMRMRD_CHANNEL_MASKS;
+    DataType mask_array_type = ArrayType(PredType::NATIVE_UINT64, 1, &dims[0]);
+    dtype.insertMember("channel_mask",  HOFFSET(AcquisitionHeader, channel_mask), mask_array_type);
+    dtype.insertMember("discard_pre",  HOFFSET(AcquisitionHeader, discard_pre),  PredType::NATIVE_UINT16);
+    dtype.insertMember("discard_post",  HOFFSET(AcquisitionHeader, discard_post),  PredType::NATIVE_UINT16);
+    dtype.insertMember("center_sample",  HOFFSET(AcquisitionHeader, center_sample),  PredType::NATIVE_UINT16);
+    dtype.insertMember("encoding_space_ref",  HOFFSET(AcquisitionHeader, encoding_space_ref),  PredType::NATIVE_UINT16);
+    dtype.insertMember("trajectory_dimensions", HOFFSET(AcquisitionHeader, trajectory_dimensions),  PredType::NATIVE_UINT16);
+    dtype.insertMember("sample_time_us",  HOFFSET(AcquisitionHeader, sample_time_us),  PredType::NATIVE_FLOAT);
+
+    dims[0] = ISMRMRD_POSITION_LENGTH;
+    DataType position_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
+    dtype.insertMember("position",  HOFFSET(AcquisitionHeader, position), position_array_type);
+
+    dims[0] = ISMRMRD_POSITION_LENGTH;
+    DataType read_dir_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
+    dtype.insertMember("read_dir",  HOFFSET(AcquisitionHeader, read_dir), read_dir_array_type);
+
+    dims[0] = ISMRMRD_POSITION_LENGTH;
+    DataType phase_dir_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
+    dtype.insertMember("phase_dir",  HOFFSET(AcquisitionHeader, phase_dir), phase_dir_array_type);
+
+    dims[0] = ISMRMRD_POSITION_LENGTH;
+    DataType slice_dir_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
+    dtype.insertMember("slice_dir",  HOFFSET(AcquisitionHeader, slice_dir), slice_dir_array_type);
+
+    dims[0] = ISMRMRD_POSITION_LENGTH;
+    DataType table_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
+    dtype.insertMember("patient_table_position",  HOFFSET(AcquisitionHeader, patient_table_position), table_array_type);
+
+    DataType ec_type = get_hdf5_data_type<EncodingCounters>();
+    dtype.insertMember("idx",  HOFFSET(AcquisitionHeader, idx), ec_type);
+
+    dims[0] = ISMRMRD_USER_INTS;
+    DataType user_int_array_type = ArrayType(PredType::NATIVE_INT32, 1, &dims[0]);
+    dtype.insertMember("user_int",  HOFFSET(AcquisitionHeader, user_int), user_int_array_type);
+
+    dims[0] = ISMRMRD_USER_FLOATS;
+    DataType user_float_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
+    dtype.insertMember("user_float",  HOFFSET(AcquisitionHeader, user_float), user_float_array_type);
+
+    return dtype;
+}
+
+template <> DataType get_hdf5_data_type<AcquisitionHeader_with_data>()
+{
+    CompType dtype(sizeof(AcquisitionHeader_with_data));
+
+    DataType head_type = get_hdf5_data_type<AcquisitionHeader>();
+
+    DataType realv_type = DataType(H5Tvlen_create(PredType::NATIVE_FLOAT.getId()));
+
+    dtype.insertMember("head", HOFFSET(AcquisitionHeader_with_data, head), head_type);
+    dtype.insertMember("traj", HOFFSET(AcquisitionHeader_with_data, traj), realv_type);
+    dtype.insertMember("data", HOFFSET(AcquisitionHeader_with_data, data), realv_type);
+
+    return dtype;
+}
+
+
+Dataset::Dataset(const std::string& filename, const std::string& groupname, bool create_file_if_needed, bool read_only)
   : filename_(filename),
     groupname_(groupname),
     read_only_(read_only),
@@ -40,17 +152,21 @@ Dataset::Dataset(const char* filename, const char* groupname, bool create_file_i
         throw std::runtime_error("file not found");
     }
 
-    if (!linkExists(groupname)) {
-        createGroup(groupname);
-    }
-
     xml_header_path_ = groupname_ + "/xml";
     data_path_ = groupname_ + "/data";
+    index_path_ = data_path_ + "/idx";
+
+    // create groups for /dataset and /dataset/data
+    if (!linkExists(data_path_)) {
+        createGroup(data_path_);
+    }
 }
 
 // Destructor
 Dataset::~Dataset()
-{ }
+{
+    file_->close();
+}
 
 bool Dataset::linkExists(const std::string& path)
 {
@@ -82,6 +198,14 @@ void Dataset::createGroup(const std::string& path)
             }
         }
     }
+}
+
+std::string Dataset::constructDataPath(unsigned int stream_number)
+{
+    // construct group path for this acquisition
+    std::stringstream sstr;
+    sstr << data_path_ << "/" << stream_number;
+    return std::move(sstr.str());
 }
 
 // XML Header
@@ -128,33 +252,116 @@ std::string Dataset::readHeader()
     return xml;
 }
 
-void Dataset::appendAcquisition(const Acquisition& acq)
+void Dataset::appendAcquisition(const Acquisition& acq, int stream_number)
 {
-    /* OLD */
-    /* int status = ismrmrd_append_acquisition(&dset_, acq); */
-    /* if (status != ISMRMRD_NOERROR) { */
-    /*     throw std::runtime_error(build_exception_string()); */
-    /* } */
+    // Determine stream number
+    // Create or "load" opened dataset
+    // Append acquisition to dataset
+    // Load or create the stream reference table
+    // Add reference to new acquisition to reference table
+
+    if (stream_number < 0) {
+        stream_number = acq.getStreamNumber();
+    }
+
+    std::string path = constructDataPath(stream_number);
+
+    int rank = 2;
+    std::vector<hsize_t> dims(rank, 1);
+    std::vector<hsize_t> max_dims(rank, 1); max_dims[0] = H5S_UNLIMITED;
+    DataType dtype = get_hdf5_data_type<AcquisitionHeader_with_data>();
+
+    bool new_dataset = false;
+
+    // check if the dataset is already open
+    if (datasets_.count(path) == 0) {
+        // check if the dataset even exists
+        if (!linkExists(path)) {
+            new_dataset = true;
+
+            DataSpace space(dims.size(), &dims[0], &max_dims[0]);
+
+            DSetCreatPropList cparms;
+            cparms.setChunk(dims.size(), &dims[0]);
+
+            datasets_[path] = file_->createDataSet(path.c_str(), dtype, space, cparms);
+        } else {
+            datasets_[path] = file_->openDataSet(path.c_str());
+        }
+    }
+
+    DataSet dataset = datasets_[path];
+
+    AcquisitionHeader_with_data obj;
+    obj.head = acq.getHead();
+    obj.traj.len = acq.getTrajectoryDimensions() * acq.getNumberOfSamples();
+    obj.traj.p = const_cast<float*>(&acq.getTraj()[0]);
+    obj.data.len = acq.getActiveChannels() * acq.getNumberOfSamples() * 2;
+
+    std::vector<float> fdata;
+    std::vector<std::complex<float> > data = acq.getData();
+    for (auto it = data.begin(); it != data.end(); ++it) {
+        fdata.push_back(it->real());
+        fdata.push_back(it->imag());
+    }
+    obj.data.p = const_cast<float*>(&fdata[0]);
+
+    DataSpace mspace = dataset.getSpace();
+    int cur_rank = mspace.getSimpleExtentNdims();
+    if (cur_rank != rank) {
+        throw std::runtime_error("incorrect rank in HDF5 dataset");
+    }
+
+    std::vector<hsize_t> ddims(rank, 1);
+    std::vector<hsize_t> offset(rank, 0);
+
+    if (!new_dataset) {
+        mspace.getSimpleExtentDims(&ddims[0], NULL);
+        offset[0] = ddims[0];
+        ddims[0]++;
+
+        dataset.extend(&ddims[0]);
+    }
+
+    DataSpace fspace = dataset.getSpace();
+    fspace.selectHyperslab(H5S_SELECT_SET, &dims[0], &offset[0]);
+
+    mspace = DataSpace(rank, &dims[0]);
+    dataset.write(&obj, dtype, mspace, fspace);
 }
 
-Acquisition Dataset::readAcquisition(uint16_t stream_number, uint32_t index) {
-    /* OLD */
-    /* int status = ismrmrd_read_acquisition(&dset_, stream_number, index, &acq.acq); */
-    /* if (status != ISMRMRD_NOERROR) { */
-    /*     throw std::runtime_error(build_exception_string()); */
-    /* } */
+Acquisition Dataset::readAcquisition(unsigned long index, int stream_number) {
+    // TODO: implement
     return std::move(Acquisition());
 }
 
-unsigned long Dataset::getNumberOfAcquisitions(uint16_t stream_number)
+unsigned long Dataset::getNumberOfAcquisitions(int stream_number)
 {
     unsigned long nacq = 0;
 
-    if (!linkExists(data_path_)) {
-        throw std::runtime_error("Data path does not exist in dataset");
-    }
+    if (stream_number < 0) {
+        // "Load" index table dataset and return length
+        // TODO: implement
+    } else {
+        std::string path = constructDataPath(stream_number);
 
-    // TODO: implement
+        if (!linkExists(data_path_)) {
+            throw std::runtime_error("Data path does not exist in dataset");
+        }
+
+        // check if dataset is open
+        if (datasets_.count(path) == 0) {
+            datasets_[path] = file_->openDataSet(path);
+        }
+
+        DataSet dataset = datasets_[path];
+
+        DataSpace space = dataset.getSpace();
+        int rank = space.getSimpleExtentNdims();
+        std::vector<hsize_t> dims(rank, 0);
+        space.getSimpleExtentDims(&dims[0]);
+        nacq = dims[0];
+    }
 
     return nacq;
 }
@@ -175,20 +382,20 @@ template EXPORTISMRMRD void Dataset::appendImage(const std::string& var, const I
 
 
 template <typename T>
-Image<T> Dataset::readImage(const std::string& var, uint32_t index)
+Image<T> Dataset::readImage(const std::string& var, unsigned long index)
 {
     // TODO: implement
     return std::move(Image<T>());
 }
 
-template EXPORTISMRMRD Image<uint16_t> Dataset::readImage(const std::string& var, uint32_t index);
-template EXPORTISMRMRD Image<int16_t> Dataset::readImage(const std::string& var, uint32_t index);
-template EXPORTISMRMRD Image<uint32_t> Dataset::readImage(const std::string& var, uint32_t index);
-template EXPORTISMRMRD Image<int32_t> Dataset::readImage(const std::string& var, uint32_t index);
-template EXPORTISMRMRD Image<float> Dataset::readImage(const std::string& var, uint32_t index);
-template EXPORTISMRMRD Image<double> Dataset::readImage(const std::string& var, uint32_t index);
-template EXPORTISMRMRD Image<std::complex<float> > Dataset::readImage(const std::string& var, uint32_t index);
-template EXPORTISMRMRD Image<std::complex<double> > Dataset::readImage(const std::string& var, uint32_t index);
+template EXPORTISMRMRD Image<uint16_t> Dataset::readImage(const std::string& var, unsigned long index);
+template EXPORTISMRMRD Image<int16_t> Dataset::readImage(const std::string& var, unsigned long index);
+template EXPORTISMRMRD Image<uint32_t> Dataset::readImage(const std::string& var, unsigned long index);
+template EXPORTISMRMRD Image<int32_t> Dataset::readImage(const std::string& var, unsigned long index);
+template EXPORTISMRMRD Image<float> Dataset::readImage(const std::string& var, unsigned long index);
+template EXPORTISMRMRD Image<double> Dataset::readImage(const std::string& var, unsigned long index);
+template EXPORTISMRMRD Image<std::complex<float> > Dataset::readImage(const std::string& var, unsigned long index);
+template EXPORTISMRMRD Image<std::complex<double> > Dataset::readImage(const std::string& var, unsigned long index);
 
 unsigned long Dataset::getNumberOfImages(const std::string& var)
 {
@@ -214,20 +421,20 @@ template EXPORTISMRMRD void Dataset::appendNDArray(const std::string& var, const
 template EXPORTISMRMRD void Dataset::appendNDArray(const std::string& var, const NDArray<std::complex<double> >& arr);
 
 template <typename T>
-NDArray<T> Dataset::readNDArray(const std::string& var, uint32_t index)
+NDArray<T> Dataset::readNDArray(const std::string& var, unsigned long index)
 {
     // TODO: implement
     return std::move(NDArray<T>());
 }
 
-template EXPORTISMRMRD NDArray<uint16_t> Dataset::readNDArray(const std::string& var, uint32_t index);
-template EXPORTISMRMRD NDArray<int16_t> Dataset::readNDArray(const std::string& var, uint32_t index);
-template EXPORTISMRMRD NDArray<uint32_t> Dataset::readNDArray(const std::string& var, uint32_t index);
-template EXPORTISMRMRD NDArray<int32_t> Dataset::readNDArray(const std::string& var, uint32_t index);
-template EXPORTISMRMRD NDArray<float> Dataset::readNDArray(const std::string& var, uint32_t index);
-template EXPORTISMRMRD NDArray<double> Dataset::readNDArray(const std::string& var, uint32_t index);
-template EXPORTISMRMRD NDArray<std::complex<float> > Dataset::readNDArray(const std::string& var, uint32_t index);
-template EXPORTISMRMRD NDArray<std::complex<double> > Dataset::readNDArray(const std::string& var, uint32_t index);
+template EXPORTISMRMRD NDArray<uint16_t> Dataset::readNDArray(const std::string& var, unsigned long index);
+template EXPORTISMRMRD NDArray<int16_t> Dataset::readNDArray(const std::string& var, unsigned long index);
+template EXPORTISMRMRD NDArray<uint32_t> Dataset::readNDArray(const std::string& var, unsigned long index);
+template EXPORTISMRMRD NDArray<int32_t> Dataset::readNDArray(const std::string& var, unsigned long index);
+template EXPORTISMRMRD NDArray<float> Dataset::readNDArray(const std::string& var, unsigned long index);
+template EXPORTISMRMRD NDArray<double> Dataset::readNDArray(const std::string& var, unsigned long index);
+template EXPORTISMRMRD NDArray<std::complex<float> > Dataset::readNDArray(const std::string& var, unsigned long index);
+template EXPORTISMRMRD NDArray<std::complex<double> > Dataset::readNDArray(const std::string& var, unsigned long index);
 
 unsigned long Dataset::getNumberOfNDArrays(const std::string& var)
 {
@@ -237,5 +444,6 @@ unsigned long Dataset::getNumberOfNDArrays(const std::string& var)
 
     return narr;
 }
+
 
 } // namespace ISMRMRD

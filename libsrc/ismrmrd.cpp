@@ -31,6 +31,18 @@ uint16_t Acquisition::getVersion() const {
     return head.version;
 }
 
+StorageType Acquisition::getStorageType() const {
+    return static_cast<StorageType>(head.storage_type);
+}
+
+uint16_t Acquisition::getStreamNumber() const {
+    return head.stream_number;
+}
+
+void Acquisition::setStreamNumber(uint16_t stream_number) {
+    head.stream_number = stream_number;
+}
+
 uint32_t Acquisition::getMeasurementUID() const {
     return head.measurement_uid;
 }

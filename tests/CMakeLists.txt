@@ -5,7 +5,11 @@ if (NOT Boost_UNIT_TEST_FRAMEWORK_FOUND)
     return()
 endif (NOT Boost_UNIT_TEST_FRAMEWORK_FOUND)
 
-include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include ${Boost_INCLUDE_DIR})
+if (HDF5_FOUND)
+    set(ISMRMRD_DATASET_TEST_SOURCES test_dataset.cpp)
+endif (HDF5_FOUND)
+
+include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include ${Boost_INCLUDE_DIR} ${ISMRMRD_DATASET_INCLUDE_DIRS})
 
 add_executable(test_ismrmrd
     test_main.cpp
@@ -17,8 +21,9 @@ add_executable(test_ismrmrd
     test_quaternions.cpp
     test_xml.cpp
     test_meta.cpp
+    ${ISMRMRD_DATASET_TEST_SOURCES}
     )
 
-target_link_libraries(test_ismrmrd ismrmrd ${Boost_LIBRARIES})
+target_link_libraries(test_ismrmrd ismrmrd ${Boost_LIBRARIES} ${ISMRMRD_DATASET_LIBRARIES})
 
 add_custom_target(check COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_ismrmrd DEPENDS test_ismrmrd)

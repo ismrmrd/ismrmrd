@@ -1,4 +1,4 @@
-/* ISMRMRD MR Raw Data Strutures                           */
+/* ISMRMRD MR Raw Data Structures                          */
 /* DRAFT                                                   */
 /* Authors:                                                */
 /*    Michael S. Hansen (michael.hansen@nih.gov)           */
@@ -31,11 +31,7 @@ typedef unsigned __int64 uint64_t;
 #include <cstddef>     /* for size_t */
 #endif /* _MSC_VER */
 
-/* Complex numbers */
 #include <complex>
-/* typedef std::complex<float> complex_float_t; */
-/* typedef std::complex<double> complex_double_t; */
-
 #include <vector>
 
 /* Exports needed for MS C++ */
@@ -243,11 +239,15 @@ uint64_t bitmask_;
 
 /// MR Acquisition type
 class EXPORTISMRMRD Acquisition {
-    friend class Dataset;
 public:
     Acquisition(uint16_t num_samples=0, uint16_t active_channels=1, uint16_t trajectory_dimensions=0);
 
     uint16_t getVersion() const;
+
+    StorageType getStorageType() const;
+
+    uint16_t getStreamNumber() const;
+    void setStreamNumber(uint16_t);
 
     uint32_t getMeasurementUID() const;
     void setMeasurementUID(uint32_t);
@@ -394,7 +394,6 @@ protected:
 
 /// MR Image type
 template <typename T> class EXPORTISMRMRD Image {
-    friend class Dataset;
 public:
     // Constructors
     Image(uint16_t matrix_size_x = 0, uint16_t matrix_size_y = 1,
@@ -552,7 +551,6 @@ protected:
 
 /// N-Dimensional array type
 template <typename T> class EXPORTISMRMRD NDArray {
-    friend class Dataset;
 public:
     // Constructors, destructor and copy
     NDArray();
