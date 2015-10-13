@@ -4,9 +4,6 @@
 
 #include <fstream>
 
-// TODO: remove this
-#include <iostream>
-
 namespace ISMRMRD {
 
 struct AcquisitionHeader_with_data
@@ -154,7 +151,9 @@ Dataset::Dataset(const std::string& filename, const std::string& groupname, bool
 
     xml_header_path_ = groupname_ + "/xml";
     data_path_ = groupname_ + "/data";
-    index_path_ = data_path_ + "/idx";
+    index_path_ = data_path_ + "/index";
+
+    // TODO: maybe the following steps should only happen for new files??
 
     // create groups for /dataset and /dataset/data
     if (!linkExists(data_path_)) {
@@ -208,6 +207,10 @@ std::string Dataset::constructDataPath(unsigned int stream_number)
     return std::move(sstr.str());
 }
 
+void Dataset::makeIndex()
+{
+}
+
 // XML Header
 void Dataset::writeHeader(const std::string& xml)
 {
@@ -254,43 +257,14 @@ std::string Dataset::readHeader()
 
 void Dataset::appendAcquisition(const Acquisition& acq, int stream_number)
 {
-    // Determine stream number
-    // Create or "load" opened dataset
-    // Append acquisition to dataset
-    // Load or create the stream reference table
-    // Add reference to new acquisition to reference table
-
     if (stream_number < 0) {
         stream_number = acq.getStreamNumber();
     }
 
     std::string path = constructDataPath(stream_number);
 
-    int rank = 2;
-    std::vector<hsize_t> dims(rank, 1);
-    std::vector<hsize_t> max_dims(rank, 1); max_dims[0] = H5S_UNLIMITED;
+    std::vector<hsize_t> dims(2, 1);
     DataType dtype = get_hdf5_data_type<AcquisitionHeader_with_data>();
-
-    bool new_dataset = false;
-
-    // check if the dataset is already open
-    if (datasets_.count(path) == 0) {
-        // check if the dataset even exists
-        if (!linkExists(path)) {
-            new_dataset = true;
-
-            DataSpace space(dims.size(), &dims[0], &max_dims[0]);
-
-            DSetCreatPropList cparms;
-            cparms.setChunk(dims.size(), &dims[0]);
-
-            datasets_[path] = file_->createDataSet(path.c_str(), dtype, space, cparms);
-        } else {
-            datasets_[path] = file_->openDataSet(path.c_str());
-        }
-    }
-
-    DataSet dataset = datasets_[path];
 
     AcquisitionHeader_with_data obj;
     obj.head = acq.getHead();
@@ -306,62 +280,180 @@ void Dataset::appendAcquisition(const Acquisition& acq, int stream_number)
     }
     obj.data.p = const_cast<float*>(&fdata[0]);
 
-    DataSpace mspace = dataset.getSpace();
-    int cur_rank = mspace.getSimpleExtentNdims();
+    // add the acquisition to its correct stream dataset
+    // note: subtract 1 to account for zero-indexing
+    unsigned int acquisition_number = appendToDataSet(path, dtype, dims, &obj) - 1;
+
+    // now add an entry to the index for this acquisition
+    dtype = IntType(PredType::NATIVE_UINT32);
+    dims = std::vector<hsize_t>(2, 1);
+    dims[1] = 2;
+    std::vector<uint32_t> entry(2);
+    entry[0] = stream_number;
+    entry[1] = acquisition_number;
+    appendToDataSet(index_path_, dtype, dims, &entry[0]);
+}
+
+size_t Dataset::appendToDataSet(const std::string& path, const DataType& dtype,
+        const std::vector<hsize_t>& dims, void* data)
+{
+    bool first_entry = false;
+
+    // check if the dataset is already open
+    if (datasets_.count(path) == 0) {
+        // check if the dataset even exists
+        if (linkExists(path)) {
+            datasets_[path] = file_->openDataSet(path.c_str());
+        } else {
+            first_entry = true;
+
+            std::vector<hsize_t> max_dims = dims;
+            max_dims[0] = H5S_UNLIMITED;
+
+            DataSpace space(dims.size(), &dims[0], &max_dims[0]);
+
+            DSetCreatPropList cparms;
+            cparms.setChunk(dims.size(), &dims[0]);
+
+            datasets_[path] = file_->createDataSet(path.c_str(), dtype, space, cparms);
+        }
+    }
+
+    DataSet dset = datasets_[path];
+
+    unsigned int rank = dims.size();
+    // check rank of existing dataset
+    DataSpace mspace = dset.getSpace();
+    unsigned int cur_rank = mspace.getSimpleExtentNdims();
     if (cur_rank != rank) {
         throw std::runtime_error("incorrect rank in HDF5 dataset");
     }
 
-    std::vector<hsize_t> ddims(rank, 1);
+    size_t length = 1;
+    // extend current dataset and determine offset for new entry
     std::vector<hsize_t> offset(rank, 0);
-
-    if (!new_dataset) {
+    if (!first_entry) {
+        std::vector<hsize_t> ddims(rank, 1);
         mspace.getSimpleExtentDims(&ddims[0], NULL);
         offset[0] = ddims[0];
-        ddims[0]++;
-
-        dataset.extend(&ddims[0]);
+        length = ++ddims[0];
+        dset.extend(&ddims[0]);
     }
 
-    DataSpace fspace = dataset.getSpace();
+    // select space in file for new entry
+    DataSpace fspace = dset.getSpace();
     fspace.selectHyperslab(H5S_SELECT_SET, &dims[0], &offset[0]);
 
+    // append entry to index dataset
     mspace = DataSpace(rank, &dims[0]);
-    dataset.write(&obj, dtype, mspace, fspace);
+    dset.write(data, dtype, mspace, fspace);
+
+    return length;
 }
 
-Acquisition Dataset::readAcquisition(unsigned long index, int stream_number) {
-    // TODO: implement
-    return std::move(Acquisition());
+void Dataset::readFromDataSet(const std::string& path, const DataType& dtype,
+        const std::vector<hsize_t>& entry_dims, size_t index, void* data)
+{
+    if (!linkExists(path)) {
+        throw std::runtime_error("Data path does not exist in dataset");
+    }
+
+    if (datasets_.count(path) == 0) {
+        datasets_[path] = file_->openDataSet(path);
+    }
+
+    DataSet dset = datasets_[path];
+
+    DataType actual_dtype = dset.getDataType();
+    // no `!=` operator for DataType so we use (!(a == b)) here
+    if (!(actual_dtype == dtype)) {
+        throw std::runtime_error("Attempting to open HDF5 Dataset with incorrect datatype");
+    }
+
+    DataSpace dspace = dset.getSpace();
+    unsigned int rank = dspace.getSimpleExtentNdims();
+    std::vector<hsize_t> dims(rank);
+    dspace.getSimpleExtentDims(&dims[0]);
+
+    if (index >= dims[0]) {
+        throw std::runtime_error("Attempting to access non-existent hyperslice in HDF5 dataset");
+    }
+
+    std::vector<hsize_t> offset(rank);
+    offset[0] = index;
+
+    dspace.selectHyperslab(H5S_SELECT_SET, &entry_dims[0], &offset[0]);
+    DataSpace mspace(rank, &entry_dims[0]);
+
+    dset.read(data, dtype, mspace, dspace, H5P_DEFAULT);
+}
+
+Acquisition Dataset::readAcquisition(unsigned long index, int stream_number)
+{
+    if (stream_number < 0) {
+        std::vector<uint32_t> entry(2);
+        std::vector<hsize_t> entry_dims(2, 1);
+        entry_dims[1] = 2;
+        IntType dtype(PredType::NATIVE_UINT32);
+
+        readFromDataSet(index_path_, dtype, entry_dims, index, &entry[0]);
+
+        stream_number = entry[0];
+        index = entry[1];
+    }
+
+    std::string path = constructDataPath(stream_number);
+
+    AcquisitionHeader_with_data obj;
+    DataType dtype = get_hdf5_data_type<AcquisitionHeader_with_data>();
+    std::vector<hsize_t> entry_dims(2, 1);
+    readFromDataSet(path, dtype, entry_dims, index, &obj);
+
+    Acquisition acq;
+    acq.setHead(obj.head);
+
+    if (obj.data.len != acq.getData().size() * 2) {
+        throw std::runtime_error("Header does not match data length in file");
+    }
+    if (obj.traj.len != acq.getTraj().size()) {
+        throw std::runtime_error("Header does not match trajectory length in file");
+    }
+
+    // TODO: fix this ASAP:
+    memcpy(const_cast<std::complex<float>*>(&acq.getData()[0]), obj.data.p, sizeof(float) * obj.data.len);
+    memcpy(const_cast<float*>(&acq.getTraj()[0]), obj.traj.p, sizeof(float) * obj.traj.len);
+
+    free(obj.data.p);
+    free(obj.traj.p);
+
+    return std::move(acq);
 }
 
 unsigned long Dataset::getNumberOfAcquisitions(int stream_number)
 {
-    unsigned long nacq = 0;
-
+    std::string path;
     if (stream_number < 0) {
-        // "Load" index table dataset and return length
-        // TODO: implement
+        path = index_path_;
     } else {
-        std::string path = constructDataPath(stream_number);
-
-        if (!linkExists(data_path_)) {
-            throw std::runtime_error("Data path does not exist in dataset");
-        }
-
-        // check if dataset is open
-        if (datasets_.count(path) == 0) {
-            datasets_[path] = file_->openDataSet(path);
-        }
-
-        DataSet dataset = datasets_[path];
-
-        DataSpace space = dataset.getSpace();
-        int rank = space.getSimpleExtentNdims();
-        std::vector<hsize_t> dims(rank, 0);
-        space.getSimpleExtentDims(&dims[0]);
-        nacq = dims[0];
+        path = constructDataPath(stream_number);
     }
+
+    if (!linkExists(path)) {
+        throw std::runtime_error("Data path does not exist in dataset");
+    }
+
+    // check if dataset is open
+    if (datasets_.count(path) == 0) {
+        datasets_[path] = file_->openDataSet(path);
+    }
+
+    DataSet dataset = datasets_[path];
+
+    DataSpace space = dataset.getSpace();
+    int rank = space.getSimpleExtentNdims();
+    std::vector<hsize_t> dims(rank, 0);
+    space.getSimpleExtentDims(&dims[0]);
+    unsigned long nacq = dims[0];
 
     return nacq;
 }
