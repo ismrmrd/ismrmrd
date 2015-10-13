@@ -46,7 +46,6 @@ protected:
     bool linkExists(const std::string& path);
     void createGroup(const std::string& path);
     std::string constructDataPath(unsigned int stream_number);
-    void makeIndex();
     size_t appendToDataSet(const std::string& path, const DataType& dtype,
             const std::vector<hsize_t>& dims, void* data);
     void readFromDataSet(const std::string& path, const DataType& dtype,

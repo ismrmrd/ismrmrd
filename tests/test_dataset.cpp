@@ -204,8 +204,8 @@ BOOST_AUTO_TEST_CASE(dataset_read_acquisitions)
             acq_out.getData().begin(), acq_out.getData().end());
     // TODO: test trajectory
 
-    for (unsigned int e = 0; e < nechoes; ++e) {
-        for (unsigned int l = 0; l < matrix_size; ++l) {
+    for (unsigned int l = 0; l < matrix_size; ++l) {
+        for (unsigned int e = 0; e < nechoes; ++e) {
             acq_in.clearAllFlags();
             if (l == 0) {
                 acq_in.setFlag(ISMRMRD_ACQ_FIRST_IN_SLICE);
@@ -224,13 +224,13 @@ BOOST_AUTO_TEST_CASE(dataset_read_acquisitions)
         }
     }
 
-    for (unsigned int e = 0; e < nechoes; ++e) {
-        for (unsigned int l = 0; l < matrix_size; ++l) {
+    for (unsigned int l = 0; l < matrix_size; ++l) {
+        for (unsigned int e = 0; e < nechoes; ++e) {
             // check both methods of retrieving acquisitions
             // 1. nth acquisition in a given stream
             // 2. nth acquisition in the entire dataset
             Acquisition acq = dataset.readAcquisition(l, e);
-            Acquisition acq2 = dataset.readAcquisition(1 + l + e * matrix_size);
+            Acquisition acq2 = dataset.readAcquisition(1 + e + l * nechoes);
 
             BOOST_CHECK(acq.getHead() == acq2.getHead());
 

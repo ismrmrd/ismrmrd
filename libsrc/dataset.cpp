@@ -13,8 +13,24 @@ struct AcquisitionHeader_with_data
     hvl_t data;
 };
 
+struct IndexEntry
+{
+    uint32_t stream;
+    uint32_t index;
+};
+
 template <typename T>
 DataType get_hdf5_data_type();
+
+template <> DataType get_hdf5_data_type<IndexEntry>()
+{
+    CompType dtype(sizeof(IndexEntry));
+
+    dtype.insertMember("stream", HOFFSET(IndexEntry, stream), PredType::NATIVE_UINT32);
+    dtype.insertMember("index", HOFFSET(IndexEntry, index), PredType::NATIVE_UINT32);
+
+    return std::move(dtype);
+}
 
 template <> DataType get_hdf5_data_type<EncodingCounters>()
 {
@@ -34,7 +50,7 @@ template <> DataType get_hdf5_data_type<EncodingCounters>()
     DataType array_type = ArrayType(PredType::NATIVE_UINT16, 1, &dims[0]);
     dtype.insertMember("user", HOFFSET(EncodingCounters, user), array_type);
 
-    return dtype;
+    return std::move(dtype);
 }
 
 template <> DataType get_hdf5_data_type<AcquisitionHeader>()
@@ -99,7 +115,7 @@ template <> DataType get_hdf5_data_type<AcquisitionHeader>()
     DataType user_float_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
     dtype.insertMember("user_float",  HOFFSET(AcquisitionHeader, user_float), user_float_array_type);
 
-    return dtype;
+    return std::move(dtype);
 }
 
 template <> DataType get_hdf5_data_type<AcquisitionHeader_with_data>()
@@ -114,7 +130,7 @@ template <> DataType get_hdf5_data_type<AcquisitionHeader_with_data>()
     dtype.insertMember("traj", HOFFSET(AcquisitionHeader_with_data, traj), realv_type);
     dtype.insertMember("data", HOFFSET(AcquisitionHeader_with_data, data), realv_type);
 
-    return dtype;
+    return std::move(dtype);
 }
 
 
@@ -207,10 +223,6 @@ std::string Dataset::constructDataPath(unsigned int stream_number)
     return std::move(sstr.str());
 }
 
-void Dataset::makeIndex()
-{
-}
-
 // XML Header
 void Dataset::writeHeader(const std::string& xml)
 {
@@ -285,13 +297,12 @@ void Dataset::appendAcquisition(const Acquisition& acq, int stream_number)
     unsigned int acquisition_number = appendToDataSet(path, dtype, dims, &obj) - 1;
 
     // now add an entry to the index for this acquisition
-    dtype = IntType(PredType::NATIVE_UINT32);
+    dtype = get_hdf5_data_type<IndexEntry>();
     dims = std::vector<hsize_t>(2, 1);
-    dims[1] = 2;
-    std::vector<uint32_t> entry(2);
-    entry[0] = stream_number;
-    entry[1] = acquisition_number;
-    appendToDataSet(index_path_, dtype, dims, &entry[0]);
+    IndexEntry entry;
+    entry.stream = stream_number;
+    entry.index = acquisition_number;
+    appendToDataSet(index_path_, dtype, dims, &entry);
 }
 
 size_t Dataset::appendToDataSet(const std::string& path, const DataType& dtype,
@@ -391,15 +402,14 @@ void Dataset::readFromDataSet(const std::string& path, const DataType& dtype,
 Acquisition Dataset::readAcquisition(unsigned long index, int stream_number)
 {
     if (stream_number < 0) {
-        std::vector<uint32_t> entry(2);
+        IndexEntry entry;
         std::vector<hsize_t> entry_dims(2, 1);
-        entry_dims[1] = 2;
-        IntType dtype(PredType::NATIVE_UINT32);
+        DataType dtype = get_hdf5_data_type<IndexEntry>();
 
-        readFromDataSet(index_path_, dtype, entry_dims, index, &entry[0]);
+        readFromDataSet(index_path_, dtype, entry_dims, index, &entry);
 
-        stream_number = entry[0];
-        index = entry[1];
+        stream_number = entry.stream;
+        index = entry.index;
     }
 
     std::string path = constructDataPath(stream_number);
