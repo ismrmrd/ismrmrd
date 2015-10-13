@@ -49,7 +49,7 @@ To download the source code, clone the git archive::
 
     git clone https://github.com/ismrmrd/ismrmrd
 
-API Documentation can be found at https://ismrmrd.github.io/ismrmrd/api/.
+API Documentation can be found at https://ismrmrd.github.io/api/.
 
 
 Dependencies
