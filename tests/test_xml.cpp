@@ -10,7 +10,7 @@ using namespace ISMRMRD;
 const std::string XML_HEADER("\
 <?xml version=\"1.0\"?>\n\
 <ismrmrdHeader xmlns=\"http://www.ismrm.org/ISMRMRD\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:schemaLocation=\"http://www.ismrm.org/ISMRMRD ismrmrd.xsd\">\n\
-	<version>3</version>\n\
+	<version>4</version>\n\
 	<subjectInformation>\n\
 		<patientName>phantom</patientName>\n\
 		<patientWeight_kg>72.500000</patientWeight_kg>\n\

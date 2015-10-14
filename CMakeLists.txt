@@ -49,8 +49,8 @@ endif (WIN32)
 #The minor number changes when there are changes to the XML schema for 
 #the flexible header. The micro number changes when there are small changes
 #in the utility libraries, that don't affect the data format itself.
-set(ISMRMRD_VERSION_MAJOR 1)
-set(ISMRMRD_VERSION_MINOR 3)
+set(ISMRMRD_VERSION_MAJOR 2)
+set(ISMRMRD_VERSION_MINOR 4)
 set(ISMRMRD_VERSION_PATCH 0)
 
 set(ISMRMRD_XML_SCHEMA_SHA1 "65fded3c5bb5e261d387657def3bedc0190377d5")
