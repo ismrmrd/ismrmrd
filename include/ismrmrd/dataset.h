@@ -64,8 +64,7 @@ protected:
     bool file_open_;
     bool dataset_open_;
 
-    std::unique_ptr<H5File> file_;
-    //std::unique_ptr<DataSet> dataset_;
+    H5File file_;
 };
 
 } /* namespace ISMRMRD */

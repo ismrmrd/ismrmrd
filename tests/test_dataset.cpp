@@ -79,7 +79,7 @@ const std::string g_xml_header("\
 
 void cleanup(void)
 {
-    std::ifstream ifile(g_filename);
+    std::ifstream ifile(g_filename.c_str());
     if (ifile) {
         ifile.close();
         remove(g_filename.c_str());

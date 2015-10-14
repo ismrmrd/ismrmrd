@@ -27,8 +27,7 @@ typedef __int64 int64_t;
 typedef unsigned __int64 uint64_t;
 #endif /* HAS_INT_TYPE */
 #else /* non MS C or C++ compiler */
-#include <cstdint>
-#include <cstddef>     /* for size_t */
+#include <stdint.h>
 #endif /* _MSC_VER */
 
 #include <complex>

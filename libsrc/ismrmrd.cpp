@@ -1,11 +1,13 @@
-#include <string.h>
-#include <stdlib.h>
-#include <sstream>
-#include <stdexcept>
-
-#include <iostream>
+//#include <stdlib.h>
 #include "ismrmrd/ismrmrd.h"
 #include "ismrmrd/version.h"
+
+#include <sstream>
+#include <stdexcept>
+#include <iostream>
+
+#include <string.h>
+
 
 namespace ISMRMRD {
 
@@ -1075,7 +1077,7 @@ template <typename T> void NDArray<T>::makeConsistent() {
     }
 
     size_t size = 1;
-    for (auto it = dims.begin(); it != dims.end(); ++it) {
+    for (std::vector<size_t>::const_iterator it = dims.begin(); it != dims.end(); ++it) {
         // This is necessary to prevent bad GCC loop optimization!
         if (*it != 0) {
             size *= *it;

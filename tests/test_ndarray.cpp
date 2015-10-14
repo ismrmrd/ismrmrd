@@ -34,13 +34,13 @@ BOOST_AUTO_TEST_CASE(ndarray_copy)
 BOOST_AUTO_TEST_CASE(ndarray_resize)
 {
     size_t d1[] = {4, 8, 12};
-    std::vector<size_t> dims1(std::begin(d1), std::end(d1));
+    std::vector<size_t> dims1(d1, d1 + sizeof(d1) / sizeof(d1[0]));
     NDArray<float> arr(dims1);
     BOOST_CHECK_EQUAL(arr.getNDim(), 3);
     BOOST_CHECK_EQUAL(arr.getData().size(), 4*8*12);
 
     size_t d2[] = {16, 24, 32, 40};
-    std::vector<size_t> dims2(std::begin(d2), std::end(d2));
+    std::vector<size_t> dims2(d2, d2 + sizeof(d2) / sizeof(d2[0]));
     arr.resize(dims2);
     BOOST_CHECK_EQUAL(arr.getNDim(), 4);
     BOOST_CHECK_EQUAL(arr.getData().size(), 16*24*32*40);
