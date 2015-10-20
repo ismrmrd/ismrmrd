@@ -206,15 +206,18 @@
   <xs:complexType name="streamType">
     <xs:all>
         <xs:element minOccurs="0" maxOccurs="1" name="name" type="xs:string" />
-        <xs:element minOccurs="1" maxOccurs="1" name="dataType" type="dataType" />
+        <xs:element minOccurs="1" maxOccurs="1" name="entityType" type="entityType" />
         <xs:element minOccurs="1" maxOccurs="1" name="storageType" type="storageType" />
         <xs:element minOccurs="1" maxOccurs="1" name="number" type="xs:long"/>
     </xs:all>
   </xs:complexType>
 
-  <xs:simpleType name="dataType">
+  <xs:simpleType name="entityType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="MRAcquisition"/>
+      <xs:enumeration value="Waveform"/>
+      <xs:enumeration value="Image"/>
+      <xs:enumeration value="Other"/>
     </xs:restriction>
   </xs:simpleType>
 

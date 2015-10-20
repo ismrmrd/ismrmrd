@@ -63,8 +63,12 @@ enum StorageType {
     ISMRMRD_CXDOUBLE = 8  /**< corresponds to complex double */
 };
 
-/** Returns the size in bytes of an StorageType */
-size_t ismrmrd_sizeof_storage_type(int storage_type);
+enum EntityType {
+    ISMRMRD_MRACQUISITION = 1,
+    ISMRMRD_WAVEFORM = 2,
+    ISMRMRD_IMAGE = 3,
+    ISMRMRD_OTHER = 4
+};
 
 /** Acquisition Flags */
 enum AcquisitionFlags {
@@ -345,8 +349,6 @@ public:
             uint16_t trajectory_dimensions=0);
     size_t getNumberOfDataElements() const;
     size_t getNumberOfTrajElements() const;
-    size_t getDataSize() const;
-    size_t getTrajSize() const;
 
     // Header, data and trajectory accessors
     AcquisitionHeader& getHead();
@@ -385,9 +387,9 @@ public:
 protected:
     void makeConsistent();
 
-    AcquisitionHeader head;
-    std::vector<float> traj;
-    std::vector<std::complex<float> > data;
+    AcquisitionHeader head_;
+    std::vector<float> traj_;
+    std::vector<std::complex<float> > data_;
 };
 
 
@@ -460,7 +462,6 @@ public:
     void setPatientTablePositionY(float y);
     void setPatientTablePositionZ(float z);
 
-
     // Attributes
     uint16_t getVersion() const;
 
@@ -529,13 +530,10 @@ public:
     void setAttributeString(const std::string &attr);
     size_t getAttributeStringLength() const;
 
-    // Data
+    size_t getNumberOfElements() const;
+
     std::vector<T>& getData();
     const std::vector<T>& getData() const;
-    /** Returns the number of elements in the image data **/
-    size_t getNumberOfDataElements() const;
-    /** Returns the size of the image data in bytes **/
-    size_t getDataSize() const;
 
     /** Returns a reference to the image data **/
     T& at(uint16_t x, uint16_t y=0, uint16_t z=0, uint16_t channel=0);
@@ -543,9 +541,9 @@ public:
 protected:
     void makeConsistent();
 
-    ImageHeader head;
-    std::string attribute_string;
-    std::vector<T> data;
+    ImageHeader head_;
+    std::string attribute_string_;
+    std::vector<T> data_;
 };
 
 /// N-Dimensional array type
@@ -558,11 +556,13 @@ public:
     // Accessors and mutators
     uint16_t getVersion() const;
     StorageType getStorageType() const;
+
     uint16_t getNDim() const;
     const std::vector<size_t>& getDims();
-    size_t getDataSize() const;
+
     void resize(const std::vector<size_t>& dims);
     size_t getNumberOfElements() const;
+
     std::vector<T>& getData();
     const std::vector<T>& getData() const;
 
@@ -572,9 +572,9 @@ public:
 protected:
     void makeConsistent();
 
-    uint16_t version;
-    std::vector<size_t> dims;
-    std::vector<T> data;
+    uint16_t version_;
+    std::vector<size_t> dims_;
+    std::vector<T> data_;
 };
 
 
@@ -588,7 +588,6 @@ EXPORTISMRMRD void directions_to_quaternion(float read_dir[3], float phase_dir[3
 
 /// Converts a quaternion of the form | a b c d | to a 3x3 rotation matrix
 EXPORTISMRMRD void quaternion_to_directions(float quat[4], float read_dir[3], float phase_dir[3], float slice_dir[3]);
-
 
 /** @} */
 

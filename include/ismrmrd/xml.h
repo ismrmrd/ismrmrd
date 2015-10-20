@@ -249,8 +249,8 @@ namespace ISMRMRD
 
   struct Stream
   {
-    std::string name;
-    std::string dataType;
+    std::string label;
+    long entityType;
     long storageType;
     long number;
   };

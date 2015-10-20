@@ -98,14 +98,14 @@ const std::string XML_HEADER("\
 	</encoding>\n\
 	<streams>\n\
 		<stream>\n\
-			<name>k-space</name>\n\
-			<dataType>MRAcquisition</dataType>\n\
+			<label>k-space</label>\n\
+			<entityType>MRAcquisition</entityType>\n\
 			<number>0</number>\n\
 			<storageType>cxfloat</storageType>\n\
 		</stream>\n\
 		<stream>\n\
-			<name>ECG</name>\n\
-			<dataType>MRAcquisition</dataType>\n\
+			<label>ECG</label>\n\
+			<entityType>MRAcquisition</entityType>\n\
 			<number>2</number>\n\
 			<storageType>float</storageType>\n\
 		</stream>\n\
@@ -212,16 +212,16 @@ IsmrmrdHeader build_model_header(void)
     head.encoding.push_back(e);
 
     Stream stream1;
-    stream1.name = "k-space";
+    stream1.label = "k-space";
     stream1.storageType = ISMRMRD_CXFLOAT;
-    stream1.dataType = "MRAcquisition";
+    stream1.entityType = ISMRMRD_MRACQUISITION;
     stream1.number = 0;
     head.streams.push_back(stream1);
 
     Stream stream2;
-    stream2.name = "ECG";
+    stream2.label = "ECG";
     stream2.storageType = ISMRMRD_FLOAT;
-    stream2.dataType = "MRAcquisition";
+    stream2.entityType = ISMRMRD_MRACQUISITION;
     stream2.number = 2;
     head.streams.push_back(stream2);
 
@@ -327,13 +327,13 @@ BOOST_AUTO_TEST_CASE(test_deserialize_header)
     BOOST_CHECK_EQUAL(head.encoding[0].parallelImaging.get().accelerationFactor.kspace_encoding_step_2, model.encoding[0].parallelImaging.get().accelerationFactor.kspace_encoding_step_2);
     BOOST_CHECK_EQUAL(head.encoding[0].parallelImaging.get().calibrationMode, model.encoding[0].parallelImaging.get().calibrationMode);
 
-    BOOST_CHECK_EQUAL(head.streams[0].name, model.streams[0].name);
+    BOOST_CHECK_EQUAL(head.streams[0].label, model.streams[0].label);
     BOOST_CHECK_EQUAL(head.streams[0].storageType, model.streams[0].storageType);
-    BOOST_CHECK_EQUAL(head.streams[0].dataType, model.streams[0].dataType);
+    BOOST_CHECK_EQUAL(head.streams[0].entityType, model.streams[0].entityType);
     BOOST_CHECK_EQUAL(head.streams[0].number, model.streams[0].number);
-    BOOST_CHECK_EQUAL(head.streams[1].name, model.streams[1].name);
+    BOOST_CHECK_EQUAL(head.streams[1].label, model.streams[1].label);
     BOOST_CHECK_EQUAL(head.streams[1].storageType, model.streams[1].storageType);
-    BOOST_CHECK_EQUAL(head.streams[1].dataType, model.streams[1].dataType);
+    BOOST_CHECK_EQUAL(head.streams[1].entityType, model.streams[1].entityType);
     BOOST_CHECK_EQUAL(head.streams[1].number, model.streams[1].number);
 
     BOOST_CHECK_EQUAL(head.sequenceParameters.get().TR.get()[0], model.sequenceParameters.get().TR.get()[0]);

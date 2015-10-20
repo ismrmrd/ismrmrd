@@ -17,7 +17,6 @@ boost::shared_ptr<NDArray<std::complex<float> > > phantom(std::vector<PhantomEll
 {
     std::vector<size_t> dims(2,matrix_size);
     boost::shared_ptr<NDArray<std::complex<float> > > out(new NDArray<std::complex<float> >(dims));
-    memset(&out->getData()[0], 0, out->getDataSize());
     for (std::vector<PhantomEllipse>::iterator it = ellipses.begin(); it != ellipses.end(); it++) {
         for (unsigned int y = 0; y < matrix_size; y++) {
             float y_co = (1.0*y-(matrix_size / 2))/(matrix_size / 2);
@@ -81,7 +80,6 @@ boost::shared_ptr<NDArray<std::complex<float> > > generate_birdcage_sensititivie
     std::vector<size_t> dims(2,matrix_size);
     dims.push_back(ncoils);
     boost::shared_ptr<NDArray<std::complex<float> > > out(new NDArray<std::complex<float> >(dims));
-    memset(&out->getData()[0], 0, out->getDataSize());
 
     for (unsigned int c = 0; c < ncoils; c++) {
         float coilx = relative_radius*std::cos(c*(2*3.14159265359/ncoils));

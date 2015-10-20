@@ -192,9 +192,9 @@ int main(int argc, char** argv)
 
     //Add the description of the only acquisition stream to the header
     Stream stream;
-    // stream.name = "data";
+    stream.label = "K-Space Data";
     stream.storageType = ISMRMRD_CXFLOAT;
-    stream.dataType = "MRAcquisition";
+    stream.entityType = ISMRMRD_MRACQUISITION;
     stream.number = 0;
 
     h.streams.push_back(stream);

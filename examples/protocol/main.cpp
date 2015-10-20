@@ -36,18 +36,64 @@ public:
         std::string xml;
 
         boost::system::error_code error;
+
+        // First, read the XML header's size in bytes, then the actual header
         boost::asio::read(sock, boost::asio::buffer(&xml_size, sizeof(xml_size)), error);
         xml.resize(xml_size);
         boost::asio::read(sock, boost::asio::buffer(&xml[0], xml_size), error);
 
-        ISMRMRD::IsmrmrdHeader head;
-        ISMRMRD::deserialize(xml.c_str(), head);
+        ISMRMRD::IsmrmrdHeader xmlHeader;
+        ISMRMRD::deserialize(xml.c_str(), xmlHeader);
 
-        /* if (error == boost::asio::error::eof) { */
-        /*     return; */
-        /* } else if (error) { */
-        /*     throw boost::system::system_error(error); */
-        /* } */
+        std::map<int, std::vector<ISMRMRD::Acquisition> > streams;
+
+        while (true) {
+            // Read identifier of next object
+            uint32_t etype = 0;
+            boost::asio::read(sock, boost::asio::buffer(&etype, sizeof(etype)), error);
+
+            // TODO: handle more dataTypes
+            if (etype != ISMRMRD::ISMRMRD_MRACQUISITION) {
+                throw std::runtime_error("unsupported dataType ID received by server");
+            }
+
+            // Read the Acquisition header
+            ISMRMRD::AcquisitionHeader head;
+            boost::asio::read(sock, boost::asio::buffer(&head, sizeof(head)), error);
+
+            // Create Acquisition and set its header to allocate memory for its data buffer
+            ISMRMRD::Acquisition acq;
+            acq.setHead(head);
+
+            // Read the acquisition data
+            //size_t nbytes = acq.getNumberOfDataElements() * sizeof_storage_type(acq.getStorageType());
+            //boost::asio::read(sock, boost::asio::buffer(acq.getDataPtr(), nbytes), error);
+
+            // Read the acquisition trajectory
+            std::vector<float> traj(head.number_of_samples * head.trajectory_dimensions);
+            boost::asio::read(sock, boost::asio::buffer(traj), error);
+            acq.setTraj(traj);
+
+            if (streams.count(head.stream_number) == 0) {
+                std::vector<ISMRMRD::Acquisition> stream;
+                stream.push_back(acq);
+                streams[head.stream_number] = stream;
+            } else {
+                streams[head.stream_number].push_back(acq);
+            }
+        }
+
+        std::map<int, std::vector<ISMRMRD::Acquisition> >::const_iterator it;
+        for (it = streams.begin(); it != streams.end(); ++it) {
+            std::cout << "Stream #" << it->first << " contains " << it->second.size() << " acquisitions\n";
+        }
+
+
+        //if (error == boost::asio::error::eof) {
+            //return;
+        //} else if (error) {
+            //throw boost::system::system_error(error);
+        //}
 
 
         /* boost::asio::write(sock, boost::asio::buffer(rev), error); */
@@ -148,6 +194,8 @@ int main(int argc, char* argv[])
 
     // Read and deserialize XML header
     std::string xml = dataset.readHeader();
+    ISMRMRD::IsmrmrdHeader xmlHeader;
+    ISMRMRD::deserialize(xml.c_str(), xmlHeader);
 
     // Establish connection to server
     boost::asio::io_service io_service;
@@ -160,10 +208,28 @@ int main(int argc, char* argv[])
     boost::asio::write(sock, boost::asio::buffer(&xml_size, sizeof(xml_size)));
     boost::asio::write(sock, boost::asio::buffer(xml));
 
-    
+    for (size_t i = 0; i < dataset.getNumberOfAcquisitions(); ++i) {
+        ISMRMRD::Acquisition acq = dataset.readAcquisition(i);
 
-    ISMRMRD::IsmrmrdHeader head;
-    ISMRMRD::deserialize(xml.c_str(), head);
+        // send the acquisition type (acquisition or waveform)
+        // TODO: do we care if its an MR acquisition or just waveform data?
+        uint32_t etype = ISMRMRD::ISMRMRD_MRACQUISITION;
+        boost::asio::write(sock, boost::asio::buffer(&etype, sizeof(etype)));
+
+        // send the acquisition header
+        ISMRMRD::AcquisitionHeader head = acq.getHead();
+        boost::asio::write(sock, boost::asio::buffer(&head, sizeof(head)));
+
+        // send the acquisition data
+        //boost::asio::write(sock, boost::asio::buffer(acq.getDataPtr(), acq.getNumberOfDataElements() * sizeof_storage_type(acq.getStorageType())));
+
+        // send the acquisition trajectory
+        std::vector<float> traj = acq.getTraj();
+        if (traj.size() > 0) {
+            boost::asio::write(sock, boost::asio::buffer(traj));
+        }
+    }
+
 
     return 0;
 }

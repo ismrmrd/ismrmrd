@@ -126,16 +126,28 @@ namespace ISMRMRD
     pugi::xml_node nc = n.child(child);
     while (nc) {
         Stream s;
-        pugi::xml_node name = nc.child("name");
-        pugi::xml_node dataType = nc.child("dataType");
+        pugi::xml_node label = nc.child("label");
+        pugi::xml_node entityType = nc.child("entityType");
         pugi::xml_node storageType = nc.child("storageType");
         pugi::xml_node number = nc.child("number");
 
-        if (name) {
-            s.name = std::string(name.child_value());
+        if (label) {
+            s.label = std::string(label.child_value());
         }
 
-        s.dataType = std::string(dataType.child_value());
+        std::string etype(entityType.child_value());
+        if (etype == "MRAcquisition") {
+            s.entityType = ISMRMRD_MRACQUISITION;
+        } else if (etype == "Waveform") {
+            s.entityType = ISMRMRD_WAVEFORM;
+        } else if (etype == "Image") {
+            s.entityType = ISMRMRD_IMAGE;
+        } else if (etype == "Other") {
+            s.entityType = ISMRMRD_OTHER;
+        } else {
+            throw std::runtime_error("Invalid entityType (" + etype + ")");
+        }
+
         s.number = std::atoi(number.child_value());
 
         std::string storage(storageType.child_value());
@@ -563,8 +575,27 @@ namespace ISMRMRD
   void append_stream(pugi::xml_node& parent, const Stream& stream)
   {
     pugi::xml_node s = parent.append_child("stream");
-    append_node(s, "name", stream.name);
-    append_node(s, "dataType", stream.dataType);
+    append_node(s, "label", stream.label);
+
+    std::string etype;
+    switch (stream.entityType) {
+    case ISMRMRD_MRACQUISITION:
+        etype = "MRAcquisition";
+        break;
+    case ISMRMRD_WAVEFORM:
+        etype = "Waveform";
+        break;
+    case ISMRMRD_IMAGE:
+        etype = "Image";
+        break;
+    case ISMRMRD_OTHER:
+        etype = "Other";
+        break;
+    default:
+        throw std::runtime_error("Invalid stream entityType ID.");
+    }
+    append_node(s, "entityType", etype);
+
     append_node(s, "number", stream.number);
 
     std::string storageType;
@@ -594,7 +625,7 @@ namespace ISMRMRD
         storageType = "cxdouble";
         break;
     default:
-        throw std::runtime_error("Invalid storageType ID.");
+        throw std::runtime_error("Invalid stream storageType ID.");
     }
 
     append_node(s, "storageType", storageType);
