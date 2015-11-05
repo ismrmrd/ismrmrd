@@ -238,7 +238,12 @@ namespace ISMRMRD
       }
       return it->second[index];
     }
-    
+
+    bool empty()
+    {
+        return map_.empty();
+    }
+
   protected:
     map_t map_; 
   };
