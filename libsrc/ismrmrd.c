@@ -133,20 +133,22 @@ int ismrmrd_make_consistent_acquisition(ISMRMRD_Acquisition *acq) {
     
     traj_size = ismrmrd_size_of_acquisition_traj(acq);
     if (traj_size > 0) {
-        acq->traj = (float *)realloc(acq->traj, traj_size);
-        if (acq->traj == NULL) {
+        float *newPtr = (float *)realloc(acq->traj, traj_size);
+        if (newPtr == NULL) {
             return ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR,
                           "Failed to realloc acquisition trajectory array");
         }
+        acq->traj = newPtr;
     }
         
     data_size = ismrmrd_size_of_acquisition_data(acq);
     if (data_size > 0) {
-        acq->data = (complex_float_t *)realloc(acq->data, data_size);
-        if (acq->data == NULL) {
+        complex_float_t *newPtr = (complex_float_t *)realloc(acq->data, data_size);
+        if (newPtr == NULL) {
             return ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR,
                           "Failed to realloc acquisition data array");
         }
+        acq->data = newPtr;
     }
 
     return ISMRMRD_NOERROR;
@@ -269,20 +271,22 @@ int ismrmrd_make_consistent_image(ISMRMRD_Image *im) {
     attr_size = ismrmrd_size_of_image_attribute_string(im);
     if (attr_size > 0) {
         // Allocate space plus a null-terminating character
-        im->attribute_string = (char *)realloc(im->attribute_string, attr_size + sizeof(*im->attribute_string));
-        if (im->attribute_string == NULL) {
+        char *newPtr = (char *)realloc(im->attribute_string, attr_size+sizeof(*im->attribute_string));
+        if (newPtr == NULL) {
             return ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to realloc image attribute string");
         }
+        im->attribute_string = newPtr;
         // Set the null terminating character
         im->attribute_string[im->head.attribute_string_len] = '\0';
     }
         
     data_size = ismrmrd_size_of_image_data(im);
     if (data_size > 0) {
-        im->data = realloc(im->data, data_size);
-        if (im->data == NULL) {
+        void *newPtr = realloc(im->data, data_size);
+        if (newPtr == NULL) {
             return ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to realloc image data array");
         }
+        im->data = newPtr;
     }
     return ISMRMRD_NOERROR;
 }
@@ -405,10 +409,11 @@ int ismrmrd_make_consistent_ndarray(ISMRMRD_NDArray *arr) {
 
     data_size = ismrmrd_size_of_ndarray_data(arr);
     if (data_size > 0) {
-        arr->data = realloc(arr->data, data_size);
-        if (arr->data == NULL) {
+        void *newPtr = realloc(arr->data, data_size);
+        if (newPtr == NULL) {
             return ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to realloc NDArray data array");
         }
+        arr->data = newPtr;
     }
     return ISMRMRD_NOERROR;
 }
@@ -474,7 +479,7 @@ size_t ismrmrd_sizeof_data_type(int data_type)
 
 /* Misc. functions */
 bool ismrmrd_is_flag_set(const uint64_t flags, const uint64_t val) {
-    uint64_t bitmask = 1 << (val - 1);
+    uint64_t bitmask = (uint64_t)(1) << (val - 1);
     return (flags & bitmask) > 0;
 }
 
@@ -483,7 +488,7 @@ int ismrmrd_set_flag(uint64_t *flags, const uint64_t val) {
     if (flags==NULL) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
     }
-    bitmask = 1 << (val - 1);
+    bitmask = (uint64_t)(1) << (val - 1);
     *flags |= bitmask;
     return ISMRMRD_NOERROR;
 }
@@ -501,7 +506,7 @@ int ismrmrd_clear_flag(uint64_t *flags, const uint64_t val) {
     if (flags==NULL) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
     }
-    bitmask = 1 << (val - 1);
+    bitmask = (uint64_t)(1) << (val - 1);
     *flags &= ~bitmask;
     return ISMRMRD_NOERROR;
 }
@@ -520,7 +525,7 @@ bool ismrmrd_is_channel_on(const uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS], c
     if (channel_mask==NULL) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer to channel_mask should not be NULL.");
     }
-    bitmask = 1 << (chan % 64);
+    bitmask = (uint64_t)(1) << (chan % 64);
     offset = chan / 64;
     return (channel_mask[offset] & bitmask) > 0;
 }
@@ -531,7 +536,7 @@ int ismrmrd_set_channel_on(uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS], const u
     if (channel_mask==NULL) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer to channel_mask should not be NULL.");
     }
-    bitmask = 1 << (chan % 64);
+    bitmask = (uint64_t)(1) << (chan % 64);
     offset = chan / 64;
     channel_mask[offset] |= bitmask;
     return ISMRMRD_NOERROR;

@@ -15,7 +15,7 @@ BOOST_AUTO_TEST_CASE(test_is_flag_set)
     }
 
     for (int f = 1; f <= 64; f++) {
-        flags |= (1 << (f - 1));
+        flags |= ((uint64_t)1 << (f - 1));
         BOOST_CHECK_EQUAL(ismrmrd_is_flag_set(flags, f), true);
     }
 }
@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE(test_set_flag)
 
     for (int f = 1; f <= 64; f++) {
         BOOST_CHECK_EQUAL(ismrmrd_set_flag(&flags, f), ISMRMRD_NOERROR);
-        BOOST_REQUIRE((flags & (1 << (f - 1))) != 0);
+        BOOST_REQUIRE((flags & ((uint64_t)1 << (f - 1))) != 0);
     }
 }
 
@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(test_clear_flag)
     BOOST_CHECK_EQUAL(ismrmrd_clear_flag(NULL, ISMRMRD_IMAGE_USER8), ISMRMRD_RUNTIMEERROR);
     for (int f = 1; f <= 64; f++) {
         BOOST_CHECK_EQUAL(ismrmrd_clear_flag(&flags, f), ISMRMRD_NOERROR);
-        BOOST_REQUIRE((flags & (1 << (f - 1))) == 0);
+        BOOST_REQUIRE((flags & ((uint64_t)1 << (f - 1))) == 0);
     }
 }
 
