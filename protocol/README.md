@@ -91,10 +91,12 @@ enum StorageType {
     ISMRMRD_SHORT    = 2, /**< corresponds to int16_t        */
     ISMRMRD_UINT     = 3, /**< corresponds to uint32_t       */
     ISMRMRD_INT      = 4, /**< corresponds to int32_t        */
-    ISMRMRD_FLOAT    = 5, /**< corresponds to float          */
-    ISMRMRD_DOUBLE   = 6, /**< corresponds to double         */
-    ISMRMRD_CXFLOAT  = 7, /**< corresponds to complex float  */
-    ISMRMRD_CXDOUBLE = 8  /**< corresponds to complex double */
+    ISMRMRD_UINT64   = 5, /**< corresponds to uint64_t       */
+    ISMRMRD_INT64    = 6, /**< corresponds to int64_t       */    
+    ISMRMRD_FLOAT    = 7, /**< corresponds to float          */
+    ISMRMRD_DOUBLE   = 8, /**< corresponds to double         */
+    ISMRMRD_CXFLOAT  = 9, /**< corresponds to complex float  */
+    ISMRMRD_CXDOUBLE = 10 /**< corresponds to complex double */
 };
 ```
 The final field `stream` indicates which of multiple streams that the present entity belongs to. The ISMRMRD protocol is a multiplexed streaming protocol; on the wire the packages (or frames) are laid out consecutively but conceptually they correspond to multiple consecutive streams. The streams are equivalent to channels and a numbered consecutively from zero (0). The follow stream numbers are reserved by the ISMRMRD standard:
