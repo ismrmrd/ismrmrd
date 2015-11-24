@@ -5,7 +5,7 @@ This document describes the communication model and protocol that should be used
 
 Client/Server communication
 ---------------------------
-The client/server communication is intended to be done with regular tcp/ip sockets with continuous bidirectional commication. The recommended application configuration would be as outlined below:
+The client/server communication is intended to be done with regular tcp/ip sockets with continuous bidirectional communication. The recommended application configuration would be as outlined below:
 
 ```
       CLIENT                                              SERVER
@@ -25,7 +25,7 @@ Network packages and framing
 All ISMRMRD packages transmitted on the network are framed network packages. The layout of an ISMRMRD data frame is as follows:
 
 ```
-uint64: frame_size
+uint64: frame_size //Little endian byte order
 ----
 |
 |
@@ -37,19 +37,22 @@ uint64: frame_size
 ----
 ```
 
-i.e., each frame consists of a 64-bit unsigned integerer that specifies the length of the packge (excluding the 64-bit integer itself). For example, if the contents a data frame is 100 bytes long, it would be written onto the wire as first a 64-bit integer containing the value 100 followed by 100 bytes of data. Consequently the data frame including the envelope would be 108 bytes long.  
+i.e., each frame consists of a 64-bit unsigned integer (little endian) that specifies the length of the package (excluding the 64-bit integer itself). For example, if the contents a data frame is 100 bytes long, it would be written onto the wire as first a 64-bit integer containing the value 100 followed by 100 bytes of data. Consequently the data frame including the envelope would be 108 bytes long.  
 
 Data package headers
 --------------------
 Each data frame had a common header that follows the frame size. It consists of four (4) 32-bit integers:
 
 ```
-struct ISMRMRDEntity
+struct Entity
 {
     uint32_t version;
     uint32_t entity_type;
     uint32_t storage_type;
     uint32_t stream;
+    
+    virtual void deserialize(std::vector<char>& buffer) = 0;
+    virtual std::vector<char> serialize() = 0;
 };
 
 ```
@@ -68,19 +71,14 @@ Or a total of 24 bytes. The `version` field indicated the major version of the I
 
 ```
 enum EntityType {
-    ISMRMRD_HANDSHAKE = 0,
-    ISMRMRD_MRACQUISITION = 1,
-    ISMRMRD_WAVEFORM = 2,
-    ISMRMRD_IMAGE = 3,
-    ISMRMRD_XML_HEADER = 4,
-    ISMRMRD_RECON_SPECIFICATION = 5,
-    ISMRMRD_RECON_CONFIGURATION = 6,
-    ISMRMRD_SYSTEM_INFORMATION = 7,
-    ISMRMRD_START_RECON = 8,
-    ISMRMRD_END_RECON = 9,
-    ISMRMRD_ERROR = 10,
-    ISMRMRD_BLOB = 11,
-    ISMRMRD_OTHER = 12
+    ISMRMRD_HANDSHAKE       = 0, /**< first package sent                   */
+    ISMRMRD_COMMAND         = 1, /**< commands used to control recon system */
+    ISMRMRD_MRACQUISITION   = 2, /**< MR raw data                          */
+    ISMRMRD_WAVEFORM        = 3, /**< Gradient, physiology, etc. waveform  */
+    ISMRMRD_IMAGE           = 4, /**< Reconstructed image                  */
+    ISMRMRD_XML_HEADER      = 5, /**< The XML header describing the data   */
+    ISMRMRD_ERROR           = 6, /**< Something went wrong                 */
+    ISMRMRD_BLOB            = 7  /**< Some binary object, with description */
 };
 ```
 
@@ -88,18 +86,18 @@ Which correspond directly to classes defined in `ismrmrd.h`. Some of these entit
 
 ```
 enum StorageType {
-    ISMRMRD_USHORT   = 1, /**< corresponds to uint16_t */
-    ISMRMRD_SHORT    = 2, /**< corresponds to int16_t */
-    ISMRMRD_UINT     = 3, /**< corresponds to uint32_t */
-    ISMRMRD_INT      = 4, /**< corresponds to int32_t */
-    ISMRMRD_FLOAT    = 5, /**< corresponds to float */
-    ISMRMRD_DOUBLE   = 6, /**< corresponds to double */
-    ISMRMRD_CXFLOAT  = 7, /**< corresponds to complex float */
+    ISMRMRD_CHAR     = 0, /**< corresponds to char           */
+    ISMRMRD_USHORT   = 1, /**< corresponds to uint16_t       */
+    ISMRMRD_SHORT    = 2, /**< corresponds to int16_t        */
+    ISMRMRD_UINT     = 3, /**< corresponds to uint32_t       */
+    ISMRMRD_INT      = 4, /**< corresponds to int32_t        */
+    ISMRMRD_FLOAT    = 5, /**< corresponds to float          */
+    ISMRMRD_DOUBLE   = 6, /**< corresponds to double         */
+    ISMRMRD_CXFLOAT  = 7, /**< corresponds to complex float  */
     ISMRMRD_CXDOUBLE = 8  /**< corresponds to complex double */
 };
 ```
-
-The final field `stream` indicates which of multiple streams that the present entity belongs to. The ISMRMRD protocol is a multiplexed streaming protocol; on the wire the packages (or frames) are layed out consequtively but conceptually they correspond to multiple consecutive streams. The streams are equivalent to channels and a numbered consequetively from zero (0). The follow stream numbers are reserved by the ISMRMRD standard:
+The final field `stream` indicates which of multiple streams that the present entity belongs to. The ISMRMRD protocol is a multiplexed streaming protocol; on the wire the packages (or frames) are laid out consecutively but conceptually they correspond to multiple consecutive streams. The streams are equivalent to channels and a numbered consecutively from zero (0). The follow stream numbers are reserved by the ISMRMRD standard:
 
 ```
 0: ISMRM Acquisition Raw Data
@@ -111,12 +109,18 @@ The final field `stream` indicates which of multiple streams that the present en
 ```
 In general stream numbers below 65535 are reserved for streams of data that would correspond to actual data stored in an ISMRMRD file (with stream 0 being typical MRI raw data) and streams above 65535 are meant to control handshaking and control messages that would only be used for client/server communication. 
 
-An application communicatin using the ISMRMRD protocol would would typically have two threads reading and writing packages using the following (C++-ish) code:
+An application communication using the ISMRMRD protocol would would typically have two threads reading and writing packages using the following (C++-ish) code:
 
 ```
-std::unorder<uint32_t, EntityDeserializer> io_map;
-
-//Register functions for handling entity types
+Entity EntityFromBuffer(std::vector<char>& buffer)
+{
+	Enity* e_ptr = reinterpret_cast<Entity*>(&buffer[0]);
+	Entity e = EntityFactory::create_entity(e_ptr->entity_type,
+	                                        e_ptr->storage_type);
+	                                        
+	e.deserialize(buffer);                                        
+	return e;                                                
+}
 
 std::thread reader([](){
 	while (true)
@@ -124,16 +128,10 @@ std::thread reader([](){
 	      uint64_t frame_size;
 	      stream.read(&frame_size, sizeof(uint64_t));
 	      std::vector<char> buffer(frame_size);
-	      stream.read(&buffer[0], framesize);
-	      ISMRMRDEntity* e = reinterpret_cast<ISMRMRD_Entity*>(buffer);
-	      auto & deserializer = io_map.find(e->entity_type);
-	      if (deserializer != io_map.end()) {
-	      	   Entity ent = deserializer.second(buffer);
-		      //Do something meaningful with entity based on stream and type
-	      } else {
-	      	  throw std::runtime_error("Received unsupported entity type");
-	      }
-	
+	      stream.read(&buffer[0], frame_size);
+	      Entity ent = EntityFromBuffer(buffer);
+		      
+		   //Do something with entity based on stream and type, etc. 
 	}
 });
 
@@ -152,3 +150,47 @@ std::thread writer([](){
 writer.join()
 reader.join()
 ```
+
+A typical ISMRMRD reconstruction session (in interaction diagram form) would look like:
+
+```
+
+         +--------+               +--------+
+         | CLIENT |               | SERVER |
+         +--------+               +--------+
+              |                        |
+              |                        |
+      CONNECT +------------------------> ACCEPT
+              |                        |
+              |      HANDSHAKE         |
+              +------------------------>
+              |                        |
+              |      HANDSHAKE         |
+              <------------------------+
+              |                        |
+              |                        |
+        R +-- |        ENTITY          | --+ R
+        E |   +------------------------>   | E
+        P |   |                        |   | P
+        E |   |        ENTITY          |   | E
+        A |   <------------------------+   | A
+        T +-- |                        | --+ T
+              |      COMMAND: STOP     |
+              +------------------------>
+              |                        |
+        WAIT  |                        | RECON WORK
+              |      COMMAND: DONE     |
+              <------------------------+
+              |                        |
+              |                        |
+        CLOSE +------------------------> CLEAN UP
+              |                        |
+              |                        |
+              |                        |
+              |                        |
+         +--------+                +--------+
+         | CLIENT |                | SERVER |
+         +--------+                +--------+
+
+```
+Please note that the period where client and server are exchanging data entities, there is not a 1:1 relationship between ingoing and outgoing packages. In fact, it would be possible to create a reconstruction program that received no data but returned data (a simulation) or vice versa in the case of a calibration measurement that does not return images but stores calibration data in the reconstruction system. 
