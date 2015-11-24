@@ -3,6 +3,22 @@ ISMRM Raw Data Communication Protocol
 
 This document describes the communication model and protocol that should be used by client/server applications that support the ISMRM Raw Data (ISMRMRD) standard. The communication protocol described in this document is independent from the file storage (currently using HDF5 file containers) that the C++ API uses in application that interact with ISMRMRD files directly.
 
+Client/Server communication
+---------------------------
+The client/server communication is intended to be done with regular tcp/ip sockets with continuous bidirectional commication. The recommended application configuration would be as outlined below:
+
+```
+      CLIENT                                              SERVER
+|----------------------|       TCP/IP SOCKET        |----------------------|
+|    Q -> write_thread |--------------------------->| read_thread -> proc  |
+|                      |                            |                      |
+|                      |                            |                      |
+| proc  <- read_thread |<---------------------------| write_thread <- Q    |
+|----------------------|                            |----------------------|
+```
+The role of the `CLIENT` is to send data (possibly from a file or acquisition system) to the `SERVER`, where it is accumulated and processed (by `proc` function in above diagram) and eventually reconstruction output is placed on a queue (`Q`) where and independent thread returns it to the client. The client most commonly will have independent threads for reading and writing too. Except for the initial connection, the communication on client and server side is symmetric (although the data going in either direction may vary).
+
+
 Network packages and framing
 ----------------------------
 
@@ -95,28 +111,44 @@ The final field `stream` indicates which of multiple streams that the present en
 ```
 In general stream numbers below 65535 are reserved for streams of data that would correspond to actual data stored in an ISMRMRD file (with stream 0 being typical MRI raw data) and streams above 65535 are meant to control handshaking and control messages that would only be used for client/server communication. 
 
-An application reading packages in ISMRMRD format would be looping through the following C++ (ish):
+An application communicatin using the ISMRMRD protocol would would typically have two threads reading and writing packages using the following (C++-ish) code:
 
 ```
 std::unorder<uint32_t, EntityDeserializer> io_map;
 
 //Register functions for handling entity types
 
-while (true)
-{
-      uint64_t frame_size;
-      stream.read(&frame_size, sizeof(uint64_t));
-      char* buffer = new char[frame_size];
-      stream.read(buffer, framesize);
-      ISMRMRDEntity* e = reinterpret_cast<ISMRMRD_Entity*>(buffer);
-      auto & deserializer = io_map.find(e->entity_type);
-      if (deserializer != io_map.end()) {
-      	 Entity ent = deserializer.second(buffer);
+std::thread reader([](){
+	while (true)
+	{
+	      uint64_t frame_size;
+	      stream.read(&frame_size, sizeof(uint64_t));
+	      std::vector<char> buffer(frame_size);
+	      stream.read(&buffer[0], framesize);
+	      ISMRMRDEntity* e = reinterpret_cast<ISMRMRD_Entity*>(buffer);
+	      auto & deserializer = io_map.find(e->entity_type);
+	      if (deserializer != io_map.end()) {
+	      	   Entity ent = deserializer.second(buffer);
+		      //Do something meaningful with entity based on stream and type
+	      } else {
+	      	  throw std::runtime_error("Received unsupported entity type");
+	      }
+	
+	}
+});
 
-	 //Do something meaningful with entity based on stream and type
-      } else {
-      	throw std::runtime_error("Received unsupported entity type");
-      }
+std::thread writer([](){
+	while (true)
+	{
+		   Entity e = Q.get();
+		   std::vector<char> buffer;
+		   e.serialize(buffer);
+		   uint64_t frame_size = buffer.size();
+		   stream.write(&frame_size,sizeof(uint64_t));
+	      stream.write(&buffer[0], frame_size);
+	}
+});
 
-}
+writer.join()
+reader.join()
 ```
