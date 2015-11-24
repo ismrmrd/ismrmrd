@@ -9,8 +9,8 @@ Network packages and framing
 All ISMRMRD packages transmitted on the network are framed network packages. The layout of an ISMRMRD data frame is as follows:
 
 ```
-----
 uint64: frame_size
+----
 |
 |
 .
@@ -52,6 +52,7 @@ Or a total of 24 bytes. The `version` field indicated the major version of the I
 
 ```
 enum EntityType {
+    ISMRMRD_HANDSHAKE = 0,
     ISMRMRD_MRACQUISITION = 1,
     ISMRMRD_WAVEFORM = 2,
     ISMRMRD_IMAGE = 3,
@@ -85,26 +86,37 @@ enum StorageType {
 The final field `stream` indicates which of multiple streams that the present entity belongs to. The ISMRMRD protocol is a multiplexed streaming protocol; on the wire the packages (or frames) are layed out consequtively but conceptually they correspond to multiple consecutive streams. The streams are equivalent to channels and a numbered consequetively from zero (0). The follow stream numbers are reserved by the ISMRMRD standard:
 
 ```
-0: Handshaking and reconstruction control
+0: ISMRM Acquisition Raw Data
 1: XML Header
-2: ISMRM Acquisition Raw Data
+.
+.
+.
+65536+: Handshaking and reconstruction control
 ```
+In general stream numbers below 65535 are reserved for streams of data that would correspond to actual data stored in an ISMRMRD file (with stream 0 being typical MRI raw data) and streams above 65535 are meant to control handshaking and control messages that would only be used for client/server communication. 
 
+An application reading packages in ISMRMRD format would be looping through the following C++ (ish):
 
 ```
-An application reading packages in ISMRMRD format would be looping through the following pseudocode:
+std::unorder<uint32_t, EntityDeserializer> io_map;
 
-```
+//Register functions for handling entity types
 
-while (true) {
+while (true)
+{
       uint64_t frame_size;
       stream.read(&frame_size, sizeof(uint64_t));
       char* buffer = new char[frame_size];
       stream.read(buffer, framesize);
       ISMRMRDEntity* e = reinterpret_cast<ISMRMRD_Entity*>(buffer);
-      switch (e.enity_type) {
-      case 
+      auto & deserializer = io_map.find(e->entity_type);
+      if (deserializer != io_map.end()) {
+      	 Entity ent = deserializer.second(buffer);
+
+	 //Do something meaningful with entity based on stream and type
+      } else {
+      	throw std::runtime_error("Received unsupported entity type");
       }
 
-
+}
 ```
