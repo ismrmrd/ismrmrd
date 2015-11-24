@@ -47,7 +47,9 @@ uint32_t entity_type;
 uint32_t storage_type;
 uint32_t stream;
 ```
+
 Or a total of 24 bytes. The `version` field indicated the major version of the ISMRMRD standard (current version is 2), the `entity_type` indicates which package type this is. This can be one of the following data types:
+
 ```
 enum EntityType {
     ISMRMRD_MRACQUISITION = 1,
@@ -63,7 +65,10 @@ enum EntityType {
     ISMRMRD_BLOB = 11,
     ISMRMRD_OTHER = 12
 };
+```
+
 Which correspond directly to classes defined in `ismrmrd.h`. Some of these entity types have associated data storage (e.g. raw data samples) which can be stored in different formats defined by the `storage_type` field, which can have a value defined by:
+
 ```
 enum StorageType {
     ISMRMRD_USHORT   = 1, /**< corresponds to uint16_t */
@@ -76,7 +81,9 @@ enum StorageType {
     ISMRMRD_CXDOUBLE = 8  /**< corresponds to complex double */
 };
 ```
+
 The final field `stream` indicates which of multiple streams that the present entity belongs to. The ISMRMRD protocol is a multiplexed streaming protocol; on the wire the packages (or frames) are layed out consequtively but conceptually they correspond to multiple consecutive streams. The streams are equivalent to channels and a numbered consequetively from zero (0). The follow stream numbers are reserved by the ISMRMRD standard:
+
 ```
 0: Handshaking and reconstruction control
 1: XML Header
