@@ -1,7 +1,7 @@
 ISMRM Raw Data Communication Protocol
 ======================================
 
-This document describes the communication model and protocol that should be used by client/server applications that support the ISMRM Raw Data (ISMRMRD) standard. The communication protocol described in this document is independent from the file storage (currently using HDF5 file containers) that the C++ API uses in application that interact with ISMRMRD files directly.
+This document describes the communication model and protocol that should be used by client/server applications that support the ISMRM Raw Data (ISMRMRD) standard. The communication protocol described in this document is independent from the file storage (currently using HDF5 file containers) that the C++ API uses in applications that interact with ISMRMRD files directly.
 
 Client/Server communication
 ---------------------------
@@ -16,7 +16,7 @@ The client/server communication is intended to be done with regular tcp/ip socke
 | proc  <- read_thread |<---------------------------| write_thread <- Q    |
 |----------------------|                            |----------------------|
 ```
-The role of the `CLIENT` is to send data (possibly from a file or acquisition system) to the `SERVER`, where it is accumulated and processed (by `proc` function in above diagram) and eventually reconstruction output is placed on a queue (`Q`) where and independent thread returns it to the client. The client most commonly will have independent threads for reading and writing too. Except for the initial connection, the communication on client and server side is symmetric (although the data going in either direction may vary).
+The role of the `CLIENT` is to send data (possibly from a file or acquisition system) to the `SERVER`, where it is accumulated and processed (by `proc` function in above diagram) and eventually reconstruction output is placed on a queue (`Q`) where an independent thread returns it to the client. The client most commonly will have independent threads for reading and writing too. Except for the initial connection, both client and server can send and receive the same types of packages. However, in a typical application the packages sent and received by client and server would vary, e.g. client sends raw data samples and receives images whereas the server receives raw data samples and sends images. 
 
 
 Network packages and framing
@@ -37,14 +37,14 @@ uint64: frame_size //Little endian byte order
 ----
 ```
 
-i.e., each frame consists of a 64-bit unsigned integer (little endian) that specifies the length of the package (excluding the 64-bit integer itself). For example, if the contents a data frame is 100 bytes long, it would be written onto the wire as first a 64-bit integer containing the value 100 followed by 100 bytes of data. Consequently the data frame including the envelope would be 108 bytes long.  
+i.e., each frame consists of a 64-bit unsigned integer (little endian) that specifies the length of the package (excluding the 64-bit integer itself). For example, if the contents of a data frame is 100 bytes long, it would be written onto the wire as first a 64-bit integer containing the value 100 followed by 100 bytes of data. Consequently the data frame including the envelope would be 108 bytes long.  
 
 Data package headers
 --------------------
 Each data frame had a common header that follows the frame size. It consists of four (4) 32-bit integers:
 
 ```
-struct Entity
+class Entity
 {
     uint32_t version;
     uint32_t entity_type;
@@ -99,7 +99,7 @@ enum StorageType {
     ISMRMRD_CXDOUBLE = 10 /**< corresponds to complex double */
 };
 ```
-The final field `stream` indicates which of multiple streams that the present entity belongs to. The ISMRMRD protocol is a multiplexed streaming protocol; on the wire the packages (or frames) are laid out consecutively but conceptually they correspond to multiple consecutive streams. The streams are equivalent to channels and a numbered consecutively from zero (0). The follow stream numbers are reserved by the ISMRMRD standard:
+The final field `stream` indicates which of multiple streams that the present entity belongs to. The ISMRMRD protocol is a multiplexed streaming protocol; on the wire the packages (or frames) are laid out consecutively but conceptually they correspond to multiple concurrent streams. The streams are equivalent to channels and are numbered consecutively from zero (0). It is required that all entitys in a given stream are of the same type. An application that receives multiple entity types in the same stream should throw an error. The following stream numbers are reserved by the ISMRMRD standard:
 
 ```
 0: ISMRM Acquisition Raw Data
@@ -195,4 +195,4 @@ A typical ISMRMRD reconstruction session (in interaction diagram form) would loo
          +--------+                +--------+
 
 ```
-Please note that the period where client and server are exchanging data entities, there is not a 1:1 relationship between ingoing and outgoing packages. In fact, it would be possible to create a reconstruction program that received no data but returned data (a simulation) or vice versa in the case of a calibration measurement that does not return images but stores calibration data in the reconstruction system. 
+Please note that during the period when client and server are exchanging data entities, there is not a 1:1 relationship between ingoing and outgoing packages. In fact, it would be possible to create a reconstruction program that received no data but returned data (a simulation) or vice versa in the case of a calibration measurement that does not return images but stores calibration data in the reconstruction system. s
