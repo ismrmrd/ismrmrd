@@ -14,10 +14,9 @@ BOOST_AUTO_TEST_CASE(image_create)
     ImageHeader head = img.getHead();
 
     // Check that header is of expected size
-    size_t expected_size = 15 * sizeof(uint16_t) +
-            (3 + ISMRMRD_PHYS_STAMPS) * sizeof(uint32_t) +
+    size_t expected_size = 21 * sizeof(uint32_t) +
             ISMRMRD_USER_INTS * sizeof(int32_t) +
-            1 * sizeof(uint64_t) +
+            2 * sizeof(uint64_t) +
             ((2 * ISMRMRD_POSITION_LENGTH) + (3 * ISMRMRD_DIRECTION_LENGTH) +
                     3 + ISMRMRD_USER_FLOATS) * sizeof(float);
 
@@ -71,7 +70,6 @@ static void check_header(const ImageHeader& chead)
 
     //BOOST_CHECK_EQUAL(chead.storage_type, 0);
     BOOST_CHECK_EQUAL(chead.flags, 0);
-    BOOST_CHECK_EQUAL(chead.measurement_uid, 0);
     for (int idx = 0; idx < 3; idx++) {
         BOOST_CHECK_EQUAL(chead.field_of_view[idx], 0);
     }
@@ -96,7 +94,6 @@ static void check_header(const ImageHeader& chead)
     BOOST_CHECK_EQUAL(chead.phase, 0);
     BOOST_CHECK_EQUAL(chead.repetition, 0);
     BOOST_CHECK_EQUAL(chead.set, 0);
-    BOOST_CHECK_EQUAL(chead.acquisition_time_stamp, 0);
     for (int idx = 0; idx < ISMRMRD_PHYS_STAMPS; idx++) {
         BOOST_CHECK_EQUAL(chead.physiology_time_stamp[idx], 0);
     }

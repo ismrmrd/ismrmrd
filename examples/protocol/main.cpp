@@ -74,12 +74,12 @@ public:
             boost::asio::read(sock, boost::asio::buffer(traj), error);
             acq.setTraj(traj);
 
-            if (streams.count(head.stream_number) == 0) {
+            if (streams.count(head.stream) == 0) {
                 std::vector<ISMRMRD::Acquisition> stream;
                 stream.push_back(acq);
-                streams[head.stream_number] = stream;
+                streams[head.stream] = stream;
             } else {
-                streams[head.stream_number].push_back(acq);
+                streams[head.stream].push_back(acq);
             }
         }
 

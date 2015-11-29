@@ -71,14 +71,14 @@ Or a total of 24 bytes. The `version` field indicated the major version of the I
 
 ```
 enum EntityType {
-    ISMRMRD_HANDSHAKE       = 0, /**< first package sent                   */
+    ISMRMRD_HANDSHAKE       = 0, /**< first package sent                    */
     ISMRMRD_COMMAND         = 1, /**< commands used to control recon system */
-    ISMRMRD_MRACQUISITION   = 2, /**< MR raw data                          */
-    ISMRMRD_WAVEFORM        = 3, /**< Gradient, physiology, etc. waveform  */
-    ISMRMRD_IMAGE           = 4, /**< Reconstructed image                  */
-    ISMRMRD_XML_HEADER      = 5, /**< The XML header describing the data   */
-    ISMRMRD_ERROR           = 6, /**< Something went wrong                 */
-    ISMRMRD_BLOB            = 7  /**< Some binary object, with description */
+    ISMRMRD_MRACQUISITION   = 2, /**< MR raw data                           */
+    ISMRMRD_WAVEFORM        = 3, /**< Gradient, physiology, etc. waveform   */
+    ISMRMRD_IMAGE           = 4, /**< Reconstructed image                   */
+    ISMRMRD_XML_HEADER      = 5, /**< The XML header describing the data    */
+    ISMRMRD_ERROR           = 6, /**< Something went wrong                  */
+    ISMRMRD_BLOB            = 7  /**< Some binary object, with description  */
 };
 ```
 
@@ -92,7 +92,7 @@ enum StorageType {
     ISMRMRD_UINT     = 3, /**< corresponds to uint32_t       */
     ISMRMRD_INT      = 4, /**< corresponds to int32_t        */
     ISMRMRD_UINT64   = 5, /**< corresponds to uint64_t       */
-    ISMRMRD_INT64    = 6, /**< corresponds to int64_t       */    
+    ISMRMRD_INT64    = 6, /**< corresponds to int64_t        */    
     ISMRMRD_FLOAT    = 7, /**< corresponds to float          */
     ISMRMRD_DOUBLE   = 8, /**< corresponds to double         */
     ISMRMRD_CXFLOAT  = 9, /**< corresponds to complex float  */

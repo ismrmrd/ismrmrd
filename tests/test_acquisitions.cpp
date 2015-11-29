@@ -14,13 +14,13 @@ BOOST_AUTO_TEST_CASE(acquisition_create)
     AcquisitionHeader head = acq.getHead();
 
     // Check that header is of expected size
-    size_t expected_size = 11 * sizeof(uint16_t) +
-            (3 + ISMRMRD_PHYS_STAMPS) * sizeof(uint32_t) +
+    size_t expected_size = 4 * sizeof(uint32_t) +
+            (10 + ISMRMRD_PHYS_STAMPS) * sizeof(uint32_t) +
             ISMRMRD_USER_INTS * sizeof(int32_t) +
-            (1 + ISMRMRD_CHANNEL_MASKS) * sizeof(uint64_t) +
+            (2 + ISMRMRD_CHANNEL_MASKS) * sizeof(uint64_t) +
             ((2 * ISMRMRD_POSITION_LENGTH) + (3 * ISMRMRD_DIRECTION_LENGTH) +
                     1 + ISMRMRD_USER_FLOATS) * sizeof(float) +
-            (9 + ISMRMRD_USER_INTS) * sizeof(uint16_t);
+            (9 + ISMRMRD_USER_INTS) * sizeof(uint32_t);
 
     BOOST_CHECK_EQUAL(sizeof(head), expected_size);
 
@@ -69,9 +69,7 @@ static void check_header(const AcquisitionHeader& chead)
     BOOST_CHECK_EQUAL(chead.available_channels, 1);
     BOOST_CHECK_EQUAL(chead.active_channels, 1);
     BOOST_CHECK_EQUAL(chead.flags, 0);
-    BOOST_CHECK_EQUAL(chead.measurement_uid, 0);
     BOOST_CHECK_EQUAL(chead.scan_counter, 0);
-    BOOST_CHECK_EQUAL(chead.acquisition_time_stamp, 0);
     for (int idx = 0; idx < ISMRMRD_PHYS_STAMPS; idx++) {
         BOOST_CHECK_EQUAL(chead.physiology_time_stamp[idx], 0);
     }
@@ -84,7 +82,7 @@ static void check_header(const AcquisitionHeader& chead)
     BOOST_CHECK_EQUAL(chead.center_sample, 0);
     BOOST_CHECK_EQUAL(chead.encoding_space_ref, 0);
     BOOST_CHECK_EQUAL(chead.trajectory_dimensions, 0);
-    BOOST_CHECK_EQUAL(chead.sample_time_us, 0);
+    BOOST_CHECK_EQUAL(chead.dwell_time_ns, 0);
     for (int idx = 0; idx < ISMRMRD_POSITION_LENGTH; idx++) {
         BOOST_CHECK_EQUAL(chead.position[idx], 0);
     }

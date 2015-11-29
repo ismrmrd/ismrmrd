@@ -100,7 +100,7 @@ bool operator==(const ImageHeader& h1, const ImageHeader& h2)
     return memcmp(&h1, &h2, sizeof(h1)) == 0;
 }
 
-Acquisition::Acquisition(uint16_t num_samples, uint16_t active_channels, uint16_t trajectory_dimensions)
+Acquisition::Acquisition(uint32_t num_samples, uint32_t active_channels, uint32_t trajectory_dimensions)
 {
     memset(&head_, 0, sizeof(head_));
     head_.version = ISMRMRD_VERSION_MAJOR;
@@ -109,7 +109,7 @@ Acquisition::Acquisition(uint16_t num_samples, uint16_t active_channels, uint16_
 }
 
 // Accessors and mutators
-uint16_t Acquisition::getVersion() const {
+uint32_t Acquisition::getVersion() const {
     return head_.version;
 }
 
@@ -117,20 +117,12 @@ StorageType Acquisition::getStorageType() const {
     return static_cast<StorageType>(head_.storage_type);
 }
 
-uint16_t Acquisition::getStreamNumber() const {
-    return head_.stream_number;
+uint32_t Acquisition::getStream() const {
+    return head_.stream;
 }
 
-void Acquisition::setStreamNumber(uint16_t stream_number) {
-    head_.stream_number = stream_number;
-}
-
-uint32_t Acquisition::getMeasurementUID() const {
-    return head_.measurement_uid;
-}
-
-void Acquisition::setMeasurementUID(uint32_t uid) {
-    head_.measurement_uid = uid;
+void Acquisition::setStream(uint32_t stream_number) {
+    head_.stream = stream_number;
 }
 
 uint32_t Acquisition::getScanCounter() const {
@@ -141,12 +133,12 @@ void Acquisition::setScanCounter(uint32_t counter) {
     head_.scan_counter = counter;
 }
 
-uint32_t Acquisition::getAcquisitionTimeStamp() const {
-    return head_.acquisition_time_stamp;
+uint64_t Acquisition::getTimeStamp() const {
+    return head_.time_stamp;
 }
 
-void Acquisition::setAcquisitionTimeStamp(uint32_t ts) {
-    head_.acquisition_time_stamp = ts;
+void Acquisition::setTimeStamp(uint64_t ts) {
+    head_.time_stamp = ts;
 }
 
 uint32_t Acquisition::getPhysiologyTimeStamp(int idx) {
@@ -159,29 +151,29 @@ void Acquisition::setPhysiologyTimeStamp(int idx, uint32_t ts) {
     head_.physiology_time_stamp[idx] = ts;
 }
 
-uint16_t Acquisition::getNumberOfSamples() const {
+uint32_t Acquisition::getNumberOfSamples() const {
     return head_.number_of_samples;
 }
 
-void Acquisition::setNumberOfSamples(uint16_t ns) {
+void Acquisition::setNumberOfSamples(uint32_t ns) {
     head_.number_of_samples = ns;
     this->makeConsistent();
 }
 
-uint16_t Acquisition::getAvailableChannels() const {
+uint32_t Acquisition::getAvailableChannels() const {
     return head_.available_channels;
 }
 
-void Acquisition::setAvailableChannels(uint16_t ac) {
+void Acquisition::setAvailableChannels(uint32_t ac) {
     // TODO: compare against head.active_channels or makeConsistent?
     head_.available_channels = ac;
 }
 
-uint16_t Acquisition::getActiveChannels() const {
+uint32_t Acquisition::getActiveChannels() const {
     return head_.active_channels;
 }
 
-void Acquisition::setActiveChannels(uint16_t ac) {
+void Acquisition::setActiveChannels(uint32_t ac) {
     head_.active_channels = ac;
     this->makeConsistent();
 }
@@ -196,52 +188,52 @@ void Acquisition::setChannelMask(int idx, uint64_t mask) {
     head_.channel_mask[idx] = mask;
 }
 
-uint16_t Acquisition::getDiscardPre() const {
+uint32_t Acquisition::getDiscardPre() const {
     return head_.discard_pre;
 }
 
-void Acquisition::setDiscardPre(uint16_t dp) {
+void Acquisition::setDiscardPre(uint32_t dp) {
     head_.discard_pre = dp;
 }
 
-uint16_t Acquisition::getDiscardPost() const {
+uint32_t Acquisition::getDiscardPost() const {
     return head_.discard_post;
 }
 
-void Acquisition::setDiscardPost(uint16_t dp) {
+void Acquisition::setDiscardPost(uint32_t dp) {
     head_.discard_post = dp;
 }
 
-uint16_t Acquisition::getCenterSample() const {
+uint32_t Acquisition::getCenterSample() const {
     return head_.center_sample;
 }
 
-void Acquisition::setCenterSample(uint16_t cs) {
+void Acquisition::setCenterSample(uint32_t cs) {
     head_.center_sample = cs;
 }
 
-uint16_t Acquisition::getEncodingSpaceRef() const {
+uint32_t Acquisition::getEncodingSpaceRef() const {
     return head_.encoding_space_ref;
 }
 
-void Acquisition::setEncodingSpaceRef(uint16_t esr) {
+void Acquisition::setEncodingSpaceRef(uint32_t esr) {
     head_.encoding_space_ref = esr;
 }
 
-uint16_t Acquisition::getTrajectoryDimensions() const {
+uint32_t Acquisition::getTrajectoryDimensions() const {
     return head_.trajectory_dimensions;
 }
 
-void Acquisition::setTrajectoryDimensions(uint16_t td) {
+void Acquisition::setTrajectoryDimensions(uint32_t td) {
     head_.trajectory_dimensions = td;
 }
 
-float Acquisition::getSampleTime_us() const {
-    return head_.sample_time_us;
+uint32_t Acquisition::getDwellTime_ns() const {
+    return head_.dwell_time_ns;
 }
 
-void Acquisition::setSampleTime_us(float time){
-    head_.sample_time_us = time;
+void Acquisition::setDwellTime_ns(uint32_t time){
+    head_.dwell_time_ns = time;
 }
 
 float Acquisition::getPositionX() const {
@@ -447,7 +439,7 @@ void Acquisition::setHead(const AcquisitionHeader &other) {
     this->makeConsistent();
 }
 
-void Acquisition::resize(uint16_t num_samples, uint16_t active_channels, uint16_t trajectory_dimensions){
+void Acquisition::resize(uint32_t num_samples, uint32_t active_channels, uint32_t trajectory_dimensions){
     head_.number_of_samples = num_samples;
     head_.active_channels = active_channels;
     head_.trajectory_dimensions = trajectory_dimensions;
@@ -477,7 +469,7 @@ void Acquisition::setData(const std::vector<std::complex<float> >& data) {
     this->data_ = data;
 }
 
-std::complex<float>& Acquisition::at(uint16_t sample, uint16_t channel){
+std::complex<float>& Acquisition::at(uint32_t sample, uint32_t channel){
     if (sample >= getNumberOfSamples()) {
         throw std::runtime_error("sample greater than number of samples");
     }
@@ -495,7 +487,7 @@ void Acquisition::setTraj(const std::vector<float>& traj) {
     this->traj_ = traj;
 }
 
-float& Acquisition::trajAt(uint16_t dimension, uint16_t sample){
+float& Acquisition::trajAt(uint32_t dimension, uint32_t sample){
     if (sample >= getNumberOfSamples()) {
         throw std::runtime_error("sample greater than number of samples");
     }
@@ -532,19 +524,19 @@ void Acquisition::clearAllFlags() {
     head_.flags = 0;
 }
 
-bool Acquisition::isChannelActive(uint16_t chan) const {
+bool Acquisition::isChannelActive(uint32_t chan) const {
     uint64_t bitmask = 1UL << (chan % 64UL);
     size_t offset = chan / 64UL;
     return (head_.channel_mask[offset] & bitmask) > 0;
 }
 
-void Acquisition::setChannelActive(uint16_t chan) {
+void Acquisition::setChannelActive(uint32_t chan) {
     uint64_t bitmask = 1UL << (chan % 64UL);
     size_t offset = chan / 64UL;
     head_.channel_mask[offset] |= bitmask;
 }
 
-void Acquisition::setChannelNotActive(uint16_t chan) {
+void Acquisition::setChannelNotActive(uint32_t chan) {
     uint64_t bitmask = 1UL << (chan % 64UL);
     size_t offset = chan / 64UL;
     head_.channel_mask[offset] &= ~bitmask;
@@ -557,22 +549,22 @@ void Acquisition::setAllChannelsNotActive() {
 }
 
 
-template <typename T> Image<T>::Image(uint16_t matrix_size_x,
-                                      uint16_t matrix_size_y,
-                                      uint16_t matrix_size_z,
-                                      uint16_t channels)
+template <typename T> Image<T>::Image(uint32_t matrix_size_x,
+                                      uint32_t matrix_size_y,
+                                      uint32_t matrix_size_z,
+                                      uint32_t channels)
 {
     memset(&head_, 0, sizeof(head_));
     head_.version = ISMRMRD_VERSION_MAJOR;
-    head_.storage_type = static_cast<uint16_t>(get_storage_type<T>());
+    head_.storage_type = static_cast<uint32_t>(get_storage_type<T>());
     this->resize(matrix_size_x, matrix_size_y, matrix_size_z, channels);
 }
 
 // Image dimensions
-template <typename T> void Image<T>::resize(uint16_t matrix_size_x,
-                                            uint16_t matrix_size_y,
-                                            uint16_t matrix_size_z,
-                                            uint16_t channels)
+template <typename T> void Image<T>::resize(uint32_t matrix_size_x,
+                                            uint32_t matrix_size_y,
+                                            uint32_t matrix_size_z,
+                                            uint32_t channels)
 {
     head_.matrix_size[0] = matrix_size_x;
     head_.matrix_size[1] = matrix_size_y;
@@ -598,45 +590,45 @@ template <typename T> void Image<T>::makeConsistent() {
     attribute_string_.resize(head_.attribute_string_len);
 }
 
-template <typename T> uint16_t Image<T>::getMatrixSizeX() const
+template <typename T> uint32_t Image<T>::getMatrixSizeX() const
 {
     return head_.matrix_size[0];
 }
 
-template <typename T> uint16_t Image<T>::getMatrixSizeY() const
+template <typename T> uint32_t Image<T>::getMatrixSizeY() const
 {
     return head_.matrix_size[1];
 }
 
-template <typename T> uint16_t Image<T>::getMatrixSizeZ() const
+template <typename T> uint32_t Image<T>::getMatrixSizeZ() const
 {
     return head_.matrix_size[2];
 }
 
-template <typename T> void Image<T>::setMatrixSizeX(uint16_t x)
+template <typename T> void Image<T>::setMatrixSizeX(uint32_t x)
 {
     head_.matrix_size[0] = x;
     this->makeConsistent();
 }
 
-template <typename T> void Image<T>::setMatrixSizeY(uint16_t y)
+template <typename T> void Image<T>::setMatrixSizeY(uint32_t y)
 {
     head_.matrix_size[1] = y;
     this->makeConsistent();
 }
 
-template <typename T> void Image<T>::setMatrixSizeZ(uint16_t z)
+template <typename T> void Image<T>::setMatrixSizeZ(uint32_t z)
 {
     head_.matrix_size[2] = z;
     this->makeConsistent();
 }
 
-template <typename T> uint16_t Image<T>::getNumberOfChannels() const
+template <typename T> uint32_t Image<T>::getNumberOfChannels() const
 {
     return head_.channels;
 }
 
-template <typename T> void Image<T>::setNumberOfChannels(uint16_t channels)
+template <typename T> void Image<T>::setNumberOfChannels(uint32_t channels)
 {
     head_.channels = channels;
     this->makeConsistent();
@@ -868,7 +860,7 @@ template <typename T> void Image<T>::setPatientTablePositionZ(float z)
     head_.patient_table_position[2] = z;
 }
 
-template <typename T> uint16_t Image<T>::getVersion() const
+template <typename T> uint32_t Image<T>::getVersion() const
 {
     return head_.version;
 }
@@ -878,84 +870,74 @@ template <typename T> StorageType Image<T>::getStorageType() const
     return static_cast<StorageType>(head_.storage_type);
 }
 
-template <typename T> uint32_t Image<T>::getMeasurementUID() const
-{
-    return head_.measurement_uid;
-}
-
-template <typename T> void Image<T>::setMeasurementUID(uint32_t measurement_uid)
-{
-    head_.measurement_uid = measurement_uid;
-}
-
-template <typename T> uint16_t Image<T>::getAverage() const
+template <typename T> uint32_t Image<T>::getAverage() const
 {
     return head_.average;
 }
 
-template <typename T> void  Image<T>::setAverage(uint16_t average)
+template <typename T> void  Image<T>::setAverage(uint32_t average)
 {
     head_.average = average;
 }
 
-template <typename T> uint16_t Image<T>::getSlice() const
+template <typename T> uint32_t Image<T>::getSlice() const
 {
     return head_.slice;
 }
 
-template <typename T> void  Image<T>::setSlice(uint16_t slice)
+template <typename T> void  Image<T>::setSlice(uint32_t slice)
 {
     head_.slice = slice;
 }
 
-template <typename T> uint16_t Image<T>::getContrast() const
+template <typename T> uint32_t Image<T>::getContrast() const
 {
     return head_.contrast;
 }
 
-template <typename T> void  Image<T>::setContrast(uint16_t contrast)
+template <typename T> void  Image<T>::setContrast(uint32_t contrast)
 {
     head_.contrast = contrast;
 }
 
-template <typename T> uint16_t Image<T>::getPhase() const
+template <typename T> uint32_t Image<T>::getPhase() const
 {
     return head_.phase;
 }
 
-template <typename T> void  Image<T>::setPhase(uint16_t phase)
+template <typename T> void  Image<T>::setPhase(uint32_t phase)
 {
     head_.phase = phase;
 }
 
-template <typename T> uint16_t Image<T>::getRepetition() const
+template <typename T> uint32_t Image<T>::getRepetition() const
 {
     return head_.repetition;
 }
 
-template <typename T> void  Image<T>::setRepetition(uint16_t repetition)
+template <typename T> void  Image<T>::setRepetition(uint32_t repetition)
 {
     head_.repetition = repetition;
 }
 
-template <typename T> uint16_t Image<T>::getSet() const
+template <typename T> uint32_t Image<T>::getSet() const
 {
     return head_.set;
 }
 
-template <typename T> void  Image<T>::setSet(uint16_t set)
+template <typename T> void  Image<T>::setSet(uint32_t set)
 {
     head_.set = set;
 }
 
-template <typename T> uint32_t Image<T>::getAcquisitionTimeStamp() const
+template <typename T> uint64_t Image<T>::getTimeStamp() const
 {
-    return head_.acquisition_time_stamp;
+    return head_.time_stamp;
 }
 
-template <typename T> void  Image<T>::setAcquisitionTimeStamp(uint32_t acquisition_time_stamp)
+template <typename T> void  Image<T>::setTimeStamp(uint64_t time_stamp)
 {
-    head_.acquisition_time_stamp = acquisition_time_stamp;
+    head_.time_stamp = time_stamp;
 }
 
 template <typename T> uint32_t Image<T>::getPhysiologyTimeStamp(unsigned int idx) const
@@ -970,32 +952,32 @@ template <typename T> void  Image<T>::setPhysiologyTimeStamp(unsigned int idx, u
     head_.physiology_time_stamp[idx] = value;
 }
 
-template <typename T> uint16_t Image<T>::getImageType() const
+template <typename T> uint32_t Image<T>::getImageType() const
 {
     return head_.image_type;
 }
 
-template <typename T> void Image<T>::setImageType(uint16_t image_type)
+template <typename T> void Image<T>::setImageType(uint32_t image_type)
 {
     head_.image_type = image_type;
 }
 
-template <typename T> uint16_t Image<T>::getImageIndex() const
+template <typename T> uint32_t Image<T>::getImageIndex() const
 {
     return head_.image_index;
 }
 
-template <typename T> void Image<T>::setImageIndex(uint16_t image_index)
+template <typename T> void Image<T>::setImageIndex(uint32_t image_index)
 {
     head_.image_index = image_index;
 }
 
-template <typename T> uint16_t Image<T>::getImageSeriesIndex() const
+template <typename T> uint32_t Image<T>::getImageSeriesIndex() const
 {
     return head_.image_series_index;
 }
 
-template <typename T> void Image<T>::setImageSeriesIndex(uint16_t image_series_index)
+template <typename T> void Image<T>::setImageSeriesIndex(uint32_t image_series_index)
 {
     head_.image_series_index = image_series_index;
 }
@@ -1104,7 +1086,7 @@ template <typename T> size_t Image<T>::getNumberOfElements() const {
             head_.matrix_size[2] * head_.channels;
 }
 
-template <typename T> T& Image<T>::at(uint16_t ix, uint16_t iy, uint16_t iz, uint16_t channel) {
+template <typename T> T& Image<T>::at(uint32_t ix, uint32_t iy, uint32_t iz, uint32_t channel) {
     // TODO: bounds checking
     size_t sx = getMatrixSizeX();
     size_t sy = getMatrixSizeY();
@@ -1126,7 +1108,7 @@ template <typename T> NDArray<T>::NDArray(const std::vector<size_t>& dims)
     resize(dims);
 }
 
-template <typename T> uint16_t NDArray<T>::getVersion() const {
+template <typename T> uint32_t NDArray<T>::getVersion() const {
     return version_;
 };
 
@@ -1134,7 +1116,7 @@ template <typename T> StorageType NDArray<T>::getStorageType() const {
     return static_cast<StorageType>(get_storage_type<T>());
 }
 
-template <typename T> uint16_t NDArray<T>::getNDim() const {
+template <typename T> uint32_t NDArray<T>::getNDim() const {
     return dims_.size();
 };
 
@@ -1174,14 +1156,14 @@ template <typename T> size_t NDArray<T>::getNumberOfElements() const {
     return size;
 }
 
-template <typename T> T& NDArray<T>::at(uint16_t x, uint16_t y, uint16_t z,
-        uint16_t w, uint16_t n, uint16_t m, uint16_t l)
+template <typename T> T& NDArray<T>::at(uint32_t x, uint32_t y, uint32_t z,
+        uint32_t w, uint32_t n, uint32_t m, uint32_t l)
 {
     // TODO: bounds checking
     size_t index = 0;
-    uint16_t indices[ISMRMRD_NDARRAY_MAXDIM] = {x,y,z,w,n,m,l};
+    uint32_t indices[ISMRMRD_NDARRAY_MAXDIM] = {x,y,z,w,n,m,l};
     size_t stride = 1;
-    for (uint16_t i = 0; i < dims_.size(); i++){
+    for (uint32_t i = 0; i < dims_.size(); i++){
         index += indices[i] * stride;
         stride *= dims_[i];
     }

@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE(dataset_append_acquisitions)
 
     acq.resize(readout, ncoils);
     acq.setFlag(ISMRMRD_ACQ_IS_NOISE_MEASUREMENT);
-    acq.setSampleTime_us(5.0);
+    acq.setDwellTime_ns(5000);
     // add fake noise data
     for (size_t i = 0; i < acq.getNumberOfDataElements(); i++) {
         acq.getData()[i] = i / acq.getNumberOfDataElements();
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE(dataset_append_acquisitions)
 
                 acq.getEncodingCounters().kspace_encode_step_1 = i;
                 acq.getEncodingCounters().repetition = r * acc_factor + a;
-                acq.setSampleTime_us(5.0);
+                acq.setDwellTime_ns(5000);
 
                 for (unsigned int c = 0; c < ncoils; ++c) {
                     for (unsigned int s = 0; s < readout; ++s) {
@@ -191,7 +191,7 @@ BOOST_AUTO_TEST_CASE(dataset_read_acquisitions)
     Acquisition acq_in;
     acq_in.resize(readout, ncoils);
     acq_in.setFlag(ISMRMRD_ACQ_IS_NOISE_MEASUREMENT);
-    acq_in.setSampleTime_us(5.0);
+    acq_in.setDwellTime_ns(5000);
     // add fake noise data
     for (size_t i = 0; i < acq_in.getNumberOfDataElements(); i++) {
         acq_in.getData()[i] = i / acq_in.getNumberOfDataElements();
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE(dataset_read_acquisitions)
 
             acq_in.getEncodingCounters().kspace_encode_step_1 = l;
             acq_in.getEncodingCounters().contrast = e;
-            acq_in.setSampleTime_us(5.0);
+            acq_in.setDwellTime_ns(5000);
 
             // stuff very fake data into the acquisition
             std::vector<std::complex<float> > data(ncoils*readout, std::complex<float>(l, e));
@@ -242,7 +242,7 @@ BOOST_AUTO_TEST_CASE(dataset_read_acquisitions)
 
             BOOST_CHECK_EQUAL(acq.getEncodingCounters().kspace_encode_step_1, l);
             BOOST_CHECK_EQUAL(acq.getEncodingCounters().contrast, e);
-            BOOST_CHECK_EQUAL(acq.getSampleTime_us(), 5.0);
+            BOOST_CHECK_EQUAL(acq.getDwellTime_ns(), 5000);
 
             std::vector<std::complex<float> > data(ncoils*readout, std::complex<float>(l, e));
 

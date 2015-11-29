@@ -89,11 +89,11 @@ void Dataset::createGroup(const std::string& path)
     }
 }
 
-std::string Dataset::constructDataPath(unsigned int stream_number)
+std::string Dataset::constructDataPath(unsigned int stream)
 {
     // construct group path for this acquisition
     std::stringstream sstr;
-    sstr << data_path_ << "/" << stream_number;
+    sstr << data_path_ << "/" << stream;
     return sstr.str();
 }
 
@@ -139,13 +139,13 @@ std::string Dataset::readHeader()
     return xml;
 }
 
-void Dataset::appendAcquisition(const Acquisition& acq, int stream_number)
+void Dataset::appendAcquisition(const Acquisition& acq, int stream)
 {
-    if (stream_number < 0) {
-        stream_number = acq.getStreamNumber();
+    if (stream < 0) {
+        stream = acq.getStream();
     }
 
-    std::string path = constructDataPath(stream_number);
+    std::string path = constructDataPath(stream);
 
     std::vector<hsize_t> dims(2, 1);
     DataType dtype = get_hdf5_data_type<AcquisitionHeader_with_data>();
@@ -172,7 +172,7 @@ void Dataset::appendAcquisition(const Acquisition& acq, int stream_number)
     dtype = get_hdf5_data_type<IndexEntry>();
     dims = std::vector<hsize_t>(2, 1);
     IndexEntry entry;
-    entry.stream = stream_number;
+    entry.stream = stream;
     entry.index = acquisition_number;
     appendToDataSet(index_path_, dtype, dims, &entry);
 }
@@ -271,20 +271,20 @@ void Dataset::readFromDataSet(const std::string& path, const DataType& dtype,
     dset.read(data, dtype, mspace, dspace, H5P_DEFAULT);
 }
 
-Acquisition Dataset::readAcquisition(unsigned long index, int stream_number)
+Acquisition Dataset::readAcquisition(unsigned long index, int stream)
 {
-    if (stream_number < 0) {
+    if (stream < 0) {
         IndexEntry entry;
         std::vector<hsize_t> entry_dims(2, 1);
         DataType dtype = get_hdf5_data_type<IndexEntry>();
 
         readFromDataSet(index_path_, dtype, entry_dims, index, &entry);
 
-        stream_number = entry.stream;
+        stream = entry.stream;
         index = entry.index;
     }
 
-    std::string path = constructDataPath(stream_number);
+    std::string path = constructDataPath(stream);
 
     AcquisitionHeader_with_data obj;
     DataType dtype = get_hdf5_data_type<AcquisitionHeader_with_data>();
@@ -311,13 +311,13 @@ Acquisition Dataset::readAcquisition(unsigned long index, int stream_number)
     return acq;
 }
 
-unsigned long Dataset::getNumberOfAcquisitions(int stream_number)
+unsigned long Dataset::getNumberOfAcquisitions(int stream)
 {
     std::string path;
-    if (stream_number < 0) {
+    if (stream < 0) {
         path = index_path_;
     } else {
-        path = constructDataPath(stream_number);
+        path = constructDataPath(stream);
     }
 
     if (!linkExists(path)) {

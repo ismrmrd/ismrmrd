@@ -99,7 +99,7 @@ int main(int argc, char** argv)
         acq.resize(readout, ncoils);
         acq.setFlag(ISMRMRD_ACQ_IS_NOISE_MEASUREMENT);
         add_noise(acq,noise_level);
-        acq.setSampleTime_us(5.0);
+        acq.setDwellTime_ns(5000);
         d.appendAcquisition(acq);
     }
 
@@ -130,7 +130,7 @@ int main(int argc, char** argv)
                 }
                 acq.getEncodingCounters().kspace_encode_step_1 = i;
                 acq.getEncodingCounters().repetition = r*acc_factor + a;
-                acq.setSampleTime_us(5.0);
+                acq.setDwellTime_ns(5000);
                 for (size_t c = 0; c < ncoils; c++) {
                     for (size_t s = 0; s < readout; s++) {
                         acq.at(s, c) = cm.at(s, i, c);
