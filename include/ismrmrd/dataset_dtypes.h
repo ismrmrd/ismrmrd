@@ -13,11 +13,17 @@
 namespace ISMRMRD {
 
 
-struct AcquisitionHeader_with_data
+template <typename T> struct AcquisitionHeader_with_data
 {
     AcquisitionHeader head;
     hvl_t traj;
     hvl_t data;
+};
+
+template <typename T> struct ImageHeader_with_data
+{
+	ImageHeader head;
+	hvl_t data;
 };
 
 struct IndexEntry
@@ -124,17 +130,49 @@ template <> DataType get_hdf5_data_type<AcquisitionHeader>()
     return dtype;
 }
 
-template <> DataType get_hdf5_data_type<AcquisitionHeader_with_data>()
+template <> DataType get_hdf5_data_type<AcquisitionHeader_with_data<float> >()
 {
-    CompType dtype(sizeof(AcquisitionHeader_with_data));
+    CompType dtype(sizeof(AcquisitionHeader_with_data<float>));
 
     DataType head_type = get_hdf5_data_type<AcquisitionHeader>();
 
     DataType realv_type = DataType(H5Tvlen_create(PredType::NATIVE_FLOAT.getId()));
 
-    dtype.insertMember("head", HOFFSET(AcquisitionHeader_with_data, head), head_type);
-    dtype.insertMember("traj", HOFFSET(AcquisitionHeader_with_data, traj), realv_type);
-    dtype.insertMember("data", HOFFSET(AcquisitionHeader_with_data, data), realv_type);
+    dtype.insertMember("head", HOFFSET(AcquisitionHeader_with_data<float>, head), head_type);
+    dtype.insertMember("traj", HOFFSET(AcquisitionHeader_with_data<float>, traj), realv_type);
+    dtype.insertMember("data", HOFFSET(AcquisitionHeader_with_data<float>, data), realv_type);
+
+    return dtype;
+}
+
+template <> DataType get_hdf5_data_type<AcquisitionHeader_with_data<int16_t> >()
+{
+    CompType dtype(sizeof(AcquisitionHeader_with_data<int16_t>));
+
+    DataType head_type = get_hdf5_data_type<AcquisitionHeader>();
+
+    DataType realv_float_type = DataType(H5Tvlen_create(PredType::NATIVE_FLOAT.getId()));
+    DataType realv_int_type = DataType(H5Tvlen_create(PredType::NATIVE_INT16.getId()));
+
+    dtype.insertMember("head", HOFFSET(AcquisitionHeader_with_data<int16_t>, head), head_type);
+    dtype.insertMember("traj", HOFFSET(AcquisitionHeader_with_data<int16_t>, traj), realv_float_type);
+    dtype.insertMember("data", HOFFSET(AcquisitionHeader_with_data<int16_t>, data), realv_int_type);
+
+    return dtype;
+}
+
+template <> DataType get_hdf5_data_type<AcquisitionHeader_with_data<int32_t> >()
+{
+    CompType dtype(sizeof(AcquisitionHeader_with_data<int32_t>));
+
+    DataType head_type = get_hdf5_data_type<AcquisitionHeader>();
+
+    DataType realv_float_type = DataType(H5Tvlen_create(PredType::NATIVE_FLOAT.getId()));
+    DataType realv_int_type = DataType(H5Tvlen_create(PredType::NATIVE_INT32.getId()));
+
+    dtype.insertMember("head", HOFFSET(AcquisitionHeader_with_data<int32_t>, head), head_type);
+    dtype.insertMember("traj", HOFFSET(AcquisitionHeader_with_data<int32_t>, traj), realv_float_type);
+    dtype.insertMember("data", HOFFSET(AcquisitionHeader_with_data<int32_t>, data), realv_int_type);
 
     return dtype;
 }

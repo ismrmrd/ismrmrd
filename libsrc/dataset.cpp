@@ -148,9 +148,9 @@ void Dataset::appendAcquisition(const Acquisition& acq, int stream)
     std::string path = constructDataPath(stream);
 
     std::vector<hsize_t> dims(2, 1);
-    DataType dtype = get_hdf5_data_type<AcquisitionHeader_with_data>();
+    DataType dtype = get_hdf5_data_type<AcquisitionHeader_with_data<float> >();
 
-    AcquisitionHeader_with_data obj;
+    AcquisitionHeader_with_data<float> obj;
     obj.head = acq.getHead();
     obj.traj.len = acq.getTrajectoryDimensions() * acq.getNumberOfSamples();
     obj.traj.p = const_cast<float*>(&acq.getTraj()[0]);
@@ -286,8 +286,8 @@ Acquisition Dataset::readAcquisition(unsigned long index, int stream)
 
     std::string path = constructDataPath(stream);
 
-    AcquisitionHeader_with_data obj;
-    DataType dtype = get_hdf5_data_type<AcquisitionHeader_with_data>();
+    AcquisitionHeader_with_data<float> obj;
+    DataType dtype = get_hdf5_data_type<AcquisitionHeader_with_data<float> >();
     std::vector<hsize_t> entry_dims(2, 1);
     readFromDataSet(path, dtype, entry_dims, index, &obj);
 
