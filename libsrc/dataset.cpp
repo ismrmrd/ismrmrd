@@ -139,7 +139,7 @@ std::string Dataset::readHeader()
     return xml;
 }
 
-void Dataset::appendAcquisition(const Acquisition& acq, int stream)
+template <typename T> void Dataset::appendAcquisition(const Acquisition<T>& acq, int stream)
 {
     if (stream < 0) {
         stream = acq.getStream();
@@ -148,21 +148,21 @@ void Dataset::appendAcquisition(const Acquisition& acq, int stream)
     std::string path = constructDataPath(stream);
 
     std::vector<hsize_t> dims(2, 1);
-    DataType dtype = get_hdf5_data_type<AcquisitionHeader_with_data<float> >();
+    DataType dtype = get_hdf5_data_type<AcquisitionHeader_with_data<T> >();
 
-    AcquisitionHeader_with_data<float> obj;
+    AcquisitionHeader_with_data<T> obj;
     obj.head = acq.getHead();
     obj.traj.len = acq.getTrajectoryDimensions() * acq.getNumberOfSamples();
     obj.traj.p = const_cast<float*>(&acq.getTraj()[0]);
     obj.data.len = acq.getActiveChannels() * acq.getNumberOfSamples() * 2;
 
-    std::vector<float> fdata;
-    std::vector<std::complex<float> > data = acq.getData();
-    for (std::vector<std::complex<float> >::const_iterator it = data.begin(); it != data.end(); ++it) {
+    std::vector<T> fdata;
+    std::vector<std::complex<T> > data = acq.getData();
+    for (typename std::vector<std::complex<T> >::const_iterator it = data.begin(); it != data.end(); ++it) {
         fdata.push_back(it->real());
         fdata.push_back(it->imag());
     }
-    obj.data.p = const_cast<float*>(&fdata[0]);
+    obj.data.p = const_cast<T*>(&fdata[0]);
 
     // add the acquisition to its correct stream dataset
     // note: subtract 1 to account for zero-indexing
@@ -176,6 +176,12 @@ void Dataset::appendAcquisition(const Acquisition& acq, int stream)
     entry.index = acquisition_number;
     appendToDataSet(index_path_, dtype, dims, &entry);
 }
+
+//Template instanciations
+template Acquisition<int16_t> Dataset::readAcquisition<int16_t>(unsigned long, int);
+template Acquisition<int32_t> Dataset::readAcquisition<int32_t>(unsigned long, int);
+template Acquisition<float> Dataset::readAcquisition<float>(unsigned long, int);
+    
 
 size_t Dataset::appendToDataSet(const std::string& path, const DataType& dtype,
         const std::vector<hsize_t>& dims, void* data)
@@ -271,7 +277,7 @@ void Dataset::readFromDataSet(const std::string& path, const DataType& dtype,
     dset.read(data, dtype, mspace, dspace, H5P_DEFAULT);
 }
 
-Acquisition Dataset::readAcquisition(unsigned long index, int stream)
+template <typename T> Acquisition<T> Dataset::readAcquisition(unsigned long index, int stream)
 {
     if (stream < 0) {
         IndexEntry entry;
@@ -286,12 +292,12 @@ Acquisition Dataset::readAcquisition(unsigned long index, int stream)
 
     std::string path = constructDataPath(stream);
 
-    AcquisitionHeader_with_data<float> obj;
-    DataType dtype = get_hdf5_data_type<AcquisitionHeader_with_data<float> >();
+    AcquisitionHeader_with_data<T> obj;
+    DataType dtype = get_hdf5_data_type<AcquisitionHeader_with_data<T> >();
     std::vector<hsize_t> entry_dims(2, 1);
     readFromDataSet(path, dtype, entry_dims, index, &obj);
 
-    Acquisition acq;
+    Acquisition<T> acq;
     acq.setHead(obj.head);
 
     if (obj.data.len != acq.getData().size() * 2) {
@@ -302,7 +308,7 @@ Acquisition Dataset::readAcquisition(unsigned long index, int stream)
     }
 
     // TODO: fix this ASAP:
-    memcpy(const_cast<std::complex<float>*>(&acq.getData()[0]), obj.data.p, sizeof(float) * obj.data.len);
+    memcpy(const_cast<std::complex<T>*>(&acq.getData()[0]), obj.data.p, sizeof(T) * obj.data.len);
     memcpy(const_cast<float*>(&acq.getTraj()[0]), obj.traj.p, sizeof(float) * obj.traj.len);
 
     free(obj.data.p);
@@ -311,6 +317,10 @@ Acquisition Dataset::readAcquisition(unsigned long index, int stream)
     return acq;
 }
 
+template void Dataset::appendAcquisition(const Acquisition<int16_t>&, int);
+template void Dataset::appendAcquisition(const Acquisition<int32_t>&, int);
+template void Dataset::appendAcquisition(const Acquisition<float>&, int);
+    
 unsigned long Dataset::getNumberOfAcquisitions(int stream)
 {
     std::string path;

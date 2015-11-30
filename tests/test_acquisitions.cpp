@@ -10,7 +10,7 @@ static void check_header(const AcquisitionHeader& chead);
 
 BOOST_AUTO_TEST_CASE(acquisition_create)
 {
-    Acquisition acq;
+    Acquisition<float> acq;
     AcquisitionHeader head = acq.getHead();
 
     // Check that header is of expected size
@@ -30,9 +30,9 @@ BOOST_AUTO_TEST_CASE(acquisition_create)
 
 BOOST_AUTO_TEST_CASE(acquisition_copy)
 {
-    Acquisition acq1;
+    Acquisition<float> acq1;
     check_header(acq1.getHead());
-    Acquisition acq2(acq1);
+    Acquisition<float> acq2(acq1);
     check_header(acq2.getHead());
 
     BOOST_CHECK(acq1.getHead() == acq2.getHead());
@@ -41,14 +41,14 @@ BOOST_AUTO_TEST_CASE(acquisition_copy)
 
 BOOST_AUTO_TEST_CASE(acquisition_getters_setters)
 {
-    Acquisition acq;
+    Acquisition<float> acq;
 
     // TODO: implement
 }
 
 BOOST_AUTO_TEST_CASE(acquisition_resize)
 {
-    Acquisition acq;
+    Acquisition<float> acq;
     check_header(acq.getHead());
     BOOST_CHECK_EQUAL(acq.getData().size(), 0);
 

@@ -28,8 +28,8 @@ public:
     std::string readHeader();
 
     // Acquisitions
-    void appendAcquisition(const Acquisition& acq, int stream_number=-1);
-    Acquisition readAcquisition(unsigned long index, int stream_number=-1);
+    template <typename T> void appendAcquisition(const Acquisition<T>& acq, int stream_number=-1);
+    template <typename T> Acquisition<T> readAcquisition(unsigned long index, int stream_number=-1);
     unsigned long getNumberOfAcquisitions(int stream_number=-1);
 
     // Images

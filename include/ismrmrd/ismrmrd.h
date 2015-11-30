@@ -253,7 +253,7 @@ public:
 };
 
 /// MR Acquisition type
-class EXPORTISMRMRD Acquisition {
+template <typename T> class EXPORTISMRMRD Acquisition {
 public:
     Acquisition(uint32_t num_samples = 0, uint32_t active_channels = 1, uint32_t trajectory_dimensions = 0);
 
@@ -364,11 +364,11 @@ public:
     const AcquisitionHeader &getHead() const;
     void setHead(const AcquisitionHeader &other);
 
-    std::vector<std::complex<float> > &getData();
-    const std::vector<std::complex<float> > &getData() const;
-    void setData(const std::vector<std::complex<float> > &data);
+    std::vector<std::complex<T> > &getData();
+    const std::vector<std::complex<T> > &getData() const;
+    void setData(const std::vector<std::complex<T> > &data);
     /** Returns a reference to a data point */
-    std::complex<float> &at(uint32_t sample, uint32_t channel);
+    std::complex<T> &at(uint32_t sample, uint32_t channel);
 
     const std::vector<float> &getTraj() const;
     void setTraj(const std::vector<float> &traj);
@@ -398,7 +398,7 @@ protected:
 
     AcquisitionHeader head_;
     std::vector<float> traj_;
-    std::vector<std::complex<float> > data_;
+    std::vector<std::complex< T > > data_;
 };
 
 /// MR Image type

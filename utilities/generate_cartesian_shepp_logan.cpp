@@ -91,7 +91,7 @@ int main(int argc, char** argv)
     //Let's append the data to the file
     //Create if needed
     Dataset d(outfile.c_str(), dataset.c_str());
-    Acquisition acq;
+    Acquisition<float> acq;
     size_t readout = matrix_size*ros;
 
     if (noise_calibration)

@@ -76,7 +76,7 @@ int main(int argc, char** argv)
     ISMRMRD::Dataset d(argv[1],"dataset", false, true); // open in read-only mode
     uint32_t number_of_acquisitions = d.getNumberOfAcquisitions(0);
     for (uint32_t i = 0; i < number_of_acquisitions; i++) {
-        ISMRMRD::Acquisition acq = d.readAcquisition(0, i);
+        ISMRMRD::Acquisition<float> acq = d.readAcquisition<float>(0, i);
         //We'll just throw the data away here.
     }
   }

@@ -100,7 +100,7 @@ bool operator==(const ImageHeader& h1, const ImageHeader& h2)
     return memcmp(&h1, &h2, sizeof(h1)) == 0;
 }
 
-Acquisition::Acquisition(uint32_t num_samples, uint32_t active_channels, uint32_t trajectory_dimensions)
+template <typename T> Acquisition<T>::Acquisition(uint32_t num_samples, uint32_t active_channels, uint32_t trajectory_dimensions)
 {
     memset(&head_, 0, sizeof(head_));
     head_.version = ISMRMRD_VERSION_MAJOR;
@@ -109,344 +109,344 @@ Acquisition::Acquisition(uint32_t num_samples, uint32_t active_channels, uint32_
 }
 
 // Accessors and mutators
-uint32_t Acquisition::getVersion() const {
+template <typename T> uint32_t Acquisition<T>::getVersion() const {
     return head_.version;
 }
 
-StorageType Acquisition::getStorageType() const {
+template <typename T> StorageType Acquisition<T>::getStorageType() const {
     return static_cast<StorageType>(head_.storage_type);
 }
 
-uint32_t Acquisition::getStream() const {
+template <typename T> uint32_t Acquisition<T>::getStream() const {
     return head_.stream;
 }
 
-void Acquisition::setStream(uint32_t stream_number) {
+template <typename T> void Acquisition<T>::setStream(uint32_t stream_number) {
     head_.stream = stream_number;
 }
 
-uint32_t Acquisition::getScanCounter() const {
+template <typename T> uint32_t Acquisition<T>::getScanCounter() const {
     return head_.scan_counter;
 }
 
-void Acquisition::setScanCounter(uint32_t counter) {
+template <typename T> void Acquisition<T>::setScanCounter(uint32_t counter) {
     head_.scan_counter = counter;
 }
 
-uint64_t Acquisition::getTimeStamp() const {
+template <typename T> uint64_t Acquisition<T>::getTimeStamp() const {
     return head_.time_stamp;
 }
 
-void Acquisition::setTimeStamp(uint64_t ts) {
+template <typename T> void Acquisition<T>::setTimeStamp(uint64_t ts) {
     head_.time_stamp = ts;
 }
 
-uint32_t Acquisition::getPhysiologyTimeStamp(int idx) {
+template <typename T> uint32_t Acquisition<T>::getPhysiologyTimeStamp(int idx) {
     // TODO: bounds checking
     return head_.physiology_time_stamp[idx];
 }
 
-void Acquisition::setPhysiologyTimeStamp(int idx, uint32_t ts) {
+template <typename T> void Acquisition<T>::setPhysiologyTimeStamp(int idx, uint32_t ts) {
     // TODO: bounds checking
     head_.physiology_time_stamp[idx] = ts;
 }
 
-uint32_t Acquisition::getNumberOfSamples() const {
+template <typename T> uint32_t Acquisition<T>::getNumberOfSamples() const {
     return head_.number_of_samples;
 }
 
-void Acquisition::setNumberOfSamples(uint32_t ns) {
+template <typename T> void Acquisition<T>::setNumberOfSamples(uint32_t ns) {
     head_.number_of_samples = ns;
     this->makeConsistent();
 }
 
-uint32_t Acquisition::getAvailableChannels() const {
+template <typename T> uint32_t Acquisition<T>::getAvailableChannels() const {
     return head_.available_channels;
 }
 
-void Acquisition::setAvailableChannels(uint32_t ac) {
+template <typename T> void Acquisition<T>::setAvailableChannels(uint32_t ac) {
     // TODO: compare against head.active_channels or makeConsistent?
     head_.available_channels = ac;
 }
 
-uint32_t Acquisition::getActiveChannels() const {
+template <typename T> uint32_t Acquisition<T>::getActiveChannels() const {
     return head_.active_channels;
 }
 
-void Acquisition::setActiveChannels(uint32_t ac) {
+template <typename T> void Acquisition<T>::setActiveChannels(uint32_t ac) {
     head_.active_channels = ac;
     this->makeConsistent();
 }
 
-uint64_t Acquisition::getChannelMask(int idx) {
+template <typename T> uint64_t Acquisition<T>::getChannelMask(int idx) {
     // TODO: bounds checking
     return head_.channel_mask[idx];
 }
 
-void Acquisition::setChannelMask(int idx, uint64_t mask) {
+template <typename T> void Acquisition<T>::setChannelMask(int idx, uint64_t mask) {
     // TODO: bounds checking
     head_.channel_mask[idx] = mask;
 }
 
-uint32_t Acquisition::getDiscardPre() const {
+template <typename T> uint32_t Acquisition<T>::getDiscardPre() const {
     return head_.discard_pre;
 }
 
-void Acquisition::setDiscardPre(uint32_t dp) {
+template <typename T> void Acquisition<T>::setDiscardPre(uint32_t dp) {
     head_.discard_pre = dp;
 }
 
-uint32_t Acquisition::getDiscardPost() const {
+template <typename T> uint32_t Acquisition<T>::getDiscardPost() const {
     return head_.discard_post;
 }
 
-void Acquisition::setDiscardPost(uint32_t dp) {
+template <typename T> void Acquisition<T>::setDiscardPost(uint32_t dp) {
     head_.discard_post = dp;
 }
 
-uint32_t Acquisition::getCenterSample() const {
+template <typename T> uint32_t Acquisition<T>::getCenterSample() const {
     return head_.center_sample;
 }
 
-void Acquisition::setCenterSample(uint32_t cs) {
+template <typename T> void Acquisition<T>::setCenterSample(uint32_t cs) {
     head_.center_sample = cs;
 }
 
-uint32_t Acquisition::getEncodingSpaceRef() const {
+template <typename T> uint32_t Acquisition<T>::getEncodingSpaceRef() const {
     return head_.encoding_space_ref;
 }
 
-void Acquisition::setEncodingSpaceRef(uint32_t esr) {
+template <typename T> void Acquisition<T>::setEncodingSpaceRef(uint32_t esr) {
     head_.encoding_space_ref = esr;
 }
 
-uint32_t Acquisition::getTrajectoryDimensions() const {
+template <typename T> uint32_t Acquisition<T>::getTrajectoryDimensions() const {
     return head_.trajectory_dimensions;
 }
 
-void Acquisition::setTrajectoryDimensions(uint32_t td) {
+template <typename T> void Acquisition<T>::setTrajectoryDimensions(uint32_t td) {
     head_.trajectory_dimensions = td;
 }
 
-uint32_t Acquisition::getDwellTime_ns() const {
+template <typename T> uint32_t Acquisition<T>::getDwellTime_ns() const {
     return head_.dwell_time_ns;
 }
 
-void Acquisition::setDwellTime_ns(uint32_t time){
+template <typename T> void Acquisition<T>::setDwellTime_ns(uint32_t time){
     head_.dwell_time_ns = time;
 }
 
-float Acquisition::getPositionX() const {
+template <typename T> float Acquisition<T>::getPositionX() const {
     return head_.position[0];
 }
 
-float Acquisition::getPositionY() const {
+template <typename T> float Acquisition<T>::getPositionY() const {
     return head_.position[1];
 }
 
-float Acquisition::getPositionZ() const {
+template <typename T> float Acquisition<T>::getPositionZ() const {
     return head_.position[2];
 }
 
-void Acquisition::setPosition(float x, float y, float z) {
+template <typename T> void Acquisition<T>::setPosition(float x, float y, float z) {
     setPositionX(x);
     setPositionY(y);
     setPositionZ(z);
 }
 
-void Acquisition::setPositionX(float x) {
+template <typename T> void Acquisition<T>::setPositionX(float x) {
     head_.position[0] = x;
 }
 
-void Acquisition::setPositionY(float y) {
+template <typename T> void Acquisition<T>::setPositionY(float y) {
     head_.position[1] = y;
 }
 
-void Acquisition::setPositionZ(float z) {
+template <typename T> void Acquisition<T>::setPositionZ(float z) {
     head_.position[2] = z;
 }
 
-float Acquisition::getReadDirectionX() const {
+template <typename T> float Acquisition<T>::getReadDirectionX() const {
     return head_.read_dir[0];
 }
 
-float Acquisition::getReadDirectionY() const {
+template <typename T> float Acquisition<T>::getReadDirectionY() const {
     return head_.read_dir[1];
 }
 
-float Acquisition::getReadDirectionZ() const {
+template <typename T> float Acquisition<T>::getReadDirectionZ() const {
     return head_.read_dir[2];
 }
 
-void Acquisition::setReadDirection(float x, float y, float z) {
+template <typename T> void Acquisition<T>::setReadDirection(float x, float y, float z) {
     setReadDirectionX(x);
     setReadDirectionY(y);
     setReadDirectionZ(z);
 }
 
-void Acquisition::setReadDirectionX(float x) {
+template <typename T> void Acquisition<T>::setReadDirectionX(float x) {
     head_.read_dir[0] = x;
 }
 
-void Acquisition::setReadDirectionY(float y) {
+template <typename T> void Acquisition<T>::setReadDirectionY(float y) {
     head_.read_dir[1] = y;
 }
 
-void Acquisition::setReadDirectionZ(float z) {
+template <typename T> void Acquisition<T>::setReadDirectionZ(float z) {
     head_.read_dir[2] = z;
 }
 
-float Acquisition::getPhaseDirectionX() const {
+template <typename T> float Acquisition<T>::getPhaseDirectionX() const {
     return head_.phase_dir[0];
 }
 
-float Acquisition::getPhaseDirectionY() const {
+template <typename T> float Acquisition<T>::getPhaseDirectionY() const {
     return head_.phase_dir[1];
 }
 
-float Acquisition::getPhaseDirectionZ() const {
+template <typename T> float Acquisition<T>::getPhaseDirectionZ() const {
     return head_.phase_dir[2];
 }
 
-void Acquisition::setPhaseDirection(float x, float y, float z) {
+template <typename T> void Acquisition<T>::setPhaseDirection(float x, float y, float z) {
     setPhaseDirectionX(x);
     setPhaseDirectionY(y);
     setPhaseDirectionZ(z);
 }
 
-void Acquisition::setPhaseDirectionX(float x) {
+template <typename T> void Acquisition<T>::setPhaseDirectionX(float x) {
     head_.phase_dir[0] = x;
 }
 
-void Acquisition::setPhaseDirectionY(float y) {
+template <typename T> void Acquisition<T>::setPhaseDirectionY(float y) {
     head_.phase_dir[1] = y;
 }
 
-void Acquisition::setPhaseDirectionZ(float z) {
+template <typename T> void Acquisition<T>::setPhaseDirectionZ(float z) {
     head_.phase_dir[2] = z;
 }
 
-float Acquisition::getSliceDirectionX() const {
+template <typename T> float Acquisition<T>::getSliceDirectionX() const {
     return head_.slice_dir[0];
 }
 
-float Acquisition::getSliceDirectionY() const {
+template <typename T> float Acquisition<T>::getSliceDirectionY() const {
     return head_.slice_dir[1];
 }
 
-float Acquisition::getSliceDirectionZ() const {
+template <typename T> float Acquisition<T>::getSliceDirectionZ() const {
     return head_.slice_dir[2];
 }
 
-void Acquisition::setSliceDirection(float x, float y, float z) {
+template <typename T> void Acquisition<T>::setSliceDirection(float x, float y, float z) {
     setSliceDirectionX(x);
     setSliceDirectionY(y);
     setSliceDirectionZ(z);
 }
 
-void Acquisition::setSliceDirectionX(float x) {
+template <typename T> void Acquisition<T>::setSliceDirectionX(float x) {
     head_.slice_dir[0] = x;
 }
 
-void Acquisition::setSliceDirectionY(float y) {
+template <typename T> void Acquisition<T>::setSliceDirectionY(float y) {
     head_.slice_dir[1] = y;
 }
 
-void Acquisition::setSliceDirectionZ(float z) {
+template <typename T> void Acquisition<T>::setSliceDirectionZ(float z) {
     head_.slice_dir[2] = z;
 }
 
-float Acquisition::getPatientTablePositionX() const {
+template <typename T> float Acquisition<T>::getPatientTablePositionX() const {
     return head_.patient_table_position[0];
 }
 
-float Acquisition::getPatientTablePositionY() const {
+template <typename T> float Acquisition<T>::getPatientTablePositionY() const {
     return head_.patient_table_position[1];
 }
 
-float Acquisition::getPatientTablePositionZ() const {
+template <typename T> float Acquisition<T>::getPatientTablePositionZ() const {
     return head_.patient_table_position[2];
 }
 
-void Acquisition::setPatientTablePosition(float x, float y, float z) {
+template <typename T> void Acquisition<T>::setPatientTablePosition(float x, float y, float z) {
     setPatientTablePositionX(x);
     setPatientTablePositionY(y);
     setPatientTablePositionZ(z);
 }
 
-void Acquisition::setPatientTablePositionX(float x) {
+template <typename T> void Acquisition<T>::setPatientTablePositionX(float x) {
     head_.patient_table_position[0] = x;
 }
 
-void Acquisition::setPatientTablePositionY(float y) {
+template <typename T> void Acquisition<T>::setPatientTablePositionY(float y) {
     head_.patient_table_position[1] = y;
 }
 
-void Acquisition::setPatientTablePositionZ(float z) {
+template <typename T> void Acquisition<T>::setPatientTablePositionZ(float z) {
     head_.patient_table_position[2] = z;
 }
 
-EncodingCounters& Acquisition::getEncodingCounters() {
+template <typename T> EncodingCounters& Acquisition<T>::getEncodingCounters() {
     return head_.idx;
 }
 
-const EncodingCounters& Acquisition::getEncodingCounters() const {
+template <typename T> const EncodingCounters& Acquisition<T>::getEncodingCounters() const {
     return head_.idx;
 }
 
-void Acquisition::setEncodingCounters(const EncodingCounters& idx) {
+template <typename T> void Acquisition<T>::setEncodingCounters(const EncodingCounters& idx) {
     head_.idx = idx;
 }
 
-int32_t Acquisition::getUserInt(int idx) const {
+template <typename T> int32_t Acquisition<T>::getUserInt(int idx) const {
     // TODO: bounds checking
     return head_.user_int[idx];
 }
 
-void Acquisition::setUserInt(int idx, int32_t val) {
+template <typename T> void Acquisition<T>::setUserInt(int idx, int32_t val) {
     // TODO: bounds checking
     head_.user_int[idx] = val;
 }
 
-float Acquisition::getUserFloat(int idx) const {
+template <typename T> float Acquisition<T>::getUserFloat(int idx) const {
     // TODO: bounds checking
     return head_.user_float[idx];
 }
 
-void Acquisition::setUserFloat(int idx, float val) {
+template <typename T> void Acquisition<T>::setUserFloat(int idx, float val) {
     // TODO: bounds checking
     head_.user_float[idx] = val;
 }
 
-size_t Acquisition::getNumberOfDataElements() const {
+template <typename T> size_t Acquisition<T>::getNumberOfDataElements() const {
     return head_.number_of_samples * head_.active_channels;
 }
 
-size_t Acquisition::getNumberOfTrajElements() const {
+template <typename T> size_t Acquisition<T>::getNumberOfTrajElements() const {
     return head_.number_of_samples * head_.trajectory_dimensions;
 }
 
-AcquisitionHeader& Acquisition::getHead() {
+template <typename T> AcquisitionHeader& Acquisition<T>::getHead() {
     return head_;
 }
 
-const AcquisitionHeader & Acquisition::getHead() const {
+template <typename T> const AcquisitionHeader & Acquisition<T>::getHead() const {
     return head_;
 }
 
-void Acquisition::setHead(const AcquisitionHeader &other) {
+template <typename T> void Acquisition<T>::setHead(const AcquisitionHeader &other) {
     this->head_ = other;
     this->makeConsistent();
 }
 
-void Acquisition::resize(uint32_t num_samples, uint32_t active_channels, uint32_t trajectory_dimensions){
+template <typename T> void Acquisition<T>::resize(uint32_t num_samples, uint32_t active_channels, uint32_t trajectory_dimensions){
     head_.number_of_samples = num_samples;
     head_.active_channels = active_channels;
     head_.trajectory_dimensions = trajectory_dimensions;
     this->makeConsistent();
 }
 
-void Acquisition::makeConsistent() {
+template <typename T> void Acquisition<T>::makeConsistent() {
     if (head_.available_channels < head_.active_channels) {
         head_.available_channels = head_.active_channels;
     }
@@ -454,22 +454,22 @@ void Acquisition::makeConsistent() {
     data_.resize(head_.number_of_samples * head_.active_channels);
 }
 
-std::vector<std::complex<float> >& Acquisition::getData() {
+template <typename T> std::vector<std::complex<T> >& Acquisition<T>::getData() {
     return data_;
 }
 
-const std::vector<std::complex<float> >& Acquisition::getData() const {
+template <typename T> const std::vector<std::complex<T> >& Acquisition<T>::getData() const {
     return data_;
 }
 
-void Acquisition::setData(const std::vector<std::complex<float> >& data) {
+template <typename T> void Acquisition<T>::setData(const std::vector<std::complex<T> >& data) {
     if (data.size() != getNumberOfDataElements()) {
         throw std::runtime_error("data size does not match size specified by header");
     }
     this->data_ = data;
 }
 
-std::complex<float>& Acquisition::at(uint32_t sample, uint32_t channel){
+template <typename T> std::complex<T>& Acquisition<T>::at(uint32_t sample, uint32_t channel){
     if (sample >= getNumberOfSamples()) {
         throw std::runtime_error("sample greater than number of samples");
     }
@@ -479,15 +479,15 @@ std::complex<float>& Acquisition::at(uint32_t sample, uint32_t channel){
     return data_[sample + channel * getNumberOfSamples()];
 }
 
-const std::vector<float>& Acquisition::getTraj() const {
+template <typename T> const std::vector<float>& Acquisition<T>::getTraj() const {
     return traj_;
 }
 
-void Acquisition::setTraj(const std::vector<float>& traj) {
+template <typename T> void Acquisition<T>::setTraj(const std::vector<float>& traj) {
     this->traj_ = traj;
 }
 
-float& Acquisition::trajAt(uint32_t dimension, uint32_t sample){
+template <typename T> float& Acquisition<T>::trajAt(uint32_t dimension, uint32_t sample){
     if (sample >= getNumberOfSamples()) {
         throw std::runtime_error("sample greater than number of samples");
     }
@@ -497,52 +497,52 @@ float& Acquisition::trajAt(uint32_t dimension, uint32_t sample){
     return traj_[sample * head_.trajectory_dimensions + dimension];
 }
 
-uint64_t Acquisition::getFlags() const {
+template <typename T> uint64_t Acquisition<T>::getFlags() const {
     return head_.flags;
 }
 
-void Acquisition::setFlags(uint64_t val) {
+template <typename T> void Acquisition<T>::setFlags(uint64_t val) {
     head_.flags = val;
 }
 
-bool Acquisition::isFlagSet(uint64_t val) const {
+template <typename T> bool Acquisition<T>::isFlagSet(uint64_t val) const {
     uint64_t bitmask = 1UL << (val - 1UL);
     return (head_.flags & bitmask) > 0;
 }
 
-void Acquisition::setFlag(uint64_t val) {
+template <typename T> void Acquisition<T>::setFlag(uint64_t val) {
     uint64_t bitmask = 1UL << (val - 1UL);
     head_.flags |= bitmask;
 }
 
-void Acquisition::clearFlag(uint64_t val) {
+template <typename T> void Acquisition<T>::clearFlag(uint64_t val) {
     uint64_t bitmask = 1UL << (val - 1UL);
     head_.flags &= ~bitmask;
 }
 
-void Acquisition::clearAllFlags() {
+template <typename T> void Acquisition<T>::clearAllFlags() {
     head_.flags = 0;
 }
 
-bool Acquisition::isChannelActive(uint32_t chan) const {
+template <typename T> bool Acquisition<T>::isChannelActive(uint32_t chan) const {
     uint64_t bitmask = 1UL << (chan % 64UL);
     size_t offset = chan / 64UL;
     return (head_.channel_mask[offset] & bitmask) > 0;
 }
 
-void Acquisition::setChannelActive(uint32_t chan) {
+template <typename T> void Acquisition<T>::setChannelActive(uint32_t chan) {
     uint64_t bitmask = 1UL << (chan % 64UL);
     size_t offset = chan / 64UL;
     head_.channel_mask[offset] |= bitmask;
 }
 
-void Acquisition::setChannelNotActive(uint32_t chan) {
+template <typename T> void Acquisition<T>::setChannelNotActive(uint32_t chan) {
     uint64_t bitmask = 1UL << (chan % 64UL);
     size_t offset = chan / 64UL;
     head_.channel_mask[offset] &= ~bitmask;
 }
 
-void Acquisition::setAllChannelsNotActive() {
+template <typename T> void Acquisition<T>::setAllChannelsNotActive() {
     for (size_t offset = 0; offset<ISMRMRD_CHANNEL_MASKS; offset++) {
         head_.channel_mask[offset] = 0;
     }
@@ -1170,6 +1170,11 @@ template <typename T> T& NDArray<T>::at(uint32_t x, uint32_t y, uint32_t z,
 
     return data_[index];
 }
+
+// Acquisitions
+template EXPORTISMRMRD class Acquisition<int16_t>;
+template EXPORTISMRMRD class Acquisition<int32_t>;
+template EXPORTISMRMRD class Acquisition<float>;
 
 // Images
 template EXPORTISMRMRD class Image<uint16_t>;

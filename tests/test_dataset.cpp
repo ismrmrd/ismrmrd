@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(dataset_append_acquisitions)
     Dataset dataset(g_filename, g_groupname);
     BOOST_CHECK_NO_THROW(dataset.writeHeader(g_xml_header));
 
-    Acquisition acq;
+    Acquisition<float> acq;
 
     unsigned int matrix_size = 256;
     unsigned int ncoils = 8;
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE(dataset_append_acquisitions)
         acq.getData()[i] = i / acq.getNumberOfDataElements();
     }
     unsigned int noise_stream = repetitions;
-    BOOST_CHECK_NO_THROW(dataset.appendAcquisition(acq, noise_stream));
+    BOOST_CHECK_NO_THROW(dataset.appendAcquisition<float>(acq, noise_stream));
     BOOST_CHECK_EQUAL(dataset.getNumberOfAcquisitions(noise_stream), 1);
 
     acq.setAvailableChannels(ncoils);
@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE(dataset_append_acquisitions)
                         acq.at(s, c) = c * s;
                     }
                 }
-                BOOST_CHECK_NO_THROW(dataset.appendAcquisition(acq, r));
+                BOOST_CHECK_NO_THROW(dataset.appendAcquisition<float>(acq, r));
                 nacq++;
                 BOOST_CHECK_EQUAL(dataset.getNumberOfAcquisitions(r), nacq);
             }
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE(dataset_read_acquisitions)
     unsigned int readout_oversampling = 2;
     unsigned int readout = matrix_size * readout_oversampling;
 
-    Acquisition acq_in;
+    Acquisition<float> acq_in;
     acq_in.resize(readout, ncoils);
     acq_in.setFlag(ISMRMRD_ACQ_IS_NOISE_MEASUREMENT);
     acq_in.setDwellTime_ns(5000);
@@ -197,8 +197,8 @@ BOOST_AUTO_TEST_CASE(dataset_read_acquisitions)
         acq_in.getData()[i] = i / acq_in.getNumberOfDataElements();
     }
     unsigned int noise_stream = nechoes;
-    BOOST_CHECK_NO_THROW(dataset.appendAcquisition(acq_in, noise_stream));
-    Acquisition acq_out = dataset.readAcquisition(0, noise_stream);
+    BOOST_CHECK_NO_THROW(dataset.appendAcquisition<float>(acq_in, noise_stream));
+    Acquisition<float> acq_out = dataset.readAcquisition<float>(0, noise_stream);
     BOOST_CHECK(acq_in.getHead() == acq_out.getHead());
     BOOST_CHECK_EQUAL_COLLECTIONS(acq_in.getData().begin(), acq_in.getData().end(),
             acq_out.getData().begin(), acq_out.getData().end());
@@ -220,7 +220,7 @@ BOOST_AUTO_TEST_CASE(dataset_read_acquisitions)
             // stuff very fake data into the acquisition
             std::vector<std::complex<float> > data(ncoils*readout, std::complex<float>(l, e));
             acq_in.setData(data);
-            BOOST_CHECK_NO_THROW(dataset.appendAcquisition(acq_in, e));
+            BOOST_CHECK_NO_THROW(dataset.appendAcquisition<float>(acq_in, e));
         }
     }
 
@@ -229,8 +229,8 @@ BOOST_AUTO_TEST_CASE(dataset_read_acquisitions)
             // check both methods of retrieving acquisitions
             // 1. nth acquisition in a given stream
             // 2. nth acquisition in the entire dataset
-            Acquisition acq = dataset.readAcquisition(l, e);
-            Acquisition acq2 = dataset.readAcquisition(1 + e + l * nechoes);
+            Acquisition<float> acq = dataset.readAcquisition<float>(l, e);
+            Acquisition<float> acq2 = dataset.readAcquisition<float>(1 + e + l * nechoes);
 
             BOOST_CHECK(acq.getHead() == acq2.getHead());
 
