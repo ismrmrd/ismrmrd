@@ -2,8 +2,12 @@
 #include "ismrmrd/dataset.h"
 #include <fstream>
 #include <boost/test/unit_test.hpp>
+#include <boost/test/test_case_template.hpp>
+#include <boost/mpl/list.hpp>
 
 using namespace ISMRMRD;
+
+typedef boost::mpl::list<int16_t, int32_t, float> test_types;
 
 const std::string g_filename("test-data.h5");
 const std::string g_groupname("test-dataset");
@@ -113,14 +117,15 @@ BOOST_AUTO_TEST_CASE(dataset_read_write_header)
     BOOST_CHECK_EQUAL(g_xml_header, header);
 }
 
-BOOST_AUTO_TEST_CASE(dataset_append_acquisitions)
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(dataset_append_acquisitions, T, test_types)
 {
     cleanup();
 
     Dataset dataset(g_filename, g_groupname);
     BOOST_CHECK_NO_THROW(dataset.writeHeader(g_xml_header));
 
-    Acquisition<float> acq;
+    Acquisition<T> acq;
 
     unsigned int matrix_size = 256;
     unsigned int ncoils = 8;
@@ -137,7 +142,7 @@ BOOST_AUTO_TEST_CASE(dataset_append_acquisitions)
         acq.getData()[i] = i / acq.getNumberOfDataElements();
     }
     unsigned int noise_stream = repetitions;
-    BOOST_CHECK_NO_THROW(dataset.appendAcquisition<float>(acq, noise_stream));
+    BOOST_CHECK_NO_THROW(dataset.appendAcquisition<T>(acq, noise_stream));
     BOOST_CHECK_EQUAL(dataset.getNumberOfAcquisitions(noise_stream), 1);
 
     acq.setAvailableChannels(ncoils);
@@ -165,7 +170,7 @@ BOOST_AUTO_TEST_CASE(dataset_append_acquisitions)
                         acq.at(s, c) = c * s;
                     }
                 }
-                BOOST_CHECK_NO_THROW(dataset.appendAcquisition<float>(acq, r));
+                BOOST_CHECK_NO_THROW(dataset.appendAcquisition<T>(acq, r));
                 nacq++;
                 BOOST_CHECK_EQUAL(dataset.getNumberOfAcquisitions(r), nacq);
             }
@@ -175,7 +180,7 @@ BOOST_AUTO_TEST_CASE(dataset_append_acquisitions)
     BOOST_CHECK_EQUAL(dataset.getNumberOfAcquisitions(), total_nacq);
 }
 
-BOOST_AUTO_TEST_CASE(dataset_read_acquisitions)
+BOOST_AUTO_TEST_CASE_TEMPLATE(dataset_read_acquisitions, T, test_types)
 {
     cleanup();
 
@@ -188,7 +193,7 @@ BOOST_AUTO_TEST_CASE(dataset_read_acquisitions)
     unsigned int readout_oversampling = 2;
     unsigned int readout = matrix_size * readout_oversampling;
 
-    Acquisition<float> acq_in;
+    Acquisition<T> acq_in;
     acq_in.resize(readout, ncoils);
     acq_in.setFlag(ISMRMRD_ACQ_IS_NOISE_MEASUREMENT);
     acq_in.setDwellTime_ns(5000);
@@ -197,8 +202,8 @@ BOOST_AUTO_TEST_CASE(dataset_read_acquisitions)
         acq_in.getData()[i] = i / acq_in.getNumberOfDataElements();
     }
     unsigned int noise_stream = nechoes;
-    BOOST_CHECK_NO_THROW(dataset.appendAcquisition<float>(acq_in, noise_stream));
-    Acquisition<float> acq_out = dataset.readAcquisition<float>(0, noise_stream);
+    BOOST_CHECK_NO_THROW(dataset.appendAcquisition<T>(acq_in, noise_stream));
+    Acquisition<T> acq_out = dataset.readAcquisition<T>(0, noise_stream);
     BOOST_CHECK(acq_in.getHead() == acq_out.getHead());
     BOOST_CHECK_EQUAL_COLLECTIONS(acq_in.getData().begin(), acq_in.getData().end(),
             acq_out.getData().begin(), acq_out.getData().end());
@@ -218,9 +223,9 @@ BOOST_AUTO_TEST_CASE(dataset_read_acquisitions)
             acq_in.setDwellTime_ns(5000);
 
             // stuff very fake data into the acquisition
-            std::vector<std::complex<float> > data(ncoils*readout, std::complex<float>(l, e));
+            std::vector<std::complex<T> > data(ncoils*readout, std::complex<T>(l, e));
             acq_in.setData(data);
-            BOOST_CHECK_NO_THROW(dataset.appendAcquisition<float>(acq_in, e));
+            BOOST_CHECK_NO_THROW(dataset.appendAcquisition<T>(acq_in, e));
         }
     }
 
@@ -229,8 +234,8 @@ BOOST_AUTO_TEST_CASE(dataset_read_acquisitions)
             // check both methods of retrieving acquisitions
             // 1. nth acquisition in a given stream
             // 2. nth acquisition in the entire dataset
-            Acquisition<float> acq = dataset.readAcquisition<float>(l, e);
-            Acquisition<float> acq2 = dataset.readAcquisition<float>(1 + e + l * nechoes);
+            Acquisition<T> acq = dataset.readAcquisition<T>(l, e);
+            Acquisition<T> acq2 = dataset.readAcquisition<T>(1 + e + l * nechoes);
 
             BOOST_CHECK(acq.getHead() == acq2.getHead());
 
@@ -244,7 +249,7 @@ BOOST_AUTO_TEST_CASE(dataset_read_acquisitions)
             BOOST_CHECK_EQUAL(acq.getEncodingCounters().contrast, e);
             BOOST_CHECK_EQUAL(acq.getDwellTime_ns(), 5000);
 
-            std::vector<std::complex<float> > data(ncoils*readout, std::complex<float>(l, e));
+            std::vector<std::complex<T> > data(ncoils*readout, std::complex<T>(l, e));
 
             BOOST_CHECK_EQUAL_COLLECTIONS(data.begin(), data.end(),
                     acq.getData().begin(), acq.getData().end());
