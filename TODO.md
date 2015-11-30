@@ -16,9 +16,9 @@ Questions
 Next steps
 ----------
 
-* Template Acquisition handling in dataset to allow multiple storage types
 * Add Entity interface (serialization/deserialization).
 * Add HDF5 code for images
 * Add appendEntity and readEntity functions.
 * Add classes for other entity types.
 * Add HDF5 datatypes for all entity types.
+* Add consistency checks for entity types and storage types and update tests accordingly.
