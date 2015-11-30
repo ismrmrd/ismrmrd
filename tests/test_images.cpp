@@ -1,16 +1,21 @@
 #include "ismrmrd/ismrmrd.h"
 #include "ismrmrd/version.h"
 #include <boost/test/unit_test.hpp>
+#include <boost/test/test_case_template.hpp>
+#include <boost/mpl/list.hpp>
 
 using namespace ISMRMRD;
+
+typedef boost::mpl::list<uint16_t, int16_t, uint32_t, int32_t, float,
+                         double, std::complex<float>, std::complex<double> > test_types;
 
 BOOST_AUTO_TEST_SUITE(Images)
 
 static void check_header(const ImageHeader& head);
 
-BOOST_AUTO_TEST_CASE(image_create)
+BOOST_AUTO_TEST_CASE_TEMPLATE(image_create, T, test_types)
 {
-    Image<float> img;
+    Image<T> img;
     ImageHeader head = img.getHead();
 
     // Check that header is of expected size
@@ -26,26 +31,26 @@ BOOST_AUTO_TEST_CASE(image_create)
     check_header(head);
 }
 
-BOOST_AUTO_TEST_CASE(image_copy)
+BOOST_AUTO_TEST_CASE_TEMPLATE(image_copy, T, test_types)
 {
-    Image<float> img1;
+    Image<T> img1;
     check_header(img1.getHead());
-    Image<float> img2(img1);
+    Image<T> img2(img1);
     check_header(img2.getHead());
 
     BOOST_CHECK(img1.getHead() == img2.getHead());
 }
 
-BOOST_AUTO_TEST_CASE(image_getters_setters)
+BOOST_AUTO_TEST_CASE_TEMPLATE(image_getters_setters, T, test_types)
 {
-    Image<float> img;
+    Image<T> img;
 
     // TODO: implement
 }
 
-BOOST_AUTO_TEST_CASE(image_resize)
+BOOST_AUTO_TEST_CASE_TEMPLATE(image_resize,T, test_types)
 {
-    Image<float> img;
+    Image<T> img;
     check_header(img.getHead());
     BOOST_CHECK_EQUAL(img.getData().size(), 0);
 
@@ -55,7 +60,7 @@ BOOST_AUTO_TEST_CASE(image_resize)
     BOOST_CHECK_EQUAL(img.getMatrixSizeZ(), 24);
     BOOST_CHECK_EQUAL(img.getData().size(), 72*72*24);
 
-    std::vector<float> zeros(72*72*24, 0);
+    std::vector<T> zeros(72*72*24, 0);
     BOOST_CHECK_EQUAL_COLLECTIONS(zeros.begin(), zeros.end(),
             img.getData().begin(), img.getData().end());
 }

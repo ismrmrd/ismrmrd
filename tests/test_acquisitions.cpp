@@ -1,16 +1,20 @@
 #include "ismrmrd/ismrmrd.h"
 #include "ismrmrd/version.h"
 #include <boost/test/unit_test.hpp>
+#include <boost/test/test_case_template.hpp>
+#include <boost/mpl/list.hpp>
 
 using namespace ISMRMRD;
+
+typedef boost::mpl::list<int16_t,int32_t, float> test_types;
 
 BOOST_AUTO_TEST_SUITE(Acquisitions)
 
 static void check_header(const AcquisitionHeader& chead);
 
-BOOST_AUTO_TEST_CASE(acquisition_create)
+BOOST_AUTO_TEST_CASE_TEMPLATE(acquisition_create, T, test_types)
 {
-    Acquisition<float> acq;
+    Acquisition<T> acq;
     AcquisitionHeader head = acq.getHead();
 
     // Check that header is of expected size
@@ -28,27 +32,27 @@ BOOST_AUTO_TEST_CASE(acquisition_create)
     check_header(head);
 }
 
-BOOST_AUTO_TEST_CASE(acquisition_copy)
+BOOST_AUTO_TEST_CASE_TEMPLATE(acquisition_copy, T, test_types)
 {
-    Acquisition<float> acq1;
+    Acquisition<T> acq1;
     check_header(acq1.getHead());
-    Acquisition<float> acq2(acq1);
+    Acquisition<T> acq2(acq1);
     check_header(acq2.getHead());
 
     BOOST_CHECK(acq1.getHead() == acq2.getHead());
 }
 
 
-BOOST_AUTO_TEST_CASE(acquisition_getters_setters)
+BOOST_AUTO_TEST_CASE_TEMPLATE(acquisition_getters_setters, T, test_types)
 {
-    Acquisition<float> acq;
+    Acquisition<T> acq;
 
     // TODO: implement
 }
 
-BOOST_AUTO_TEST_CASE(acquisition_resize)
+BOOST_AUTO_TEST_CASE_TEMPLATE(acquisition_resize, T, test_types)
 {
-    Acquisition<float> acq;
+    Acquisition<T> acq;
     check_header(acq.getHead());
     BOOST_CHECK_EQUAL(acq.getData().size(), 0);
 
@@ -57,7 +61,7 @@ BOOST_AUTO_TEST_CASE(acquisition_resize)
     BOOST_CHECK_EQUAL(acq.getActiveChannels(), 32);
     BOOST_CHECK_EQUAL(acq.getData().size(), 72*32);
 
-    std::vector<float> zeros(72*32, 0);
+    std::vector<T> zeros(72*32, 0);
     BOOST_CHECK_EQUAL_COLLECTIONS(zeros.begin(), zeros.end(),
             acq.getData().begin(), acq.getData().end());
 }
