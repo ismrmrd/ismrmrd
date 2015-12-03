@@ -56,8 +56,8 @@ enum StorageType {
     ISMRMRD_SHORT = 2,    /**< corresponds to int16_t        */
     ISMRMRD_UINT = 3,     /**< corresponds to uint32_t       */
     ISMRMRD_INT = 4,      /**< corresponds to int32_t        */
-    ISMRMRD_UINT64 = 5,   /**< corresponds to uint64_t       */
-    ISMRMRD_INT64 = 6,    /**< corresponds to int64_t        */
+    ISMRMRD_ULONG = 5,    /**< corresponds to uint64_t       */
+    ISMRMRD_LONG = 6,     /**< corresponds to int64_t        */
     ISMRMRD_FLOAT = 7,    /**< corresponds to float          */
     ISMRMRD_DOUBLE = 8,   /**< corresponds to double         */
     ISMRMRD_CXFLOAT = 9,  /**< corresponds to complex float  */

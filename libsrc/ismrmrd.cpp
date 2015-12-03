@@ -49,6 +49,11 @@ static size_t sizeof_storage_type(int storage_type)
 */
 
 // Allowed data types for Images and NDArrays
+template <> EXPORTISMRMRD StorageType get_storage_type<char>()
+{
+    return ISMRMRD_CHAR;
+}
+
 template <> EXPORTISMRMRD StorageType get_storage_type<uint16_t>()
 {
     return ISMRMRD_USHORT;
@@ -67,6 +72,16 @@ template <> EXPORTISMRMRD StorageType get_storage_type<uint32_t>()
 template <> EXPORTISMRMRD StorageType get_storage_type<int32_t>()
 {
     return ISMRMRD_INT;
+}
+
+template <> EXPORTISMRMRD StorageType get_storage_type<uint64_t>()
+{
+    return ISMRMRD_ULONG;
+}
+
+template <> EXPORTISMRMRD StorageType get_storage_type<int64_t>()
+{
+    return ISMRMRD_LONG;
 }
 
 template <> EXPORTISMRMRD StorageType get_storage_type<float>()
