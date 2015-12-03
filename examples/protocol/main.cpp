@@ -45,7 +45,7 @@ public:
         ISMRMRD::IsmrmrdHeader xmlHeader;
         ISMRMRD::deserialize(xml.c_str(), xmlHeader);
 
-        std::map<int, std::vector<ISMRMRD::Acquisition> > streams;
+        std::map<int, std::vector<ISMRMRD::Acquisition<float> > > streams;
 
         while (true) {
             // Read identifier of next object
@@ -62,7 +62,7 @@ public:
             boost::asio::read(sock, boost::asio::buffer(&head, sizeof(head)), error);
 
             // Create Acquisition and set its header to allocate memory for its data buffer
-            ISMRMRD::Acquisition acq;
+            ISMRMRD::Acquisition<float> acq;
             acq.setHead(head);
 
             // Read the acquisition data
@@ -74,16 +74,16 @@ public:
             boost::asio::read(sock, boost::asio::buffer(traj), error);
             acq.setTraj(traj);
 
-            if (streams.count(head.stream_number) == 0) {
-                std::vector<ISMRMRD::Acquisition> stream;
+            if (streams.count(head.stream) == 0) {
+                std::vector<ISMRMRD::Acquisition<float> > stream;
                 stream.push_back(acq);
-                streams[head.stream_number] = stream;
+                streams[head.stream] = stream;
             } else {
-                streams[head.stream_number].push_back(acq);
+                streams[head.stream].push_back(acq);
             }
         }
 
-        std::map<int, std::vector<ISMRMRD::Acquisition> >::const_iterator it;
+        std::map<int, std::vector<ISMRMRD::Acquisition<float> > >::const_iterator it;
         for (it = streams.begin(); it != streams.end(); ++it) {
             std::cout << "Stream #" << it->first << " contains " << it->second.size() << " acquisitions\n";
         }
@@ -209,7 +209,7 @@ int main(int argc, char* argv[])
     boost::asio::write(sock, boost::asio::buffer(xml));
 
     for (size_t i = 0; i < dataset.getNumberOfAcquisitions(); ++i) {
-        ISMRMRD::Acquisition acq = dataset.readAcquisition(i);
+        ISMRMRD::Acquisition<float> acq = dataset.readAcquisition<float>(i);
 
         // send the acquisition type (acquisition or waveform)
         // TODO: do we care if its an MR acquisition or just waveform data?

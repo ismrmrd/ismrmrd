@@ -1,26 +1,30 @@
 #include "ismrmrd/ismrmrd.h"
 #include "ismrmrd/version.h"
 #include <boost/test/unit_test.hpp>
+#include <boost/test/test_case_template.hpp>
+#include <boost/mpl/list.hpp>
 
 using namespace ISMRMRD;
+
+typedef boost::mpl::list<int16_t,int32_t, float> test_types;
 
 BOOST_AUTO_TEST_SUITE(Acquisitions)
 
 static void check_header(const AcquisitionHeader& chead);
 
-BOOST_AUTO_TEST_CASE(acquisition_create)
+BOOST_AUTO_TEST_CASE_TEMPLATE(acquisition_create, T, test_types)
 {
-    Acquisition acq;
+    Acquisition<T> acq;
     AcquisitionHeader head = acq.getHead();
 
     // Check that header is of expected size
-    size_t expected_size = 11 * sizeof(uint16_t) +
-            (3 + ISMRMRD_PHYS_STAMPS) * sizeof(uint32_t) +
+    size_t expected_size = 4 * sizeof(uint32_t) +
+            (10 + ISMRMRD_PHYS_STAMPS) * sizeof(uint32_t) +
             ISMRMRD_USER_INTS * sizeof(int32_t) +
-            (1 + ISMRMRD_CHANNEL_MASKS) * sizeof(uint64_t) +
+            (2 + ISMRMRD_CHANNEL_MASKS) * sizeof(uint64_t) +
             ((2 * ISMRMRD_POSITION_LENGTH) + (3 * ISMRMRD_DIRECTION_LENGTH) +
                     1 + ISMRMRD_USER_FLOATS) * sizeof(float) +
-            (9 + ISMRMRD_USER_INTS) * sizeof(uint16_t);
+            (9 + ISMRMRD_USER_INTS) * sizeof(uint32_t);
 
     BOOST_CHECK_EQUAL(sizeof(head), expected_size);
 
@@ -28,27 +32,27 @@ BOOST_AUTO_TEST_CASE(acquisition_create)
     check_header(head);
 }
 
-BOOST_AUTO_TEST_CASE(acquisition_copy)
+BOOST_AUTO_TEST_CASE_TEMPLATE(acquisition_copy, T, test_types)
 {
-    Acquisition acq1;
+    Acquisition<T> acq1;
     check_header(acq1.getHead());
-    Acquisition acq2(acq1);
+    Acquisition<T> acq2(acq1);
     check_header(acq2.getHead());
 
     BOOST_CHECK(acq1.getHead() == acq2.getHead());
 }
 
 
-BOOST_AUTO_TEST_CASE(acquisition_getters_setters)
+BOOST_AUTO_TEST_CASE_TEMPLATE(acquisition_getters_setters, T, test_types)
 {
-    Acquisition acq;
+    Acquisition<T> acq;
 
     // TODO: implement
 }
 
-BOOST_AUTO_TEST_CASE(acquisition_resize)
+BOOST_AUTO_TEST_CASE_TEMPLATE(acquisition_resize, T, test_types)
 {
-    Acquisition acq;
+    Acquisition<T> acq;
     check_header(acq.getHead());
     BOOST_CHECK_EQUAL(acq.getData().size(), 0);
 
@@ -57,7 +61,7 @@ BOOST_AUTO_TEST_CASE(acquisition_resize)
     BOOST_CHECK_EQUAL(acq.getActiveChannels(), 32);
     BOOST_CHECK_EQUAL(acq.getData().size(), 72*32);
 
-    std::vector<float> zeros(72*32, 0);
+    std::vector<T> zeros(72*32, 0);
     BOOST_CHECK_EQUAL_COLLECTIONS(zeros.begin(), zeros.end(),
             acq.getData().begin(), acq.getData().end());
 }
@@ -69,9 +73,7 @@ static void check_header(const AcquisitionHeader& chead)
     BOOST_CHECK_EQUAL(chead.available_channels, 1);
     BOOST_CHECK_EQUAL(chead.active_channels, 1);
     BOOST_CHECK_EQUAL(chead.flags, 0);
-    BOOST_CHECK_EQUAL(chead.measurement_uid, 0);
     BOOST_CHECK_EQUAL(chead.scan_counter, 0);
-    BOOST_CHECK_EQUAL(chead.acquisition_time_stamp, 0);
     for (int idx = 0; idx < ISMRMRD_PHYS_STAMPS; idx++) {
         BOOST_CHECK_EQUAL(chead.physiology_time_stamp[idx], 0);
     }
@@ -84,7 +86,7 @@ static void check_header(const AcquisitionHeader& chead)
     BOOST_CHECK_EQUAL(chead.center_sample, 0);
     BOOST_CHECK_EQUAL(chead.encoding_space_ref, 0);
     BOOST_CHECK_EQUAL(chead.trajectory_dimensions, 0);
-    BOOST_CHECK_EQUAL(chead.sample_time_us, 0);
+    BOOST_CHECK_EQUAL(chead.dwell_time_ns, 0);
     for (int idx = 0; idx < ISMRMRD_POSITION_LENGTH; idx++) {
         BOOST_CHECK_EQUAL(chead.position[idx], 0);
     }

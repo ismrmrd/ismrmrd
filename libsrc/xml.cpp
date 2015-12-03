@@ -142,8 +142,8 @@ namespace ISMRMRD
             s.entityType = ISMRMRD_WAVEFORM;
         } else if (etype == "Image") {
             s.entityType = ISMRMRD_IMAGE;
-        } else if (etype == "Other") {
-            s.entityType = ISMRMRD_OTHER;
+        } else if (etype == "BLOB") {
+            s.entityType = ISMRMRD_BLOB;
         } else {
             throw std::runtime_error("Invalid entityType (" + etype + ")");
         }
@@ -588,8 +588,8 @@ namespace ISMRMRD
     case ISMRMRD_IMAGE:
         etype = "Image";
         break;
-    case ISMRMRD_OTHER:
-        etype = "Other";
+    case ISMRMRD_BLOB:
+        etype = "BLOB";
         break;
     default:
         throw std::runtime_error("Invalid stream entityType ID.");

@@ -8,7 +8,7 @@ BOOST_AUTO_TEST_SUITE(Flags)
 
 BOOST_AUTO_TEST_CASE(no_flags)
 {
-    Acquisition acq;
+    Acquisition<float> acq;
     Image<float> img;
 
     for (int f = 1; f <= 64; f++) {
@@ -19,7 +19,7 @@ BOOST_AUTO_TEST_CASE(no_flags)
 
 BOOST_AUTO_TEST_CASE(set_flag)
 {
-    Acquisition acq;
+    Acquisition<float> acq;
     Image<float> img;
 
     for (int f = 1; f <= 64; f++) {
@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE(set_flag)
 
 BOOST_AUTO_TEST_CASE(set_flags)
 {
-    Acquisition acq;
+    Acquisition<float> acq;
     Image<float> img;
 
     uint64_t flags = 0xFFFFFFFFFFFFFFFF;
@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(set_flags)
 
 BOOST_AUTO_TEST_CASE(clear_flag)
 {
-    Acquisition acq;
+    Acquisition<float> acq;
     Image<float> img;
 
     uint64_t flags = 0xFFFFFFFFFFFFFFFF;
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(clear_flag)
 
 BOOST_AUTO_TEST_CASE(clear_all_flags)
 {
-    Acquisition acq;
+    Acquisition<float> acq;
     Image<float> img;
 
     uint64_t flags = 0xFFFFFFFFFFFFFFFF;

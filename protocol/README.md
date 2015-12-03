@@ -51,7 +51,7 @@ class Entity
     uint32_t storage_type;
     uint32_t stream;
     
-    virtual void deserialize(std::vector<char>& buffer) = 0;
+    virtual void deserialize(std::vector<uchar>& buffer) = 0;
     virtual std::vector<char> serialize() = 0;
 };
 
@@ -71,14 +71,14 @@ Or a total of 24 bytes. The `version` field indicated the major version of the I
 
 ```
 enum EntityType {
-    ISMRMRD_HANDSHAKE       = 0, /**< first package sent                   */
+    ISMRMRD_HANDSHAKE       = 0, /**< first package sent                    */
     ISMRMRD_COMMAND         = 1, /**< commands used to control recon system */
-    ISMRMRD_MRACQUISITION   = 2, /**< MR raw data                          */
-    ISMRMRD_WAVEFORM        = 3, /**< Gradient, physiology, etc. waveform  */
-    ISMRMRD_IMAGE           = 4, /**< Reconstructed image                  */
-    ISMRMRD_XML_HEADER      = 5, /**< The XML header describing the data   */
-    ISMRMRD_ERROR           = 6, /**< Something went wrong                 */
-    ISMRMRD_BLOB            = 7  /**< Some binary object, with description */
+    ISMRMRD_MRACQUISITION   = 2, /**< MR raw data                           */
+    ISMRMRD_WAVEFORM        = 3, /**< Gradient, physiology, etc. waveform   */
+    ISMRMRD_IMAGE           = 4, /**< Reconstructed image                   */
+    ISMRMRD_XML_HEADER      = 5, /**< The XML header describing the data    */
+    ISMRMRD_ERROR           = 6, /**< Something went wrong                  */
+    ISMRMRD_BLOB            = 7  /**< Some binary object, with description  */
 };
 ```
 
@@ -91,8 +91,8 @@ enum StorageType {
     ISMRMRD_SHORT    = 2, /**< corresponds to int16_t        */
     ISMRMRD_UINT     = 3, /**< corresponds to uint32_t       */
     ISMRMRD_INT      = 4, /**< corresponds to int32_t        */
-    ISMRMRD_UINT64   = 5, /**< corresponds to uint64_t       */
-    ISMRMRD_INT64    = 6, /**< corresponds to int64_t       */    
+    ISMRMRD_ULONG    = 5, /**< corresponds to uint64_t       */
+    ISMRMRD_LONG     = 6, /**< corresponds to int64_t        */    
     ISMRMRD_FLOAT    = 7, /**< corresponds to float          */
     ISMRMRD_DOUBLE   = 8, /**< corresponds to double         */
     ISMRMRD_CXFLOAT  = 9, /**< corresponds to complex float  */
@@ -114,7 +114,7 @@ In general stream numbers below 65535 are reserved for streams of data that woul
 An application communication using the ISMRMRD protocol would would typically have two threads reading and writing packages using the following (C++-ish) code:
 
 ```
-Entity EntityFromBuffer(std::vector<char>& buffer)
+Entity EntityFromBuffer(std::vector<uchar>& buffer)
 {
 	Enity* e_ptr = reinterpret_cast<Entity*>(&buffer[0]);
 	Entity e = EntityFactory::create_entity(e_ptr->entity_type,
@@ -129,7 +129,7 @@ std::thread reader([](){
 	{
 	      uint64_t frame_size;
 	      stream.read(&frame_size, sizeof(uint64_t));
-	      std::vector<char> buffer(frame_size);
+	      std::vector<uchar> buffer(frame_size);
 	      stream.read(&buffer[0], frame_size);
 	      Entity ent = EntityFromBuffer(buffer);
 		      
@@ -141,7 +141,7 @@ std::thread writer([](){
 	while (true)
 	{
 		   Entity e = Q.get();
-		   std::vector<char> buffer;
+		   std::vector<uchar> buffer;
 		   e.serialize(buffer);
 		   uint64_t frame_size = buffer.size();
 		   stream.write(&frame_size,sizeof(uint64_t));
