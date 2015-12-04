@@ -231,6 +231,15 @@ struct ImageHeader {
 bool operator==(const AcquisitionHeader &h1, const AcquisitionHeader &h2);
 bool operator==(const ImageHeader &h1, const ImageHeader &h2);
 
+/// Entity type interface
+class EXPORTISMRMRD Entity
+{
+ public:
+    virtual std::vector<unsigned char> serialize() = 0;
+    virtual void deserialize(const std::vector<unsigned char>& buffer) = 0;
+};
+
+ 
 /// Allowed data types for Images and NDArrays
 template <typename T> EXPORTISMRMRD StorageType get_storage_type();
 
@@ -253,7 +262,9 @@ public:
 };
 
 /// MR Acquisition type
-template <typename T> class EXPORTISMRMRD Acquisition {
+template <typename T> class EXPORTISMRMRD Acquisition
+    : public Entity
+{
 public:
     Acquisition(uint32_t num_samples = 0, uint32_t active_channels = 1, uint32_t trajectory_dimensions = 0);
 
@@ -393,6 +404,11 @@ public:
     void setChannelNotActive(uint32_t chan);
     void setAllChannelsNotActive();
 
+
+    // Functions inherited from Entity
+    virtual std::vector<unsigned char> serialize();
+    virtual void deserialize(const std::vector<unsigned char>& buffer);
+
 protected:
     void makeConsistent();
 
@@ -403,7 +419,8 @@ protected:
 
 /// MR Image type
 template <typename T>
-class EXPORTISMRMRD Image {
+class EXPORTISMRMRD Image
+    : public Entity {
 public:
     // Constructors
     Image(uint32_t matrix_size_x = 0, uint32_t matrix_size_y = 1,
@@ -543,6 +560,10 @@ public:
 
     /** Returns a reference to the image data **/
     T &at(uint32_t x, uint32_t y = 0, uint32_t z = 0, uint32_t channel = 0);
+
+    // Functions inherited from Entity
+    virtual std::vector<unsigned char> serialize();
+    virtual void deserialize(const std::vector<unsigned char>& buffer);
 
 protected:
     void makeConsistent();

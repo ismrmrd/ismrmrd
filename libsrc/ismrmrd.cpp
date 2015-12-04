@@ -5,6 +5,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <iostream>
+#include <algorithm>
 
 #include <string.h>
 
@@ -119,7 +120,8 @@ template <typename T> Acquisition<T>::Acquisition(uint32_t num_samples, uint32_t
 {
     memset(&head_, 0, sizeof(head_));
     head_.version = ISMRMRD_VERSION_MAJOR;
-    head_.storage_type = ISMRMRD_CXFLOAT;
+    head_.entity_type = ISMRMRD_MRACQUISITION;
+    head_.storage_type = get_storage_type<T>();
     this->resize(num_samples, active_channels, trajectory_dimensions);
 }
 
@@ -241,6 +243,7 @@ template <typename T> uint32_t Acquisition<T>::getTrajectoryDimensions() const {
 
 template <typename T> void Acquisition<T>::setTrajectoryDimensions(uint32_t td) {
     head_.trajectory_dimensions = td;
+    this->makeConsistent();
 }
 
 template <typename T> uint32_t Acquisition<T>::getDwellTime_ns() const {
@@ -563,6 +566,66 @@ template <typename T> void Acquisition<T>::setAllChannelsNotActive() {
     }
 }
 
+template <typename T> std::vector<unsigned char> Acquisition<T>::serialize()
+{
+    if (this->head_.entity_type != ISMRMRD_MRACQUISITION) {
+        throw std::runtime_error("The header entity type does not match the class type");
+    }
+
+    if (this->head_.storage_type != get_storage_type<T>()) {
+        throw std::runtime_error("Header storage type does not match class");
+    }
+
+    size_t bytes = sizeof(AcquisitionHeader) + traj_.size()*sizeof(float) + data_.size()*sizeof(std::complex<T>);
+    std::vector<unsigned char> buffer;
+    buffer.reserve(bytes);
+    std::copy((unsigned char*)(&this->head_),((unsigned char*)(&this->head_))+sizeof(AcquisitionHeader), std::back_inserter(buffer));
+    std::copy((unsigned char*)(&this->traj_[0]),(unsigned char*)(&this->traj_[0] + traj_.size()),std::back_inserter(buffer));
+    std::copy((unsigned char*)(&this->data_[0]),(unsigned char*)(&this->data_[0] + data_.size()),std::back_inserter(buffer));
+
+    if (buffer.size() != bytes) {
+        throw std::runtime_error("Serialized buffer size does not match expected buffer size");
+    }
+    
+    return buffer; //Should not be copied on newer compilers due to return value optimization.
+}
+    
+template <typename T>  void Acquisition<T>::deserialize(const std::vector<unsigned char>& buffer)
+{
+    if (buffer.size() < sizeof(AcquisitionHeader)) {
+        throw std::runtime_error("Buffer is too small to contain an Acquisition");
+    }
+
+    AcquisitionHeader* h_ptr = (AcquisitionHeader*)&buffer[0];
+
+    if (h_ptr->entity_type != ISMRMRD_MRACQUISITION) {
+        throw std::runtime_error("The header entity type does not match the class type");
+    }
+
+    if (h_ptr->storage_type != get_storage_type<T>()) {
+        throw std::runtime_error("Header storage type does not match class");
+    }
+    
+    size_t expected_bytes =
+        sizeof(AcquisitionHeader) +
+        h_ptr->trajectory_dimensions*h_ptr->number_of_samples*sizeof(float) +
+        h_ptr->number_of_samples*h_ptr->active_channels*sizeof(std::complex<T>);
+
+    if (expected_bytes != buffer.size()) {
+        std::stringstream ss;
+        ss << "Unexpected buffer length " << buffer.size() << ", expected: " << expected_bytes;
+        throw std::runtime_error(ss.str());
+    }
+    
+    this->setHead(*h_ptr);
+    size_t traj_start = sizeof(AcquisitionHeader);
+    size_t data_start = traj_start + h_ptr->trajectory_dimensions*h_ptr->number_of_samples*sizeof(float);
+
+    std::copy(&buffer[traj_start], &buffer[data_start], (unsigned char*)(&this->traj_[0]));
+    std::copy(&buffer[data_start], &buffer[expected_bytes], (unsigned char*)(&this->data_[0]));
+}
+
+
 
 template <typename T> Image<T>::Image(uint32_t matrix_size_x,
                                       uint32_t matrix_size_y,
@@ -571,6 +634,7 @@ template <typename T> Image<T>::Image(uint32_t matrix_size_x,
 {
     memset(&head_, 0, sizeof(head_));
     head_.version = ISMRMRD_VERSION_MAJOR;
+    head_.entity_type = ISMRMRD_IMAGE;
     head_.storage_type = static_cast<uint32_t>(get_storage_type<T>());
     this->resize(matrix_size_x, matrix_size_y, matrix_size_z, channels);
 }
@@ -1110,6 +1174,64 @@ template <typename T> T& Image<T>::at(uint32_t ix, uint32_t iy, uint32_t iz, uin
     return data_[index];
 }
 
+template <typename T> std::vector<unsigned char> Image<T>::serialize()
+{
+    if (this->head_.entity_type != ISMRMRD_IMAGE) {
+        throw std::runtime_error("The header entity type does not match the class type");
+    }
+
+    if (this->head_.storage_type != get_storage_type<T>()) {
+        throw std::runtime_error("Header storage type does not match class");
+    }
+
+    size_t bytes = sizeof(ImageHeader) + attribute_string_.size() + data_.size()*sizeof(T);
+    std::vector<unsigned char> buffer;
+    buffer.reserve(bytes);
+    std::copy((unsigned char*)(&this->head_),((unsigned char*)(&this->head_))+sizeof(head_), std::back_inserter(buffer));
+    std::copy((unsigned char*)(&this->attribute_string_[0]),(unsigned char*)(&this->attribute_string_[0] + attribute_string_.size()),std::back_inserter(buffer));
+    std::copy((unsigned char*)(&this->data_[0]),(unsigned char*)(&this->data_[0] + data_.size()),std::back_inserter(buffer));
+
+    if (buffer.size() != bytes) {
+        throw std::runtime_error("Serialized buffer size does not match expected buffer size");
+    }
+    
+    return buffer; //Should not be copied on newer compilers due to return value optimization.
+}
+    
+template <typename T>  void Image<T>::deserialize(const std::vector<unsigned char>& buffer)
+{
+    if (buffer.size() < sizeof(ImageHeader)) {
+        throw std::runtime_error("Buffer is too small to contain an Acquisition");
+    }
+
+    ImageHeader* h_ptr = (ImageHeader*)&buffer[0];
+
+    if (h_ptr->entity_type != ISMRMRD_IMAGE) {
+        throw std::runtime_error("The header entity type does not match the class type");
+    }
+
+    if (h_ptr->storage_type != get_storage_type<T>()) {
+        throw std::runtime_error("Header storage type does not match class");
+    }
+    
+    size_t expected_bytes =
+        sizeof(ImageHeader) +
+        h_ptr->attribute_string_len +
+        h_ptr->matrix_size[0]*h_ptr->matrix_size[1]*h_ptr->matrix_size[2]*h_ptr->channels*sizeof(T);
+
+    if (expected_bytes != buffer.size()) {
+        std::stringstream ss;
+        ss << "Unexpected buffer length " << buffer.size() << ", expected: " << expected_bytes;
+        throw std::runtime_error(ss.str());
+    }
+    
+    this->setHead(*h_ptr);
+    size_t attr_start = sizeof(AcquisitionHeader);
+    size_t data_start = attr_start + h_ptr->attribute_string_len;
+    this->attribute_string_ = std::string((char*)&buffer[attr_start],h_ptr->attribute_string_len);
+    std::copy(&buffer[data_start], &buffer[expected_bytes], (unsigned char*)(&this->data_[0]));
+}
+    
 //
 // Array class Implementation
 //

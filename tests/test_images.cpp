@@ -65,6 +65,23 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(image_resize,T, test_types)
             img.getData().begin(), img.getData().end());
 }
 
+BOOST_AUTO_TEST_CASE_TEMPLATE(image_serialize, T, test_types)
+{
+    Image<T> im(256,256,10,12);
+
+    std::vector<unsigned char> buffer = im.serialize();
+
+    Image<T> im2;
+    im2.deserialize(buffer);
+    
+    BOOST_CHECK_EQUAL_COLLECTIONS(im.getData().begin(), im.getData().end(),
+                                  im2.getData().begin(), im2.getData().end());
+    
+    BOOST_CHECK(im.getAttributeString() == im2.getAttributeString());
+    
+    BOOST_CHECK(im.getHead() == im2.getHead());
+}
+
 static void check_header(const ImageHeader& chead)
 {
     BOOST_CHECK_EQUAL(chead.version, ISMRMRD_VERSION_MAJOR);

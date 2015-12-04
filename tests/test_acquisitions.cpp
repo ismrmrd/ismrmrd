@@ -66,6 +66,25 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(acquisition_resize, T, test_types)
             acq.getData().begin(), acq.getData().end());
 }
 
+BOOST_AUTO_TEST_CASE_TEMPLATE(acquisition_serialize, T, test_types)
+{
+    Acquisition<T> acq;
+    acq.resize(144,32);
+    acq.setTrajectoryDimensions(3);
+
+    std::vector<unsigned char> buffer = acq.serialize();
+
+    Acquisition<T> acq2;
+    acq2.deserialize(buffer);
+    BOOST_CHECK_EQUAL_COLLECTIONS(acq.getData().begin(), acq.getData().end(),
+                                  acq2.getData().begin(), acq2.getData().end());
+    
+    BOOST_CHECK_EQUAL_COLLECTIONS(acq.getTraj().begin(), acq.getTraj().end(),
+                                  acq2.getTraj().begin(), acq2.getTraj().end());
+    
+    BOOST_CHECK(acq.getHead() == acq2.getHead());
+}
+
 static void check_header(const AcquisitionHeader& chead)
 {
     BOOST_CHECK_EQUAL(chead.version, ISMRMRD_VERSION_MAJOR);
