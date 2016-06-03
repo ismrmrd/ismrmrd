@@ -698,7 +698,7 @@ namespace ISMRMRD
           }
       }
 
-      append_optional_node(n2, "sequence_type", h.sequenceParameters->sequence_type);
+      append_optional_node(n1, "sequence_type", h.sequenceParameters->sequence_type);
 
       if (h.sequenceParameters->echo_spacing.is_present())
       {
