@@ -191,7 +191,6 @@ install(TARGETS ismrmrd EXPORT ISMRMRDTargets
    LIBRARY DESTINATION lib
    ARCHIVE DESTINATION lib
    RUNTIME DESTINATION bin
-   INCLUDES DESTINATION include
    COMPONENT Devel
 )
 
@@ -226,7 +225,7 @@ install(DIRECTORY matlab DESTINATION share/ismrmrd )
 #
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/IsmrmrdConfigVersion.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/ISMRMRDConfigVersion.cmake"
   VERSION ${ISMRMRD_VERSION_STRING}
   COMPATIBILITY AnyNewerVersion
 )
@@ -239,24 +238,24 @@ export(EXPORT ISMRMRDTargets
 set(CONFIG_ISMRMRD_SCHEMA_DIR   ${ISMRMRD_SCHEMA_DIR})
 set(CONFIG_ISMRMRD_TARGET_INCLUDE_DIRS ${ISMRMRD_TARGET_INCLUDE_DIRS})
 set(CONFIG_ISMRMRD_LIBRARY_DIRS ${ISMRMRD_LIBRARY_DIRS})
-configure_file(cmake/IsmrmrdConfig.cmake.in
-  "${CMAKE_CURRENT_BINARY_DIR}/IsmrmrdConfig.cmake"
+configure_file(cmake/ISMRMRDConfig.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/ISMRMRDConfig.cmake"
   @ONLY
 )
 
 set(CONFIG_ISMRMRD_SCHEMA_DIR   ${CMAKE_INSTALL_PREFIX}/share/ismrmrd/schema)
 set(CONFIG_ISMRMRD_TARGET_INCLUDE_DIRS ${CMAKE_INSTALL_PREFIX}/include)
 set(CONFIG_ISMRMRD_LIBRARY_DIRS ${CMAKE_INSTALL_PREFIX}/lib)
-configure_file(cmake/IsmrmrdConfig.cmake.in
-  "${CMAKE_CURRENT_BINARY_DIR}/InstallFiles/IsmrmrdConfig.cmake"
+configure_file(cmake/ISMRMRDConfig.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/InstallFiles/ISMRMRDConfig.cmake"
   @ONLY
 )
 
 set(ConfigPackageLocation lib/cmake/ISMRMRD)
 install(
   FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/InstallFiles/IsmrmrdConfig.cmake"
-    "${CMAKE_CURRENT_BINARY_DIR}/IsmrmrdConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/InstallFiles/ISMRMRDConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/ISMRMRDConfigVersion.cmake"
   DESTINATION
     ${ConfigPackageLocation}
   COMPONENT
