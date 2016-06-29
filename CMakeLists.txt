@@ -49,9 +49,12 @@ endif (WIN32)
 #The minor number changes when there are changes to the XML schema for 
 #the flexible header. The micro number changes when there are small changes
 #in the utility libraries, that don't affect the data format itself.
+# For more information see http://semver.org/
 set(ISMRMRD_VERSION_MAJOR 1)
 set(ISMRMRD_VERSION_MINOR 3)
 set(ISMRMRD_VERSION_PATCH 2)
+set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
+set(ISMRMRD_SOVERSION ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR})
 
 set(ISMRMRD_XML_SCHEMA_SHA1 "9b899c6ad806bc2388c70461d6e5affe5cc6d750")
 
@@ -88,8 +91,6 @@ if (NOT (${ISMRMRD_XML_SCHEMA_SHA1} STREQUAL ${ISMRMRD_CURRENT_XML_SCHEMA_SHA1})
   message(FATAL_ERROR "     FATAL XML VERSION ERROR")
 endif()
 
-set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
-set(ISMRMRD_SOVERSION ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR})
 
 # Find HDF5 for dataset support
 find_package(HDF5 1.8 COMPONENTS C)
