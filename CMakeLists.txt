@@ -13,15 +13,15 @@ list(APPEND CMAKE_MODULE_PATH ${ISMRMRD_CMAKE_DIR})
 
 # whether to install dependencies
 if (WIN32)
-    OPTION(ISMRMRD_INSTALL_DEPENDENCIES "Install ismrmrd dependencies in windows" Off)
+    option(ISMRMRD_INSTALL_DEPENDENCIES "Install ismrmrd dependencies in windows" Off)
 endif (WIN32)
 
 # set the build type to Release if not specified
-IF(NOT CMAKE_BUILD_TYPE)
-  SET(CMAKE_BUILD_TYPE Release CACHE STRING
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING
       "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
       FORCE)
-ENDIF(NOT CMAKE_BUILD_TYPE)
+endif(NOT CMAKE_BUILD_TYPE)
 
 # compiler flags
 if (WIN32)

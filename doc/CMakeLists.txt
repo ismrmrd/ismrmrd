@@ -10,7 +10,7 @@ if(DOXYGEN_FOUND)
         COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE}
         COMMENT "Generating API documentation using Doxygen" VERBATIM)
 else(DOXYGEN_FOUND)
-    MESSAGE(STATUS "Doxygen not found. Not able to build API documentation")
+    message(STATUS "Doxygen not found. Not able to build API documentation")
 endif(DOXYGEN_FOUND)
 
 find_program(SPHINXBUILD sphinx-build)
@@ -31,7 +31,7 @@ if(SPHINXBUILD)
             COMMENT "Generating HTML docs using Sphinx" VERBATIM)
     endif(WIN32)
 else(SPHINXBUILD)
-    MESSAGE(STATUS "sphinx-build not found. Not able to build HTML project documentation")
+    message(STATUS "sphinx-build not found. Not able to build HTML project documentation")
 endif(SPHINXBUILD)
 
 add_custom_target(doc)
