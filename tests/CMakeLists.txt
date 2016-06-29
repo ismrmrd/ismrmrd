@@ -3,7 +3,7 @@ find_package(Boost 1.43 COMPONENTS unit_test_framework)
 if (NOT Boost_UNIT_TEST_FRAMEWORK_FOUND)
     message("Boost Unit Test Framework not found. Not compiling tests")
     return()
-endif (NOT Boost_UNIT_TEST_FRAMEWORK_FOUND)
+endif ()
 
 include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include ${Boost_INCLUDE_DIR})
 

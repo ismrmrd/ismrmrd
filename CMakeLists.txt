@@ -14,14 +14,14 @@ list(APPEND CMAKE_MODULE_PATH ${ISMRMRD_CMAKE_DIR})
 # whether to install dependencies
 if (WIN32)
     option(ISMRMRD_INSTALL_DEPENDENCIES "Install ismrmrd dependencies in windows" Off)
-endif (WIN32)
+endif ()
 
 # set the build type to Release if not specified
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release CACHE STRING
       "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
       FORCE)
-endif(NOT CMAKE_BUILD_TYPE)
+endif()
 
 # compiler flags
 if (WIN32)
@@ -35,10 +35,10 @@ if (WIN32)
     set(CMAKE_STATIC_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
     set(CMAKE_MODULE_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
     add_definitions(-D__func__=__FUNCTION__)
-else (WIN32)
+else ()
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wall")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-endif (WIN32)
+endif ()
 
 #  ---   VERSIONING  (begin) ----
 #The ISMRMRD convention is to use version numbers with the format:
@@ -101,10 +101,10 @@ if (HDF5_FOUND)
     set (ISMRMRD_DATASET_SOURCES libsrc/dataset.c libsrc/dataset.cpp)
     set (ISMRMRD_DATASET_INCLUDE_DIR ${HDF5_C_INCLUDE_DIR})
     set (ISMRMRD_DATASET_LIBRARIES ${HDF5_LIBRARIES})
-else (HDF5_FOUND)
+else ()
     set (ISMRMRD_DATASET_SUPPORT false)
     message (WARNING "HDF5 not found. Dataset and file support unavailable!")
-endif (HDF5_FOUND)
+endif ()
 
 # Generate the version.h header file
 find_package(Git)
@@ -116,7 +116,7 @@ if (GIT_FOUND)
     if (${ISMRMRD_GIT_SHA1_LEN} LESS 40)
         message(WARNING "Could not determine SHA-1 hash: ${ISMRMRD_GIT_STDERR}")
         set(ISMRMRD_GIT_SHA1 "NA")
-    endif (${ISMRMRD_GIT_SHA1_LEN} LESS 40)
+    endif ()
 else()
   set(ISMRMRD_GIT_SHA1 "NA")
 endif()
@@ -133,12 +133,12 @@ install(FILES ${CMAKE_BINARY_DIR}/include/ismrmrd/version.h DESTINATION include/
 if (HDF5_FOUND AND WIN32 AND ISMRMRD_INSTALL_DEPENDENCIES)
     if(DEFINED ENV{HDF5_ROOT})
         set(HDF5_BIN_DIR $ENV{HDF5_ROOT}/bin)
-    else (DEFINED ENV{HDF5_ROOT})
+    else ()
         set(HDF5_BIN_DIR ${HDF5_C_INCLUDE_DIR}/../bin)
-    endif (DEFINED ENV{HDF5_ROOT})
+    endif ()
     message("Install hdf5 libraries from ${HDF5_BIN_DIR} ")
     install( DIRECTORY ${HDF5_BIN_DIR} DESTINATION bin/.. FILES_MATCHING PATTERN "*.dll" )
-endif (HDF5_FOUND AND WIN32 AND ISMRMRD_INSTALL_DEPENDENCIES)
+endif ()
 
 # include directories for main library
 set(ISMRMRD_TARGET_INCLUDE_DIRS
@@ -164,16 +164,16 @@ if(USE_SYSTEM_PUGIXML)
     message("Found system pugixml: ${PugiXML_INCLUDE_DIR} ${PugiXML_LIBRARY}")
     list(APPEND ISMRMRD_TARGET_INCLUDE_DIRS ${PugiXML_INCLUDE_DIR})
     list(APPEND ISMRMRD_TARGET_LINK_LIBS ${PugiXML_LIBRARY})
-  else(PugiXML_FOUND)
+  else()
     message(FATAL_ERROR "Pugixml library not found on the system, try without "
     "setting USE_SYSTEM_PUGIXML to use the version provided in the source "
     "tree.")
-  endif(PugiXML_FOUND)
+  endif()
   list(APPEND ISMRMRD_TARGET_INCLUDE_DIRS ${PugiXML_INCLUDE_DIR})
   list(APPEND ISMRMRD_TARGET_LINK_LIBS ${PugiXML_LIBRARY})
-else(USE_SYSTEM_PUGIXML)
+else()
   list(APPEND ISMRMRD_TARGET_SOURCES libsrc/pugixml.cpp)
-endif(USE_SYSTEM_PUGIXML)
+endif()
 
 # main library
 include_directories(${ISMRMRD_TARGET_INCLUDE_DIRS})
@@ -211,12 +211,12 @@ add_subdirectory(doc)
 add_subdirectory(utilities)
 if (HDF5_FOUND)
     add_subdirectory(examples/c)
-endif (HDF5_FOUND)
+endif ()
 
 # TODO: make this work on Windows
 if (NOT WIN32)
     add_subdirectory(tests)
-endif (NOT WIN32)
+endif ()
 
 # install the matlab api
 install(DIRECTORY matlab DESTINATION share/ismrmrd )
@@ -270,4 +270,4 @@ if(CPACK_GENERATOR)
   configure_file("${ISMRMRD_CMAKE_DIR}/cpack_options.cmake.in" ${ISMRMRD_CPACK_CFG_FILE} @ONLY)
   set(CPACK_PROJECT_CONFIG_FILE ${ISMRMRD_CPACK_CFG_FILE})
   include(CPack)
-endif(CPACK_GENERATOR)
+endif()
