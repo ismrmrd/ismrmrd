@@ -46,7 +46,7 @@ endif (WIN32)
 #
 #The major number increments when the binary compatibility of
 #the fixed memory layout struts (e.g. AcquisitionHeader) is broken.
-#The minor number changes when there are changes to the XML schema for 
+#The minor number changes when there are changes to the XML schema for
 #the flexible header. The micro number changes when there are small changes
 #in the utility libraries, that don't affect the data format itself.
 # For more information see http://semver.org/
@@ -59,11 +59,12 @@ set(ISMRMRD_SOVERSION ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR})
 set(ISMRMRD_XML_SCHEMA_SHA1 "9b899c6ad806bc2388c70461d6e5affe5cc6d750")
 
 #Remove line breaks and white space that does not change the meaning of the schema
-file(STRINGS ${CMAKE_SOURCE_DIR}/schema/ismrmrd.xsd SCHEMA_STRINGS) #Read all strings from file 
+file(STRINGS ${CMAKE_SOURCE_DIR}/schema/ismrmrd.xsd SCHEMA_STRINGS) #Read all strings from file
 string(REPLACE ";" "" SCHEMA_NO_BREAKS  ${SCHEMA_STRINGS}) #Concatenate the list of strings
 string(REGEX REPLACE ">[ \t]+<" "><" SCHEMA_NO_SPACE ${SCHEMA_NO_BREAKS}) #Remove spaces and tabs
 string(STRIP ${SCHEMA_NO_SPACE} SCHEMA_NO_SPACE) #Strip any leading/trailing whitespace
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/ismrmrd_no_white_space.xsd ${SCHEMA_NO_SPACE}) #Write to file
+set(ISMRMRD_SCHEMA_DIR ${CMAKE_CURRENT_BINARY_DIR})
+file(WRITE ${ISMRMRD_SCHEMA_DIR}/ismrmrd_no_white_space.xsd ${SCHEMA_NO_SPACE}) #Write to file
 
 #Now hash the cleaned up file
 file(SHA1 ${CMAKE_CURRENT_BINARY_DIR}/ismrmrd_no_white_space.xsd ISMRMRD_CURRENT_XML_SCHEMA_SHA1)
@@ -120,9 +121,10 @@ else()
   set(ISMRMRD_GIT_SHA1 "NA")
 endif()
 configure_file(include/version.in ${CMAKE_BINARY_DIR}/include/ismrmrd/version.h)
-install(FILES ${CMAKE_BINARY_DIR}/include/ismrmrd/version.h DESTINATION include/ismrmrd)
+install(FILES ${CMAKE_BINARY_DIR}/include/ismrmrd/version.h DESTINATION include/ismrmrd COMPONENT Devel)
 # note: for the utilities in this project that need ismrmrd/version.h
 # remember to add ${CMAKE_BINARY_DIR}/include to the include path
+
 
 #  ---   VERSIONING  (end) ----
 
@@ -140,7 +142,7 @@ endif (HDF5_FOUND AND WIN32 AND ISMRMRD_INSTALL_DEPENDENCIES)
 
 # include directories for main library
 set(ISMRMRD_TARGET_INCLUDE_DIRS
-  include
+  ${CMAKE_CURRENT_LIST_DIR}/include
   ${CMAKE_BINARY_DIR}/include
   ${ISMRMRD_DATASET_INCLUDE_DIR}
 )
@@ -181,18 +183,26 @@ set_target_properties(ismrmrd PROPERTIES
   SOVERSION ${ISMRMRD_SOVERSION}
 )
 target_link_libraries(ismrmrd ${ISMRMRD_TARGET_LINK_LIBS})
+list(APPEND ISMRMRD_LIBRARIES ismrmrd) # Add to list of libraries to be found
+list(APPEND ISMRMRD_LIBRARY_DIRS ${CMAKE_BINARY_DIR} ) # Add to list of directories to find libaries
 
 # install the main library
-install(TARGETS ismrmrd DESTINATION lib)
+install(TARGETS ismrmrd EXPORT ISMRMRDTargets
+   LIBRARY DESTINATION lib
+   ARCHIVE DESTINATION lib
+   RUNTIME DESTINATION bin
+   INCLUDES DESTINATION include
+   COMPONENT Devel
+)
 
 # install the headers
-install(DIRECTORY include/ismrmrd  DESTINATION include)
+install(DIRECTORY include/ismrmrd  DESTINATION include COMPONENT Devel)
 
 # install the schema file
-install(FILES schema/ismrmrd.xsd DESTINATION share/ismrmrd/schema)
+install(FILES schema/ismrmrd.xsd DESTINATION share/ismrmrd/schema COMPONENT Devel)
 
 # install the cmake modules
-install(FILES cmake/FindIsmrmrd.cmake cmake/FindFFTW3.cmake DESTINATION share/ismrmrd/cmake)
+install(FILES cmake/FindFFTW3.cmake DESTINATION share/ismrmrd/cmake COMPONENT Devel)
 
 #  ---   Main Library  (end) ----
 
@@ -210,7 +220,48 @@ if (NOT WIN32)
 endif (NOT WIN32)
 
 # install the matlab api
-install(DIRECTORY matlab DESTINATION share/ismrmrd)
+install(DIRECTORY matlab DESTINATION share/ismrmrd )
+
+#--- Create cmake package for downstream projects
+#
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/IsmrmrdConfigVersion.cmake"
+  VERSION ${ISMRMRD_VERSION_STRING}
+  COMPATIBILITY AnyNewerVersion
+)
+
+export(EXPORT ISMRMRDTargets
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/ISMRMRDTargets.cmake"
+  NAMESPACE ISMRMRD
+)
+
+set(CONFIG_ISMRMRD_SCHEMA_DIR   ${ISMRMRD_SCHEMA_DIR})
+set(CONFIG_ISMRMRD_TARGET_INCLUDE_DIRS ${ISMRMRD_TARGET_INCLUDE_DIRS})
+set(CONFIG_ISMRMRD_LIBRARY_DIRS ${ISMRMRD_LIBRARY_DIRS})
+configure_file(cmake/IsmrmrdConfig.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/IsmrmrdConfig.cmake"
+  @ONLY
+)
+
+set(CONFIG_ISMRMRD_SCHEMA_DIR   ${CMAKE_INSTALL_PREFIX}/share/ismrmrd/schema)
+set(CONFIG_ISMRMRD_TARGET_INCLUDE_DIRS ${CMAKE_INSTALL_PREFIX}/include)
+set(CONFIG_ISMRMRD_LIBRARY_DIRS ${CMAKE_INSTALL_PREFIX}/lib)
+configure_file(cmake/IsmrmrdConfig.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/InstallFiles/IsmrmrdConfig.cmake"
+  @ONLY
+)
+
+set(ConfigPackageLocation lib/cmake/ISMRMRD)
+install(
+  FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/InstallFiles/IsmrmrdConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/IsmrmrdConfigVersion.cmake"
+  DESTINATION
+    ${ConfigPackageLocation}
+  COMPONENT
+    Devel
+)
 
 # Create package
 string(TOLOWER ${PROJECT_NAME} PROJECT_NAME_LOWER)
