@@ -1,3 +1,4 @@
+add_custom_target(doc)
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
     set(API_DOC_DIR ${CMAKE_CURRENT_BINARY_DIR}/html/api)
@@ -9,6 +10,7 @@ if(DOXYGEN_FOUND)
         COMMAND ${CMAKE_COMMAND} -E make_directory ${API_DOC_DIR}
         COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE}
         COMMENT "Generating API documentation using Doxygen" VERBATIM)
+    add_dependencies(doc apidoc)
 else()
     message(STATUS "Doxygen not found. Not able to build API documentation")
 endif()
@@ -30,9 +32,8 @@ if(SPHINXBUILD)
             COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/html/.nojekyll
             COMMENT "Generating HTML docs using Sphinx" VERBATIM)
     endif()
+    add_dependencies(doc htmldoc)
 else()
     message(STATUS "sphinx-build not found. Not able to build HTML project documentation")
 endif()
 
-add_custom_target(doc)
-add_dependencies(doc apidoc htmldoc)
