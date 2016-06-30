@@ -235,12 +235,12 @@ install(DIRECTORY matlab DESTINATION share/ismrmrd )
 
 #--- Create cmake package for downstream projects
 #
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/ISMRMRDConfigVersion.cmake"
-  VERSION ${ISMRMRD_VERSION_STRING}
-  COMPATIBILITY AnyNewerVersion
-)
+##- include(CMakePackageConfigHelpers)
+##- write_basic_package_version_file(
+##-   "${CMAKE_CURRENT_BINARY_DIR}/ISMRMRDConfigVersion.cmake"
+##-   VERSION ${ISMRMRD_VERSION_STRING}
+##-   COMPATIBILITY AnyNewerVersion
+##- )
 
 export(EXPORT ISMRMRDTargets
   FILE "${CMAKE_CURRENT_BINARY_DIR}/ISMRMRDTargets.cmake"
@@ -267,7 +267,7 @@ set(ConfigPackageLocation lib/cmake/ISMRMRD)
 install(
   FILES
     "${CMAKE_CURRENT_BINARY_DIR}/InstallFiles/ISMRMRDConfig.cmake"
-    "${CMAKE_CURRENT_BINARY_DIR}/ISMRMRDConfigVersion.cmake"
+#--    "${CMAKE_CURRENT_BINARY_DIR}/ISMRMRDConfigVersion.cmake"
   DESTINATION
     ${ConfigPackageLocation}
   COMPONENT
