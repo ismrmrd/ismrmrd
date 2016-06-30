@@ -1,0 +1,29 @@
+#-----------------------------------------------------------------------------
+#
+# ISMRMRDConfig.cmake - ISMRMRD CMake configuration file for external projects.
+#
+# This file is configured by ISMRMRD and used by the UseISMRMRD.cmake module
+# to load ISMRMRD's settings for an external project.
+@ISMRMRD_CONFIG_CODE@
+
+##- include(${CMAKE_CURRENT_LIST_DIR}/ISMRMRDConfigVersion.cmake)
+
+# The ISMRMRD version number
+set(ISMRMRD_VERSION_MAJOR "@ISMRMRD_VERSION_MAJOR@")
+set(ISMRMRD_VERSION_MINOR "@ISMRMRD_VERSION_MINOR@")
+set(ISMRMRD_VERSION_PATCH "@ISMRMRD_VERSION_PATCH@")
+
+#   ISMRMRD_SCHEMA_DIR   - where to find ismrmrd.xsd 
+set(ISMRMRD_SCHEMA_DIR   @CONFIG_ISMRMRD_SCHEMA_DIR@)
+#   ISMRMRD_INCLUDE_DIR  - where to find ismrmrd.h, etc.
+set(ISMRMRD_INCLUDE_DIRS @CONFIG_ISMRMRD_TARGET_INCLUDE_DIRS@)
+#   ISMRMRD_LIBRARY_DIRS - where to search for libraries
+set(ISMRMRD_LIBRARY_DIRS @CONFIG_ISMRMRD_LIBRARY_DIRS@)
+#   ISMRMRD_LIBRARIES    - i.e. ismrmrd
+set(ISMRMRD_LIBRARIES    @ISMRMRD_LIBRARIES@)
+
+## For backwards compatibility use existing variable name
+## Include directories can be lists, and should be plural
+## to conform with naming schemes in many other cmake packages
+set(ISMRMRD_INCLUDE_DIR  @CONFIG_ISMRMRD_TARGET_INCLUDE_DIRS@)
+set(ISMRMRD_LIB_DIR @CONFIG_ISMRMRD_LIBRARY_DIRS@)

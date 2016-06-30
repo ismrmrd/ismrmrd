@@ -14,7 +14,7 @@ if (NOT WIN32)
     ${CMAKE_SOURCE_DIR}/libsrc/pugixml.cpp )
   target_link_libraries(ismrmrd_test_xml ismrmrd)
   install(TARGETS ismrmrd_test_xml DESTINATION bin)
-endif(NOT WIN32)
+endif()
 
 if (HDF5_FOUND)
     add_executable(ismrmrd_read_timing_test read_timing_test.cpp)
@@ -29,7 +29,7 @@ if (HDF5_FOUND)
 
         if(WIN32)
             link_directories(${Boost_LIBRARY_DIRS})
-        endif(WIN32)
+        endif()
 
         include_directories(
             ${CMAKE_SOURCE_DIR/include}
@@ -44,12 +44,12 @@ if (HDF5_FOUND)
             target_link_libraries( ismrmrd_generate_cartesian_shepp_logan
                 ismrmrd
                 ${FFTW3_LIBRARIES})
-        else(WIN32)
+        else()
             target_link_libraries( ismrmrd_generate_cartesian_shepp_logan
                 ismrmrd
                 ${Boost_PROGRAM_OPTIONS_LIBRARY}
                 ${FFTW3_LIBRARIES})
-        endif(WIN32)
+        endif()
         install(TARGETS ismrmrd_generate_cartesian_shepp_logan DESTINATION bin)
 
         # Shepp-Logan phantom
@@ -59,17 +59,17 @@ if (HDF5_FOUND)
             target_link_libraries( ismrmrd_recon_cartesian_2d
                 ismrmrd
                 ${FFTW3_LIBRARIES})
-        else(WIN32)
+        else()
             target_link_libraries( ismrmrd_recon_cartesian_2d
                 ismrmrd
                 ${Boost_PROGRAM_OPTIONS_LIBRARY}
                 ${FFTW3_LIBRARIES})
-        endif(WIN32)
+        endif()
         install(TARGETS ismrmrd_recon_cartesian_2d DESTINATION bin)
 
-    else(FFTW3_FOUND AND Boost_FOUND)
+    else()
         message("FFTW3 or Boost NOT Found, cannot build utilities")
-    endif(FFTW3_FOUND AND Boost_FOUND)
-else (HDF5_FOUND)
+    endif()
+else ()
     message("HDF5 NOT Found, cannot build utilities")
-endif (HDF5_FOUND)
+endif ()

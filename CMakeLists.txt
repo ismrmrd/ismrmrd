@@ -1,4 +1,16 @@
 cmake_minimum_required(VERSION 2.8)
+foreach(p
+    CMP0025 # CMake 3.0 Compiler id for Apple Clang is now ``AppleClang``.
+    CMP0042 # CMake 3.0 ``MACOSX_RPATH`` is enabled by default.
+    CMP0046 # CMake 3.0 Error on non-existent dependency in add_dependencies.
+    CMP0054 # CMake 3.1 Only interpret ``if()`` arguments as variables or keywords when unquoted.
+    CMP0056 # CMake 3.2 Honor link flags in ``try_compile()`` source-file signature.
+    CMP0058 # CMake 3.3 Ninja requires custom command byproducts to be explicit.
+    )
+  if(POLICY ${p})
+    cmake_policy(SET ${p} NEW)
+  endif()
+endforeach()
 project(ISMRMRD)
 
 # set project specific cmake module path
@@ -13,15 +25,15 @@ list(APPEND CMAKE_MODULE_PATH ${ISMRMRD_CMAKE_DIR})
 
 # whether to install dependencies
 if (WIN32)
-    OPTION(ISMRMRD_INSTALL_DEPENDENCIES "Install ismrmrd dependencies in windows" Off)
-endif (WIN32)
+    option(ISMRMRD_INSTALL_DEPENDENCIES "Install ismrmrd dependencies in windows" Off)
+endif ()
 
 # set the build type to Release if not specified
-IF(NOT CMAKE_BUILD_TYPE)
-  SET(CMAKE_BUILD_TYPE Release CACHE STRING
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING
       "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
       FORCE)
-ENDIF(NOT CMAKE_BUILD_TYPE)
+endif()
 
 # compiler flags
 if (WIN32)
@@ -35,10 +47,10 @@ if (WIN32)
     set(CMAKE_STATIC_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
     set(CMAKE_MODULE_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
     add_definitions(-D__func__=__FUNCTION__)
-else (WIN32)
+else ()
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wall")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-endif (WIN32)
+endif ()
 
 #  ---   VERSIONING  (begin) ----
 #The ISMRMRD convention is to use version numbers with the format:
@@ -46,21 +58,25 @@ endif (WIN32)
 #
 #The major number increments when the binary compatibility of
 #the fixed memory layout struts (e.g. AcquisitionHeader) is broken.
-#The minor number changes when there are changes to the XML schema for 
+#The minor number changes when there are changes to the XML schema for
 #the flexible header. The micro number changes when there are small changes
 #in the utility libraries, that don't affect the data format itself.
+# For more information see http://semver.org/
 set(ISMRMRD_VERSION_MAJOR 1)
 set(ISMRMRD_VERSION_MINOR 3)
 set(ISMRMRD_VERSION_PATCH 2)
+set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
+set(ISMRMRD_SOVERSION ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR})
 
 set(ISMRMRD_XML_SCHEMA_SHA1 "9b899c6ad806bc2388c70461d6e5affe5cc6d750")
 
 #Remove line breaks and white space that does not change the meaning of the schema
-file(STRINGS ${CMAKE_SOURCE_DIR}/schema/ismrmrd.xsd SCHEMA_STRINGS) #Read all strings from file 
+file(STRINGS ${CMAKE_SOURCE_DIR}/schema/ismrmrd.xsd SCHEMA_STRINGS) #Read all strings from file
 string(REPLACE ";" "" SCHEMA_NO_BREAKS  ${SCHEMA_STRINGS}) #Concatenate the list of strings
 string(REGEX REPLACE ">[ \t]+<" "><" SCHEMA_NO_SPACE ${SCHEMA_NO_BREAKS}) #Remove spaces and tabs
 string(STRIP ${SCHEMA_NO_SPACE} SCHEMA_NO_SPACE) #Strip any leading/trailing whitespace
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/ismrmrd_no_white_space.xsd ${SCHEMA_NO_SPACE}) #Write to file
+set(ISMRMRD_SCHEMA_DIR ${CMAKE_CURRENT_BINARY_DIR})
+file(WRITE ${ISMRMRD_SCHEMA_DIR}/ismrmrd_no_white_space.xsd ${SCHEMA_NO_SPACE}) #Write to file
 
 #Now hash the cleaned up file
 file(SHA1 ${CMAKE_CURRENT_BINARY_DIR}/ismrmrd_no_white_space.xsd ISMRMRD_CURRENT_XML_SCHEMA_SHA1)
@@ -88,8 +104,6 @@ if (NOT (${ISMRMRD_XML_SCHEMA_SHA1} STREQUAL ${ISMRMRD_CURRENT_XML_SCHEMA_SHA1})
   message(FATAL_ERROR "     FATAL XML VERSION ERROR")
 endif()
 
-set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
-set(ISMRMRD_SOVERSION ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR})
 
 # Find HDF5 for dataset support
 find_package(HDF5 1.8 COMPONENTS C)
@@ -99,10 +113,10 @@ if (HDF5_FOUND)
     set (ISMRMRD_DATASET_SOURCES libsrc/dataset.c libsrc/dataset.cpp)
     set (ISMRMRD_DATASET_INCLUDE_DIR ${HDF5_C_INCLUDE_DIR})
     set (ISMRMRD_DATASET_LIBRARIES ${HDF5_LIBRARIES})
-else (HDF5_FOUND)
+else ()
     set (ISMRMRD_DATASET_SUPPORT false)
     message (WARNING "HDF5 not found. Dataset and file support unavailable!")
-endif (HDF5_FOUND)
+endif ()
 
 # Generate the version.h header file
 find_package(Git)
@@ -114,14 +128,15 @@ if (GIT_FOUND)
     if (${ISMRMRD_GIT_SHA1_LEN} LESS 40)
         message(WARNING "Could not determine SHA-1 hash: ${ISMRMRD_GIT_STDERR}")
         set(ISMRMRD_GIT_SHA1 "NA")
-    endif (${ISMRMRD_GIT_SHA1_LEN} LESS 40)
+    endif ()
 else()
   set(ISMRMRD_GIT_SHA1 "NA")
 endif()
 configure_file(include/version.in ${CMAKE_BINARY_DIR}/include/ismrmrd/version.h)
-install(FILES ${CMAKE_BINARY_DIR}/include/ismrmrd/version.h DESTINATION include/ismrmrd)
+install(FILES ${CMAKE_BINARY_DIR}/include/ismrmrd/version.h DESTINATION include/ismrmrd COMPONENT Devel)
 # note: for the utilities in this project that need ismrmrd/version.h
 # remember to add ${CMAKE_BINARY_DIR}/include to the include path
+
 
 #  ---   VERSIONING  (end) ----
 
@@ -130,16 +145,16 @@ install(FILES ${CMAKE_BINARY_DIR}/include/ismrmrd/version.h DESTINATION include/
 if (HDF5_FOUND AND WIN32 AND ISMRMRD_INSTALL_DEPENDENCIES)
     if(DEFINED ENV{HDF5_ROOT})
         set(HDF5_BIN_DIR $ENV{HDF5_ROOT}/bin)
-    else (DEFINED ENV{HDF5_ROOT})
+    else ()
         set(HDF5_BIN_DIR ${HDF5_C_INCLUDE_DIR}/../bin)
-    endif (DEFINED ENV{HDF5_ROOT})
+    endif ()
     message("Install hdf5 libraries from ${HDF5_BIN_DIR} ")
     install( DIRECTORY ${HDF5_BIN_DIR} DESTINATION bin/.. FILES_MATCHING PATTERN "*.dll" )
-endif (HDF5_FOUND AND WIN32 AND ISMRMRD_INSTALL_DEPENDENCIES)
+endif ()
 
 # include directories for main library
 set(ISMRMRD_TARGET_INCLUDE_DIRS
-  include
+  ${CMAKE_CURRENT_LIST_DIR}/include
   ${CMAKE_BINARY_DIR}/include
   ${ISMRMRD_DATASET_INCLUDE_DIR}
 )
@@ -161,16 +176,16 @@ if(USE_SYSTEM_PUGIXML)
     message("Found system pugixml: ${PugiXML_INCLUDE_DIR} ${PugiXML_LIBRARY}")
     list(APPEND ISMRMRD_TARGET_INCLUDE_DIRS ${PugiXML_INCLUDE_DIR})
     list(APPEND ISMRMRD_TARGET_LINK_LIBS ${PugiXML_LIBRARY})
-  else(PugiXML_FOUND)
+  else()
     message(FATAL_ERROR "Pugixml library not found on the system, try without "
     "setting USE_SYSTEM_PUGIXML to use the version provided in the source "
     "tree.")
-  endif(PugiXML_FOUND)
+  endif()
   list(APPEND ISMRMRD_TARGET_INCLUDE_DIRS ${PugiXML_INCLUDE_DIR})
   list(APPEND ISMRMRD_TARGET_LINK_LIBS ${PugiXML_LIBRARY})
-else(USE_SYSTEM_PUGIXML)
+else()
   list(APPEND ISMRMRD_TARGET_SOURCES libsrc/pugixml.cpp)
-endif(USE_SYSTEM_PUGIXML)
+endif()
 
 # main library
 include_directories(${ISMRMRD_TARGET_INCLUDE_DIRS})
@@ -180,18 +195,25 @@ set_target_properties(ismrmrd PROPERTIES
   SOVERSION ${ISMRMRD_SOVERSION}
 )
 target_link_libraries(ismrmrd ${ISMRMRD_TARGET_LINK_LIBS})
+list(APPEND ISMRMRD_LIBRARIES ismrmrd) # Add to list of libraries to be found
+list(APPEND ISMRMRD_LIBRARY_DIRS ${CMAKE_BINARY_DIR} ) # Add to list of directories to find libaries
 
 # install the main library
-install(TARGETS ismrmrd DESTINATION lib)
+install(TARGETS ismrmrd EXPORT ISMRMRDTargets
+   LIBRARY DESTINATION lib
+   ARCHIVE DESTINATION lib
+   RUNTIME DESTINATION bin
+   COMPONENT Devel
+)
 
 # install the headers
-install(DIRECTORY include/ismrmrd  DESTINATION include)
+install(DIRECTORY include/ismrmrd  DESTINATION include COMPONENT Devel)
 
 # install the schema file
-install(FILES schema/ismrmrd.xsd DESTINATION share/ismrmrd/schema)
+install(FILES schema/ismrmrd.xsd DESTINATION share/ismrmrd/schema COMPONENT Devel)
 
 # install the cmake modules
-install(FILES cmake/FindIsmrmrd.cmake cmake/FindFFTW3.cmake DESTINATION share/ismrmrd/cmake)
+install(FILES cmake/FindFFTW3.cmake DESTINATION share/ismrmrd/cmake COMPONENT Devel)
 
 #  ---   Main Library  (end) ----
 
@@ -201,15 +223,56 @@ add_subdirectory(doc)
 add_subdirectory(utilities)
 if (HDF5_FOUND)
     add_subdirectory(examples/c)
-endif (HDF5_FOUND)
+endif ()
 
 # TODO: make this work on Windows
 if (NOT WIN32)
     add_subdirectory(tests)
-endif (NOT WIN32)
+endif ()
 
 # install the matlab api
-install(DIRECTORY matlab DESTINATION share/ismrmrd)
+install(DIRECTORY matlab DESTINATION share/ismrmrd )
+
+#--- Create cmake package for downstream projects
+#
+##- include(CMakePackageConfigHelpers)
+##- write_basic_package_version_file(
+##-   "${CMAKE_CURRENT_BINARY_DIR}/ISMRMRDConfigVersion.cmake"
+##-   VERSION ${ISMRMRD_VERSION_STRING}
+##-   COMPATIBILITY AnyNewerVersion
+##- )
+
+##- export(EXPORT ISMRMRDTargets
+##-  FILE "${CMAKE_CURRENT_BINARY_DIR}/ISMRMRDTargets.cmake"
+##-  NAMESPACE ISMRMRD
+##-)
+
+set(CONFIG_ISMRMRD_SCHEMA_DIR   ${ISMRMRD_SCHEMA_DIR})
+set(CONFIG_ISMRMRD_TARGET_INCLUDE_DIRS ${ISMRMRD_TARGET_INCLUDE_DIRS})
+set(CONFIG_ISMRMRD_LIBRARY_DIRS ${ISMRMRD_LIBRARY_DIRS})
+configure_file(cmake/ISMRMRDConfig.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/ISMRMRDConfig.cmake"
+  @ONLY
+)
+
+set(CONFIG_ISMRMRD_SCHEMA_DIR   ${CMAKE_INSTALL_PREFIX}/share/ismrmrd/schema)
+set(CONFIG_ISMRMRD_TARGET_INCLUDE_DIRS ${CMAKE_INSTALL_PREFIX}/include)
+set(CONFIG_ISMRMRD_LIBRARY_DIRS ${CMAKE_INSTALL_PREFIX}/lib)
+configure_file(cmake/ISMRMRDConfig.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/InstallFiles/ISMRMRDConfig.cmake"
+  @ONLY
+)
+
+set(ConfigPackageLocation lib/cmake/ISMRMRD)
+install(
+  FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/InstallFiles/ISMRMRDConfig.cmake"
+#--    "${CMAKE_CURRENT_BINARY_DIR}/ISMRMRDConfigVersion.cmake"
+  DESTINATION
+    ${ConfigPackageLocation}
+  COMPONENT
+    Devel
+)
 
 # Create package
 string(TOLOWER ${PROJECT_NAME} PROJECT_NAME_LOWER)
@@ -219,4 +282,4 @@ if(CPACK_GENERATOR)
   configure_file("${ISMRMRD_CMAKE_DIR}/cpack_options.cmake.in" ${ISMRMRD_CPACK_CFG_FILE} @ONLY)
   set(CPACK_PROJECT_CONFIG_FILE ${ISMRMRD_CPACK_CFG_FILE})
   include(CPack)
-endif(CPACK_GENERATOR)
+endif()

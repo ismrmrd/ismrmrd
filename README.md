@@ -33,3 +33,26 @@ Other Resources
 ---------------
 
 - [Python implementation](https://www.github.com/ismrmrd/ismrmrd-python)
+
+External Use of ISMRMRD in other source packages
+------------------------------------------------
+Build and install ISMRMRD by setting 
+
+```
+   cmake -DCMAKE_INSTALL_PREFIX=<your install directory>
+```
+
+To use ISMRMRD for your externally developed projects, add the following to your CMakeLists.txt file:
+
+```
+  find_package( ISMRMRD REQUIRED )
+  link_directories( ${ISMRMRD_LIBRARY_DIRS} )
+  include_directories( ${ISMRMRD_INCLUDE_DIRS} )
+  target_link_libraries( mytarget ${ISMRMRD_LIBRARIES} )
+```
+
+then when configuring your package use set the following cmake variables (command line variant shown):
+
+```
+  cmake -DISMRMRD_DIR:PATH=<path to build/install tree of ISMRMRD> <path to my source tree>
+```
