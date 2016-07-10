@@ -162,6 +162,10 @@ enum ISMRMRD_AcquisitionFlags {
     ISMRMRD_ACQ_IS_RTFEEDBACK_DATA                  = 28,
     ISMRMRD_ACQ_IS_SURFACECOILCORRECTIONSCAN_DATA   = 29,
 
+    ISMRMRD_ACQ_COMPRESSION1                        = 53,
+    ISMRMRD_ACQ_COMPRESSION2                        = 54,
+    ISMRMRD_ACQ_COMPRESSION3                        = 55,
+    ISMRMRD_ACQ_COMPRESSION4                        = 56,
     ISMRMRD_ACQ_USER1                               = 57,
     ISMRMRD_ACQ_USER2                               = 58,
     ISMRMRD_ACQ_USER3                               = 59,
