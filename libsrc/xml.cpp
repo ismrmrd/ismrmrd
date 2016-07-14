@@ -249,10 +249,21 @@ namespace ISMRMRD
    
     return r;
   }
-
   //End of utility functions for deserializing header
 
-  void deserialize(const char* xml, IsmrmrdHeader& h) 
+/*******************************************************************************
+ virtual deserialize
+ ******************************************************************************/
+  void IsmrmrdHeader::deserialize (const std::vector<unsigned char>& buffer)
+  {
+    //std::lock_guard<std::mutex> guard (gmtx);
+    std::string hdr (buffer.begin(), buffer.end());
+    ::ISMRMRD::deserialize (hdr.c_str(), *this);
+  }
+
+/*******************************************************************************
+ ******************************************************************************/
+  void deserialize (const char* xml, IsmrmrdHeader& h) 
   {
     pugi::xml_document doc;
     pugi::xml_parse_result result = doc.load(xml);
@@ -644,6 +655,21 @@ namespace ISMRMRD
 
   //End utility functions for serialization
 
+
+/*******************************************************************************
+ virtual serialize
+ ******************************************************************************/
+std::vector<unsigned char> IsmrmrdHeader::serialize()
+{
+  std::stringstream str;
+  ::ISMRMRD::serialize (*this, str);
+  std::string hdr = str.str();
+  std::vector<unsigned char> buffer (hdr.begin(), hdr.end());
+  return buffer;
+}
+
+/*******************************************************************************
+ ******************************************************************************/
   void serialize(const IsmrmrdHeader& h, std::ostream& o)
   {
     pugi::xml_document doc;
@@ -848,6 +874,5 @@ namespace ISMRMRD
 
     doc.save(o);
   }
-
 
 }
