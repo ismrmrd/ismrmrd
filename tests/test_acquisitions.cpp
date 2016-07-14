@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(acquisition_serialize, T, test_types)
 
 static void check_header(const AcquisitionHeader& chead)
 {
-    BOOST_CHECK_EQUAL(chead.version, ISMRMRD_VERSION_MAJOR);
+    BOOST_CHECK_EQUAL(chead.ent_head.signature, ISMRMRD_SIGNATURE);
     BOOST_CHECK_EQUAL(chead.number_of_samples, 0);
     BOOST_CHECK_EQUAL(chead.available_channels, 1);
     BOOST_CHECK_EQUAL(chead.active_channels, 1);

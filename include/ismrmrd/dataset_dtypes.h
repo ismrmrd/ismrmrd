@@ -69,66 +69,72 @@ template <> DataType get_hdf5_data_type<EncodingCounters>()
 
 template <> DataType get_hdf5_data_type<AcquisitionHeader>()
 {
-    CompType dtype(sizeof(AcquisitionHeader));
+  CompType dtype (sizeof(AcquisitionHeader));
 
-    dtype.insertMember("version", HOFFSET(AcquisitionHeader, version),  PredType::NATIVE_UINT32);
-    dtype.insertMember("entity_type", HOFFSET(AcquisitionHeader, entity_type),  PredType::NATIVE_UINT32);
-    dtype.insertMember("storage_type", HOFFSET(AcquisitionHeader, storage_type),  PredType::NATIVE_UINT32);
-    dtype.insertMember("stream", HOFFSET(AcquisitionHeader, stream),  PredType::NATIVE_UINT32);
-    dtype.insertMember("time_stamp", HOFFSET(AcquisitionHeader, time_stamp),  PredType::NATIVE_UINT64);
-    dtype.insertMember("flags",  HOFFSET(AcquisitionHeader, flags),  PredType::NATIVE_UINT64);
-    dtype.insertMember("scan_counter",  HOFFSET(AcquisitionHeader, scan_counter),  PredType::NATIVE_UINT32);
+  dtype.insertMember ("stream", HOFFSET(AcquisitionHeader,
+                      ent_head.stream), PredType::NATIVE_UINT32);
+  dtype.insertMember ("signature", HOFFSET(AcquisitionHeader,
+                      ent_head.signature), PredType::NATIVE_UINT32);
+  dtype.insertMember ("entity_type", HOFFSET(AcquisitionHeader,
+                      ent_head.entity_type), PredType::NATIVE_UINT32);
+  dtype.insertMember ("storage_type", HOFFSET(AcquisitionHeader,
+                      ent_head.storage_type), PredType::NATIVE_UINT32);
 
-    std::vector<hsize_t> dims(1, ISMRMRD_PHYS_STAMPS);
-    DataType array_type = ArrayType(PredType::NATIVE_UINT32, 1, &dims[0]);
-    dtype.insertMember("physiology_time_stamp", HOFFSET(AcquisitionHeader, physiology_time_stamp), array_type);
-    dtype.insertMember("number_of_samples",  HOFFSET(AcquisitionHeader, number_of_samples),  PredType::NATIVE_UINT32);
-    dtype.insertMember("available_channels",  HOFFSET(AcquisitionHeader, available_channels),  PredType::NATIVE_UINT32);
-    dtype.insertMember("active_channels",  HOFFSET(AcquisitionHeader, active_channels),  PredType::NATIVE_UINT32);
+  dtype.insertMember("time_stamp", HOFFSET(AcquisitionHeader, time_stamp),  PredType::NATIVE_UINT64);
+  dtype.insertMember("flags",  HOFFSET(AcquisitionHeader, flags),  PredType::NATIVE_UINT64);
+  dtype.insertMember("scan_counter",  HOFFSET(AcquisitionHeader, scan_counter),  PredType::NATIVE_UINT32);
 
-    dims[0] = ISMRMRD_CHANNEL_MASKS;
-    DataType mask_array_type = ArrayType(PredType::NATIVE_UINT64, 1, &dims[0]);
-    dtype.insertMember("channel_mask",  HOFFSET(AcquisitionHeader, channel_mask), mask_array_type);
-    dtype.insertMember("discard_pre",  HOFFSET(AcquisitionHeader, discard_pre),  PredType::NATIVE_UINT32);
-    dtype.insertMember("discard_post",  HOFFSET(AcquisitionHeader, discard_post),  PredType::NATIVE_UINT32);
-    dtype.insertMember("center_sample",  HOFFSET(AcquisitionHeader, center_sample),  PredType::NATIVE_UINT32);
-    dtype.insertMember("encoding_space_ref",  HOFFSET(AcquisitionHeader, encoding_space_ref),  PredType::NATIVE_UINT32);
-    dtype.insertMember("trajectory_dimensions", HOFFSET(AcquisitionHeader, trajectory_dimensions),  PredType::NATIVE_UINT32);
-    dtype.insertMember("dwell_time_ns",  HOFFSET(AcquisitionHeader, dwell_time_ns),  PredType::NATIVE_UINT32);
+  std::vector<hsize_t> dims(1, ISMRMRD_PHYS_STAMPS);
+  DataType array_type = ArrayType(PredType::NATIVE_UINT32, 1, &dims[0]);
+  dtype.insertMember("physiology_time_stamp", HOFFSET(AcquisitionHeader, physiology_time_stamp), array_type);
+  dtype.insertMember("number_of_samples",  HOFFSET(AcquisitionHeader, number_of_samples),  PredType::NATIVE_UINT32);
+  dtype.insertMember("available_channels",  HOFFSET(AcquisitionHeader, available_channels),  PredType::NATIVE_UINT32);
+  dtype.insertMember("active_channels",  HOFFSET(AcquisitionHeader, active_channels),  PredType::NATIVE_UINT32);
 
-    dims[0] = ISMRMRD_POSITION_LENGTH;
-    DataType position_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
-    dtype.insertMember("position",  HOFFSET(AcquisitionHeader, position), position_array_type);
+  dims[0] = ISMRMRD_CHANNEL_MASKS;
+  DataType mask_array_type = ArrayType(PredType::NATIVE_UINT64, 1, &dims[0]);
+  dtype.insertMember("channel_mask",  HOFFSET(AcquisitionHeader, channel_mask), mask_array_type);
+  dtype.insertMember("discard_pre",  HOFFSET(AcquisitionHeader, discard_pre),  PredType::NATIVE_UINT32);
+  dtype.insertMember("discard_post",  HOFFSET(AcquisitionHeader, discard_post),  PredType::NATIVE_UINT32);
+  dtype.insertMember("center_sample",  HOFFSET(AcquisitionHeader, center_sample),  PredType::NATIVE_UINT32);
+  dtype.insertMember("encoding_space_ref",  HOFFSET(AcquisitionHeader, encoding_space_ref),  PredType::NATIVE_UINT32);
+  dtype.insertMember("trajectory_dimensions", HOFFSET(AcquisitionHeader, trajectory_dimensions),  PredType::NATIVE_UINT32);
+  dtype.insertMember("dwell_time_ns",  HOFFSET(AcquisitionHeader, dwell_time_ns),  PredType::NATIVE_UINT32);
 
-    dims[0] = ISMRMRD_POSITION_LENGTH;
-    DataType read_dir_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
-    dtype.insertMember("read_dir",  HOFFSET(AcquisitionHeader, read_dir), read_dir_array_type);
+  dims[0] = ISMRMRD_POSITION_LENGTH;
+  DataType position_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
+  dtype.insertMember("position",  HOFFSET(AcquisitionHeader, position), position_array_type);
 
-    dims[0] = ISMRMRD_POSITION_LENGTH;
-    DataType phase_dir_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
-    dtype.insertMember("phase_dir",  HOFFSET(AcquisitionHeader, phase_dir), phase_dir_array_type);
+  dims[0] = ISMRMRD_POSITION_LENGTH;
+  DataType read_dir_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
+  dtype.insertMember("read_dir",  HOFFSET(AcquisitionHeader, read_dir), read_dir_array_type);
 
-    dims[0] = ISMRMRD_POSITION_LENGTH;
-    DataType slice_dir_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
-    dtype.insertMember("slice_dir",  HOFFSET(AcquisitionHeader, slice_dir), slice_dir_array_type);
+  dims[0] = ISMRMRD_POSITION_LENGTH;
+  DataType phase_dir_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
+  dtype.insertMember("phase_dir",  HOFFSET(AcquisitionHeader, phase_dir), phase_dir_array_type);
 
-    dims[0] = ISMRMRD_POSITION_LENGTH;
-    DataType table_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
-    dtype.insertMember("patient_table_position",  HOFFSET(AcquisitionHeader, patient_table_position), table_array_type);
+  dims[0] = ISMRMRD_POSITION_LENGTH;
+  DataType slice_dir_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
+  dtype.insertMember("slice_dir",  HOFFSET(AcquisitionHeader, slice_dir), slice_dir_array_type);
 
-    DataType ec_type = get_hdf5_data_type<EncodingCounters>();
-    dtype.insertMember("idx",  HOFFSET(AcquisitionHeader, idx), ec_type);
+  dims[0] = ISMRMRD_POSITION_LENGTH;
+  DataType table_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
+  dtype.insertMember("patient_table_position",  HOFFSET(AcquisitionHeader, patient_table_position), table_array_type);
 
-    dims[0] = ISMRMRD_USER_INTS;
-    DataType user_int_array_type = ArrayType(PredType::NATIVE_INT32, 1, &dims[0]);
-    dtype.insertMember("user_int",  HOFFSET(AcquisitionHeader, user_int), user_int_array_type);
+  DataType ec_type = get_hdf5_data_type<EncodingCounters>();
+  dtype.insertMember("idx",  HOFFSET(AcquisitionHeader, idx), ec_type);
 
-    dims[0] = ISMRMRD_USER_FLOATS;
-    DataType user_float_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
-    dtype.insertMember("user_float",  HOFFSET(AcquisitionHeader, user_float), user_float_array_type);
+  dims[0] = ISMRMRD_USER_INTS;
+  DataType user_int_array_type = ArrayType(PredType::NATIVE_INT32, 1, &dims[0]);
+  dtype.insertMember("user_int",  HOFFSET(AcquisitionHeader, user_int), user_int_array_type);
 
-    return dtype;
+  dims[0] = ISMRMRD_USER_FLOATS;
+  DataType user_float_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
+  dtype.insertMember("user_float",  HOFFSET(AcquisitionHeader, user_float), user_float_array_type);
+
+  return dtype;
 }
+
 
 template <> DataType get_hdf5_data_type<AcquisitionHeader_with_data<float> >()
 {

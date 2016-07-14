@@ -108,38 +108,35 @@ template <> EXPORTISMRMRD StorageType get_storage_type<std::complex<double> >()
 
 bool operator==(const AcquisitionHeader& h1, const AcquisitionHeader& h2)
 {
-    return memcmp(&h1, &h2, sizeof(h1)) == 0;
+  return memcmp(&h1, &h2, sizeof(h1)) == 0;
 }
 
 bool operator==(const ImageHeader& h1, const ImageHeader& h2)
 {
-    return memcmp(&h1, &h2, sizeof(h1)) == 0;
+  return memcmp(&h1, &h2, sizeof(h1)) == 0;
 }
 
-template <typename T> Acquisition<T>::Acquisition(uint32_t num_samples, uint32_t active_channels, uint32_t trajectory_dimensions)
+
+template <typename T>
+Acquisition<T>::Acquisition
+(
+  uint32_t num_samples,
+  uint32_t active_channels,
+  uint32_t trajectory_dimensions
+)
 {
-    memset(&head_, 0, sizeof(head_));
-    head_.version = ISMRMRD_VERSION_MAJOR;
-    head_.entity_type = ISMRMRD_MRACQUISITION;
-    head_.storage_type = get_storage_type<T>();
-    this->resize(num_samples, active_channels, trajectory_dimensions);
+    memset (&head_, 0, sizeof(head_));
+    head_.ent_head.signature    = ISMRMRD_SIGNATURE;
+    head_.ent_head.entity_type  = ISMRMRD_MRACQUISITION;
+    head_.ent_head.storage_type = get_storage_type<T>();
+    this->resize (num_samples, active_channels, trajectory_dimensions);
 }
 
 // Accessors and mutators
-template <typename T> uint32_t Acquisition<T>::getVersion() const {
-    return head_.version;
-}
-
-template <typename T> StorageType Acquisition<T>::getStorageType() const {
-    return static_cast<StorageType>(head_.storage_type);
-}
-
-template <typename T> uint32_t Acquisition<T>::getStream() const {
-    return head_.stream;
-}
-
-template <typename T> void Acquisition<T>::setStream(uint32_t stream_number) {
-    head_.stream = stream_number;
+template <typename T>
+void Acquisition<T>::setStream (uint32_t stream_number)
+{
+  head_.ent_head.stream = stream_number;
 }
 
 template <typename T> uint32_t Acquisition<T>::getScanCounter() const {
@@ -566,77 +563,147 @@ template <typename T> void Acquisition<T>::setAllChannelsNotActive() {
     }
 }
 
-template <typename T> std::vector<unsigned char> Acquisition<T>::serialize()
+
+template <typename T>
+uint32_t Acquisition<T>::getStream () const
 {
-    if (this->head_.entity_type != ISMRMRD_MRACQUISITION) {
-        throw std::runtime_error("The header entity type does not match the class type");
-    }
-
-    if (this->head_.storage_type != get_storage_type<T>()) {
-        throw std::runtime_error("Header storage type does not match class");
-    }
-
-    size_t bytes = sizeof(AcquisitionHeader) + traj_.size()*sizeof(float) + data_.size()*sizeof(std::complex<T>);
-    std::vector<unsigned char> buffer;
-    buffer.reserve(bytes);
-    std::copy((unsigned char*)(&this->head_),((unsigned char*)(&this->head_))+sizeof(AcquisitionHeader), std::back_inserter(buffer));
-    std::copy((unsigned char*)(&this->traj_[0]),(unsigned char*)(&this->traj_[0] + traj_.size()),std::back_inserter(buffer));
-    std::copy((unsigned char*)(&this->data_[0]),(unsigned char*)(&this->data_[0] + data_.size()),std::back_inserter(buffer));
-
-    if (buffer.size() != bytes) {
-        throw std::runtime_error("Serialized buffer size does not match expected buffer size");
-    }
-    
-    return buffer; //Should not be copied on newer compilers due to return value optimization.
-}
-    
-template <typename T>  void Acquisition<T>::deserialize(const std::vector<unsigned char>& buffer)
-{
-    if (buffer.size() < sizeof(AcquisitionHeader)) {
-        throw std::runtime_error("Buffer is too small to contain an Acquisition");
-    }
-
-    AcquisitionHeader* h_ptr = (AcquisitionHeader*)&buffer[0];
-
-    if (h_ptr->entity_type != ISMRMRD_MRACQUISITION) {
-        throw std::runtime_error("The header entity type does not match the class type");
-    }
-
-    if (h_ptr->storage_type != get_storage_type<T>()) {
-        throw std::runtime_error("Header storage type does not match class");
-    }
-    
-    size_t expected_bytes =
-        sizeof(AcquisitionHeader) +
-        h_ptr->trajectory_dimensions*h_ptr->number_of_samples*sizeof(float) +
-        h_ptr->number_of_samples*h_ptr->active_channels*sizeof(std::complex<T>);
-
-    if (expected_bytes != buffer.size()) {
-        std::stringstream ss;
-        ss << "Unexpected buffer length " << buffer.size() << ", expected: " << expected_bytes;
-        throw std::runtime_error(ss.str());
-    }
-    
-    this->setHead(*h_ptr);
-    size_t traj_start = sizeof(AcquisitionHeader);
-    size_t data_start = traj_start + h_ptr->trajectory_dimensions*h_ptr->number_of_samples*sizeof(float);
-
-    std::copy(&buffer[traj_start], &buffer[data_start], (unsigned char*)(&this->traj_[0]));
-    std::copy(&buffer[data_start], &buffer[expected_bytes], (unsigned char*)(&this->data_[0]));
+  return head_.ent_head.stream;
 }
 
-
-
-template <typename T> Image<T>::Image(uint32_t matrix_size_x,
-                                      uint32_t matrix_size_y,
-                                      uint32_t matrix_size_z,
-                                      uint32_t channels)
+template <typename T>
+uint32_t Acquisition<T>::getSignature () const
 {
-    memset(&head_, 0, sizeof(head_));
-    head_.version = ISMRMRD_VERSION_MAJOR;
-    head_.entity_type = ISMRMRD_IMAGE;
-    head_.storage_type = static_cast<uint32_t>(get_storage_type<T>());
-    this->resize(matrix_size_x, matrix_size_y, matrix_size_z, channels);
+  return head_.ent_head.signature;
+}
+
+template <typename T>
+EntityType Acquisition<T>::getEntityType () const
+{
+  return static_cast<EntityType>(head_.ent_head.entity_type);
+}
+
+template <typename T>
+StorageType Acquisition<T>::getStorageType () const
+{
+  return static_cast<StorageType>(head_.ent_head.storage_type);
+}
+
+template <typename T>
+std::vector<unsigned char> Acquisition<T>::serialize()
+{
+  if (this->head_.ent_head.signature != ISMRMRD_SIGNATURE)
+  {
+    throw std::runtime_error ("The header signature not recognized");
+  }
+
+  if (this->head_.ent_head.entity_type != ISMRMRD_MRACQUISITION)
+  {
+    throw std::runtime_error
+      ("The header entity type does not match the class type");
+  }
+
+  if (this->head_.ent_head.storage_type != get_storage_type<T>()) {
+    throw std::runtime_error("Header storage type does not match class");
+  }
+
+  size_t bytes = sizeof(AcquisitionHeader) +
+                 traj_.size() * sizeof(float) +
+                 data_.size() * sizeof(std::complex<T>);
+
+  std::vector<unsigned char> buffer;
+  buffer.reserve(bytes);
+
+  std::copy ((unsigned char*)(&this->head_),
+             ((unsigned char*)(&this->head_)) + sizeof(AcquisitionHeader),
+              std::back_inserter(buffer));
+
+  std::copy ((unsigned char*)(&this->traj_[0]),
+             (unsigned char*)(&this->traj_[0] + traj_.size()),
+             std::back_inserter(buffer));
+
+  std::copy ((unsigned char*)(&this->data_[0]),
+             (unsigned char*)(&this->data_[0] + data_.size()),
+             std::back_inserter(buffer));
+
+  if (buffer.size() != bytes)
+  {
+    throw std::runtime_error
+      ("Serialized buffer size does not match expected buffer size");
+  }
+    
+  return buffer; // Should not be copied on newer compilers
+                 // due to return value optimization.
+}
+    
+template <typename T>
+void Acquisition<T>::deserialize (const std::vector<unsigned char>& buffer)
+{
+  if (buffer.size() < sizeof(AcquisitionHeader))
+  {
+    throw std::runtime_error ("Buffer is too small to contain an Acquisition");
+  }
+
+  AcquisitionHeader* h_ptr = (AcquisitionHeader*)&buffer[0];
+
+  if (h_ptr->ent_head.signature != ISMRMRD_SIGNATURE)
+  {
+    throw std::runtime_error ("The header signature not recognized");
+  }
+
+  if (h_ptr->ent_head.entity_type != ISMRMRD_MRACQUISITION)
+  {
+    throw std::runtime_error
+      ("The header entity type does not match the class type");
+  }
+
+  if (h_ptr->ent_head.storage_type != get_storage_type<T>())
+  {
+    throw std::runtime_error("Header storage type does not match class");
+  }
+    
+  size_t expected_bytes =
+    sizeof(AcquisitionHeader) +
+    h_ptr->trajectory_dimensions * h_ptr->number_of_samples * sizeof(float) +
+    h_ptr->number_of_samples * h_ptr->active_channels * sizeof(std::complex<T>);
+
+  if (expected_bytes != buffer.size())
+  {
+    std::stringstream ss;
+    ss << "Unexpected buffer length " << buffer.size()
+       << ", expected: " << expected_bytes;
+    throw std::runtime_error(ss.str());
+  }
+    
+  this->setHead(*h_ptr);
+  size_t traj_start = sizeof(AcquisitionHeader);
+  size_t data_start = traj_start +
+    h_ptr->trajectory_dimensions * h_ptr->number_of_samples * sizeof(float);
+
+  std::copy (&buffer[traj_start],
+             &buffer[data_start],
+             (unsigned char*)(&this->traj_[0]));
+
+  std::copy (&buffer[data_start],
+             &buffer[expected_bytes],
+             (unsigned char*)(&this->data_[0]));
+}
+
+
+
+template <typename T>
+ Image<T>::Image
+(
+  uint32_t matrix_size_x,
+  uint32_t matrix_size_y,
+  uint32_t matrix_size_z,
+  uint32_t channels
+)
+{
+    memset (&head_, 0, sizeof(head_));
+    head_.ent_head.signature = ISMRMRD_SIGNATURE;
+    head_.ent_head.entity_type = ISMRMRD_IMAGE;
+    head_.ent_head.storage_type = static_cast<uint32_t>(get_storage_type<T>());
+    this->resize (matrix_size_x, matrix_size_y, matrix_size_z, channels);
 }
 
 // Image dimensions
@@ -667,6 +734,12 @@ template <typename T> void Image<T>::makeConsistent() {
     data_.resize(getNumberOfElements());
 
     attribute_string_.resize(head_.attribute_string_len);
+}
+
+template <typename T>
+void Image<T>::setStream (uint32_t stream_number)
+{
+  head_.ent_head.stream = stream_number;
 }
 
 template <typename T> uint32_t Image<T>::getMatrixSizeX() const
@@ -939,16 +1012,6 @@ template <typename T> void Image<T>::setPatientTablePositionZ(float z)
     head_.patient_table_position[2] = z;
 }
 
-template <typename T> uint32_t Image<T>::getVersion() const
-{
-    return head_.version;
-}
-
-template <typename T> StorageType Image<T>::getStorageType() const
-{
-    return static_cast<StorageType>(head_.storage_type);
-}
-
 template <typename T> uint32_t Image<T>::getAverage() const
 {
     return head_.average;
@@ -1121,13 +1184,17 @@ template <typename T> const ImageHeader &Image<T>::getHead() const {
     return head_;
 }
 
-template <typename T> void Image<T>::setHead(const ImageHeader& other) {
-    if (other.storage_type != head_.storage_type) {
-        throw std::runtime_error("Cannot assign a header of a different data type.");
-    }
+template <typename T>
+void Image<T>::setHead (const ImageHeader& other)
+{
+  if (other.ent_head.storage_type != head_.ent_head.storage_type)
+  {
+    throw std::runtime_error
+      ("Cannot assign a header of a different data type.");
+  }
 
-    this->head_ = other;
-    this->makeConsistent();
+  this->head_ = other;
+  this->makeConsistent();
 }
 
 // Attribute string
@@ -1165,92 +1232,161 @@ template <typename T> size_t Image<T>::getNumberOfElements() const {
             head_.matrix_size[2] * head_.channels;
 }
 
-template <typename T> T& Image<T>::at(uint32_t ix, uint32_t iy, uint32_t iz, uint32_t channel) {
-    // TODO: bounds checking
-    size_t sx = getMatrixSizeX();
-    size_t sy = getMatrixSizeY();
-    size_t sz = getMatrixSizeZ();
-    size_t index = ix + (sx * iy) + (sy * sx * iz) + (sy * sx * sz * channel);
-    return data_[index];
+template <typename T>
+T& Image<T>::at (uint32_t ix, uint32_t iy, uint32_t iz, uint32_t channel)
+{
+  // TODO: bounds checking
+  size_t sx = getMatrixSizeX();
+  size_t sy = getMatrixSizeY();
+  size_t sz = getMatrixSizeZ();
+  size_t index = ix + (sx * iy) + (sy * sx * iz) + (sy * sx * sz * channel);
+  return data_[index];
 }
 
-template <typename T> std::vector<unsigned char> Image<T>::serialize()
+template <typename T>
+uint32_t Image<T>::getStream () const
 {
-    if (this->head_.entity_type != ISMRMRD_IMAGE) {
-        throw std::runtime_error("The header entity type does not match the class type");
-    }
+  return head_.ent_head.stream;
+}
 
-    if (this->head_.storage_type != get_storage_type<T>()) {
-        throw std::runtime_error("Header storage type does not match class");
-    }
+template <typename T>
+uint32_t Image<T>::getSignature ()   const
+{
+  return head_.ent_head.signature;
+}
 
-    size_t bytes = sizeof(ImageHeader) + attribute_string_.size() + data_.size()*sizeof(T);
-    std::vector<unsigned char> buffer;
-    buffer.reserve(bytes);
-    std::copy((unsigned char*)(&this->head_),((unsigned char*)(&this->head_))+sizeof(head_), std::back_inserter(buffer));
-    std::copy((unsigned char*)(&this->attribute_string_[0]),(unsigned char*)(&this->attribute_string_[0] + attribute_string_.size()),std::back_inserter(buffer));
-    std::copy((unsigned char*)(&this->data_[0]),(unsigned char*)(&this->data_[0] + data_.size()),std::back_inserter(buffer));
+template <typename T>
+EntityType Image<T>::getEntityType ()  const
+{
+  return static_cast<EntityType>(head_.ent_head.entity_type);
+}
 
-    if (buffer.size() != bytes) {
-        throw std::runtime_error("Serialized buffer size does not match expected buffer size");
-    }
+template <typename T>
+StorageType Image<T>::getStorageType () const
+{
+  return static_cast<StorageType>(head_.ent_head.storage_type);
+}
+
+template <typename T>
+std::vector<unsigned char> Image<T>::serialize()
+{
+  if (this->head_.ent_head.signature != ISMRMRD_SIGNATURE)
+  {
+    throw std::runtime_error ("The header signature not recognized");
+  }
+
+  if (this->head_.ent_head.entity_type != ISMRMRD_IMAGE)
+  {
+    throw std::runtime_error("The header entity type does not match the class type");
+  }
+
+  if (this->head_.ent_head.storage_type != get_storage_type<T>())
+  {
+    throw std::runtime_error("Header storage type does not match class");
+  }
+
+  size_t bytes = sizeof(ImageHeader) +
+                 attribute_string_.size() +
+                 data_.size() * sizeof(T);
+
+  std::vector<unsigned char> buffer;
+  buffer.reserve(bytes);
+
+  std::copy ((unsigned char*)(&this->head_),
+             ((unsigned char*)(&this->head_)) + sizeof(head_),
+             std::back_inserter(buffer));
+
+  std::copy ((unsigned char*)(&this->attribute_string_[0]),
+             (unsigned char*)(&this->attribute_string_[0] +
+               attribute_string_.size()),
+             std::back_inserter(buffer));
+
+  std::copy ((unsigned char*)(&this->data_[0]),
+             (unsigned char*)(&this->data_[0] + data_.size()),
+             std::back_inserter(buffer));
+
+  if (buffer.size() != bytes)
+  {
+    throw std::runtime_error
+      ("Serialized buffer size does not match expected buffer size");
+  }
     
-    return buffer; //Should not be copied on newer compilers due to return value optimization.
+  return buffer; // Should not be copied on newer compilers
+                 // due to return value optimization.
 }
     
-template <typename T>  void Image<T>::deserialize(const std::vector<unsigned char>& buffer)
+template <typename T>
+void Image<T>::deserialize (const std::vector<unsigned char>& buffer)
 {
-    if (buffer.size() < sizeof(ImageHeader)) {
-        throw std::runtime_error("Buffer is too small to contain an Acquisition");
-    }
+  if (buffer.size() < sizeof(ImageHeader))
+  {
+    throw std::runtime_error("Buffer is too small to contain an Acquisition");
+  }
 
-    ImageHeader* h_ptr = (ImageHeader*)&buffer[0];
+  ImageHeader* h_ptr = (ImageHeader*)&buffer[0];
 
-    if (h_ptr->entity_type != ISMRMRD_IMAGE) {
-        throw std::runtime_error("The header entity type does not match the class type");
-    }
+  if (h_ptr->ent_head.signature != ISMRMRD_SIGNATURE)
+  {
+    throw std::runtime_error ("The header signature not recognized");
+  }
 
-    if (h_ptr->storage_type != get_storage_type<T>()) {
-        throw std::runtime_error("Header storage type does not match class");
-    }
+  if (h_ptr->ent_head.entity_type != ISMRMRD_IMAGE)
+  {
+    throw std::runtime_error
+      ("The header entity type does not match the class type");
+  }
+
+  if (h_ptr->ent_head.storage_type != get_storage_type<T>())
+  {
+    throw std::runtime_error ("Header storage type does not match class");
+  }
     
-    size_t expected_bytes =
-        sizeof(ImageHeader) +
-        h_ptr->attribute_string_len +
-        h_ptr->matrix_size[0]*h_ptr->matrix_size[1]*h_ptr->matrix_size[2]*h_ptr->channels*sizeof(T);
+  size_t expected_bytes = sizeof(ImageHeader) + h_ptr->attribute_string_len +
+                          h_ptr->matrix_size[0] * h_ptr->matrix_size[1] *
+                          h_ptr->matrix_size[2] * h_ptr->channels * sizeof(T);
 
-    if (expected_bytes != buffer.size()) {
-        std::stringstream ss;
-        ss << "Unexpected buffer length " << buffer.size() << ", expected: " << expected_bytes;
-        throw std::runtime_error(ss.str());
-    }
-    
-    this->setHead(*h_ptr);
-    size_t attr_start = sizeof(AcquisitionHeader);
-    size_t data_start = attr_start + h_ptr->attribute_string_len;
-    this->attribute_string_ = std::string((char*)&buffer[attr_start],h_ptr->attribute_string_len);
-    std::copy(&buffer[data_start], &buffer[expected_bytes], (unsigned char*)(&this->data_[0]));
+  if (expected_bytes != buffer.size())
+  {
+    std::stringstream ss;
+    ss << "Unexpected buffer length " << buffer.size()
+       << ", expected: " << expected_bytes;
+    throw std::runtime_error(ss.str());
+  }
+  
+  this->setHead(*h_ptr);
+  size_t attr_start = sizeof(AcquisitionHeader);
+  size_t data_start = attr_start + h_ptr->attribute_string_len;
+
+  this->attribute_string_ = std::string ((char*)&buffer[attr_start],
+                                         h_ptr->attribute_string_len);
+  std::copy (&buffer[data_start],
+             &buffer[expected_bytes],
+             (unsigned char*)(&this->data_[0]));
 }
     
 //
 // Array class Implementation
 //
-template <typename T> NDArray<T>::NDArray()
-    : version_(ISMRMRD_VERSION_MAJOR)
+template <typename T>
+NDArray<T>::NDArray()
+: signature_ (ISMRMRD_SIGNATURE)
 { }
 
-template <typename T> NDArray<T>::NDArray(const std::vector<size_t>& dims)
-    : version_(ISMRMRD_VERSION_MAJOR)
+template <typename T>
+NDArray<T>::NDArray (const std::vector<size_t>& dims)
+: signature_ (ISMRMRD_SIGNATURE)
 {
     resize(dims);
 }
 
-template <typename T> uint32_t NDArray<T>::getVersion() const {
-    return version_;
+template <typename T> uint32_t NDArray<T>::getSignature() const {
+    return signature_;
 };
 
-template <typename T> StorageType NDArray<T>::getStorageType() const {
-    return static_cast<StorageType>(get_storage_type<T>());
+template <typename T>
+StorageType NDArray<T>::getStorageType() const
+{
+  return static_cast<StorageType>(get_storage_type<T>());
 }
 
 template <typename T> uint32_t NDArray<T>::getNDim() const {
