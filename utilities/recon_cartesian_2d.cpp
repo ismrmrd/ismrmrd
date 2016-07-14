@@ -97,7 +97,7 @@ int main(int argc, char** argv)
     unsigned int number_of_acquisitions = d.getNumberOfAcquisitions(0);
     for (unsigned int i = 0; i < number_of_acquisitions; i++) {
         //Read one acquisition at a time
-        acq = d.readAcquisition<float>(0, i);
+        acq = d.readAcquisition<float>(i, 0);
 
         //Copy data, we should probably be more careful here and do more tests....
         for (uint16_t c=0; c<nCoils; c++) {
@@ -144,7 +144,8 @@ int main(int argc, char** argv)
     for (uint16_t y = 0; y < r_space.matrixSize.y; y++) {
         for (uint16_t x = 0; x < r_space.matrixSize.x; x++) {
             for (uint16_t c=0; c<nCoils; c++) {
-                img_out.at(x,y) += (std::abs(buffer.at(x+offset, y, c))) * (std::abs(buffer.at(x+offset, y, c)));
+                img_out.at(x,y) += (std::abs(buffer.at(x+offset, y, c))) *
+                                   (std::abs(buffer.at(x+offset, y, c)));
             }
             img_out.at(x,y) = std::sqrt(img_out.at(x,y));            
         }
@@ -157,7 +158,8 @@ int main(int argc, char** argv)
     //And so on
     
     //Let's write the reconstructed image into the same data file
-    d.appendImage("cpp", img_out);
+    //d.appendImage("cpp", img_out);
+    d.appendImage(img_out, ISMRMRD::UNRESERVED_STREAM_START + 100); // stream unimportant
 
     return 0;
 }
