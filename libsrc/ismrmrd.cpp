@@ -125,11 +125,11 @@ Acquisition<T>::Acquisition
   uint32_t trajectory_dimensions
 )
 {
-    memset (&head_, 0, sizeof(head_));
-    head_.ent_head.signature    = ISMRMRD_SIGNATURE;
-    head_.ent_head.entity_type  = ISMRMRD_MRACQUISITION;
-    head_.ent_head.storage_type = get_storage_type<T>();
-    this->resize (num_samples, active_channels, trajectory_dimensions);
+  memset (&head_, 0, sizeof(head_));
+  head_.ent_head.signature    = ISMRMRD_SIGNATURE;
+  head_.ent_head.entity_type  = ISMRMRD_MRACQUISITION;
+  head_.ent_head.storage_type = get_storage_type<T>();
+  this->resize (num_samples, active_channels, trajectory_dimensions);
 }
 
 // Accessors and mutators
@@ -155,23 +155,39 @@ template <typename T> void Acquisition<T>::setTimeStamp(uint64_t ts) {
     head_.time_stamp = ts;
 }
 
-template <typename T> uint32_t Acquisition<T>::getPhysiologyTimeStamp(int idx) {
-    // TODO: bounds checking
-    return head_.physiology_time_stamp[idx];
+template <typename T>
+uint32_t Acquisition<T>::getPhysiologyTimeStamp (int idx)
+{
+  if (idx < 0 || idx >= ISMRMRD_PHYS_STAMPS)
+  {
+    throw std::runtime_error ("Physiology Time Stamp index out of bounds");
+  }
+
+  return head_.physiology_time_stamp[idx];
 }
 
-template <typename T> void Acquisition<T>::setPhysiologyTimeStamp(int idx, uint32_t ts) {
-    // TODO: bounds checking
-    head_.physiology_time_stamp[idx] = ts;
+template <typename T>
+void Acquisition<T>::setPhysiologyTimeStamp (int idx, uint32_t ts)
+{
+  if (idx < 0 || idx >= ISMRMRD_PHYS_STAMPS)
+  {
+    throw std::runtime_error ("Physiology Time Stamp index out of bounds");
+  }
+
+  head_.physiology_time_stamp[idx] = ts;
 }
 
-template <typename T> uint32_t Acquisition<T>::getNumberOfSamples() const {
-    return head_.number_of_samples;
+template <typename T>
+uint32_t Acquisition<T>::getNumberOfSamples() const
+{
+  return head_.number_of_samples;
 }
 
-template <typename T> void Acquisition<T>::setNumberOfSamples(uint32_t ns) {
-    head_.number_of_samples = ns;
-    this->makeConsistent();
+template <typename T>
+void Acquisition<T>::setNumberOfSamples (uint32_t ns)
+{
+  head_.number_of_samples = ns;
+  this->makeConsistent();
 }
 
 template <typename T> uint32_t Acquisition<T>::getAvailableChannels() const {
@@ -192,13 +208,25 @@ template <typename T> void Acquisition<T>::setActiveChannels(uint32_t ac) {
     this->makeConsistent();
 }
 
-template <typename T> uint64_t Acquisition<T>::getChannelMask(int idx) {
-    // TODO: bounds checking
-    return head_.channel_mask[idx];
+template <typename T>
+uint64_t Acquisition<T>::getChannelMask (int idx)
+{
+  if (idx < 0 || idx >= ISMRMRD_CHANNEL_MASKS)
+  {
+    throw std::runtime_error ("Channel Mask index out of bounds");
+  }
+
+  return head_.channel_mask[idx];
 }
 
-template <typename T> void Acquisition<T>::setChannelMask(int idx, uint64_t mask) {
-    // TODO: bounds checking
+template <typename T>
+void Acquisition<T>::setChannelMask (int idx, uint64_t mask)
+{
+  if (idx < 0 || idx >= ISMRMRD_CHANNEL_MASKS)
+  {
+    throw std::runtime_error ("Channel Mask index out of bounds");
+  }
+
     head_.channel_mask[idx] = mask;
 }
 
@@ -401,36 +429,62 @@ template <typename T> void Acquisition<T>::setPatientTablePositionZ(float z) {
     head_.patient_table_position[2] = z;
 }
 
-template <typename T> EncodingCounters& Acquisition<T>::getEncodingCounters() {
-    return head_.idx;
+template <typename T>
+EncodingCounters& Acquisition<T>::getEncodingCounters()
+{
+  return head_.idx;
 }
 
-template <typename T> const EncodingCounters& Acquisition<T>::getEncodingCounters() const {
-    return head_.idx;
+template <typename T>
+const EncodingCounters& Acquisition<T>::getEncodingCounters() const
+{
+  return head_.idx;
 }
 
-template <typename T> void Acquisition<T>::setEncodingCounters(const EncodingCounters& idx) {
-    head_.idx = idx;
+template <typename T>
+void Acquisition<T>::setEncodingCounters (const EncodingCounters& idx)
+{
+  head_.idx = idx;
 }
 
-template <typename T> int32_t Acquisition<T>::getUserInt(int idx) const {
-    // TODO: bounds checking
-    return head_.user_int[idx];
+template <typename T>
+int32_t Acquisition<T>::getUserInt (int idx) const
+{
+  if (idx < 0 || idx >= ISMRMRD_USER_INTS)
+  {
+    throw std::runtime_error ("User int index out of bounds");
+  }
+  return head_.user_int[idx];
 }
 
-template <typename T> void Acquisition<T>::setUserInt(int idx, int32_t val) {
-    // TODO: bounds checking
-    head_.user_int[idx] = val;
+template <typename T>
+void Acquisition<T>::setUserInt (int idx, int32_t val)
+{
+  if (idx < 0 || idx >= ISMRMRD_USER_INTS)
+  {
+    throw std::runtime_error ("User int index out of bounds");
+  }
+  head_.user_int[idx] = val;
 }
 
-template <typename T> float Acquisition<T>::getUserFloat(int idx) const {
-    // TODO: bounds checking
-    return head_.user_float[idx];
+template <typename T>
+float Acquisition<T>::getUserFloat (int idx) const
+{
+  if (idx < 0 || idx >= ISMRMRD_USER_FLOATS)
+  {
+    throw std::runtime_error ("User float index out of bounds");
+  }
+  return head_.user_float[idx];
 }
 
-template <typename T> void Acquisition<T>::setUserFloat(int idx, float val) {
-    // TODO: bounds checking
-    head_.user_float[idx] = val;
+template <typename T>
+void Acquisition<T>::setUserFloat (int idx, float val)
+{
+  if (idx < 0 || idx >= ISMRMRD_USER_FLOATS)
+  {
+    throw std::runtime_error ("User float index out of bounds");
+  }
+  head_.user_float[idx] = val;
 }
 
 template <typename T> size_t Acquisition<T>::getNumberOfDataElements() const {
@@ -454,19 +508,29 @@ template <typename T> void Acquisition<T>::setHead(const AcquisitionHeader &othe
     this->makeConsistent();
 }
 
-template <typename T> void Acquisition<T>::resize(uint32_t num_samples, uint32_t active_channels, uint32_t trajectory_dimensions){
-    head_.number_of_samples = num_samples;
-    head_.active_channels = active_channels;
-    head_.trajectory_dimensions = trajectory_dimensions;
-    this->makeConsistent();
+template <typename T>
+void Acquisition<T>::resize
+(
+  uint32_t num_samples,
+  uint32_t active_channels,
+  uint32_t trajectory_dimensions
+)
+{
+  head_.number_of_samples     = num_samples;
+  head_.active_channels       = active_channels;
+  head_.trajectory_dimensions = trajectory_dimensions;
+  this->makeConsistent();
 }
 
-template <typename T> void Acquisition<T>::makeConsistent() {
-    if (head_.available_channels < head_.active_channels) {
-        head_.available_channels = head_.active_channels;
-    }
-    traj_.resize(head_.number_of_samples * head_.trajectory_dimensions);
-    data_.resize(head_.number_of_samples * head_.active_channels);
+template <typename T>
+void Acquisition<T>::makeConsistent()
+{
+  if (head_.available_channels < head_.active_channels)
+  {
+    head_.available_channels = head_.active_channels;
+  }
+  traj_.resize (head_.number_of_samples * head_.trajectory_dimensions);
+  data_.resize (head_.number_of_samples * head_.active_channels);
 }
 
 template <typename T> std::vector<std::complex<T> >& Acquisition<T>::getData() {
@@ -484,14 +548,20 @@ template <typename T> void Acquisition<T>::setData(const std::vector<std::comple
     this->data_ = data;
 }
 
-template <typename T> std::complex<T>& Acquisition<T>::at(uint32_t sample, uint32_t channel){
-    if (sample >= getNumberOfSamples()) {
-        throw std::runtime_error("sample greater than number of samples");
-    }
-    if (channel >= getActiveChannels()) {
-        throw std::runtime_error("channel greater than number of active channels");
-    }
-    return data_[sample + channel * getNumberOfSamples()];
+template <typename T>
+std::complex<T>& Acquisition<T>::at (uint32_t sample, uint32_t channel)
+{
+  if (sample >= getNumberOfSamples())
+  {
+    throw std::runtime_error("sample greater than number of samples");
+  }
+
+  if (channel >= getActiveChannels())
+  {
+    throw std::runtime_error("channel greater than number of active channels");
+  }
+
+  return data_[sample + channel * getNumberOfSamples()];
 }
 
 template <typename T> const std::vector<float>& Acquisition<T>::getTraj() const {
@@ -502,14 +572,18 @@ template <typename T> void Acquisition<T>::setTraj(const std::vector<float>& tra
     this->traj_ = traj;
 }
 
-template <typename T> float& Acquisition<T>::trajAt(uint32_t dimension, uint32_t sample){
-    if (sample >= getNumberOfSamples()) {
-        throw std::runtime_error("sample greater than number of samples");
-    }
-    if (dimension >= getTrajectoryDimensions()) {
-        throw std::runtime_error("trajectory greater than trajectory_dimensions");
-    }
-    return traj_[sample * head_.trajectory_dimensions + dimension];
+template <typename T>
+float& Acquisition<T>::trajAt (uint32_t dimension, uint32_t sample)
+{
+  if (sample >= getNumberOfSamples())
+  {
+    throw std::runtime_error("sample greater than number of samples");
+  }
+  if (dimension >= getTrajectoryDimensions())
+  {
+    throw std::runtime_error("trajectory greater than trajectory_dimensions");
+  }
+  return traj_[sample * head_.trajectory_dimensions + dimension];
 }
 
 template <typename T> uint64_t Acquisition<T>::getFlags() const {
@@ -1149,31 +1223,43 @@ template <typename T> void Image<T>::setUserFloat(unsigned int index, float valu
 }
 
 // Flag methods
-template <typename T> uint64_t Image<T>::getFlags() const {
-    return head_.flags;
+template <typename T>
+uint64_t Image<T>::getFlags() const
+{
+  return head_.flags;
 }
 
-template <typename T> void Image<T>::setFlags(uint64_t val) {
-    head_.flags = val;
+template <typename T>
+void Image<T>::setFlags (uint64_t val)
+{
+  head_.flags = val;
 }
 
-template <typename T> bool Image<T>::isFlagSet(uint64_t val) const {
-    uint64_t bitmask = 1UL << (val - 1UL);
-    return (head_.flags & bitmask) > 0;
+template <typename T>
+bool Image<T>::isFlagSet(uint64_t val) const
+{
+  uint64_t bitmask = 1UL << (val - 1UL);
+  return (head_.flags & bitmask) > 0;
 }
 
-template <typename T> void Image<T>::setFlag(uint64_t val) {
-    uint64_t bitmask = 1UL << (val - 1UL);
-    head_.flags |= bitmask;
+template <typename T>
+void Image<T>::setFlag (uint64_t val)
+{
+  uint64_t bitmask = 1UL << (val - 1UL);
+  head_.flags |= bitmask;
 }
 
-template <typename T> void Image<T>::clearFlag(uint64_t val) {
-    uint64_t bitmask = 1UL << (val - 1UL);
-    head_.flags &= ~bitmask;
+template <typename T>
+void Image<T>::clearFlag(uint64_t val)
+{
+  uint64_t bitmask = 1UL << (val - 1UL);
+  head_.flags &= ~bitmask;
 }
 
-template <typename T> void Image<T>::clearAllFlags() {
-    head_.flags = 0;
+template <typename T>
+void Image<T>::clearAllFlags()
+{
+  head_.flags = 0;
 }
 
 template <typename T> ImageHeader &Image<T>::getHead() {
@@ -1448,6 +1534,7 @@ template <typename T> T& NDArray<T>::at(uint32_t x, uint32_t y, uint32_t z,
 template EXPORTISMRMRD class Acquisition<int16_t>;
 template EXPORTISMRMRD class Acquisition<int32_t>;
 template EXPORTISMRMRD class Acquisition<float>;
+template EXPORTISMRMRD class Acquisition<double>;
 
 // Images
 template EXPORTISMRMRD class Image<uint16_t>;
