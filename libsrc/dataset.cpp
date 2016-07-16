@@ -366,10 +366,10 @@ template EXPORTISMRMRD void Dataset::appendImage(const std::string& var, const I
 
 
 template <typename T>
-Image<T> Dataset::readImage(const std::string& var, unsigned long index)
+Image<T> Dataset::readImage (const std::string& var, unsigned long index)
 {
-    // TODO: implement
-    return Image<T>();
+  // TODO: implement
+  return Image<T>();
 }
 
 template EXPORTISMRMRD Image<uint16_t> Dataset::readImage(const std::string& var, unsigned long index);

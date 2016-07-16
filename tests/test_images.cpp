@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(image_serialize, T, test_types)
 
 static void check_header(const ImageHeader& chead)
 {
-    BOOST_CHECK_EQUAL(chead.version, ISMRMRD_VERSION_MAJOR);
+    BOOST_CHECK_EQUAL(chead.ent_head.signature, ISMRMRD_SIGNATURE);
     BOOST_CHECK_EQUAL(chead.matrix_size[0], 0);
     BOOST_CHECK_EQUAL(chead.matrix_size[1], 1);
     BOOST_CHECK_EQUAL(chead.matrix_size[2], 1);

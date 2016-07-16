@@ -10,7 +10,7 @@ BOOST_AUTO_TEST_CASE(ndarray_create)
 {
     NDArray<uint16_t> arr;
 
-    BOOST_CHECK_EQUAL(arr.getVersion(), ISMRMRD_VERSION_MAJOR);
+    BOOST_CHECK_EQUAL(arr.getSignature(), ISMRMRD_SIGNATURE);
     BOOST_CHECK_EQUAL(arr.getData().size(), 0);
     BOOST_CHECK_EQUAL(arr.getNDim(), 0);
     BOOST_CHECK_EQUAL(arr.getDims().size(), 0);
