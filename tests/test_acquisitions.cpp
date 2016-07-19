@@ -49,6 +49,10 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (acquisition_copy, T, test_types)
   check_header (acq2.getHead());
 
   BOOST_CHECK (acq1.getHead() == acq2.getHead());
+
+  Acquisition<T> acq3;
+  acq3.setHead (acq1.getHead());
+  BOOST_CHECK (acq3.getHead() == acq2.getHead());
 }
 
 
@@ -326,6 +330,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (acquisition_getters_setters, T, test_types)
   BOOST_CHECK_EQUAL (acq.getStream(), 123);
 
   BOOST_CHECK_EQUAL (acq.getSignature(), ISMRMRD_SIGNATURE);
+  BOOST_CHECK_EQUAL (acq.getVersion(), ISMRMRD_VERSION_MAJOR);
   BOOST_CHECK_EQUAL (acq.getEntityType(), ISMRMRD_MRACQUISITION);
   BOOST_CHECK_EQUAL (acq.getStorageType(), get_storage_type<T>());
 
