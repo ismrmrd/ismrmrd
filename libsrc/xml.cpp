@@ -6,6 +6,50 @@
 
 namespace ISMRMRD
 {
+
+/******************************************************************************/
+  IsmrmrdHeader::IsmrmrdHeader()
+  {
+    ent_head.stream       = ISMRMRD_HEADER_STREAM;
+    ent_head.signature    = ISMRMRD_SIGNATURE;
+    ent_head.entity_type  = ISMRMRD_XML_HEADER;
+    ent_head.storage_type = ISMRMRD_STORAGE_NONE;
+    version               = ISMRMRD_XMLHDR_VERSION;
+  }
+
+/******************************************************************************/
+
+  uint32_t IsmrmrdHeader::getStream () const
+  {
+    return ent_head.stream;
+  }
+
+/******************************************************************************/
+  uint32_t IsmrmrdHeader::getSignature () const
+  {
+    return ent_head.signature;
+  }
+
+/******************************************************************************/
+  uint32_t IsmrmrdHeader::getVersion () const
+  {
+    return ent_head.signature & 0xFF;
+  }
+
+/******************************************************************************/
+  EntityType IsmrmrdHeader::getEntityType () const
+  {
+    return static_cast<EntityType>(ent_head.entity_type);
+  }
+
+/******************************************************************************/
+  StorageType IsmrmrdHeader::getStorageType () const
+  {
+    return static_cast<StorageType>(ent_head.storage_type);
+  }
+
+/******************************************************************************/
+
   //Utility Functions for deserializing Header
   EncodingSpace parse_encoding_space(pugi::xml_node& n, const char* child) 
   {
@@ -252,6 +296,17 @@ namespace ISMRMRD
 
   //End of utility functions for deserializing header
 
+/*******************************************************************************
+ virtual deserialize
+*******************************************************************************/
+  void IsmrmrdHeader::deserialize (const std::vector<unsigned char>& buffer)
+  {
+    std::string hdr (buffer.begin(), buffer.end());
+    ::ISMRMRD::deserialize (hdr.c_str(), *this);
+  }
+
+/*******************************************************************************
+*******************************************************************************/
   void deserialize(const char* xml, IsmrmrdHeader& h) 
   {
     pugi::xml_document doc;
@@ -273,6 +328,21 @@ namespace ISMRMRD
       pugi::xml_node streams = root.child("streams");
       pugi::xml_node sequenceParameters = root.child("sequenceParameters");
       pugi::xml_node userParameters = root.child("userParameters");
+      pugi::xml_node entityHeader = root.child("EntityHeader");
+
+      if (!entityHeader)
+      {
+        throw std::runtime_error ("IsmrmrdHeader EntityHeader not found");
+      }
+      else
+      {
+        EntityHeader ehdr;
+        ehdr.stream = std::atol (entityHeader.child_value ("stream"));
+        ehdr.signature = std::atol (entityHeader.child_value ("signature"));
+        ehdr.entity_type = std::atol (entityHeader.child_value ("entity_type"));
+        ehdr.storage_type = std::atol (entityHeader.child_value ("storage_type"));
+        h.ent_head = ehdr;
+      }
 
       // Parsing version
       h.version = parse_optional_long(root, "version");
@@ -644,6 +714,20 @@ namespace ISMRMRD
 
   //End utility functions for serialization
 
+/*******************************************************************************
+ virtual serialize
+*******************************************************************************/
+std::vector<unsigned char> IsmrmrdHeader::serialize()
+{
+  std::stringstream str;
+  ::ISMRMRD::serialize (*this, str);
+  std::string hdr = str.str();
+  std::vector<unsigned char> buffer (hdr.begin(), hdr.end());
+  return buffer;
+}
+
+/*******************************************************************************
+*******************************************************************************/
   void serialize(const IsmrmrdHeader& h, std::ostream& o)
   {
     pugi::xml_document doc;
@@ -664,6 +748,13 @@ namespace ISMRMRD
     
     a = root.append_attribute("xsi:schemaLocation");
     a.set_value("http://www.ismrm.org/ISMRMRD ismrmrd.xsd");
+
+    n1 = root.append_child();
+    n1.set_name ("EntityHeader");
+    append_node (n1, "stream", (long)h.ent_head.stream);
+    append_node (n1, "signature", (long)h.ent_head.signature);
+    append_node (n1, "entity_type", (long)h.ent_head.entity_type);
+    append_node (n1, "storage_type", (long)h.ent_head.storage_type);
 
     if (h.version) {
       if (*h.version != ISMRMRD_XMLHDR_VERSION) {

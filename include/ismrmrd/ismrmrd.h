@@ -52,29 +52,46 @@ enum Constant {
 };
 
 /** Storage Types */
-enum StorageType {
-    ISMRMRD_CHAR = 0,     /**< corresponds to char           */
-    ISMRMRD_USHORT = 1,   /**< corresponds to uint16_t       */
-    ISMRMRD_SHORT = 2,    /**< corresponds to int16_t        */
-    ISMRMRD_UINT = 3,     /**< corresponds to uint32_t       */
-    ISMRMRD_INT = 4,      /**< corresponds to int32_t        */
-    ISMRMRD_ULONG = 5,    /**< corresponds to uint64_t       */
-    ISMRMRD_LONG = 6,     /**< corresponds to int64_t        */
-    ISMRMRD_FLOAT = 7,    /**< corresponds to float          */
-    ISMRMRD_DOUBLE = 8,   /**< corresponds to double         */
-    ISMRMRD_CXFLOAT = 9,  /**< corresponds to complex float  */
-    ISMRMRD_CXDOUBLE = 10 /**< corresponds to complex double */
+enum StorageType
+{
+  ISMRMRD_STORAGE_NONE =  0, /**< No data present to specify storage */
+  ISMRMRD_CHAR         =  1, /**< corresponds to char                */
+  ISMRMRD_USHORT       =  2, /**< corresponds to uint16_t            */
+  ISMRMRD_SHORT        =  3, /**< corresponds to int16_t             */
+  ISMRMRD_UINT         =  4, /**< corresponds to uint32_t            */
+  ISMRMRD_INT          =  5, /**< corresponds to int32_t             */
+  ISMRMRD_ULONG        =  6, /**< corresponds to uint64_t            */
+  ISMRMRD_LONG         =  7, /**< corresponds to int64_t             */
+  ISMRMRD_FLOAT        =  8, /**< corresponds to float               */
+  ISMRMRD_DOUBLE       =  9, /**< corresponds to double              */
+  ISMRMRD_CXFLOAT      = 10, /**< corresponds to complex float       */
+  ISMRMRD_CXDOUBLE     = 11  /**< corresponds to complex double      */
 };
 
-enum EntityType {
-    ISMRMRD_HANDSHAKE = 0,     /**< first package sent                    */
-    ISMRMRD_COMMAND = 1,       /**< commands used to control recon system */
-    ISMRMRD_MRACQUISITION = 2, /**< MR raw data                           */
-    ISMRMRD_WAVEFORM = 3,      /**< Gradient, physiology, etc. waveform   */
-    ISMRMRD_IMAGE = 4,         /**< Reconstructed image                   */
-    ISMRMRD_XML_HEADER = 5,    /**< The XML header describing the data    */
-    ISMRMRD_ERROR = 6,         /**< Something went wrong                  */
-    ISMRMRD_BLOB = 7           /**< Some binary object, with description  */
+enum EntityType
+{
+  ISMRMRD_ENTITY_TYPE_ERROR =  0,  /**< Unassigned value                     */
+  ISMRMRD_HANDSHAKE         =  1,  /**< first package sent                   */
+  ISMRMRD_COMMAND           =  2,  /**< commands to control recon system     */
+  ISMRMRD_MRACQUISITION     =  3,  /**< MR raw data                          */
+  ISMRMRD_WAVEFORM          =  4,  /**< Gradient, physiology, etc.           */
+  ISMRMRD_IMAGE             =  5,  /**< Reconstructed image                  */
+  ISMRMRD_XML_HEADER        =  6,  /**< XML header describing the data       */
+  ISMRMRD_ERROR             =  7,  /**< Something went wrong                 */
+  ISMRMRD_BLOB              =  8   /**< Some binary object, with description */
+};
+
+enum StreamId
+{
+  ISMRMRD_STREAM_INVALID        =  0,
+  ISMRMRD_HEADER_STREAM         =  1,
+  ISMRMRD_HANDSHAKE_STREAM      =  2,
+  ISMRMRD_COMMAND_STREAM        =  3,
+  ISMRMRD_ERROR_STREAM          =  4,
+  ISMRMRD_MRACQUISITION_STREAM  =  5,
+  ISMRMRD_IMAGE_STREAM          =  6,
+  ISMRMRD_WAVEFORM_STREAM       =  7,
+  ISMRMRD_BLOB_STREAM           =  8
 };
 
 /** Acquisition Flags */
@@ -170,28 +187,28 @@ struct AcquisitionHeader
 {
   EntityHeader ent_head;
 
-  uint64_t time_stamp;                                  /**< Experiment time stamp - in nano seconds */
-  uint64_t flags;                                       /**< bit field with flags */
-  uint32_t scan_counter;                                /**< Current acquisition number in the measurement */
+  uint64_t time_stamp;                        /**< Experiment time stamp - in nano seconds */
+  uint64_t flags;                             /**< bit field with flags */
+  uint32_t scan_counter;                      /**< Current acquisition number in the measurement */
   uint32_t physiology_time_stamp[ISMRMRD_PHYS_STAMPS];  /**< Physiology time stamps, e.g. ecg, breating, etc. */
-  uint32_t number_of_samples;                           /**< Number of samples acquired */
-  uint32_t available_channels;                          /**< Available coils */
-  uint32_t active_channels;                             /**< Active coils on current acquisiton */
-  uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS];         /**< Mask to indicate which channels are active. Support for 1024 channels */
-  uint32_t discard_pre;                                 /**< Samples to be discarded at the beginning of  acquisition */
-  uint32_t discard_post;                                /**< Samples to be discarded at the end of acquisition */
-  uint32_t center_sample;                               /**< Sample at the center of k-space */
-  uint32_t encoding_space_ref;                          /**< Reference to an encoding space, typically only one per acquisition */
-  uint32_t trajectory_dimensions;                       /**< Indicates the dimensionality of the trajectory vector (0 means no trajectory) */
-  uint32_t dwell_time_ns;                               /**< Time between samples in nano seconds, sampling BW */
-  float position[ISMRMRD_POSITION_LENGTH];              /**< Three-dimensional spatial offsets from isocenter */
-  float read_dir[ISMRMRD_DIRECTION_LENGTH];             /**< Directional cosines of the readout/frequency encoding */
-  float phase_dir[ISMRMRD_DIRECTION_LENGTH];            /**< Directional cosines of the phase */
-  float slice_dir[ISMRMRD_DIRECTION_LENGTH];            /**< Directional cosines of the slice direction */
-  float patient_table_position[ISMRMRD_POSITION_LENGTH];/**< Patient table off-center */
-  EncodingCounters idx;                                 /**< Encoding loop counters, see above */
-  int32_t user_int[ISMRMRD_USER_INTS];                  /**< Free user parameters */
-  float user_float[ISMRMRD_USER_FLOATS];                /**< Free user parameters */
+  uint32_t number_of_samples;                 /**< Number of samples acquired */
+  uint32_t available_channels;                /**< Available coils */
+  uint32_t active_channels;                   /**< Active coils on current acquisiton */
+  uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS]; /**< Mask to indicate which channels are active. Support for 1024 channels */
+  uint32_t discard_pre;                       /**< Samples to be discarded at the beginning of  acquisition */
+  uint32_t discard_post;                      /**< Samples to be discarded at the end of acquisition */
+  uint32_t center_sample;                     /**< Sample at the center of k-space */
+  uint32_t encoding_space_ref;                /**< Reference to an encoding space, typically only one per acquisition */
+  uint32_t trajectory_dimensions;             /**< Indicates the dimensionality of the trajectory vector (0 means no trajectory) */
+  uint32_t dwell_time_ns;                     /**< Time between samples in nano seconds, sampling BW */
+  float position[ISMRMRD_POSITION_LENGTH];    /**< Three-dimensional spatial offsets from isocenter */
+  float read_dir[ISMRMRD_DIRECTION_LENGTH];   /**< Directional cosines of the readout/frequency encoding */
+  float phase_dir[ISMRMRD_DIRECTION_LENGTH];  /**< Directional cosines of the phase */
+  float slice_dir[ISMRMRD_DIRECTION_LENGTH];  /**< Directional cosines of the slice direction */
+  float patient_table_position[ISMRMRD_POSITION_LENGTH]; /**< Patient table off-center */
+  EncodingCounters idx;                       /**< Encoding loop counters, see above */
+  int32_t user_int[ISMRMRD_USER_INTS];        /**< Free user parameters */
+  float user_float[ISMRMRD_USER_FLOATS];      /**< Free user parameters */
 };
 
 
@@ -200,29 +217,29 @@ struct ImageHeader
 {
   EntityHeader ent_head;
 
-  uint64_t time_stamp;                                 /**< Experiment time stamp - in nano seconds */
-  uint64_t flags;                                      /**< bit field with flags */
-  uint32_t matrix_size[3];                             /**< Pixels in the 3 spatial dimensions */
-  float field_of_view[3];                              /**< Size (in mm) of the 3 spatial dimensions */
-  uint32_t channels;                                   /**< Number of receive channels */
-  float position[3];                                   /**< Three-dimensional spatial offsets from isocenter */
-  float read_dir[3];                                   /**< Directional cosines of the readout/frequency encoding */
-  float phase_dir[3];                                  /**< Directional cosines of the phase */
-  float slice_dir[3];                                  /**< Directional cosines of the slice direction */
-  float patient_table_position[3];                     /**< Patient table off-center */
-  uint32_t average;                                    /**< e.g. signal average number */
-  uint32_t slice;                                      /**< e.g. imaging slice number */
-  uint32_t contrast;                                   /**< e.g. echo number in multi-echo */
-  uint32_t phase;                                      /**< e.g. cardiac phase number */
-  uint32_t repetition;                                 /**< e.g. dynamic number for dynamic scanning */
-  uint32_t set;                                        /**< e.g. flow encodning set */
+  uint64_t time_stamp;                       /**< Experiment time stamp - in nano seconds */
+  uint64_t flags;                            /**< bit field with flags */
+  uint32_t matrix_size[3];                   /**< Pixels in the 3 spatial dimensions */
+  float field_of_view[3];                    /**< Size (in mm) of the 3 spatial dimensions */
+  uint32_t channels;                         /**< Number of receive channels */
+  float position[ISMRMRD_POSITION_LENGTH];   /**< Three-dimensional spatial offsets from isocenter */
+  float read_dir[ISMRMRD_DIRECTION_LENGTH];  /**< Directional cosines of the readout/frequency encoding */
+  float phase_dir[ISMRMRD_DIRECTION_LENGTH]; /**< Directional cosines of the phase */
+  float slice_dir[ISMRMRD_DIRECTION_LENGTH]; /**< Directional cosines of the slice direction */
+  float patient_table_position[ISMRMRD_POSITION_LENGTH]; /**< Patient table off-center */
+  uint32_t average;                          /**< e.g. signal average number */
+  uint32_t slice;                            /**< e.g. imaging slice number */
+  uint32_t contrast;                         /**< e.g. echo number in multi-echo */
+  uint32_t phase;                            /**< e.g. cardiac phase number */
+  uint32_t repetition;                       /**< e.g. dynamic number for dynamic scanning */
+  uint32_t set;                              /**< e.g. flow encodning set */
   uint32_t physiology_time_stamp[ISMRMRD_PHYS_STAMPS]; /**< Physiology time stamps, e.g. ecg, breathing, etc. */
-  uint32_t image_type;                                 /**< e.g. magnitude, phase, complex, real, imag, etc. */
-  uint32_t image_index;                                /**< e.g. image number in series of images */
-  uint32_t image_series_index;                         /**< e.g. series number */
-  int32_t user_int[ISMRMRD_USER_INTS];                 /**< Free user parameters */
-  float user_float[ISMRMRD_USER_FLOATS];               /**< Free user parameters */
-  uint32_t attribute_string_len;                       /**< Length of attributes string */
+  uint32_t image_type;                       /**< e.g. magnitude, phase, complex, real, imag, etc. */
+  uint32_t image_index;                      /**< e.g. image number in series of images */
+  uint32_t image_series_index;               /**< e.g. series number */
+  int32_t user_int[ISMRMRD_USER_INTS];       /**< Free user parameters */
+  float user_float[ISMRMRD_USER_FLOATS];     /**< Free user parameters */
+  uint32_t attribute_string_len;             /**< Length of attributes string */
 };
 
 #pragma pack(pop) /* Restore old alignment */
@@ -243,6 +260,7 @@ class EXPORTISMRMRD Entity
 
   virtual uint32_t    getStream ()      const = 0;
   virtual uint32_t    getSignature ()   const = 0;
+  virtual uint32_t    getVersion ()     const = 0;
   virtual EntityType  getEntityType ()  const = 0;
   virtual StorageType getStorageType () const = 0;
 
@@ -419,6 +437,7 @@ class EXPORTISMRMRD Acquisition
   // Functions inherited from Entity
   virtual uint32_t    getStream ()      const;
   virtual uint32_t    getSignature ()   const;
+  virtual uint32_t    getVersion ()     const;
   virtual EntityType  getEntityType ()  const;
   virtual StorageType getStorageType () const;
   virtual std::vector<unsigned char> serialize();
@@ -584,6 +603,7 @@ class EXPORTISMRMRD Image
   // Functions inherited from Entity
   virtual uint32_t    getStream ()      const;
   virtual uint32_t    getSignature ()   const;
+  virtual uint32_t    getVersion ()     const;
   virtual EntityType  getEntityType ()  const;
   virtual StorageType getStorageType () const;
   virtual std::vector<unsigned char> serialize();
@@ -597,7 +617,80 @@ class EXPORTISMRMRD Image
   std::vector<T> data_;
 };
 
-/// N-Dimensional array type
+/********************************* Waveform ***********************************/
+/******************************************************************************/
+struct WaveformHeader
+{
+  EntityHeader ent_head;
+  uint64_t     begin_time_stamp;  /**< Experiment time stamp in nano seconds */
+  uint64_t     end_time_stamp;    /**< Experiment time stamp in nano seconds */
+  uint32_t     dwell_time_ns;     /**< Time between samples in nano seconds */
+  uint32_t     number_of_samples; /**< Number of samples acquired */
+  int32_t      user_int[ISMRMRD_USER_INTS];     /**< Free user parameters */
+  float        user_float[ISMRMRD_USER_FLOATS]; /**< Free user parameters */
+};
+
+/******************************************************************************/
+bool operator== (const WaveformHeader &h1, const WaveformHeader &h2);
+
+/******************************************************************************/
+class Waveform
+: public Entity
+{
+  public:
+
+  Waveform (uint32_t num_samples = 0);
+
+  void setStream (uint32_t);
+
+  uint64_t getBeginTimeStamp() const;
+  void setBeginTimeStamp (uint64_t);
+
+  uint64_t getEndTimeStamp() const;
+  void setEndTimeStamp (uint64_t);
+
+  uint32_t getNumberOfSamples() const;
+  void resize (uint32_t num_samples);
+
+  uint32_t getDwellTime_ns() const;
+  void setDwellTime_ns (uint32_t);
+
+  int32_t getUserInt(uint32_t idx) const;
+  void setUserInt (uint32_t idx, int32_t val);
+
+  float getUserFloat (uint32_t idx) const;
+  void setUserFloat (uint32_t idx, float val);
+
+  WaveformHeader &getHead();
+  const WaveformHeader &getHead() const;
+  void setHead (const WaveformHeader &other);
+
+  std::vector<double> &getData();
+  const std::vector<double> &getData() const;
+  void setData (const std::vector<double> &data);
+
+  double &at (uint32_t sample);
+
+// Functions inherited from Entity
+  virtual uint32_t     getSignature () const;
+  virtual uint32_t     getVersion () const;
+  virtual uint32_t     getStream () const;
+  virtual EntityType   getEntityType () const;
+  virtual StorageType  getStorageType () const;
+
+  virtual std::vector<unsigned char> serialize();
+  virtual void deserialize(const std::vector<unsigned char>& buffer);
+
+  protected:
+
+  WaveformHeader head_;
+  std::vector<double> data_;
+};
+
+/*******************************************************************************
+ N-Dimensional array type
+*******************************************************************************/
+
 template <typename T>
 class EXPORTISMRMRD NDArray {
 public:
@@ -607,6 +700,7 @@ public:
 
     // Accessors and mutators
     uint32_t getSignature() const;
+    uint32_t getVersion() const;
     StorageType getStorageType() const;
 
     uint32_t getNDim() const;
@@ -619,7 +713,13 @@ public:
     const std::vector<T> &getData() const;
 
     // Returns a reference to the image data
-    T &at(uint32_t x, uint32_t y = 0, uint32_t z = 0, uint32_t w = 0, uint32_t n = 0, uint32_t m = 0, uint32_t l = 0);
+    T &at (uint32_t x,
+           uint32_t y = 0,
+           uint32_t z = 0,
+           uint32_t w = 0,
+           uint32_t n = 0,
+           uint32_t m = 0,
+           uint32_t l = 0);
 
 protected:
     void makeConsistent();
