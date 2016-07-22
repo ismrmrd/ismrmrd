@@ -68,7 +68,7 @@ namespace ISMRMRD
 
     T& get() {
       if (!present_) {
-	throw std::runtime_error("Access optional value, which has not been set");
+  throw std::runtime_error("Access optional value, which has not been set");
       }
       return value_;
     }
