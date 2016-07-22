@@ -17,14 +17,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (image_create, T, test_types)
 {
   Image<T> img;
   ImageHeader head = img.getHead();
-  EntityHeader ehdr = head.ent_head;
 
   // Check that header is of expected size
-  size_t ehdr_size = sizeof (uint32_t) * 4;
-  BOOST_CHECK_EQUAL (sizeof (ehdr), ehdr_size);
-
-  size_t expected_size = sizeof(ehdr) +
-                         sizeof(uint32_t) * ISMRMRD_PHYS_STAMPS +
+  size_t expected_size = sizeof(uint32_t) * ISMRMRD_PHYS_STAMPS +
                          sizeof(uint32_t) * 14 +
                          sizeof(int32_t) * ISMRMRD_USER_INTS +
                          sizeof(uint64_t) * 2 +
@@ -267,12 +262,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (image_getters_setters, T, test_types)
   img.getAttributeString (temp1);
   BOOST_CHECK_EQUAL (std::strcmp (temp1.data(), temp.data()), 0);
 
-
-  img.setStream (123);
-  BOOST_CHECK_EQUAL (img.getStream(), 123);
-
-  BOOST_CHECK_EQUAL (img.getSignature(), ISMRMRD_SIGNATURE);
-  BOOST_CHECK_EQUAL (img.getVersion(), 2); //TODO: Use ISMRMRD_VERSION_MAJOR?
   BOOST_CHECK_EQUAL (img.getEntityType(), ISMRMRD_IMAGE);
   BOOST_CHECK_EQUAL (img.getStorageType(), get_storage_type<T>());
 }
@@ -313,10 +302,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (image_serialize, T, test_types)
 
 static void check_header (const ImageHeader& chead)
 {
-  BOOST_CHECK_EQUAL (chead.ent_head.stream, 0);
-  BOOST_CHECK_EQUAL (chead.ent_head.signature, ISMRMRD_SIGNATURE);
-  BOOST_CHECK_EQUAL (chead.ent_head.entity_type, ISMRMRD_IMAGE);
-
   BOOST_CHECK_EQUAL (chead.time_stamp, 0);
   BOOST_CHECK_EQUAL (chead.flags, 0);
 

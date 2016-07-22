@@ -126,19 +126,10 @@ Acquisition<T>::Acquisition
 )
 {
   memset (&head_, 0, sizeof(head_));
-  head_.ent_head.signature    = ISMRMRD_SIGNATURE;
-  head_.ent_head.entity_type  = ISMRMRD_MRACQUISITION;
-  head_.ent_head.storage_type = get_storage_type<T>();
   this->resize (num_samples, active_channels, trajectory_dimensions);
 }
 
 // Accessors and mutators
-template <typename T>
-void Acquisition<T>::setStream (uint32_t stream_number)
-{
-  head_.ent_head.stream = stream_number;
-}
-
 template <typename T> uint32_t Acquisition<T>::getScanCounter() const {
     return head_.scan_counter;
 }
@@ -637,56 +628,22 @@ template <typename T> void Acquisition<T>::setAllChannelsNotActive() {
     }
 }
 
-
 template <typename T>
-uint32_t Acquisition<T>::getStream () const
+EntityType Acquisition<T>::getEntityType() const
 {
-  return head_.ent_head.stream;
+  return ISMRMRD_MRACQUISITION;
 }
 
 template <typename T>
-uint32_t Acquisition<T>::getSignature () const
+StorageType Acquisition<T>::getStorageType() const
 {
-  return head_.ent_head.signature;
-}
-
-template <typename T>
-uint32_t Acquisition<T>::getVersion () const
-{
-  return head_.ent_head.signature & 0xFF;
-}
-
-template <typename T>
-EntityType Acquisition<T>::getEntityType () const
-{
-  return static_cast<EntityType>(head_.ent_head.entity_type);
-}
-
-template <typename T>
-StorageType Acquisition<T>::getStorageType () const
-{
-  return static_cast<StorageType>(head_.ent_head.storage_type);
+  return get_storage_type<T>();
 }
 
 template <typename T>
 std::vector<unsigned char> Acquisition<T>::serialize()
 {
-  if (this->head_.ent_head.signature != ISMRMRD_SIGNATURE)
-  {
-    throw std::runtime_error ("The header signature not recognized");
-  }
-
-  if (this->head_.ent_head.entity_type != ISMRMRD_MRACQUISITION)
-  {
-    throw std::runtime_error
-      ("The header entity type does not match the class type");
-  }
-
-  if (this->head_.ent_head.storage_type != get_storage_type<T>()) {
-    throw std::runtime_error("Header storage type does not match class");
-  }
-
-  size_t bytes = sizeof(AcquisitionHeader) +
+  size_t bytes = sizeof (AcquisitionHeader) +
                  traj_.size() * sizeof(float) +
                  data_.size() * sizeof(std::complex<T>);
 
@@ -725,22 +682,6 @@ void Acquisition<T>::deserialize (const std::vector<unsigned char>& buffer)
 
   AcquisitionHeader* h_ptr = (AcquisitionHeader*)&buffer[0];
 
-  if (h_ptr->ent_head.signature != ISMRMRD_SIGNATURE)
-  {
-    throw std::runtime_error ("The header signature not recognized");
-  }
-
-  if (h_ptr->ent_head.entity_type != ISMRMRD_MRACQUISITION)
-  {
-    throw std::runtime_error
-      ("The header entity type does not match the class type");
-  }
-
-  if (h_ptr->ent_head.storage_type != get_storage_type<T>())
-  {
-    throw std::runtime_error("Header storage type does not match class");
-  }
-    
   size_t expected_bytes =
     sizeof(AcquisitionHeader) +
     h_ptr->trajectory_dimensions * h_ptr->number_of_samples * sizeof(float) +
@@ -754,7 +695,7 @@ void Acquisition<T>::deserialize (const std::vector<unsigned char>& buffer)
     throw std::runtime_error(ss.str());
   }
     
-  this->setHead(*h_ptr);
+  this->setHead (*h_ptr);
   size_t traj_start = sizeof(AcquisitionHeader);
   size_t data_start = traj_start +
     h_ptr->trajectory_dimensions * h_ptr->number_of_samples * sizeof(float);
@@ -780,9 +721,6 @@ template <typename T>
 )
 {
   memset (&head_, 0, sizeof(head_));
-  head_.ent_head.signature    = ISMRMRD_SIGNATURE;
-  head_.ent_head.entity_type  = ISMRMRD_IMAGE;
-  head_.ent_head.storage_type = static_cast<uint32_t>(get_storage_type<T>());
   this->resize (matrix_size_x, matrix_size_y, matrix_size_z, channels);
 }
 
@@ -823,12 +761,6 @@ void Image<T>::makeConsistent()
   data_.resize (getNumberOfElements());
 
   attribute_string_.resize (head_.attribute_string_len);
-}
-
-template <typename T>
-void Image<T>::setStream (uint32_t stream_number)
-{
-  head_.ent_head.stream = stream_number;
 }
 
 template <typename T> uint32_t Image<T>::getMatrixSizeX() const
@@ -1324,12 +1256,6 @@ template <typename T> const ImageHeader &Image<T>::getHead() const {
 template <typename T>
 void Image<T>::setHead (const ImageHeader& other)
 {
-  if (other.ent_head.storage_type != head_.ent_head.storage_type)
-  {
-    throw std::runtime_error
-      ("Cannot assign a header of a different data type.");
-  }
-
   this->head_ = other;
   this->makeConsistent();
 }
@@ -1390,53 +1316,20 @@ T& Image<T>::at (uint32_t ix, uint32_t iy, uint32_t iz, uint32_t channel)
 }
 
 template <typename T>
-uint32_t Image<T>::getStream () const
+EntityType Image<T>::getEntityType()  const
 {
-  return head_.ent_head.stream;
+  return ISMRMRD_IMAGE;
 }
 
 template <typename T>
-uint32_t Image<T>::getSignature ()   const
+StorageType Image<T>::getStorageType() const
 {
-  return head_.ent_head.signature;
-}
-
-template <typename T>
-uint32_t Image<T>::getVersion ()   const
-{
-  return head_.ent_head.signature & 0xFF;
-}
-
-template <typename T>
-EntityType Image<T>::getEntityType ()  const
-{
-  return static_cast<EntityType>(head_.ent_head.entity_type);
-}
-
-template <typename T>
-StorageType Image<T>::getStorageType () const
-{
-  return static_cast<StorageType>(head_.ent_head.storage_type);
+  return get_storage_type<T>();
 }
 
 template <typename T>
 std::vector<unsigned char> Image<T>::serialize()
 {
-  if (this->head_.ent_head.signature != ISMRMRD_SIGNATURE)
-  {
-    throw std::runtime_error ("The header signature not recognized");
-  }
-
-  if (this->head_.ent_head.entity_type != ISMRMRD_IMAGE)
-  {
-    throw std::runtime_error("The header entity type does not match the class type");
-  }
-
-  if (this->head_.ent_head.storage_type != get_storage_type<T>())
-  {
-    throw std::runtime_error("Header storage type does not match class");
-  }
-
   size_t bytes = sizeof(ImageHeader) +
                  attribute_string_.size() +
                  data_.size() * sizeof(T);
@@ -1477,22 +1370,6 @@ void Image<T>::deserialize (const std::vector<unsigned char>& buffer)
 
   ImageHeader* h_ptr = (ImageHeader*)&buffer[0];
 
-  if (h_ptr->ent_head.signature != ISMRMRD_SIGNATURE)
-  {
-    throw std::runtime_error ("The header signature not recognized");
-  }
-
-  if (h_ptr->ent_head.entity_type != ISMRMRD_IMAGE)
-  {
-    throw std::runtime_error
-      ("The header entity type does not match the class type");
-  }
-
-  if (h_ptr->ent_head.storage_type != get_storage_type<T>())
-  {
-    throw std::runtime_error ("Header storage type does not match class");
-  }
-    
   size_t expected_bytes = sizeof(ImageHeader) + h_ptr->attribute_string_len +
                           h_ptr->matrix_size[0] * h_ptr->matrix_size[1] *
                           h_ptr->matrix_size[2] * h_ptr->channels * sizeof(T);
@@ -1527,9 +1404,6 @@ bool operator== (const WaveformHeader& h1, const WaveformHeader& h2)
 Waveform::Waveform (uint32_t num_samples)
 {
   memset (&head_, 0, sizeof (head_));
-  head_.ent_head.signature    = ISMRMRD_SIGNATURE;
-  head_.ent_head.entity_type  = ISMRMRD_WAVEFORM;
-  head_.ent_head.storage_type = ISMRMRD_DOUBLE;
   head_.number_of_samples     = num_samples;
   data_.resize (num_samples);
 }
@@ -1590,12 +1464,6 @@ uint64_t Waveform::getEndTimeStamp() const
 void Waveform::setEndTimeStamp (uint64_t ts)
 {
   head_.end_time_stamp = ts;
-}
-
-/******************************************************************************/
-void Waveform::setStream (uint32_t stream_number)
-{
-  head_.ent_head.stream = stream_number;
 }
 
 /******************************************************************************/
@@ -1683,50 +1551,20 @@ void Waveform::setHead (const WaveformHeader &other)
 }
 
 /******************************************************************************/
-uint32_t Waveform::getStream () const
-{
-  return head_.ent_head.stream;
-}
-
-/******************************************************************************/
-uint32_t Waveform::getSignature () const
-{
-  return head_.ent_head.signature;
-}
-
-/******************************************************************************/
-uint32_t Waveform::getVersion () const
-{
-  return head_.ent_head.signature & 0xFF;
-}
-
-/******************************************************************************/
 EntityType Waveform::getEntityType () const
 {
-  return static_cast<EntityType>(head_.ent_head.entity_type);
+  return ISMRMRD_WAVEFORM;
 }
 
 /******************************************************************************/
 StorageType Waveform::getStorageType () const
 {
-  return static_cast<StorageType>(head_.ent_head.storage_type);
+  return ISMRMRD_DOUBLE;
 }
 
 /******************************************************************************/
 std::vector<unsigned char> Waveform::serialize()
 {
-  if (this->head_.ent_head.entity_type != ISMRMRD_WAVEFORM)
-  {
-    throw std::runtime_error
-      ("The header entity type does not match the Waveform class type");
-  }
-
-  if (this->head_.ent_head.storage_type != ISMRMRD_DOUBLE)
-  {
-    throw std::runtime_error
-      ("Header storage type does not match Waveform class");
-  }
-
   size_t bytes = sizeof (WaveformHeader) + data_.size() * sizeof (double);
 
   std::vector<unsigned char> buffer;
@@ -1759,18 +1597,6 @@ void Waveform::deserialize (const std::vector<unsigned char>& buffer)
 
   WaveformHeader* h_ptr = (WaveformHeader*)&buffer[0];
 
-  if (h_ptr->ent_head.entity_type != ISMRMRD_WAVEFORM)
-  {
-    throw std::runtime_error
-      ("The header entity type does not match the Waveform class type");
-  }
-
-  if (h_ptr->ent_head.storage_type != ISMRMRD_DOUBLE)
-  {
-    throw std::runtime_error
-      ("Header storage type does not match Waveform class");
-  }
-
   size_t expected_bytes =
     sizeof(WaveformHeader) + h_ptr->number_of_samples * sizeof(double);
 
@@ -1787,6 +1613,144 @@ void Waveform::deserialize (const std::vector<unsigned char>& buffer)
   std::copy (&buffer[data_start],
              &buffer[expected_bytes],
              (unsigned char*)(&this->data_[0]));
+}
+
+/*******************************************************************************
+ TextEntity class Implementation
+*******************************************************************************/
+IsmrmrdText::IsmrmrdText ()
+: _type   (ISMRMRD_TEXT_ERROR),
+  _length (0)
+{}
+
+/******************************************************************************/
+IsmrmrdText::IsmrmrdText (std::string str, TextType type)
+: _type   (type)
+{
+  _data = std::vector<unsigned char> (str.begin(), str.end());
+  _length = _data.size();
+}
+
+/******************************************************************************/
+IsmrmrdText::IsmrmrdText (std::vector<unsigned char> vec, TextType type)
+: _type   (type)
+{
+  _data = vec;
+  _length = _data.size();
+}
+
+/******************************************************************************/
+void IsmrmrdText::setText (std::string str, TextType type)
+{
+  _type = type;
+  _data = std::vector<unsigned char> (str.begin(), str.end());
+  _length = _data.size();
+}
+
+/******************************************************************************/
+void IsmrmrdText::setText (std::vector<unsigned char> vec, TextType type)
+{
+  _type = type;
+  _data = vec;
+  _length = _data.size();
+}
+
+/******************************************************************************/
+TextType IsmrmrdText::getTextType () const
+{
+  return _type;
+}
+
+/******************************************************************************/
+uint32_t IsmrmrdText::getSize () const
+{
+  return _length;
+}
+
+/******************************************************************************/
+std::string IsmrmrdText::getTextString () const
+{
+  std::string str (_data.begin(), _data.end());
+  return str;
+}
+
+/******************************************************************************/
+std::vector<unsigned char>  IsmrmrdText::getTextVector () const
+{
+  return _data;
+}
+
+/******************************************************************************/
+EntityType IsmrmrdText::getEntityType() const
+{
+  return ISMRMRD_TEXT;
+}
+
+/******************************************************************************/
+StorageType IsmrmrdText::getStorageType() const
+{
+  return ISMRMRD_CHAR;
+}
+
+/******************************************************************************/
+std::vector<unsigned char> IsmrmrdText::serialize()
+{
+  size_t bytes = sizeof (this->_type) +
+                 sizeof (this->_length) +
+                 this->_length;
+
+  std::vector<unsigned char> buffer;
+  buffer.reserve (bytes);
+
+  std::copy ((unsigned char*) &this->_type,
+             (unsigned char*) &this->_type + sizeof (this->_type),
+             std::back_inserter (buffer));
+
+  std::copy ((unsigned char*) &this->_length,
+             (unsigned char*) &this->_length + sizeof (this->_length),
+             std::back_inserter (buffer));
+
+  std::copy ((unsigned char*) &_data[0],
+             (unsigned char*) &_data[0] + this->_length,
+             std::back_inserter (buffer));
+
+  if (buffer.size() != bytes)
+  {
+    std::cout << "size = " << buffer.size() << ", bytes = " << bytes << "\n";
+    throw std::runtime_error
+      ("Serialized size does not match expected IsmrmrdText size");
+  }
+
+  return buffer;
+}
+
+/******************************************************************************/
+void IsmrmrdText::deserialize(const std::vector<unsigned char>& buffer)
+{
+  int left  = 0;
+  int right = 0;
+  if ((right += sizeof (this->_type)) <= buffer.size())
+  {
+    std::copy (&buffer[left], &buffer[right], (unsigned char*) &this->_type);
+  }
+
+  left = right;
+  if ((right += sizeof (this->_length)) <= buffer.size())
+  {
+    std::copy (&buffer[left], &buffer[right], (unsigned char*) &this->_length);
+  }
+
+  left = right;
+  if ((right += this->_length) <= buffer.size())
+  {
+    this->_data = std::vector<unsigned char> (&buffer[left], &buffer[right]);
+  }
+
+  if (buffer.size() != right)
+  {
+    std::cout << "size: " << buffer.size() << ", expected: " << right << "\n";
+    throw std::runtime_error ("Buffer size does not match IsmrmrdText object");
+  }
 }
 
 /*******************************************************************************
@@ -2042,6 +2006,152 @@ void quaternion_to_directions(float quat[4], float read_dir[3],
     read_dir[2] = 2.0f * (a * c - b * d);
     phase_dir[2] = 2.0f * (b * c + a * d);
     slice_dir[2] = 1.0f - 2.0f * (a * a + b * b);
+}
+
+/******************************* EntityHeader *********************************/
+/******************************************************************************/
+EntityHeader::EntityHeader ()
+: _stream       (ISMRMRD_STREAM_INVALID),
+  _signature    (ISMRMRD_SIGNATURE),
+  _entity_type  (ISMRMRD_ENTITY_TYPE_ERROR),
+  _storage_type (ISMRMRD_STORAGE_NONE)
+{}
+
+/******************************************************************************/
+EntityHeader::EntityHeader
+(
+  uint32_t    stream,
+  uint32_t    signature,
+  EntityType  etype,
+  StorageType stype
+)
+: _stream       (stream),
+  _signature    (signature),
+  _entity_type  (etype),
+  _storage_type (stype)
+{}
+
+/******************************************************************************/
+uint32_t EntityHeader::getStream () const
+{
+  return _stream;
+}
+
+/******************************************************************************/
+void EntityHeader::setStream (uint32_t stream)
+{
+  _stream = stream;
+}
+
+/******************************************************************************/
+bool EntityHeader::checkSignature (uint32_t signature) const
+{
+  return _signature == signature;
+}
+
+/******************************************************************************/
+uint32_t EntityHeader::getSignature () const
+{
+  return _signature;
+}
+
+/******************************************************************************/
+void EntityHeader::setSignature (uint32_t signature)
+{
+  _signature = signature;
+}
+
+/******************************************************************************/
+uint32_t EntityHeader::getVersion () const
+{
+  return _signature & 0xFF;
+}
+
+/******************************************************************************/
+EntityType EntityHeader::getEntityType () const
+{
+  return static_cast<EntityType>(_entity_type);
+}
+
+/******************************************************************************/
+StorageType EntityHeader::getStorageType () const
+{
+  return static_cast<StorageType>(_storage_type);
+}
+
+/******************************************************************************/
+std::vector<unsigned char> EntityHeader::serialize()
+{
+  size_t bytes = sizeof (_stream) +
+                 sizeof (_signature) +
+                 sizeof (_entity_type) +
+                 sizeof (_storage_type);
+
+  std::vector<unsigned char> buffer;
+  buffer.reserve (bytes);
+
+  std::copy ((unsigned char*) &this->_stream,
+             (unsigned char*) &this->_stream + sizeof (_stream),
+             std::back_inserter (buffer));
+
+  std::copy ((unsigned char*) &this->_signature,
+             (unsigned char*) &this->_signature + sizeof (_signature),
+             std::back_inserter (buffer));
+
+  std::copy ((unsigned char*) &this->_entity_type,
+             (unsigned char*) &this->_entity_type + sizeof (_entity_type),
+             std::back_inserter (buffer));
+
+  std::copy ((unsigned char*) &this->_storage_type,
+             (unsigned char*) &this->_storage_type + sizeof (_storage_type),
+             std::back_inserter (buffer));
+
+  if (buffer.size() != bytes)
+  {
+    std::cout << "buffer.size()         = " << buffer.size() << std::endl;
+    std::cout << "bytes                 = " << bytes << std::endl;
+    throw std::runtime_error
+      ("Serialized EntityHeader size does not match expected buffer size");
+  }
+
+  return buffer;
+}
+
+/******************************************************************************/
+void EntityHeader::deserialize(const std::vector<unsigned char>& buffer)
+{
+  if (buffer.size() != sizeof (_stream) +
+                       sizeof (_signature) +
+                       sizeof (_entity_type) +
+                       sizeof (_storage_type))
+  {
+    throw std::runtime_error
+      ("Buffer size does not match the size of EntityHeader");
+  }
+
+  uint16_t left  = 0;
+  uint16_t right = sizeof (_stream);
+  std::copy (&buffer[left],
+             &buffer[right],
+             (unsigned char*) &this->_stream);
+
+  left = right;
+  right += sizeof (_signature);
+  std::copy (&buffer[left],
+             &buffer[right],
+             (unsigned char*) &this->_signature);
+
+  left = right;
+  right += sizeof (_entity_type);
+  std::copy (&buffer[left],
+             &buffer[right],
+             (unsigned char*) &this->_entity_type);
+
+  left = right;
+  right += sizeof (_storage_type);
+  std::copy (&buffer[left],
+             &buffer[right],
+             (unsigned char*) &this->_storage_type);
 }
 
 } // namespace ISMRMRD

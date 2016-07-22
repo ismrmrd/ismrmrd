@@ -12,13 +12,8 @@ BOOST_AUTO_TEST_CASE (waveform_create)
 {
   Waveform wvf;
   WaveformHeader head = wvf.getHead();
-  EntityHeader   ehdr = head.ent_head;
 
-  size_t ehdr_size = sizeof(uint32_t) * 4;
-  BOOST_CHECK_EQUAL (sizeof(ehdr), ehdr_size);
-
-  size_t expected_size = sizeof(ehdr) +
-                         sizeof(uint64_t) * 2 +
+  size_t expected_size = sizeof(uint64_t) * 2 +
                          sizeof(uint32_t) * 2 + 
                          sizeof(int32_t) * ISMRMRD_USER_INTS + 
                          sizeof(float) * ISMRMRD_USER_FLOATS;
@@ -90,11 +85,6 @@ BOOST_AUTO_TEST_CASE (waveform_getters_setters)
     BOOST_CHECK_CLOSE (wvf.at (ii), data1[ii], 0.01);
   }
 
-  wvf.setStream (432);
-  BOOST_CHECK_EQUAL (wvf.getStream(), 432);
-
-  BOOST_CHECK_EQUAL (wvf.getSignature(), ISMRMRD_SIGNATURE);
-  BOOST_CHECK_EQUAL (wvf.getVersion(), ISMRMRD_VERSION_MAJOR);
   BOOST_CHECK_EQUAL (wvf.getEntityType(), ISMRMRD_WAVEFORM);
   BOOST_CHECK_EQUAL (wvf.getStorageType(), ISMRMRD_DOUBLE);
 }
@@ -143,12 +133,6 @@ static void check_header (const WaveformHeader& head)
   {
     BOOST_CHECK_CLOSE (head.user_float[ii], 0, 0.01);
   }
-
-  BOOST_CHECK_EQUAL (head.ent_head.signature, ISMRMRD_SIGNATURE);
-  BOOST_CHECK_EQUAL (head.ent_head.stream, 0);
-  BOOST_CHECK_EQUAL (head.ent_head.entity_type, ISMRMRD_WAVEFORM);
-  BOOST_CHECK_EQUAL (head.ent_head.storage_type, ISMRMRD_DOUBLE);
-
 }
 
 BOOST_AUTO_TEST_SUITE_END()

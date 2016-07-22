@@ -78,7 +78,14 @@ enum EntityType
   ISMRMRD_IMAGE             =  5,  /**< Reconstructed image                  */
   ISMRMRD_XML_HEADER        =  6,  /**< XML header describing the data       */
   ISMRMRD_ERROR             =  7,  /**< Something went wrong                 */
-  ISMRMRD_BLOB              =  8   /**< Some binary object, with description */
+  ISMRMRD_BLOB              =  8,  /**< Some binary object, with description */
+  ISMRMRD_TEXT              =  9   /**< Some text object, i.e. XML header    */
+};
+
+enum TextType
+{
+  ISMRMRD_TEXT_ERROR      = 0,
+  ISMRMRD_XML_HEADER_TEXT = 1
 };
 
 enum StreamId
@@ -158,12 +165,45 @@ enum ImageFlags {
     ISMRMRD_IMAGE_USER8 = 64
 };
 
-struct EntityHeader
+/// Entity type interface
+class EXPORTISMRMRD Entity
 {
-  uint32_t stream;        /**< which stream this belongs to */
-  uint32_t signature;     /**< signature defined as ISMRMRD_SIGNATURE */
-  uint32_t entity_type;   /**< Entity type code */
-  uint32_t storage_type;  /**< numeric type of each sample */
+  public:
+
+  virtual             ~Entity (){};
+
+  virtual EntityType getEntityType() const = 0;
+  virtual StorageType getStorageType() const = 0;
+  virtual std::vector<unsigned char> serialize() = 0;
+  virtual void deserialize(const std::vector<unsigned char>& buffer) = 0;
+};
+ 
+class EntityHeader
+: public Entity
+{
+  public:
+
+  EntityHeader ();
+  EntityHeader (uint32_t stream, uint32_t signature, EntityType, StorageType);
+
+  uint32_t getStream() const;
+  void     setStream (uint32_t stream);
+  uint32_t getSignature() const;
+  bool     checkSignature (uint32_t signature) const;
+  void     setSignature (uint32_t signature);
+  uint32_t getVersion() const;
+
+  virtual EntityType getEntityType()  const;
+  virtual StorageType getStorageType() const;
+  virtual std::vector<unsigned char> serialize();
+  virtual void deserialize(const std::vector<unsigned char>& buffer);
+
+  protected:
+
+  uint32_t _stream;        /**< which stream this belongs to */
+  uint32_t _signature;     /**< signature defined as ISMRMRD_SIGNATURE */
+  uint32_t _entity_type;   /**< Entity type code */
+  uint32_t _storage_type;  /**< numeric type of each sample */
 };
 
 /** EncodingCounters keeps track of typical loop counters in MR experiment. */
@@ -185,8 +225,6 @@ struct EncodingCounters
 /** Header for each MR acquisition. */
 struct AcquisitionHeader
 {
-  EntityHeader ent_head;
-
   uint64_t time_stamp;                        /**< Experiment time stamp - in nano seconds */
   uint64_t flags;                             /**< bit field with flags */
   uint32_t scan_counter;                      /**< Current acquisition number in the measurement */
@@ -215,8 +253,6 @@ struct AcquisitionHeader
 /** Header for each Image. */
 struct ImageHeader
 {
-  EntityHeader ent_head;
-
   uint64_t time_stamp;                       /**< Experiment time stamp - in nano seconds */
   uint64_t flags;                            /**< bit field with flags */
   uint32_t matrix_size[3];                   /**< Pixels in the 3 spatial dimensions */
@@ -251,24 +287,6 @@ struct ImageHeader
 bool operator==(const AcquisitionHeader &h1, const AcquisitionHeader &h2);
 bool operator==(const ImageHeader &h1, const ImageHeader &h2);
 
-/// Entity type interface
-class EXPORTISMRMRD Entity
-{
-  public:
-
-  virtual             ~Entity (){};
-
-  virtual uint32_t    getStream ()      const = 0;
-  virtual uint32_t    getSignature ()   const = 0;
-  virtual uint32_t    getVersion ()     const = 0;
-  virtual EntityType  getEntityType ()  const = 0;
-  virtual StorageType getStorageType () const = 0;
-
-  virtual std::vector<unsigned char> serialize() = 0;
-  virtual void deserialize(const std::vector<unsigned char>& buffer) = 0;
-};
-
- 
 /// Allowed data types for Images and NDArrays
 template <typename T> EXPORTISMRMRD StorageType get_storage_type();
 
@@ -299,8 +317,6 @@ class EXPORTISMRMRD Acquisition
   Acquisition (uint32_t num_samples           = 0,
                uint32_t active_channels       = 1,
                uint32_t trajectory_dimensions = 0);
-
-  void setStream(uint32_t);
 
   uint32_t getScanCounter() const;
   void setScanCounter(uint32_t);
@@ -435,11 +451,8 @@ class EXPORTISMRMRD Acquisition
 
 
   // Functions inherited from Entity
-  virtual uint32_t    getStream ()      const;
-  virtual uint32_t    getSignature ()   const;
-  virtual uint32_t    getVersion ()     const;
-  virtual EntityType  getEntityType ()  const;
-  virtual StorageType getStorageType () const;
+  virtual EntityType getEntityType() const;
+  virtual StorageType getStorageType() const;
   virtual std::vector<unsigned char> serialize();
   virtual void deserialize(const std::vector<unsigned char>& buffer);
 
@@ -469,8 +482,6 @@ class EXPORTISMRMRD Image
                uint32_t matrix_size_y,
                uint32_t matrix_size_z,
                uint32_t channels);
-
-  void setStream (uint32_t stream_number);
 
   uint32_t getMatrixSizeX() const;
   uint32_t getMatrixSizeY() const;
@@ -601,11 +612,8 @@ class EXPORTISMRMRD Image
   T &at(uint32_t x, uint32_t y = 0, uint32_t z = 0, uint32_t channel = 0);
 
   // Functions inherited from Entity
-  virtual uint32_t    getStream ()      const;
-  virtual uint32_t    getSignature ()   const;
-  virtual uint32_t    getVersion ()     const;
-  virtual EntityType  getEntityType ()  const;
-  virtual StorageType getStorageType () const;
+  virtual EntityType getEntityType() const;
+  virtual StorageType getStorageType() const;
   virtual std::vector<unsigned char> serialize();
   virtual void deserialize(const std::vector<unsigned char>& buffer);
 
@@ -621,7 +629,6 @@ class EXPORTISMRMRD Image
 /******************************************************************************/
 struct WaveformHeader
 {
-  EntityHeader ent_head;
   uint64_t     begin_time_stamp;  /**< Experiment time stamp in nano seconds */
   uint64_t     end_time_stamp;    /**< Experiment time stamp in nano seconds */
   uint32_t     dwell_time_ns;     /**< Time between samples in nano seconds */
@@ -640,8 +647,6 @@ class Waveform
   public:
 
   Waveform (uint32_t num_samples = 0);
-
-  void setStream (uint32_t);
 
   uint64_t getBeginTimeStamp() const;
   void setBeginTimeStamp (uint64_t);
@@ -672,12 +677,8 @@ class Waveform
   double &at (uint32_t sample);
 
 // Functions inherited from Entity
-  virtual uint32_t     getSignature () const;
-  virtual uint32_t     getVersion () const;
-  virtual uint32_t     getStream () const;
-  virtual EntityType   getEntityType () const;
-  virtual StorageType  getStorageType () const;
-
+  virtual EntityType getEntityType () const;
+  virtual StorageType getStorageType () const;
   virtual std::vector<unsigned char> serialize();
   virtual void deserialize(const std::vector<unsigned char>& buffer);
 
@@ -685,6 +686,36 @@ class Waveform
 
   WaveformHeader head_;
   std::vector<double> data_;
+};
+
+/*********************************Text Entity **********************************
+*******************************************************************************/
+class IsmrmrdText
+: public Entity
+{
+  public:
+
+                             IsmrmrdText ();
+                             IsmrmrdText (std::string, TextType);
+                             IsmrmrdText (std::vector<unsigned char>, TextType);
+  void                       setText (std::string, TextType);
+  void                       setText (std::vector<unsigned char>, TextType);
+  uint32_t                   getSize () const;
+  TextType                   getTextType () const;
+  std::string                getTextString () const;
+  std::vector<unsigned char> getTextVector () const;
+
+  // Functions inherited from Entity
+  virtual EntityType getEntityType() const;
+  virtual StorageType getStorageType() const;
+  virtual std::vector<unsigned char> serialize();
+  virtual void deserialize(const std::vector<unsigned char>& buffer);
+
+  private:
+
+  TextType                   _type;
+  uint32_t                   _length;
+  std::vector<unsigned char> _data;
 };
 
 /*******************************************************************************

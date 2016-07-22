@@ -8,7 +8,6 @@
 #define ISMRMRDXML_H
 
 #include "ismrmrd/export.h"
-#include "ismrmrd/ismrmrd.h"
 
 #include <cstddef>
 #include <new> //For std::badalloc
@@ -69,7 +68,7 @@ namespace ISMRMRD
 
     T& get() {
       if (!present_) {
-	throw std::runtime_error("Access optional value, which has not been set");
+  throw std::runtime_error("Access optional value, which has not been set");
       }
       return value_;
     }
@@ -320,19 +319,7 @@ namespace ISMRMRD
   };
 
   struct IsmrmrdHeader
-  : public Entity
   {
-    IsmrmrdHeader();
-    //void setStream (uint32_t stream_number);
-    virtual uint32_t  getSignature () const;
-    virtual uint32_t  getVersion () const;
-    virtual uint32_t  getStream ()  const;
-    virtual EntityType  getEntityType ()  const;
-    virtual StorageType getStorageType () const;
-    virtual std::vector<unsigned char> serialize();
-    virtual void deserialize(const std::vector<unsigned char>& buffer);
-
-    EntityHeader ent_head;
     Optional<long> version;
     Optional<SubjectInformation> subjectInformation;
     Optional<StudyInformation> studyInformation;

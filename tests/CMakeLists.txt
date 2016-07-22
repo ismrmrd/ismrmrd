@@ -22,6 +22,7 @@ add_executable(test_ismrmrd
     test_xml.cpp
     test_meta.cpp
     test_waveform.cpp
+    test_text.cpp
     ${ISMRMRD_DATASET_TEST_SOURCES}
     )
 

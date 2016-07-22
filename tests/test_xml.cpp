@@ -10,12 +10,6 @@ using namespace ISMRMRD;
 const std::string XML_HEADER("\
 <?xml version=\"1.0\"?>\n\
 <ismrmrdHeader xmlns=\"http://www.ismrm.org/ISMRMRD\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xsi:schemaLocation=\"http://www.ismrm.org/ISMRMRD ismrmrd.xsd\">\n\
-	<EntityHeader>\n\
-		<stream>1</stream>\n\
-		<signature>367583234</signature>\n\
-		<entity_type>6</entity_type>\n\
-		<storage_type>0</storage_type>\n\
-	</EntityHeader>\n\
 	<version>4</version>\n\
 	<subjectInformation>\n\
 		<patientName>phantom</patientName>\n\
@@ -153,7 +147,7 @@ IsmrmrdHeader build_model_header (void)
 
   IsmrmrdHeader head;
 
-  //head.version = ISMRMRD_XMLHDR_VERSION;
+  head.version = ISMRMRD_XMLHDR_VERSION;
   head.experimentalConditions.H1resonanceFrequency_Hz = 63500000; // ~1.5T
 
   SubjectInformation subj;
@@ -269,41 +263,18 @@ BOOST_AUTO_TEST_CASE (test_serialize_header)
 {
   IsmrmrdHeader head = build_model_header();
 
-  //std::stringstream str;
-  //ISMRMRD::serialize(head, str);
-  //std::string xml_header = str.str();
-
-  std::vector<unsigned char> buffer =  head.serialize ();
-  std::string xml_header (buffer.begin(), buffer.end());
+  std::stringstream str;
+  ISMRMRD::serialize(head, str);
+  std::string xml_header = str.str();
 
   BOOST_CHECK_EQUAL(xml_header, XML_HEADER);
 }
 
 BOOST_AUTO_TEST_CASE(test_deserialize_header)
 {
-  //IsmrmrdHeader head;
-  //ISMRMRD::deserialize(XML_HEADER.c_str(), head);
-
   IsmrmrdHeader head;
-  std::vector<unsigned char> buffer (XML_HEADER.begin(), XML_HEADER.end());
-  head.deserialize (buffer);
+  ISMRMRD::deserialize(XML_HEADER.c_str(), head);
   IsmrmrdHeader model = build_model_header();
-
-  BOOST_CHECK_EQUAL (head.ent_head.stream, model.ent_head.stream);
-  BOOST_CHECK_EQUAL (head.ent_head.signature, model.ent_head.signature);
-  BOOST_CHECK_EQUAL (head.ent_head.entity_type, model.ent_head.entity_type);
-  BOOST_CHECK_EQUAL (head.ent_head.storage_type, model.ent_head.storage_type);
-
-  BOOST_CHECK_EQUAL (head.getStream(), ISMRMRD_HEADER_STREAM);
-  BOOST_CHECK_EQUAL (model.getStream(), ISMRMRD_HEADER_STREAM);
-  BOOST_CHECK_EQUAL (head.getSignature(), ISMRMRD_SIGNATURE);
-  BOOST_CHECK_EQUAL (model.getSignature(), ISMRMRD_SIGNATURE);
-  BOOST_CHECK_EQUAL (head.getVersion(), ISMRMRD_VERSION_MAJOR);
-  BOOST_CHECK_EQUAL (model.getVersion(), ISMRMRD_VERSION_MAJOR);
-  BOOST_CHECK_EQUAL (head.getEntityType(), ISMRMRD_XML_HEADER);
-  BOOST_CHECK_EQUAL (model.getEntityType(), ISMRMRD_XML_HEADER);
-  BOOST_CHECK_EQUAL (head.getStorageType(), ISMRMRD_STORAGE_NONE);
-  BOOST_CHECK_EQUAL (model.getStorageType(), ISMRMRD_STORAGE_NONE);
 
   BOOST_CHECK_EQUAL(head.version, model.version);
 
