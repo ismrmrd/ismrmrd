@@ -23,7 +23,7 @@ class EXPORTISMRMRD Dataset
   Dataset (const std::string& filename,
            const std::string& groupname,
            bool create_file_if_needed = true,
-           bool read_only             = false);
+           bool read_only = false);
   ~Dataset();
 
   // XML Header
@@ -32,31 +32,28 @@ class EXPORTISMRMRD Dataset
 
   // Acquisitions
   template <typename T>
-  void appendAcquisition (const Acquisition<T>& acq,
-                          int stream_number = -1);
-  template <typename T>
-  Acquisition<T> readAcquisition (unsigned long index,
-                                  int stream_number = -1);
+  void appendAcquisition (const Acquisition<T>& acq, int stream_number = -1);
 
-  unsigned long getNumberOfAcquisitions(int stream_number = -1);
+  template <typename T>
+  Acquisition<T> readAcquisition (unsigned long index, int stream_number = -1);
+
+  unsigned long getNumberOfAcquisitions (int stream_number = -1);
 
   // Images
   template <typename T>
-  void appendImage (const std::string &var,
-                    const Image<T> &im);
+  void appendImage (const std::string &var, const Image<T> &im);
+
   template <typename T>
-  Image<T> readImage (const std::string &var,
-                      unsigned long index);
+  Image<T> readImage (const std::string &var, unsigned long index);
 
   unsigned long getNumberOfImages (const std::string &var);
 
   // NDArrays
   template <typename T>
-  void appendNDArray (const std::string &var,
-                      const NDArray<T> &arr);
+  void appendNDArray (const std::string &var, const NDArray<T> &arr);
+
   template <typename T>
-  NDArray<T> readNDArray (const std::string &var,
-                          unsigned long index);
+  NDArray<T> readNDArray (const std::string &var, unsigned long index);
 
   unsigned long getNumberOfNDArrays (const std::string &var);
 
@@ -64,7 +61,9 @@ class EXPORTISMRMRD Dataset
 
   bool linkExists (const std::string& path);
   void createGroup (const std::string& path);
+
   std::string constructDataPath (unsigned int stream_number);
+
   size_t appendToDataSet (const std::string& path,
                           const DataType& dtype,
                           const std::vector<hsize_t>& dims,
