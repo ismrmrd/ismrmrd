@@ -21,8 +21,8 @@ add_executable(test_ismrmrd
     test_quaternions.cpp
     test_xml.cpp
     test_meta.cpp
-    test_waveform.cpp
     test_text.cpp
+    test_waveform.cpp
     ${ISMRMRD_DATASET_TEST_SOURCES}
     )
 

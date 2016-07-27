@@ -44,10 +44,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (acquisition_copy, T, test_types)
   check_header (acq2.getHead());
 
   BOOST_CHECK (acq1.getHead() == acq2.getHead());
-
-  Acquisition<T> acq3;
-  acq3.setHead (acq1.getHead());
-  BOOST_CHECK (acq3.getHead() == acq2.getHead());
 }
 
 

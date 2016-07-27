@@ -187,7 +187,7 @@ namespace ISMRMRD
       pugi::xml_node value = nc.child("value");
 
       if (!name || !value) {
-  throw std::runtime_error("Malformed user parameter (long)");
+	throw std::runtime_error("Malformed user parameter (long)");
       }
 
       v.name = std::string(name.child_value());
@@ -210,7 +210,7 @@ namespace ISMRMRD
       pugi::xml_node value = nc.child("value");
 
       if (!name || !value) {
-  throw std::runtime_error("Malformed user parameter (double)");
+	throw std::runtime_error("Malformed user parameter (double)");
       }
 
       char buffer[10000];
@@ -236,7 +236,7 @@ namespace ISMRMRD
       pugi::xml_node value = nc.child("value");
 
       if (!name || !value) {
-  throw std::runtime_error("Malformed user parameter (string)");
+	throw std::runtime_error("Malformed user parameter (string)");
       }
 
       v.name = std::string(name.child_value());
@@ -279,179 +279,179 @@ namespace ISMRMRD
       
       //Parsing experimentalConditions
       if (!experimentalConditions) {
-  throw std::runtime_error("experimentalConditions not defined in ismrmrdHeader");
+	throw std::runtime_error("experimentalConditions not defined in ismrmrdHeader");
       } else {
-  ExperimentalConditions e;
-  e.H1resonanceFrequency_Hz = std::atol(experimentalConditions.child_value("H1resonanceFrequency_Hz"));
-  h.experimentalConditions = e;
+	ExperimentalConditions e;
+	e.H1resonanceFrequency_Hz = std::atol(experimentalConditions.child_value("H1resonanceFrequency_Hz"));
+	h.experimentalConditions = e;
       }
       
       //Parsing encoding section
       if (!encoding) {
-  throw std::runtime_error("encoding section not found in ismrmrdHeader");
+	throw std::runtime_error("encoding section not found in ismrmrdHeader");
       } else {
-  while (encoding) {
-    Encoding e;
-    
-    try {
-      e.encodedSpace = parse_encoding_space(encoding,"encodedSpace");
-      e.reconSpace = parse_encoding_space(encoding,"reconSpace");
-    } catch (std::runtime_error& e) {
-      std::cout << "Unable to parse encoding section: " << e.what() << std::endl;
-      throw;
-    }
+	while (encoding) {
+	  Encoding e;
+	  
+	  try {
+	    e.encodedSpace = parse_encoding_space(encoding,"encodedSpace");
+	    e.reconSpace = parse_encoding_space(encoding,"reconSpace");
+	  } catch (std::runtime_error& e) {
+	    std::cout << "Unable to parse encoding section: " << e.what() << std::endl;
+	    throw;
+	  }
 
-    pugi::xml_node encodingLimits = encoding.child("encodingLimits");
-    
-    if (!encodingLimits) {
-      throw std::runtime_error("encodingLimits not found in encoding section");
-    } else {
-      e.encodingLimits.kspace_encoding_step_0 = parse_encoding_limit(encodingLimits,"kspace_encoding_step_0");
-      e.encodingLimits.kspace_encoding_step_1 = parse_encoding_limit(encodingLimits,"kspace_encoding_step_1");
-      e.encodingLimits.kspace_encoding_step_2 = parse_encoding_limit(encodingLimits,"kspace_encoding_step_2");
-      e.encodingLimits.average                = parse_encoding_limit(encodingLimits,"average");
-      e.encodingLimits.slice                  = parse_encoding_limit(encodingLimits,"slice");
-      e.encodingLimits.contrast               = parse_encoding_limit(encodingLimits,"contrast");
-      e.encodingLimits.phase                  = parse_encoding_limit(encodingLimits,"phase");
-      e.encodingLimits.repetition             = parse_encoding_limit(encodingLimits,"repetition");
-      e.encodingLimits.set                    = parse_encoding_limit(encodingLimits,"set");
-      e.encodingLimits.segment                = parse_encoding_limit(encodingLimits,"segment");
-    }
-    
-    pugi::xml_node trajectory = encoding.child("trajectory");
-    if (!trajectory) {
-      throw std::runtime_error("trajectory not found in encoding section");
-    } else {
-      e.trajectory = std::string(encoding.child_value("trajectory"));
-    }
+	  pugi::xml_node encodingLimits = encoding.child("encodingLimits");
+	  
+	  if (!encodingLimits) {
+	    throw std::runtime_error("encodingLimits not found in encoding section");
+	  } else {
+	    e.encodingLimits.kspace_encoding_step_0 = parse_encoding_limit(encodingLimits,"kspace_encoding_step_0");
+	    e.encodingLimits.kspace_encoding_step_1 = parse_encoding_limit(encodingLimits,"kspace_encoding_step_1");
+	    e.encodingLimits.kspace_encoding_step_2 = parse_encoding_limit(encodingLimits,"kspace_encoding_step_2");
+	    e.encodingLimits.average                = parse_encoding_limit(encodingLimits,"average");
+	    e.encodingLimits.slice                  = parse_encoding_limit(encodingLimits,"slice");
+	    e.encodingLimits.contrast               = parse_encoding_limit(encodingLimits,"contrast");
+	    e.encodingLimits.phase                  = parse_encoding_limit(encodingLimits,"phase");
+	    e.encodingLimits.repetition             = parse_encoding_limit(encodingLimits,"repetition");
+	    e.encodingLimits.set                    = parse_encoding_limit(encodingLimits,"set");
+	    e.encodingLimits.segment                = parse_encoding_limit(encodingLimits,"segment");
+	  }
+	  
+	  pugi::xml_node trajectory = encoding.child("trajectory");
+	  if (!trajectory) {
+	    throw std::runtime_error("trajectory not found in encoding section");
+	  } else {
+	    e.trajectory = std::string(encoding.child_value("trajectory"));
+	  }
 
-    pugi::xml_node trajectoryDescription = encoding.child("trajectoryDescription");
-    
-    if (trajectoryDescription) {
-      TrajectoryDescription traj;
-      try {
-        traj.identifier = parse_string(trajectoryDescription,"identifier");
-        traj.userParameterLong = 
-    parse_user_parameter_long(trajectoryDescription, "userParameterLong");
-        traj.userParameterDouble = 
-    parse_user_parameter_double(trajectoryDescription, "userParameterDouble");
-        traj.comment = parse_optional_string(trajectoryDescription, "comment");
-        e.trajectoryDescription = traj;
-      } catch (std::runtime_error& e) {
-        std::cout << "Error parsing trajectory description" << std::endl;
-        throw;
-      }
-      
-    }
+	  pugi::xml_node trajectoryDescription = encoding.child("trajectoryDescription");
+	  
+	  if (trajectoryDescription) {
+	    TrajectoryDescription traj;
+	    try {
+	      traj.identifier = parse_string(trajectoryDescription,"identifier");
+	      traj.userParameterLong = 
+		parse_user_parameter_long(trajectoryDescription, "userParameterLong");
+	      traj.userParameterDouble = 
+		parse_user_parameter_double(trajectoryDescription, "userParameterDouble");
+	      traj.comment = parse_optional_string(trajectoryDescription, "comment");
+	      e.trajectoryDescription = traj;
+	    } catch (std::runtime_error& e) {
+	      std::cout << "Error parsing trajectory description" << std::endl;
+	      throw;
+	    }
+	    
+	  }
 
-    pugi::xml_node parallelImaging = encoding.child("parallelImaging");
-    if (parallelImaging) {
-      ParallelImaging info;
-      
-      pugi::xml_node accelerationFactor = parallelImaging.child("accelerationFactor");
-      if (!accelerationFactor) {
-        throw std::runtime_error("Unable to accelerationFactor section in parallelImaging");
-      } else {
-        info.accelerationFactor.kspace_encoding_step_1 = static_cast<unsigned short>(std::atoi(accelerationFactor.child_value("kspace_encoding_step_1")));
-        info.accelerationFactor.kspace_encoding_step_2 = static_cast<unsigned short>(std::atoi(accelerationFactor.child_value("kspace_encoding_step_2")));
-      }
-      
-      info.calibrationMode = parse_optional_string(parallelImaging,"calibrationMode");
-      info.interleavingDimension = parse_optional_string(parallelImaging,"interleavingDimension");
-      e.parallelImaging = info;
-    }
+	  pugi::xml_node parallelImaging = encoding.child("parallelImaging");
+	  if (parallelImaging) {
+	    ParallelImaging info;
+	    
+	    pugi::xml_node accelerationFactor = parallelImaging.child("accelerationFactor");
+	    if (!accelerationFactor) {
+	      throw std::runtime_error("Unable to accelerationFactor section in parallelImaging");
+	    } else {
+	      info.accelerationFactor.kspace_encoding_step_1 = static_cast<unsigned short>(std::atoi(accelerationFactor.child_value("kspace_encoding_step_1")));
+	      info.accelerationFactor.kspace_encoding_step_2 = static_cast<unsigned short>(std::atoi(accelerationFactor.child_value("kspace_encoding_step_2")));
+	    }
+	    
+	    info.calibrationMode = parse_optional_string(parallelImaging,"calibrationMode");
+	    info.interleavingDimension = parse_optional_string(parallelImaging,"interleavingDimension");
+	    e.parallelImaging = info;
+	  }
 
-    e.echoTrainLength = parse_optional_long(encoding, "echoTrainLength");
+	  e.echoTrainLength = parse_optional_long(encoding, "echoTrainLength");
 
-    h.encoding.push_back(e);
-    encoding = encoding.next_sibling("encoding");
-  }
+	  h.encoding.push_back(e);
+	  encoding = encoding.next_sibling("encoding");
+	}
 
       }
 
       if (subjectInformation) {
-  SubjectInformation info;
-  info.patientName = parse_optional_string(subjectInformation, "patientName");
-  info.patientWeight_kg = parse_optional_float(subjectInformation, "patientWeight_kg");
-  info.patientID = parse_optional_string(subjectInformation, "patientID");
-  info.patientBirthdate = parse_optional_string(subjectInformation, "patientBirthdate");
-  info.patientGender = parse_optional_string(subjectInformation, "patientGender");
-  h.subjectInformation = info;
+	SubjectInformation info;
+	info.patientName = parse_optional_string(subjectInformation, "patientName");
+	info.patientWeight_kg = parse_optional_float(subjectInformation, "patientWeight_kg");
+	info.patientID = parse_optional_string(subjectInformation, "patientID");
+	info.patientBirthdate = parse_optional_string(subjectInformation, "patientBirthdate");
+	info.patientGender = parse_optional_string(subjectInformation, "patientGender");
+	h.subjectInformation = info;
       }
 
       if (studyInformation) {
-  StudyInformation info;
-  info.studyDate = parse_optional_string(studyInformation,"studyDate");
-  info.studyTime = parse_optional_string(studyInformation,"studyTime");
-  info.studyID = parse_optional_string(studyInformation,"studyID");
-  info.accessionNumber = parse_optional_long(studyInformation,"accessionNumber");
-  info.referringPhysicianName = parse_optional_string(studyInformation,"referringPhysicianName");
-  info.studyDescription = parse_optional_string(studyInformation,"studyDescription");
-  info.studyInstanceUID = parse_optional_string(studyInformation,"studyInstanceUID");
-  h.studyInformation = info;
+	StudyInformation info;
+	info.studyDate = parse_optional_string(studyInformation,"studyDate");
+	info.studyTime = parse_optional_string(studyInformation,"studyTime");
+	info.studyID = parse_optional_string(studyInformation,"studyID");
+	info.accessionNumber = parse_optional_long(studyInformation,"accessionNumber");
+	info.referringPhysicianName = parse_optional_string(studyInformation,"referringPhysicianName");
+	info.studyDescription = parse_optional_string(studyInformation,"studyDescription");
+	info.studyInstanceUID = parse_optional_string(studyInformation,"studyInstanceUID");
+	h.studyInformation = info;
       }
 
       if (measurementInformation) {
-  MeasurementInformation info;
-  info.measurementID = parse_optional_string(measurementInformation,"measurementID");
-  info.seriesDate = parse_optional_string(measurementInformation, "seriesDate");
-  info.seriesTime = parse_optional_string(measurementInformation, "seriesTime");
-  info.patientPosition = parse_string(measurementInformation, "patientPosition");
-  info.initialSeriesNumber = parse_optional_long(measurementInformation, "initialSeriesNumber");
-  info.protocolName = parse_optional_string(measurementInformation, "protocolName");
-  info.seriesDescription = parse_optional_string(measurementInformation, "seriesDescription");
-  
-  pugi::xml_node measurementDependency = measurementInformation.child("measurementDependency");
-  while (measurementDependency) {
-    try {
-      MeasurementDependency d;
-      d.measurementID = parse_string(measurementDependency,"measurementID");
-      d.dependencyType = parse_string(measurementDependency,"dependencyType");
-      info.measurementDependency.push_back(d);
-    } catch (std::runtime_error& e) {
-      std::cout << "Error parsing measurement dependency: " << e.what() << std::endl;
-      throw;
-    } 
-    measurementDependency = measurementDependency.next_sibling("measurementDependency");
-  }
+	MeasurementInformation info;
+	info.measurementID = parse_optional_string(measurementInformation,"measurementID");
+	info.seriesDate = parse_optional_string(measurementInformation, "seriesDate");
+	info.seriesTime = parse_optional_string(measurementInformation, "seriesTime");
+	info.patientPosition = parse_string(measurementInformation, "patientPosition");
+	info.initialSeriesNumber = parse_optional_long(measurementInformation, "initialSeriesNumber");
+	info.protocolName = parse_optional_string(measurementInformation, "protocolName");
+	info.seriesDescription = parse_optional_string(measurementInformation, "seriesDescription");
+	
+	pugi::xml_node measurementDependency = measurementInformation.child("measurementDependency");
+	while (measurementDependency) {
+	  try {
+	    MeasurementDependency d;
+	    d.measurementID = parse_string(measurementDependency,"measurementID");
+	    d.dependencyType = parse_string(measurementDependency,"dependencyType");
+	    info.measurementDependency.push_back(d);
+	  } catch (std::runtime_error& e) {
+	    std::cout << "Error parsing measurement dependency: " << e.what() << std::endl;
+	    throw;
+	  } 
+	  measurementDependency = measurementDependency.next_sibling("measurementDependency");
+	}
 
-  info.seriesInstanceUIDRoot = parse_optional_string(measurementInformation,"seriesInstanceUIDRoot");
-  info.frameOfReferenceUID = parse_optional_string(measurementInformation,"frameOfReferenceUID");
+	info.seriesInstanceUIDRoot = parse_optional_string(measurementInformation,"seriesInstanceUIDRoot");
+	info.frameOfReferenceUID = parse_optional_string(measurementInformation,"frameOfReferenceUID");
 
-  //This part of the schema is totally messed up and needs to be fixed, but for now we will just read it. 
-  pugi::xml_node ri = measurementInformation.child("referencedImageSequence");
-  if (ri) {
-    pugi::xml_node ric = ri.child("referencedSOPInstanceUID");
-    while (ric) {
-      ReferencedImageSequence r;
-      r.referencedSOPInstanceUID = ric.child_value();
-      info.referencedImageSequence.push_back(r);
-      ric = ric.next_sibling("referencedSOPInstanceUID");
-    }
-  }
+	//This part of the schema is totally messed up and needs to be fixed, but for now we will just read it. 
+	pugi::xml_node ri = measurementInformation.child("referencedImageSequence");
+	if (ri) {
+	  pugi::xml_node ric = ri.child("referencedSOPInstanceUID");
+	  while (ric) {
+	    ReferencedImageSequence r;
+	    r.referencedSOPInstanceUID = ric.child_value();
+	    info.referencedImageSequence.push_back(r);
+	    ric = ric.next_sibling("referencedSOPInstanceUID");
+	  }
+	}
 
-  h.measurementInformation = info;
+	h.measurementInformation = info;
       }
 
       if (acquisitionSystemInformation) {
-  AcquisitionSystemInformation info;
-  info.systemVendor = parse_optional_string(acquisitionSystemInformation, "systemVendor");
-  info.systemModel = parse_optional_string(acquisitionSystemInformation, "systemModel");
-  info.systemFieldStrength_T = parse_optional_float(acquisitionSystemInformation, "systemFieldStrength_T");
-  info.relativeReceiverNoiseBandwidth = parse_optional_float(acquisitionSystemInformation, "relativeReceiverNoiseBandwidth");
-  info.receiverChannels = parse_optional_ushort(acquisitionSystemInformation, "receiverChannels");
-  pugi::xml_node coilLabel = acquisitionSystemInformation.child("coilLabel");
-  while (coilLabel) {
-    CoilLabel l;
-    l.coilNumber = std::atoi(coilLabel.child_value("coilNumber"));
-    l.coilName = parse_string(coilLabel, "coilName");
-    info.coilLabel.push_back(l);
-    coilLabel = coilLabel.next_sibling("coilLabel");
-  }
-  info.institutionName = parse_optional_string(acquisitionSystemInformation, "institutionName");
-  info.stationName = parse_optional_string(acquisitionSystemInformation, "stationName");
+	AcquisitionSystemInformation info;
+	info.systemVendor = parse_optional_string(acquisitionSystemInformation, "systemVendor");
+	info.systemModel = parse_optional_string(acquisitionSystemInformation, "systemModel");
+	info.systemFieldStrength_T = parse_optional_float(acquisitionSystemInformation, "systemFieldStrength_T");
+	info.relativeReceiverNoiseBandwidth = parse_optional_float(acquisitionSystemInformation, "relativeReceiverNoiseBandwidth");
+	info.receiverChannels = parse_optional_ushort(acquisitionSystemInformation, "receiverChannels");
+	pugi::xml_node coilLabel = acquisitionSystemInformation.child("coilLabel");
+	while (coilLabel) {
+	  CoilLabel l;
+	  l.coilNumber = std::atoi(coilLabel.child_value("coilNumber"));
+	  l.coilName = parse_string(coilLabel, "coilName");
+	  info.coilLabel.push_back(l);
+	  coilLabel = coilLabel.next_sibling("coilLabel");
+	}
+	info.institutionName = parse_optional_string(acquisitionSystemInformation, "institutionName");
+	info.stationName = parse_optional_string(acquisitionSystemInformation, "stationName");
 
-  h.acquisitionSystemInformation = info;
+	h.acquisitionSystemInformation = info;
       }
 
     if (streams) {
@@ -459,7 +459,7 @@ namespace ISMRMRD
     }
 
       if (sequenceParameters) {
-  SequenceParameters p;
+	SequenceParameters p;
 
     std::vector<float> r;
     r = parse_vector_float(sequenceParameters, "TR");
@@ -479,16 +479,16 @@ namespace ISMRMRD
     r = parse_vector_float(sequenceParameters, "echo_spacing");
     if (!r.empty()) p.echo_spacing = r;
 
-  h.sequenceParameters = p;
+	h.sequenceParameters = p;
       }
 
       if (userParameters) {
-  UserParameters p;
-   p.userParameterLong = parse_user_parameter_long(userParameters,"userParameterLong");
-   p.userParameterDouble = parse_user_parameter_double(userParameters,"userParameterDouble");
-   p.userParameterString = parse_user_parameter_string(userParameters,"userParameterString");
-   p.userParameterBase64 = parse_user_parameter_string(userParameters,"userParameterBase64");
-  h.userParameters = p;
+	UserParameters p;
+ 	p.userParameterLong = parse_user_parameter_long(userParameters,"userParameterLong");
+ 	p.userParameterDouble = parse_user_parameter_double(userParameters,"userParameterDouble");
+ 	p.userParameterString = parse_user_parameter_string(userParameters,"userParameterString");
+ 	p.userParameterBase64 = parse_user_parameter_string(userParameters,"userParameterBase64");
+	h.userParameters = p;
       }
     } else {
       throw std::runtime_error("Root node 'ismrmrdHeader' not found");
@@ -633,7 +633,7 @@ namespace ISMRMRD
 
   template <class T> 
   void append_user_parameter(pugi::xml_node& n, const char* child, 
-           const std::vector<T>& v) 
+			     const std::vector<T>& v) 
   {
     for (size_t i = 0; i < v.size(); i++) {
       pugi::xml_node n2 = n.append_child(child);
@@ -706,10 +706,10 @@ namespace ISMRMRD
       append_optional_node(n1,"seriesDescription",h.measurementInformation->seriesDescription);
 
       for (size_t i = 0; i < h.measurementInformation->measurementDependency.size(); i++) {
-  n2 = n1.append_child();
-  n2.set_name("measurementDependency");
-  append_node(n2,"dependencyType",h.measurementInformation->measurementDependency[i].dependencyType);
-  append_node(n2,"measurementID",h.measurementInformation->measurementDependency[i].measurementID);
+	n2 = n1.append_child();
+	n2.set_name("measurementDependency");
+	append_node(n2,"dependencyType",h.measurementInformation->measurementDependency[i].dependencyType);
+	append_node(n2,"measurementID",h.measurementInformation->measurementDependency[i].measurementID);
       }
       
       append_optional_node(n1,"seriesInstanceUIDRoot",h.measurementInformation->seriesInstanceUIDRoot);
@@ -717,10 +717,10 @@ namespace ISMRMRD
       
       //TODO: Sort out stuff with this referenced image sequence. This is all messed up. 
       if (h.measurementInformation->referencedImageSequence.size()) {
-  n2 = n1.append_child("referencedImageSequence");
-  for (size_t i = 0; i < h.measurementInformation->referencedImageSequence.size(); i++) {
-    append_node(n2,"referencedSOPInstanceUID", h.measurementInformation->referencedImageSequence[i].referencedSOPInstanceUID);
-  }
+	n2 = n1.append_child("referencedImageSequence");
+	for (size_t i = 0; i < h.measurementInformation->referencedImageSequence.size(); i++) {
+	  append_node(n2,"referencedSOPInstanceUID", h.measurementInformation->referencedImageSequence[i].referencedSOPInstanceUID);
+	}
       }
       
 
@@ -735,10 +735,10 @@ namespace ISMRMRD
       append_optional_node(n1,"relativeReceiverNoiseBandwidth",h.acquisitionSystemInformation->relativeReceiverNoiseBandwidth);
       append_optional_node(n1,"receiverChannels",h.acquisitionSystemInformation->receiverChannels);
       for (size_t i = 0; i < h.acquisitionSystemInformation->coilLabel.size(); i++) {
-  n2 = n1.append_child();
-  n2.set_name("coilLabel");
-  append_node(n2,"coilNumber",h.acquisitionSystemInformation->coilLabel[i].coilNumber);
-  append_node(n2,"coilName",h.acquisitionSystemInformation->coilLabel[i].coilName);
+	n2 = n1.append_child();
+	n2.set_name("coilLabel");
+	append_node(n2,"coilNumber",h.acquisitionSystemInformation->coilLabel[i].coilNumber);
+	append_node(n2,"coilName",h.acquisitionSystemInformation->coilLabel[i].coilName);
       }
       append_optional_node(n1,"institutionName",h.acquisitionSystemInformation->institutionName);
       append_optional_node(n1,"stationName",h.acquisitionSystemInformation->stationName);
@@ -770,20 +770,20 @@ namespace ISMRMRD
       append_node(n1,"trajectory",h.encoding[i].trajectory);
       
       if (h.encoding[i].trajectoryDescription) {
-  n2 = n1.append_child("trajectoryDescription");
-  append_node(n2,"identifier",h.encoding[i].trajectoryDescription->identifier);
-  append_user_parameter(n2,"userParameterLong",h.encoding[i].trajectoryDescription->userParameterLong); 
-  append_user_parameter(n2,"userParameterDouble",h.encoding[i].trajectoryDescription->userParameterDouble); 
-  append_optional_node(n2,"comment",h.encoding[i].trajectoryDescription->comment);
+	n2 = n1.append_child("trajectoryDescription");
+	append_node(n2,"identifier",h.encoding[i].trajectoryDescription->identifier);
+	append_user_parameter(n2,"userParameterLong",h.encoding[i].trajectoryDescription->userParameterLong); 
+	append_user_parameter(n2,"userParameterDouble",h.encoding[i].trajectoryDescription->userParameterDouble); 
+	append_optional_node(n2,"comment",h.encoding[i].trajectoryDescription->comment);
       }
 
       if (h.encoding[i].parallelImaging) {
-  n2 = n1.append_child("parallelImaging");
-  n3 = n2.append_child("accelerationFactor");
-  append_node(n3,"kspace_encoding_step_1",h.encoding[i].parallelImaging->accelerationFactor.kspace_encoding_step_1);
-  append_node(n3,"kspace_encoding_step_2",h.encoding[i].parallelImaging->accelerationFactor.kspace_encoding_step_2);
-  append_optional_node(n2, "calibrationMode", h.encoding[i].parallelImaging->calibrationMode);
-  append_optional_node(n2, "interleavingDimension", h.encoding[i].parallelImaging->interleavingDimension);
+	n2 = n1.append_child("parallelImaging");
+	n3 = n2.append_child("accelerationFactor");
+	append_node(n3,"kspace_encoding_step_1",h.encoding[i].parallelImaging->accelerationFactor.kspace_encoding_step_1);
+	append_node(n3,"kspace_encoding_step_2",h.encoding[i].parallelImaging->accelerationFactor.kspace_encoding_step_2);
+	append_optional_node(n2, "calibrationMode", h.encoding[i].parallelImaging->calibrationMode);
+	append_optional_node(n2, "interleavingDimension", h.encoding[i].parallelImaging->interleavingDimension);
       }
 
       append_optional_node(n1, "echoTrainLength", h.encoding[i].echoTrainLength);

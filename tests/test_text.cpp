@@ -133,81 +133,98 @@ const std::string xml_header("\
 </ismrmrdHeader>\n\
 ");
 
-BOOST_AUTO_TEST_SUITE (TextEntity)
+BOOST_AUTO_TEST_SUITE(TextEntity)
 
-BOOST_AUTO_TEST_CASE (text_create)
+static void check_header (const TextHeader& head);
+
+BOOST_AUTO_TEST_CASE(text_create)
 {
   IsmrmrdText txt;
+  TextHeader head = txt.getHead();
 
-  BOOST_CHECK_EQUAL (txt.getEntityType(), ISMRMRD_TEXT);
-  BOOST_CHECK_EQUAL (txt.getStorageType(), ISMRMRD_CHAR);
-  BOOST_CHECK_EQUAL (txt.getTextType(), ISMRMRD_TEXT_ERROR);
-  BOOST_CHECK_EQUAL (txt.getSize(), 0);
+  size_t expected_size = sizeof(uint32_t) * 2;
 
-  txt.setText (xml_header, ISMRMRD_XML_HEADER_TEXT);
-  BOOST_CHECK_EQUAL (txt.getSize(), xml_header.size());
+  BOOST_CHECK_EQUAL (sizeof(head), expected_size);
 
-  IsmrmrdText txt1 (xml_header, ISMRMRD_XML_HEADER_TEXT);
+  // Check that header is initialized properly
+  check_header (head);
 
-  BOOST_CHECK_EQUAL (txt1.getEntityType(), ISMRMRD_TEXT);
-  BOOST_CHECK_EQUAL (txt1.getStorageType(), ISMRMRD_CHAR);
-  BOOST_CHECK_EQUAL (txt1.getTextType(), ISMRMRD_XML_HEADER_TEXT);
-  BOOST_CHECK_EQUAL (txt1.getSize(), xml_header.size());
-  BOOST_CHECK_EQUAL (txt1.getTextString(), xml_header);
+  BOOST_CHECK_EQUAL(txt.getEntityType(), ISMRMRD_TEXT);
+  BOOST_CHECK_EQUAL(txt.getStorageType(), ISMRMRD_CHAR);
+  BOOST_CHECK_EQUAL(txt.getTextType(), ISMRMRD_TEXT_ERROR);
+  BOOST_CHECK_EQUAL(txt.getSize(), 0);
 
-  std::vector<unsigned char> head_vec (xml_header.begin(), xml_header.end());
+  txt.setText(xml_header, ISMRMRD_XML_HEADER_TEXT);
+  BOOST_CHECK_EQUAL(txt.getSize(), xml_header.size());
 
-  IsmrmrdText txt2 (head_vec, ISMRMRD_XML_HEADER_TEXT);
+  IsmrmrdText txt1(xml_header, ISMRMRD_XML_HEADER_TEXT);
 
-  BOOST_CHECK_EQUAL (txt2.getEntityType(), ISMRMRD_TEXT);
-  BOOST_CHECK_EQUAL (txt2.getStorageType(), ISMRMRD_CHAR);
-  BOOST_CHECK_EQUAL (txt2.getTextType(), ISMRMRD_XML_HEADER_TEXT);
-  BOOST_CHECK_EQUAL (txt2.getSize(), xml_header.size());
-  BOOST_CHECK_EQUAL (txt2.getSize(), head_vec.size());
-  BOOST_CHECK_EQUAL (txt2.getTextString(), xml_header);
-  BOOST_CHECK (txt2.getTextVector() == head_vec);
+  BOOST_CHECK_EQUAL(txt1.getEntityType(), ISMRMRD_TEXT);
+  BOOST_CHECK_EQUAL(txt1.getStorageType(), ISMRMRD_CHAR);
+  BOOST_CHECK_EQUAL(txt1.getTextType(), ISMRMRD_XML_HEADER_TEXT);
+  BOOST_CHECK_EQUAL(txt1.getSize(), xml_header.size());
+  BOOST_CHECK_EQUAL(txt1.getTextString(), xml_header);
+
+  std::vector<unsigned char> head_vec(xml_header.begin(), xml_header.end());
+
+  IsmrmrdText txt2(head_vec, ISMRMRD_XML_HEADER_TEXT);
+
+  BOOST_CHECK_EQUAL(txt2.getEntityType(), ISMRMRD_TEXT);
+  BOOST_CHECK_EQUAL(txt2.getStorageType(), ISMRMRD_CHAR);
+  BOOST_CHECK_EQUAL(txt2.getTextType(), ISMRMRD_XML_HEADER_TEXT);
+  BOOST_CHECK_EQUAL(txt2.getSize(), xml_header.size());
+  BOOST_CHECK_EQUAL(txt2.getSize(), head_vec.size());
+  BOOST_CHECK_EQUAL(txt2.getTextString(), xml_header);
+  BOOST_CHECK(txt2.getTextVector() == head_vec);
 }
 
-BOOST_AUTO_TEST_CASE (text_check_types)
+BOOST_AUTO_TEST_CASE(text_check_types)
 {
-  std::vector<unsigned char> head_vec (xml_header.begin(), xml_header.end());
+  std::vector<unsigned char> head_vec(xml_header.begin(), xml_header.end());
 
-  IsmrmrdText txt1 (xml_header, ISMRMRD_XML_HEADER_TEXT);
-  IsmrmrdText txt2 (head_vec, ISMRMRD_XML_HEADER_TEXT);
+  IsmrmrdText txt1(xml_header, ISMRMRD_XML_HEADER_TEXT);
+  IsmrmrdText txt2(head_vec, ISMRMRD_XML_HEADER_TEXT);
 
-  BOOST_CHECK (txt1.getTextString() == txt2.getTextString());
-  BOOST_CHECK (txt1.getTextVector() == txt2.getTextVector());
+  BOOST_CHECK(txt1.getTextString() == txt2.getTextString());
+  BOOST_CHECK(txt1.getTextVector() == txt2.getTextVector());
 }
 
-BOOST_AUTO_TEST_CASE (text_serialize)
+BOOST_AUTO_TEST_CASE(text_serialize)
 {
-  IsmrmrdText txt1 (xml_header, ISMRMRD_XML_HEADER_TEXT);
-  std::vector<unsigned char> temp (txt1.serialize());
+  IsmrmrdText txt1(xml_header, ISMRMRD_XML_HEADER_TEXT);
+  std::vector<unsigned char> temp(txt1.serialize());
 
   IsmrmrdText txt2;
-  txt2.deserialize (temp);
-  BOOST_CHECK_EQUAL (txt2.getEntityType(), ISMRMRD_TEXT);
-  BOOST_CHECK_EQUAL (txt2.getStorageType(), ISMRMRD_CHAR);
-  BOOST_CHECK_EQUAL (txt2.getTextType(), ISMRMRD_XML_HEADER_TEXT);
-  BOOST_CHECK_EQUAL (txt2.getSize(), xml_header.size());
-  BOOST_CHECK_EQUAL (txt2.getTextString(), xml_header);
+  txt2.deserialize(temp);
+  BOOST_CHECK_EQUAL(txt2.getEntityType(), ISMRMRD_TEXT);
+  BOOST_CHECK_EQUAL(txt2.getStorageType(), ISMRMRD_CHAR);
+  BOOST_CHECK_EQUAL(txt2.getTextType(), ISMRMRD_XML_HEADER_TEXT);
+  BOOST_CHECK_EQUAL(txt2.getSize(), xml_header.size());
+  BOOST_CHECK_EQUAL(txt2.getTextString(), xml_header);
+  BOOST_CHECK(txt2.getTextVector() == std::vector<unsigned char>(xml_header.begin(), xml_header.end()));
 }
 
-BOOST_AUTO_TEST_CASE (waveform_getters_setters)
+BOOST_AUTO_TEST_CASE(waveform_getters_setters)
 {
   IsmrmrdText txt1;
 
-  txt1.setText (xml_header, ISMRMRD_XML_HEADER_TEXT);
-  BOOST_CHECK_EQUAL (txt1.getTextType(), ISMRMRD_XML_HEADER_TEXT);
-  BOOST_CHECK_EQUAL (txt1.getSize(), xml_header.size());
-  BOOST_CHECK_EQUAL (txt1.getTextString(), xml_header);
+  txt1.setText(xml_header, ISMRMRD_XML_HEADER_TEXT);
+  BOOST_CHECK_EQUAL(txt1.getTextType(), ISMRMRD_XML_HEADER_TEXT);
+  BOOST_CHECK_EQUAL(txt1.getSize(), xml_header.size());
+  BOOST_CHECK_EQUAL(txt1.getTextString(), xml_header);
 
-  std::vector<unsigned char> head_vec (xml_header.begin(), xml_header.end());
+  std::vector<unsigned char> head_vec(xml_header.begin(), xml_header.end());
   IsmrmrdText txt2;
-  txt2.setText (head_vec, ISMRMRD_XML_HEADER_TEXT);
-  BOOST_CHECK_EQUAL (txt2.getTextType(), ISMRMRD_XML_HEADER_TEXT);
-  BOOST_CHECK_EQUAL (txt2.getSize(), head_vec.size());
-  BOOST_CHECK (txt2.getTextVector() == head_vec);
+  txt2.setText(head_vec, ISMRMRD_XML_HEADER_TEXT);
+  BOOST_CHECK_EQUAL(txt2.getTextType(), ISMRMRD_XML_HEADER_TEXT);
+  BOOST_CHECK_EQUAL(txt2.getSize(), head_vec.size());
+  BOOST_CHECK(txt2.getTextVector() == head_vec);
+}
+
+static void check_header (const TextHeader& head)
+{
+  BOOST_CHECK_EQUAL (head.type, ISMRMRD_TEXT_ERROR);
+  BOOST_CHECK_EQUAL (head.length, 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
