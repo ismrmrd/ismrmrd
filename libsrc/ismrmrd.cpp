@@ -116,6 +116,10 @@ bool operator==(const ImageHeader& h1, const ImageHeader& h2)
   return memcmp(&h1, &h2, sizeof(h1)) == 0;
 }
 
+bool operator==(const WaveformHeader& h1, const WaveformHeader& h2)
+{
+  return memcmp(&h1, &h2, sizeof(h1)) == 0;
+}
 
 template <typename T>
 Acquisition<T>::Acquisition
@@ -126,19 +130,10 @@ Acquisition<T>::Acquisition
 )
 {
   memset (&head_, 0, sizeof(head_));
-  head_.ent_head.signature    = ISMRMRD_SIGNATURE;
-  head_.ent_head.entity_type  = ISMRMRD_MRACQUISITION;
-  head_.ent_head.storage_type = get_storage_type<T>();
   this->resize (num_samples, active_channels, trajectory_dimensions);
 }
 
 // Accessors and mutators
-template <typename T>
-void Acquisition<T>::setStream (uint32_t stream_number)
-{
-  head_.ent_head.stream = stream_number;
-}
-
 template <typename T> uint32_t Acquisition<T>::getScanCounter() const {
     return head_.scan_counter;
 }
@@ -637,49 +632,21 @@ template <typename T> void Acquisition<T>::setAllChannelsNotActive() {
     }
 }
 
-
-template <typename T>
-uint32_t Acquisition<T>::getStream () const
-{
-  return head_.ent_head.stream;
-}
-
-template <typename T>
-uint32_t Acquisition<T>::getSignature () const
-{
-  return head_.ent_head.signature;
-}
-
 template <typename T>
 EntityType Acquisition<T>::getEntityType () const
 {
-  return static_cast<EntityType>(head_.ent_head.entity_type);
+  return ISMRMRD_MRACQUISITION;
 }
 
 template <typename T>
 StorageType Acquisition<T>::getStorageType () const
 {
-  return static_cast<StorageType>(head_.ent_head.storage_type);
+  return get_storage_type<T>();
 }
 
 template <typename T>
 std::vector<unsigned char> Acquisition<T>::serialize()
 {
-  if (this->head_.ent_head.signature != ISMRMRD_SIGNATURE)
-  {
-    throw std::runtime_error ("The header signature not recognized");
-  }
-
-  if (this->head_.ent_head.entity_type != ISMRMRD_MRACQUISITION)
-  {
-    throw std::runtime_error
-      ("The header entity type does not match the class type");
-  }
-
-  if (this->head_.ent_head.storage_type != get_storage_type<T>()) {
-    throw std::runtime_error("Header storage type does not match class");
-  }
-
   size_t bytes = sizeof(AcquisitionHeader) +
                  traj_.size() * sizeof(float) +
                  data_.size() * sizeof(std::complex<T>);
@@ -719,22 +686,6 @@ void Acquisition<T>::deserialize (const std::vector<unsigned char>& buffer)
 
   AcquisitionHeader* h_ptr = (AcquisitionHeader*)&buffer[0];
 
-  if (h_ptr->ent_head.signature != ISMRMRD_SIGNATURE)
-  {
-    throw std::runtime_error ("The header signature not recognized");
-  }
-
-  if (h_ptr->ent_head.entity_type != ISMRMRD_MRACQUISITION)
-  {
-    throw std::runtime_error
-      ("The header entity type does not match the class type");
-  }
-
-  if (h_ptr->ent_head.storage_type != get_storage_type<T>())
-  {
-    throw std::runtime_error("Header storage type does not match class");
-  }
-    
   size_t expected_bytes =
     sizeof(AcquisitionHeader) +
     h_ptr->trajectory_dimensions * h_ptr->number_of_samples * sizeof(float) +
@@ -774,9 +725,6 @@ template <typename T>
 )
 {
     memset (&head_, 0, sizeof(head_));
-    head_.ent_head.signature = ISMRMRD_SIGNATURE;
-    head_.ent_head.entity_type = ISMRMRD_IMAGE;
-    head_.ent_head.storage_type = static_cast<uint32_t>(get_storage_type<T>());
     this->resize (matrix_size_x, matrix_size_y, matrix_size_z, channels);
 }
 
@@ -808,12 +756,6 @@ template <typename T> void Image<T>::makeConsistent() {
     data_.resize(getNumberOfElements());
 
     attribute_string_.resize(head_.attribute_string_len);
-}
-
-template <typename T>
-void Image<T>::setStream (uint32_t stream_number)
-{
-  head_.ent_head.stream = stream_number;
 }
 
 template <typename T> uint32_t Image<T>::getMatrixSizeX() const
@@ -1158,14 +1100,20 @@ template <typename T> void  Image<T>::setTimeStamp(uint64_t time_stamp)
 
 template <typename T> uint32_t Image<T>::getPhysiologyTimeStamp(unsigned int idx) const
 {
-    // TODO: bounds checking
-    return head_.physiology_time_stamp[idx];
+  if (idx >= ISMRMRD_PHYS_STAMPS)
+  {
+    throw std::runtime_error ("Image physiology timestamp index out of bounds");
+  }
+  return head_.physiology_time_stamp[idx];
 }
 
 template <typename T> void  Image<T>::setPhysiologyTimeStamp(unsigned int idx, uint32_t value)
 {
-    // TODO: bounds checking
-    head_.physiology_time_stamp[idx] = value;
+  if (idx >= ISMRMRD_PHYS_STAMPS)
+  {
+    throw std::runtime_error ("Image physiology timestamp index out of bounds");
+  }
+  head_.physiology_time_stamp[idx] = value;
 }
 
 template <typename T> uint32_t Image<T>::getImageType() const
@@ -1200,26 +1148,38 @@ template <typename T> void Image<T>::setImageSeriesIndex(uint32_t image_series_i
 
 template <typename T> int32_t Image<T>::getUserInt(unsigned int index) const
 {
-    // TODO: bounds checking
-    return head_.user_int[index];
+  if (index >= ISMRMRD_USER_INTS)
+  {
+    throw std::runtime_error ("Image user int index out of bounds");
+  }
+  return head_.user_int[index];
 }
 
 template <typename T> void Image<T>::setUserInt(unsigned int index, int32_t value)
 {
-    // TODO: bounds checking
-    head_.user_int[index] = value;
+  if (index >= ISMRMRD_USER_INTS)
+  {
+    throw std::runtime_error ("Image user int index out of bounds");
+  }
+  head_.user_int[index] = value;
 }
 
 template <typename T> float Image<T>::getUserFloat(unsigned int index) const
 {
-    // TODO: bounds checking
-    return head_.user_float[index];
+  if (index >= ISMRMRD_USER_FLOATS)
+  {
+    throw std::runtime_error ("Image user float index out of bounds");
+  }
+  return head_.user_float[index];
 }
 
 template <typename T> void Image<T>::setUserFloat(unsigned int index, float value)
 {
-    // TODO: bounds checking
-    head_.user_float[index] = value;
+  if (index >= ISMRMRD_USER_FLOATS)
+  {
+    throw std::runtime_error ("Image user float index out of bounds");
+  }
+  head_.user_float[index] = value;
 }
 
 // Flag methods
@@ -1273,12 +1233,6 @@ template <typename T> const ImageHeader &Image<T>::getHead() const {
 template <typename T>
 void Image<T>::setHead (const ImageHeader& other)
 {
-  if (other.ent_head.storage_type != head_.ent_head.storage_type)
-  {
-    throw std::runtime_error
-      ("Cannot assign a header of a different data type.");
-  }
-
   this->head_ = other;
   this->makeConsistent();
 }
@@ -1321,7 +1275,14 @@ template <typename T> size_t Image<T>::getNumberOfElements() const {
 template <typename T>
 T& Image<T>::at (uint32_t ix, uint32_t iy, uint32_t iz, uint32_t channel)
 {
-  // TODO: bounds checking
+  if (ix >= head_.matrix_size[0] ||
+      iy >= head_.matrix_size[1] ||
+      iz >= head_.matrix_size[2] ||
+      channel >= head_.channels)
+  {
+    throw std::runtime_error ("Image data index out of bounds");
+  }
+
   size_t sx = getMatrixSizeX();
   size_t sy = getMatrixSizeY();
   size_t sz = getMatrixSizeZ();
@@ -1330,47 +1291,20 @@ T& Image<T>::at (uint32_t ix, uint32_t iy, uint32_t iz, uint32_t channel)
 }
 
 template <typename T>
-uint32_t Image<T>::getStream () const
-{
-  return head_.ent_head.stream;
-}
-
-template <typename T>
-uint32_t Image<T>::getSignature ()   const
-{
-  return head_.ent_head.signature;
-}
-
-template <typename T>
 EntityType Image<T>::getEntityType ()  const
 {
-  return static_cast<EntityType>(head_.ent_head.entity_type);
+  return ISMRMRD_IMAGE;
 }
 
 template <typename T>
 StorageType Image<T>::getStorageType () const
 {
-  return static_cast<StorageType>(head_.ent_head.storage_type);
+  return get_storage_type<T>();
 }
 
 template <typename T>
 std::vector<unsigned char> Image<T>::serialize()
 {
-  if (this->head_.ent_head.signature != ISMRMRD_SIGNATURE)
-  {
-    throw std::runtime_error ("The header signature not recognized");
-  }
-
-  if (this->head_.ent_head.entity_type != ISMRMRD_IMAGE)
-  {
-    throw std::runtime_error("The header entity type does not match the class type");
-  }
-
-  if (this->head_.ent_head.storage_type != get_storage_type<T>())
-  {
-    throw std::runtime_error("Header storage type does not match class");
-  }
-
   size_t bytes = sizeof(ImageHeader) +
                  attribute_string_.size() +
                  data_.size() * sizeof(T);
@@ -1406,27 +1340,11 @@ void Image<T>::deserialize (const std::vector<unsigned char>& buffer)
 {
   if (buffer.size() < sizeof(ImageHeader))
   {
-    throw std::runtime_error("Buffer is too small to contain an Acquisition");
+    throw std::runtime_error("Buffer is too small to contain an Image");
   }
 
   ImageHeader* h_ptr = (ImageHeader*)&buffer[0];
 
-  if (h_ptr->ent_head.signature != ISMRMRD_SIGNATURE)
-  {
-    throw std::runtime_error ("The header signature not recognized");
-  }
-
-  if (h_ptr->ent_head.entity_type != ISMRMRD_IMAGE)
-  {
-    throw std::runtime_error
-      ("The header entity type does not match the class type");
-  }
-
-  if (h_ptr->ent_head.storage_type != get_storage_type<T>())
-  {
-    throw std::runtime_error ("Header storage type does not match class");
-  }
-    
   size_t expected_bytes = sizeof(ImageHeader) + h_ptr->attribute_string_len +
                           h_ptr->matrix_size[0] * h_ptr->matrix_size[1] *
                           h_ptr->matrix_size[2] * h_ptr->channels * sizeof(T);
@@ -1440,7 +1358,7 @@ void Image<T>::deserialize (const std::vector<unsigned char>& buffer)
   }
   
   this->setHead(*h_ptr);
-  size_t attr_start = sizeof(AcquisitionHeader);
+  size_t attr_start = sizeof(ImageHeader);
   size_t data_start = attr_start + h_ptr->attribute_string_len;
 
   this->attribute_string_ = std::string ((char*)&buffer[attr_start],
@@ -1449,7 +1367,363 @@ void Image<T>::deserialize (const std::vector<unsigned char>& buffer)
              &buffer[expected_bytes],
              (unsigned char*)(&this->data_[0]));
 }
-    
+
+/**********************************************************************************************************************/
+// Waveform
+Waveform::Waveform(uint32_t num_samples)
+{
+  memset (&head_, 0, sizeof(head_));
+  head_.number_of_samples = num_samples;
+  data_.resize(num_samples);
+}
+
+/**********************************************************************************************************************/
+std::vector<double> &Waveform::getData()
+{
+  return data_;
+}
+
+/**********************************************************************************************************************/
+const std::vector<double> &Waveform::getData() const
+{
+  return data_;
+}
+
+/**********************************************************************************************************************/
+void Waveform::setData(const std::vector<double>& data)
+{
+  if (head_.number_of_samples != data.size())
+  {
+    throw std::runtime_error("Data size does not match size specified by header");
+  }
+
+  data_ = data;
+}
+
+/**********************************************************************************************************************/
+double &Waveform::at(uint32_t sample)
+{
+  if (sample >= head_.number_of_samples)
+  {
+    throw std::runtime_error("waveform sample greater than number of samples");
+  }
+  return data_[sample];
+}
+
+/**********************************************************************************************************************/
+uint64_t Waveform::getBeginTimeStamp() const
+{
+  return head_.begin_time_stamp;
+}
+
+/**********************************************************************************************************************/
+void Waveform::setBeginTimeStamp(uint64_t ts)
+{
+  head_.begin_time_stamp = ts;
+}
+
+/**********************************************************************************************************************/
+uint64_t Waveform::getEndTimeStamp() const
+{
+  return head_.end_time_stamp;
+}
+
+/**********************************************************************************************************************/
+void Waveform::setEndTimeStamp(uint64_t ts)
+{
+  head_.end_time_stamp = ts;
+}
+
+/**********************************************************************************************************************/
+uint32_t Waveform::getNumberOfSamples() const
+{
+  return head_.number_of_samples;
+}
+
+/**********************************************************************************************************************/
+uint32_t Waveform::getDwellTime_ns() const
+{
+  return head_.dwell_time_ns;
+}
+
+/**********************************************************************************************************************/
+void Waveform::setDwellTime_ns(uint32_t dwell_time)
+{
+  head_.dwell_time_ns = dwell_time;
+}
+
+/**********************************************************************************************************************/
+int32_t Waveform::getUserInt(uint32_t idx) const
+{
+  if (idx >= ISMRMRD_USER_INTS)
+  {
+    throw std::runtime_error("User int index out of bounds");
+  }
+  return head_.user_int[idx];
+}
+
+/**********************************************************************************************************************/
+void Waveform::setUserInt(uint32_t idx, int32_t val)
+{
+  if (idx >= ISMRMRD_USER_INTS)
+  {
+    throw std::runtime_error("User int index out of bounds");
+  }
+  head_.user_int[idx] = val;
+}
+
+/**********************************************************************************************************************/
+float Waveform::getUserFloat(uint32_t idx) const
+{
+  if (idx >= ISMRMRD_USER_FLOATS)
+  {
+    throw std::runtime_error("User float index out of bounds");
+  }
+  return head_.user_float[idx];
+}
+
+/**********************************************************************************************************************/
+void Waveform::setUserFloat(uint32_t idx, float val)
+{
+  if (idx >= ISMRMRD_USER_FLOATS)
+  {
+    throw std::runtime_error("User float index out of bounds");
+  }
+  head_.user_float[idx] = val;
+}
+
+/**********************************************************************************************************************/
+void Waveform::resize(uint32_t num_samples)
+{
+  head_.number_of_samples = num_samples;
+  data_.resize(num_samples);
+}
+
+/**********************************************************************************************************************/
+WaveformHeader &Waveform::getHead()
+{
+  return head_;
+}
+
+/**********************************************************************************************************************/
+const WaveformHeader &Waveform::getHead() const
+{
+  return head_;
+}
+
+/**********************************************************************************************************************/
+void Waveform::setHead(const WaveformHeader &other)
+{
+  this->head_ = other;
+  data_.resize(head_.number_of_samples);
+}
+
+/**********************************************************************************************************************/
+EntityType Waveform::getEntityType() const
+{
+  return ISMRMRD_WAVEFORM;
+}
+
+/**********************************************************************************************************************/
+StorageType Waveform::getStorageType() const
+{
+  return ISMRMRD_DOUBLE;
+}
+
+/**********************************************************************************************************************/
+std::vector<unsigned char> Waveform::serialize()
+{
+  size_t bytes = sizeof(WaveformHeader) + this->data_.size() * sizeof(double);
+
+  std::vector<unsigned char> buffer;
+  buffer.reserve(bytes);
+
+  std::copy((unsigned char*)(&this->head_),
+            ((unsigned char*)(&this->head_)) + sizeof(WaveformHeader), std::back_inserter(buffer));
+
+  std::copy((unsigned char*)(&this->data_[0]),
+            (unsigned char*)(&this->data_[0] + data_.size()), std::back_inserter(buffer));
+
+  if(buffer.size() != bytes)
+  {
+    throw std::runtime_error("Serialized Waveform buffer size does not match expected buffer size");
+  }
+
+  return buffer;
+}
+
+/**********************************************************************************************************************/
+void Waveform::deserialize(const std::vector<unsigned char>& buffer)
+{
+  if (buffer.size() < sizeof(WaveformHeader))
+  {
+    throw std::runtime_error("Buffer is too small to contain an Acquisition");
+  }
+
+  WaveformHeader* h_ptr = (WaveformHeader*)&buffer[0];
+
+  size_t expected_bytes = sizeof(WaveformHeader) + h_ptr->number_of_samples * sizeof(double);
+
+  if (expected_bytes != buffer.size())
+  {
+    std::stringstream ss;
+    ss << "Unexpected buffer length " << buffer.size() << ", expected: " << expected_bytes;
+    throw std::runtime_error(ss.str());
+  }
+
+  this->setHead(*h_ptr);
+  size_t data_start = sizeof(WaveformHeader);
+  std::copy(&buffer[data_start], &buffer[expected_bytes], (unsigned char*)(&this->data_[0]));
+}
+
+/***********************************************************************************************************************
+***********************************************************************************************************************/
+/* TextEntity class Implementation */
+IsmrmrdText::IsmrmrdText()
+{
+  _head.type = ISMRMRD_TEXT_ERROR;
+  _head.length = 0;
+}
+
+/**********************************************************************************************************************/
+IsmrmrdText::IsmrmrdText(std::string str, TextType type)
+{
+  _head.type = type;
+  _data = std::vector<unsigned char>(str.begin(), str.end());
+  _head.length = _data.size();
+}
+
+/**********************************************************************************************************************/
+IsmrmrdText::IsmrmrdText(std::vector<unsigned char> vec, TextType type)
+{
+  _head.type = type;
+  _data = vec;
+  _head.length = _data.size();
+}
+
+/**********************************************************************************************************************/
+void IsmrmrdText::setText(std::string str, TextType type)
+{
+  _head.type = type;
+  _data = std::vector<unsigned char>(str.begin(), str.end());
+  _head.length = _data.size();
+}
+
+/**********************************************************************************************************************/
+void IsmrmrdText::setText(std::vector<unsigned char> vec, TextType type)
+{
+  _head.type = type;
+  _data = vec;
+  _head.length = _data.size();
+}
+
+/**********************************************************************************************************************/
+TextType IsmrmrdText::getTextType() const
+{
+  return _head.type;
+}
+
+/**********************************************************************************************************************/
+uint32_t IsmrmrdText::getSize() const
+{
+  return _head.length;
+}
+
+/**********************************************************************************************************************/
+std::string IsmrmrdText::getTextString() const
+{
+  std::string str(_data.begin(), _data.end());
+  return str;
+}
+
+/**********************************************************************************************************************/
+std::vector<unsigned char> IsmrmrdText::getTextVector() const
+{
+  return _data;
+}
+
+/**********************************************************************************************************************/
+EntityType IsmrmrdText::getEntityType() const
+{
+  return ISMRMRD_TEXT;
+}
+
+/**********************************************************************************************************************/
+StorageType IsmrmrdText::getStorageType() const
+{
+  return ISMRMRD_CHAR;
+}
+
+/**********************************************************************************************************************/
+TextHeader &IsmrmrdText::getHead()
+{
+  return _head;
+}
+
+/**********************************************************************************************************************/
+const TextHeader &IsmrmrdText::getHead() const
+{
+  return _head;
+}
+
+/**********************************************************************************************************************/
+void IsmrmrdText::setHead(const TextHeader &other)
+{
+  this->_head = other;
+  _data.resize(_head.length);
+}
+
+/**********************************************************************************************************************/
+std::vector<unsigned char> IsmrmrdText::serialize()
+{
+  size_t bytes = sizeof(this->_head) + this->_data.size();
+
+  std::vector<unsigned char> buffer;
+  buffer.reserve (bytes);
+
+  std::copy ((unsigned char*) &this->_head,
+             (unsigned char*) &this->_head + sizeof(this->_head), std::back_inserter (buffer));
+
+  std::copy ((unsigned char*) &this->_data[0],
+             (unsigned char*) (&this->_data[0] + this->_data.size()), std::back_inserter (buffer));
+
+  if (buffer.size() != bytes)
+  {
+    std::cout << "size = " << buffer.size() << ", bytes = " << bytes << "\n";
+    throw std::runtime_error("Serialized size does not match expected IsmrmrdText size");
+  }
+
+  return buffer;
+}
+
+/**********************************************************************************************************************/
+void IsmrmrdText::deserialize(const std::vector<unsigned char>& buffer)
+{
+  if (buffer.size() < sizeof(TextHeader))
+  {
+    throw std::runtime_error("Buffer is too small to contain a IsmrmrdText");
+  }
+
+  TextHeader* h_ptr = (TextHeader*)&buffer[0];
+
+  int left  = 0;
+  int right = sizeof(TextHeader);
+  std::copy(&buffer[left], &buffer[right], (unsigned char*)&this->_head);
+
+  left = right;
+  if ((right += h_ptr->length) <= buffer.size())
+  {
+    this->_data = std::vector<unsigned char>(&buffer[left], &buffer[right]);
+  }
+
+  if (buffer.size() != right)
+  {
+    std::cout << "size: " << buffer.size() << ", expected: " << right << "\n";
+    throw std::runtime_error("Buffer size does not match IsmrmrdText object");
+  }
+}
+
+/**********************************************************************************************************************/
 //
 // Array class Implementation
 //
@@ -1515,19 +1789,35 @@ template <typename T> size_t NDArray<T>::getNumberOfElements() const {
     return size;
 }
 
-template <typename T> T& NDArray<T>::at(uint32_t x, uint32_t y, uint32_t z,
-        uint32_t w, uint32_t n, uint32_t m, uint32_t l)
+template <typename T>
+T& NDArray<T>::at(uint32_t x, uint32_t y, uint32_t z, uint32_t w, uint32_t n, uint32_t m, uint32_t l)
 {
-    // TODO: bounds checking
-    size_t index = 0;
-    uint32_t indices[ISMRMRD_NDARRAY_MAXDIM] = {x,y,z,w,n,m,l};
-    size_t stride = 1;
-    for (uint32_t i = 0; i < dims_.size(); i++){
-        index += indices[i] * stride;
-        stride *= dims_[i];
-    }
+  size_t index = 0;
+  uint32_t indices[ISMRMRD_NDARRAY_MAXDIM] = {x,y,z,w,n,m,l};
+  size_t stride = 1;
 
-    return data_[index];
+  for (int ii = 0; ii < ISMRMRD_NDARRAY_MAXDIM; ii++)
+  {
+    if (ii < dims_.size())
+    {
+      if (indices[ii] >= dims_[ii])
+      {
+        throw std::runtime_error("Call to NDArray \"at\" has data index out of bounds");
+      }
+    }
+    else if (indices[ii] > 0)
+    {
+      throw std::runtime_error("Call to NDArray \"at\" has extra dimensions");
+    }
+  }
+
+  for (uint32_t i = 0; i < dims_.size(); i++)
+  {
+    index += indices[i] * stride;
+    stride *= dims_[i];
+  }
+
+  return data_[index];
 }
 
 // Acquisitions

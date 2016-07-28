@@ -142,7 +142,8 @@ std::string Dataset::readHeader()
 template <typename T> void Dataset::appendAcquisition(const Acquisition<T>& acq, int stream)
 {
     if (stream < 0) {
-        stream = acq.getStream();
+        stream = ISMRMRD_MRACQUISITION_STREAM; // TODO: Temporary workaround.
+        //stream = acq.getStream();
     }
 
     std::string path = constructDataPath(stream);
@@ -181,6 +182,7 @@ template <typename T> void Dataset::appendAcquisition(const Acquisition<T>& acq,
 template Acquisition<int16_t> Dataset::readAcquisition<int16_t>(unsigned long, int);
 template Acquisition<int32_t> Dataset::readAcquisition<int32_t>(unsigned long, int);
 template Acquisition<float> Dataset::readAcquisition<float>(unsigned long, int);
+template Acquisition<double> Dataset::readAcquisition<double>(unsigned long, int);
     
 
 size_t Dataset::appendToDataSet(const std::string& path, const DataType& dtype,
@@ -320,6 +322,7 @@ template <typename T> Acquisition<T> Dataset::readAcquisition(unsigned long inde
 template void Dataset::appendAcquisition(const Acquisition<int16_t>&, int);
 template void Dataset::appendAcquisition(const Acquisition<int32_t>&, int);
 template void Dataset::appendAcquisition(const Acquisition<float>&, int);
+template void Dataset::appendAcquisition(const Acquisition<double>&, int);
     
 unsigned long Dataset::getNumberOfAcquisitions(int stream)
 {

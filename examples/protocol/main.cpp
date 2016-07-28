@@ -74,15 +74,18 @@ public:
             boost::asio::read(sock, boost::asio::buffer(traj), error);
             acq.setTraj(traj);
 
-            if (streams.count (head.ent_head.stream) == 0)
+            //if (streams.count (head.ent_head.stream) == 0)
+            if (streams.count (ISMRMRD::ISMRMRD_MRACQUISITION_STREAM) == 0) //TODO: temporary workaround
             {
               std::vector<ISMRMRD::Acquisition<float> > stream;
               stream.push_back(acq);
-              streams[head.ent_head.stream] = stream;
+              //streams[head.ent_head.stream] = stream;
+              streams[ISMRMRD::ISMRMRD_MRACQUISITION_STREAM] = stream; // TODO: trmporary workaround
             }
             else
             {
-              streams[head.ent_head.stream].push_back(acq);
+              //streams[head.ent_head.stream].push_back(acq);
+              streams[ISMRMRD::ISMRMRD_MRACQUISITION_STREAM].push_back(acq); // TODO: trmporary workaround
             }
         }
 

@@ -71,15 +71,6 @@ template <> DataType get_hdf5_data_type<AcquisitionHeader>()
 {
   CompType dtype (sizeof(AcquisitionHeader));
 
-  dtype.insertMember ("stream", HOFFSET(AcquisitionHeader,
-                      ent_head.stream), PredType::NATIVE_UINT32);
-  dtype.insertMember ("signature", HOFFSET(AcquisitionHeader,
-                      ent_head.signature), PredType::NATIVE_UINT32);
-  dtype.insertMember ("entity_type", HOFFSET(AcquisitionHeader,
-                      ent_head.entity_type), PredType::NATIVE_UINT32);
-  dtype.insertMember ("storage_type", HOFFSET(AcquisitionHeader,
-                      ent_head.storage_type), PredType::NATIVE_UINT32);
-
   dtype.insertMember("time_stamp", HOFFSET(AcquisitionHeader, time_stamp),  PredType::NATIVE_UINT64);
   dtype.insertMember("flags",  HOFFSET(AcquisitionHeader, flags),  PredType::NATIVE_UINT64);
   dtype.insertMember("scan_counter",  HOFFSET(AcquisitionHeader, scan_counter),  PredType::NATIVE_UINT32);
@@ -135,6 +126,21 @@ template <> DataType get_hdf5_data_type<AcquisitionHeader>()
   return dtype;
 }
 
+
+template <> DataType get_hdf5_data_type<AcquisitionHeader_with_data<double> >()
+{
+    CompType dtype(sizeof(AcquisitionHeader_with_data<double>));
+
+    DataType head_type = get_hdf5_data_type<AcquisitionHeader>();
+
+    DataType realv_type = DataType(H5Tvlen_create(PredType::NATIVE_FLOAT.getId()));
+
+    dtype.insertMember("head", HOFFSET(AcquisitionHeader_with_data<double>, head), head_type);
+    dtype.insertMember("traj", HOFFSET(AcquisitionHeader_with_data<double>, traj), realv_type);
+    dtype.insertMember("data", HOFFSET(AcquisitionHeader_with_data<double>, data), realv_type);
+
+    return dtype;
+}
 
 template <> DataType get_hdf5_data_type<AcquisitionHeader_with_data<float> >()
 {

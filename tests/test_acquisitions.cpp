@@ -16,18 +16,13 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (acquisition_create, T, test_types)
 {
   Acquisition<T>    acq;
   AcquisitionHeader head = acq.getHead();
-  EntityHeader      ehdr = head.ent_head;
   EncodingCounters  ec   = head.idx;
-
-  size_t ehdr_size = sizeof (uint32_t) * 4;
-  BOOST_CHECK_EQUAL (sizeof (ehdr), ehdr_size);
 
   size_t ec_size = sizeof (uint32_t) * (10 + ISMRMRD_USER_INTS);
   BOOST_CHECK_EQUAL (sizeof (ec), ec_size);
 
   // Check that header is of expected size
-  size_t expected_size = sizeof (ehdr) +
-                         sizeof (uint32_t) * (10 + ISMRMRD_PHYS_STAMPS) +
+  size_t expected_size = sizeof (uint32_t) * (10 + ISMRMRD_PHYS_STAMPS) +
                          sizeof (int32_t)  * ISMRMRD_USER_INTS +
                          sizeof (uint64_t) * (2 + ISMRMRD_CHANNEL_MASKS) +
                          sizeof (float)    * (ISMRMRD_POSITION_LENGTH * 2 +
@@ -322,10 +317,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (acquisition_getters_setters, T, test_types)
   }
 
 
-  acq.setStream (123);
-  BOOST_CHECK_EQUAL (acq.getStream(), 123);
-
-  BOOST_CHECK_EQUAL (acq.getSignature(), ISMRMRD_SIGNATURE);
   BOOST_CHECK_EQUAL (acq.getEntityType(), ISMRMRD_MRACQUISITION);
   BOOST_CHECK_EQUAL (acq.getStorageType(), get_storage_type<T>());
 
@@ -369,10 +360,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (acquisition_serialize, T, test_types)
 
 static void check_header (const AcquisitionHeader& chead)
 {
-  BOOST_CHECK_EQUAL (chead.ent_head.stream, 0);
-  BOOST_CHECK_EQUAL (chead.ent_head.signature, ISMRMRD_SIGNATURE);
-  BOOST_CHECK_EQUAL (chead.ent_head.entity_type, ISMRMRD_MRACQUISITION);
-
   BOOST_CHECK_EQUAL (chead.time_stamp, 0);
   BOOST_CHECK_EQUAL (chead.flags, 0);
   BOOST_CHECK_EQUAL (chead.scan_counter, 0);

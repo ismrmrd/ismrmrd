@@ -38,7 +38,10 @@ typedef unsigned __int64 uint64_t;
 
 #define ISMRMRD_SIGNATURE 0x15E8E002
 
+#ifdef __cplusplus
 namespace ISMRMRD {
+extern "C" {
+#endif
 
 /** Global Constants */
 enum Constant {
@@ -53,28 +56,48 @@ enum Constant {
 
 /** Storage Types */
 enum StorageType {
-    ISMRMRD_CHAR = 0,     /**< corresponds to char           */
-    ISMRMRD_USHORT = 1,   /**< corresponds to uint16_t       */
-    ISMRMRD_SHORT = 2,    /**< corresponds to int16_t        */
-    ISMRMRD_UINT = 3,     /**< corresponds to uint32_t       */
-    ISMRMRD_INT = 4,      /**< corresponds to int32_t        */
-    ISMRMRD_ULONG = 5,    /**< corresponds to uint64_t       */
-    ISMRMRD_LONG = 6,     /**< corresponds to int64_t        */
-    ISMRMRD_FLOAT = 7,    /**< corresponds to float          */
-    ISMRMRD_DOUBLE = 8,   /**< corresponds to double         */
-    ISMRMRD_CXFLOAT = 9,  /**< corresponds to complex float  */
-    ISMRMRD_CXDOUBLE = 10 /**< corresponds to complex double */
+  ISMRMRD_STORAGE_NONE =  0, /**< No data present to specify storage */
+  ISMRMRD_CHAR         =  1, /**< corresponds to char                */
+  ISMRMRD_USHORT       =  2, /**< corresponds to uint16_t            */
+  ISMRMRD_SHORT        =  3, /**< corresponds to int16_t             */
+  ISMRMRD_UINT         =  4, /**< corresponds to uint32_t            */
+  ISMRMRD_INT          =  5, /**< corresponds to int32_t             */
+  ISMRMRD_ULONG        =  6, /**< corresponds to uint64_t            */
+  ISMRMRD_LONG         =  7, /**< corresponds to int64_t             */
+  ISMRMRD_FLOAT        =  8, /**< corresponds to float               */
+  ISMRMRD_DOUBLE       =  9, /**< corresponds to double              */
+  ISMRMRD_CXFLOAT      = 10, /**< corresponds to complex float       */
+  ISMRMRD_CXDOUBLE     = 11  /**< corresponds to complex double      */
 };
 
 enum EntityType {
-    ISMRMRD_HANDSHAKE = 0,     /**< first package sent                    */
-    ISMRMRD_COMMAND = 1,       /**< commands used to control recon system */
-    ISMRMRD_MRACQUISITION = 2, /**< MR raw data                           */
-    ISMRMRD_WAVEFORM = 3,      /**< Gradient, physiology, etc. waveform   */
-    ISMRMRD_IMAGE = 4,         /**< Reconstructed image                   */
-    ISMRMRD_XML_HEADER = 5,    /**< The XML header describing the data    */
-    ISMRMRD_ERROR = 6,         /**< Something went wrong                  */
-    ISMRMRD_BLOB = 7           /**< Some binary object, with description  */
+  ISMRMRD_ENTITY_TYPE_ERROR =  0,  /**< Unassigned value                     */
+  ISMRMRD_HANDSHAKE         =  1,  /**< first package sent                   */
+  ISMRMRD_COMMAND           =  2,  /**< commands to control recon system     */
+  ISMRMRD_MRACQUISITION     =  3,  /**< MR raw data                          */
+  ISMRMRD_WAVEFORM          =  4,  /**< Gradient, physiology, etc.           */
+  ISMRMRD_IMAGE             =  5,  /**< Reconstructed image                  */
+  ISMRMRD_XML_HEADER        =  6,  /**< XML header describing the data       */
+  ISMRMRD_ERROR             =  7,  /**< Something went wrong                 */
+  ISMRMRD_BLOB              =  8,  /**< Some binary object, with description */
+  ISMRMRD_TEXT              =  9   /**< Some text object, i.e. XML header    */
+};
+
+enum TextType {
+  ISMRMRD_TEXT_ERROR      = 0,
+  ISMRMRD_XML_HEADER_TEXT = 1
+};
+
+enum StreamId {
+  ISMRMRD_STREAM_INVALID        =  0,
+  ISMRMRD_HEADER_STREAM         =  1,
+  ISMRMRD_HANDSHAKE_STREAM      =  2,
+  ISMRMRD_COMMAND_STREAM        =  3,
+  ISMRMRD_ERROR_STREAM          =  4,
+  ISMRMRD_MRACQUISITION_STREAM  =  5,
+  ISMRMRD_IMAGE_STREAM          =  6,
+  ISMRMRD_WAVEFORM_STREAM       =  7,
+  ISMRMRD_BLOB_STREAM           =  8
 };
 
 /** Acquisition Flags */
@@ -168,8 +191,6 @@ struct EncodingCounters
 /** Header for each MR acquisition. */
 struct AcquisitionHeader
 {
-  EntityHeader ent_head;
-
   uint64_t time_stamp;                                  /**< Experiment time stamp - in nano seconds */
   uint64_t flags;                                       /**< bit field with flags */
   uint32_t scan_counter;                                /**< Current acquisition number in the measurement */
@@ -198,8 +219,6 @@ struct AcquisitionHeader
 /** Header for each Image. */
 struct ImageHeader
 {
-  EntityHeader ent_head;
-
   uint64_t time_stamp;                                 /**< Experiment time stamp - in nano seconds */
   uint64_t flags;                                      /**< bit field with flags */
   uint32_t matrix_size[3];                             /**< Pixels in the 3 spatial dimensions */
@@ -225,7 +244,29 @@ struct ImageHeader
   uint32_t attribute_string_len;                       /**< Length of attributes string */
 };
 
+/**********************************************************************************************************************/
+struct WaveformHeader
+{
+  uint64_t     begin_time_stamp;                /**< Experiment time stamp in nano seconds */
+  uint64_t     end_time_stamp;                  /**< Experiment time stamp in nano seconds */
+  uint32_t     dwell_time_ns;                   /**< Time between samples in nano seconds */
+  uint32_t     number_of_samples;               /**< Number of samples acquired */
+  int32_t      user_int[ISMRMRD_USER_INTS];     /**< Free user parameters */
+  float        user_float[ISMRMRD_USER_FLOATS]; /**< Free user parameters */
+};
+
+/**********************************************************************************************************************/
+struct TextHeader
+{
+  TextType     type;     /**< Type of data, such as serialized IsmrmrdHeader */
+  uint32_t     length;   /**< Length of the data buffer */
+};
+
+/**********************************************************************************************************************/
 #pragma pack(pop) /* Restore old alignment */
+
+#ifdef __cplusplus
+}
 
 /** @addtogroup cxxapi
  *  @{
@@ -233,19 +274,17 @@ struct ImageHeader
 
 bool operator==(const AcquisitionHeader &h1, const AcquisitionHeader &h2);
 bool operator==(const ImageHeader &h1, const ImageHeader &h2);
+bool operator==(const WaveformHeader &h1, const WaveformHeader &h2);
 
 /// Entity type interface
 class EXPORTISMRMRD Entity
 {
   public:
 
-  virtual             ~Entity (){};
+  virtual             ~Entity(){};
 
-  virtual uint32_t    getStream ()      const = 0;
-  virtual uint32_t    getSignature ()   const = 0;
-  virtual EntityType  getEntityType ()  const = 0;
-  virtual StorageType getStorageType () const = 0;
-
+  virtual EntityType  getEntityType()  const = 0;
+  virtual StorageType getStorageType() const = 0;
   virtual std::vector<unsigned char> serialize() = 0;
   virtual void deserialize(const std::vector<unsigned char>& buffer) = 0;
 };
@@ -281,8 +320,6 @@ class EXPORTISMRMRD Acquisition
   Acquisition (uint32_t num_samples           = 0,
                uint32_t active_channels       = 1,
                uint32_t trajectory_dimensions = 0);
-
-  void setStream(uint32_t);
 
   uint32_t getScanCounter() const;
   void setScanCounter(uint32_t);
@@ -417,8 +454,6 @@ class EXPORTISMRMRD Acquisition
 
 
   // Functions inherited from Entity
-  virtual uint32_t    getStream ()      const;
-  virtual uint32_t    getSignature ()   const;
   virtual EntityType  getEntityType ()  const;
   virtual StorageType getStorageType () const;
   virtual std::vector<unsigned char> serialize();
@@ -450,8 +485,6 @@ class EXPORTISMRMRD Image
                uint32_t matrix_size_y,
                uint32_t matrix_size_z,
                uint32_t channels);
-
-  void setStream (uint32_t stream_number);
 
   uint32_t getMatrixSizeX() const;
   uint32_t getMatrixSizeY() const;
@@ -582,8 +615,6 @@ class EXPORTISMRMRD Image
   T &at(uint32_t x, uint32_t y = 0, uint32_t z = 0, uint32_t channel = 0);
 
   // Functions inherited from Entity
-  virtual uint32_t    getStream ()      const;
-  virtual uint32_t    getSignature ()   const;
   virtual EntityType  getEntityType ()  const;
   virtual StorageType getStorageType () const;
   virtual std::vector<unsigned char> serialize();
@@ -597,6 +628,90 @@ class EXPORTISMRMRD Image
   std::vector<T> data_;
 };
 
+/**********************************************************************************************************************/
+class Waveform
+: public Entity
+{
+  public:
+
+  Waveform(uint32_t num_samples = 0);
+
+  uint64_t getBeginTimeStamp() const;
+  void setBeginTimeStamp(uint64_t);
+
+  uint64_t getEndTimeStamp() const;
+  void setEndTimeStamp(uint64_t);
+
+  uint32_t getNumberOfSamples() const;
+  void resize(uint32_t num_samples);
+
+  uint32_t getDwellTime_ns() const;
+  void setDwellTime_ns(uint32_t);
+
+  int32_t getUserInt(uint32_t idx) const;
+  void setUserInt(uint32_t idx, int32_t val);
+
+  float getUserFloat(uint32_t idx) const;
+  void setUserFloat(uint32_t idx, float val);
+
+  WaveformHeader &getHead();
+  const WaveformHeader &getHead() const;
+  void setHead(const WaveformHeader &other);
+
+  std::vector<double> &getData();
+  const std::vector<double> &getData() const;
+  void setData(const std::vector<double> &data);
+
+  double &at(uint32_t sample);
+
+// Functions inherited from Entity
+  virtual EntityType getEntityType() const;
+  virtual StorageType getStorageType() const;
+  virtual std::vector<unsigned char> serialize();
+  virtual void deserialize(const std::vector<unsigned char>& buffer);
+
+  protected:
+
+  WaveformHeader head_;
+  std::vector<double> data_;
+};
+
+/**********************************************************************************************************************/
+class IsmrmrdText
+: public Entity
+{
+public:
+
+  IsmrmrdText();
+  IsmrmrdText(std::string, TextType);
+  IsmrmrdText(std::vector<unsigned char>, TextType);
+
+  void setText(std::string, TextType);
+  void setText(std::vector<unsigned char>, TextType);
+
+  uint32_t getSize() const;
+  TextType getTextType() const;
+
+  std::string getTextString() const;
+  std::vector<unsigned char> getTextVector() const;
+
+  TextHeader &getHead();
+  const TextHeader &getHead() const;
+  void setHead(const TextHeader &other);
+
+  // Functions inherited from Entity
+  virtual EntityType getEntityType() const;
+  virtual StorageType getStorageType() const;
+  virtual std::vector<unsigned char> serialize();
+  virtual void deserialize(const std::vector<unsigned char>& buffer);
+
+private:
+
+  TextHeader                 _head;
+  std::vector<unsigned char> _data;
+};
+
+/**********************************************************************************************************************/
 /// N-Dimensional array type
 template <typename T>
 class EXPORTISMRMRD NDArray {
@@ -644,4 +759,5 @@ EXPORTISMRMRD void quaternion_to_directions(float quat[4], float read_dir[3], fl
 
 } // namespace ISMRMRD
 
+#endif /* #ifdef __cplusplus */
 #endif /* ISMRMRD_H */
