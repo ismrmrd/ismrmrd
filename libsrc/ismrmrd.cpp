@@ -1744,7 +1744,12 @@ template <typename T> uint32_t NDArray<T>::getSignature() const {
 };
 
 template <typename T>
-StorageType NDArray<T>::getStorageType() const
+uint32_t NDArray<T>::getVersion() const
+{
+  return signature_ & 0xFF;
+};
+
+template <typename T> StorageType NDArray<T>::getStorageType() const
 {
   return static_cast<StorageType>(get_storage_type<T>());
 }

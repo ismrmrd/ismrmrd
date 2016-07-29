@@ -9,6 +9,7 @@
 namespace ISMRMRD {
 
 
+/**********************************************************************************************************************/
 Dataset::Dataset(const std::string& filename, const std::string& groupname, bool create_file_if_needed, bool read_only)
   : filename_(filename),
     groupname_(groupname),
@@ -40,18 +41,20 @@ Dataset::Dataset(const std::string& filename, const std::string& groupname, bool
     }
 
     xml_header_path_ = groupname_ + "/xml";
+    // TODO 1. Do we need data_path_ as a member? (please see dataset.h todo #6.)
     data_path_ = groupname_ + "/data";
     index_path_ = data_path_ + "/index";
 
     // TODO: maybe the following steps should only happen for new files??
 
     // create groups for /dataset and /dataset/data
+    // TODO 1. see above
     if (!linkExists(data_path_)) {
         createGroup(data_path_);
     }
 }
 
-// Destructor
+/**********************************************************************************************************************/
 Dataset::~Dataset()
 {
     file_.close();
@@ -74,6 +77,8 @@ bool Dataset::linkExists(const std::string& path)
     return true;
 }
 
+/**********************************************************************************************************************/
+// TODO 2. Propose name change createGroup to createDirectory or createNode (related to dataset.h todo #7)
 void Dataset::createGroup(const std::string& path)
 {
     std::vector<std::string> elements;
@@ -89,6 +94,10 @@ void Dataset::createGroup(const std::string& path)
     }
 }
 
+/**********************************************************************************************************************/
+// TODO 3. (per dataset.h todo #5) propose to replace this with the following:
+//          std::string Dataset::constructPath(std:string base, unsigned int stream);
+//          std::string Dataset::constructPath(std:string base, std::string addition);
 std::string Dataset::constructDataPath(unsigned int stream)
 {
     // construct group path for this acquisition
@@ -97,6 +106,7 @@ std::string Dataset::constructDataPath(unsigned int stream)
     return sstr.str();
 }
 
+/**********************************************************************************************************************/
 // XML Header
 void Dataset::writeHeader(const std::string& xml)
 {
@@ -118,16 +128,20 @@ void Dataset::writeHeader(const std::string& xml)
         }
     }
 
+    // TODO 4. What happens if some header already exists there?
+    //         Should we allow multiple headers? name xml_timestamp?
     DataSpace mspace1 = xml_dataset.getSpace();
     xml_dataset.write(xml, datatype, mspace1);
 }
 
+/**********************************************************************************************************************/
 std::string Dataset::readHeader()
 {
     if (!linkExists(xml_header_path_)) {
         throw std::runtime_error("XML header not found in file");
     }
 
+    // TODO 5. (related to todo #4) What to do if multiple headers?
     DataSet xml_dataset = file_.openDataSet(xml_header_path_.c_str());
     DataType datatype = StrType(0, H5T_VARIABLE);
 
@@ -139,8 +153,11 @@ std::string Dataset::readHeader()
     return xml;
 }
 
+/**********************************************************************************************************************/
 template <typename T> void Dataset::appendAcquisition(const Acquisition<T>& acq, int stream)
 {
+    // TODO 6. Since acquisitions don't contain their stream number anymore the application will have to supply
+    //         the actual stream number.
     if (stream < 0) {
         stream = ISMRMRD_MRACQUISITION_STREAM; // TODO: Temporary workaround.
         //stream = acq.getStream();
@@ -178,6 +195,7 @@ template <typename T> void Dataset::appendAcquisition(const Acquisition<T>& acq,
     appendToDataSet(index_path_, dtype, dims, &entry);
 }
 
+/**********************************************************************************************************************/
 //Template instanciations
 template Acquisition<int16_t> Dataset::readAcquisition<int16_t>(unsigned long, int);
 template Acquisition<int32_t> Dataset::readAcquisition<int32_t>(unsigned long, int);
@@ -185,6 +203,7 @@ template Acquisition<float> Dataset::readAcquisition<float>(unsigned long, int);
 template Acquisition<double> Dataset::readAcquisition<double>(unsigned long, int);
     
 
+/**********************************************************************************************************************/
 size_t Dataset::appendToDataSet(const std::string& path, const DataType& dtype,
         const std::vector<hsize_t>& dims, void* data)
 {
@@ -242,6 +261,7 @@ size_t Dataset::appendToDataSet(const std::string& path, const DataType& dtype,
     return length;
 }
 
+/**********************************************************************************************************************/
 void Dataset::readFromDataSet(const std::string& path, const DataType& dtype,
         const std::vector<hsize_t>& entry_dims, size_t index, void* data)
 {
@@ -279,8 +299,11 @@ void Dataset::readFromDataSet(const std::string& path, const DataType& dtype,
     dset.read(data, dtype, mspace, dspace, H5P_DEFAULT);
 }
 
+/**********************************************************************************************************************/
 template <typename T> Acquisition<T> Dataset::readAcquisition(unsigned long index, int stream)
 {
+    // TODO 7. Application will need to provide valid stream number. Do we need to add substream at this point?
+    //         The following if (stream < 0) {...} will no longer work.
     if (stream < 0) {
         IndexEntry entry;
         std::vector<hsize_t> entry_dims(2, 1);
@@ -319,13 +342,16 @@ template <typename T> Acquisition<T> Dataset::readAcquisition(unsigned long inde
     return acq;
 }
 
+/**********************************************************************************************************************/
 template void Dataset::appendAcquisition(const Acquisition<int16_t>&, int);
 template void Dataset::appendAcquisition(const Acquisition<int32_t>&, int);
 template void Dataset::appendAcquisition(const Acquisition<float>&, int);
 template void Dataset::appendAcquisition(const Acquisition<double>&, int);
     
+/**********************************************************************************************************************/
 unsigned long Dataset::getNumberOfAcquisitions(int stream)
 {
+    // TODO 7. see todo #7 above.
     std::string path;
     if (stream < 0) {
         path = index_path_;
@@ -353,11 +379,18 @@ unsigned long Dataset::getNumberOfAcquisitions(int stream)
     return nacq;
 }
 
+/**********************************************************************************************************************/
 template <typename T> void Dataset::appendImage(const std::string& var, const Image<T>& im)
 {
-    // TODO: implement
+    // TODO 8. Replace string type argument with stream number.
+    //         Construct path for image.
+    //         Write attribute string
+    //         Write image header
+    //         Write image data
+    //         ?? Need to determine index value for an image within a group of images, and add to index table.
 }
 
+/**********************************************************************************************************************/
 template EXPORTISMRMRD void Dataset::appendImage(const std::string& var, const Image<uint16_t>& im);
 template EXPORTISMRMRD void Dataset::appendImage(const std::string& var, const Image<int16_t>& im);
 template EXPORTISMRMRD void Dataset::appendImage(const std::string& var, const Image<uint32_t>& im);
@@ -371,10 +404,13 @@ template EXPORTISMRMRD void Dataset::appendImage(const std::string& var, const I
 template <typename T>
 Image<T> Dataset::readImage (const std::string& var, unsigned long index)
 {
-  // TODO: implement
+  // TODO 9. Need stream number. 
+  //         Construct path and read the image attribute, header and data.
+  //         Initialize the Image<T> with the data read.
   return Image<T>();
 }
 
+/**********************************************************************************************************************/
 template EXPORTISMRMRD Image<uint16_t> Dataset::readImage(const std::string& var, unsigned long index);
 template EXPORTISMRMRD Image<int16_t> Dataset::readImage(const std::string& var, unsigned long index);
 template EXPORTISMRMRD Image<uint32_t> Dataset::readImage(const std::string& var, unsigned long index);
@@ -384,20 +420,23 @@ template EXPORTISMRMRD Image<double> Dataset::readImage(const std::string& var, 
 template EXPORTISMRMRD Image<std::complex<float> > Dataset::readImage(const std::string& var, unsigned long index);
 template EXPORTISMRMRD Image<std::complex<double> > Dataset::readImage(const std::string& var, unsigned long index);
 
+/**********************************************************************************************************************/
 unsigned long Dataset::getNumberOfImages(const std::string& var)
 {
     unsigned long nimg = 0;
 
-    // TODO: implement
+    // TODO 10. Need stream number. Parse index table to find the high index value for the stream.
 
     return nimg;
 }
 
+/**********************************************************************************************************************/
 template <typename T> void Dataset::appendNDArray(const std::string& var, const NDArray<T>& arr)
 {
-    // TODO: implement
+    // TODO 11. Need stream number. Otherwise similar to appendImage minus header and attribute.
 }
 
+/**********************************************************************************************************************/
 template EXPORTISMRMRD void Dataset::appendNDArray(const std::string& var, const NDArray<uint16_t>& arr);
 template EXPORTISMRMRD void Dataset::appendNDArray(const std::string& var, const NDArray<int16_t>& arr);
 template EXPORTISMRMRD void Dataset::appendNDArray(const std::string& var, const NDArray<uint32_t>& arr);
@@ -410,10 +449,11 @@ template EXPORTISMRMRD void Dataset::appendNDArray(const std::string& var, const
 template <typename T>
 NDArray<T> Dataset::readNDArray(const std::string& var, unsigned long index)
 {
-    // TODO: implement
+    // TODO 12. Need stream number. Otherwise similar to readImage minus header and attribute.
     return NDArray<T>();
 }
 
+/**********************************************************************************************************************/
 template EXPORTISMRMRD NDArray<uint16_t> Dataset::readNDArray(const std::string& var, unsigned long index);
 template EXPORTISMRMRD NDArray<int16_t> Dataset::readNDArray(const std::string& var, unsigned long index);
 template EXPORTISMRMRD NDArray<uint32_t> Dataset::readNDArray(const std::string& var, unsigned long index);
@@ -423,14 +463,16 @@ template EXPORTISMRMRD NDArray<double> Dataset::readNDArray(const std::string& v
 template EXPORTISMRMRD NDArray<std::complex<float> > Dataset::readNDArray(const std::string& var, unsigned long index);
 template EXPORTISMRMRD NDArray<std::complex<double> > Dataset::readNDArray(const std::string& var, unsigned long index);
 
+/**********************************************************************************************************************/
 unsigned long Dataset::getNumberOfNDArrays(const std::string& var)
 {
     unsigned long narr = 0;
 
-    // TODO: implement
+    // TODO 13. Similar to getNumberOfImages. Need stream number.
 
     return narr;
 }
 
+/**********************************************************************************************************************/
 
 } // namespace ISMRMRD
