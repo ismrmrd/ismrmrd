@@ -722,6 +722,7 @@ public:
 
     // Accessors and mutators
     uint32_t getSignature() const;
+    uint32_t getVersion() const;
     StorageType getStorageType() const;
 
     uint32_t getNDim() const;

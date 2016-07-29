@@ -20,15 +20,19 @@ template <typename T> struct AcquisitionHeader_with_data
     hvl_t data;
 };
 
+// TODO 1. Image contents will need to be stored separately to retain the ability to view the image.
 template <typename T> struct ImageHeader_with_data
 {
 	ImageHeader head;
 	hvl_t data;
 };
 
+// TODO 2. Define WaveformHeader_with_data
+
 struct IndexEntry
 {
     uint32_t stream;
+    // TODO 3. Add substream
     uint32_t index;
 };
 
