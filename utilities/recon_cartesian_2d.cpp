@@ -48,7 +48,7 @@ int main(int argc, char** argv)
     //Let's open the existing dataset
     ISMRMRD::Dataset d(datafile.c_str(),"dataset");
 
-    std::string xml = d.readHeader();
+    std::string xml = d.readXmlHeader();
     ISMRMRD::IsmrmrdHeader hdr;
     ISMRMRD::deserialize(xml.c_str(),hdr);
 
@@ -78,13 +78,13 @@ int main(int argc, char** argv)
     uint16_t nY = e_space.matrixSize.y;
     
     // The number of channels is optional, so read the first line
-    ISMRMRD::Acquisition<float> acq = d.readAcquisition<float>(0, 0);
+    ISMRMRD::Acquisition<float> acq = d.readAcquisition<float>(0);
     uint16_t nCoils = acq.getActiveChannels();
     
     std::cout << "Encoding Matrix Size        : [" << e_space.matrixSize.x << ", " << e_space.matrixSize.y << ", " << e_space.matrixSize.z << "]" << std::endl;
     std::cout << "Reconstruction Matrix Size  : [" << r_space.matrixSize.x << ", " << r_space.matrixSize.y << ", " << r_space.matrixSize.z << "]" << std::endl;
     std::cout << "Number of Channels          : " << nCoils << std::endl;
-    std::cout << "Number of acquisitions      : " << d.getNumberOfAcquisitions(0) << std::endl;
+    std::cout << "Number of acquisitions      : " << d.getNumberOfAcquisitions() << std::endl;
 
     //Allocate a buffer for the data
     std::vector<size_t> dims;
@@ -94,10 +94,10 @@ int main(int argc, char** argv)
     ISMRMRD::NDArray<std::complex<float> > buffer(dims);
     
     //Now loop through and copy data
-    unsigned int number_of_acquisitions = d.getNumberOfAcquisitions(0);
+    unsigned int number_of_acquisitions = d.getNumberOfAcquisitions();
     for (unsigned int i = 0; i < number_of_acquisitions; i++) {
         //Read one acquisition at a time
-        acq = d.readAcquisition<float>(0, i);
+        acq = d.readAcquisition<float>(i);
 
         //Copy data, we should probably be more careful here and do more tests....
         for (uint16_t c=0; c<nCoils; c++) {
@@ -157,7 +157,7 @@ int main(int argc, char** argv)
     //And so on
     
     //Let's write the reconstructed image into the same data file
-    d.appendImage("cpp", img_out);
+    d.appendImage(img_out);
 
     return 0;
 }

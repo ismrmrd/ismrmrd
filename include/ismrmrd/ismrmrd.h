@@ -88,16 +88,31 @@ enum TextType {
   ISMRMRD_XML_HEADER_TEXT = 1
 };
 
+// !! If changing StreamID enumeration - make sure to update the streamIdToString function in ismrmrd.cpp !!
+// TODO Most of the values bellow are just for testing
 enum StreamId {
-  ISMRMRD_STREAM_INVALID        =  0,
-  ISMRMRD_HEADER_STREAM         =  1,
-  ISMRMRD_HANDSHAKE_STREAM      =  2,
-  ISMRMRD_COMMAND_STREAM        =  3,
-  ISMRMRD_ERROR_STREAM          =  4,
-  ISMRMRD_MRACQUISITION_STREAM  =  5,
-  ISMRMRD_IMAGE_STREAM          =  6,
-  ISMRMRD_WAVEFORM_STREAM       =  7,
-  ISMRMRD_BLOB_STREAM           =  8
+  STREAM_NONE                   =    0,
+  STREAM_HEADER                 =    1,
+  STREAM_HANDSHAKE              =    2,
+  STREAM_COMMAND                =    3,
+  STREAM_ERROR                  =    4,
+  STREAM_MRACQUISITION_DEFAULT  =  100,
+  STREAM_MRACQUISITION_1        =  101,
+  STREAM_MRACQUISITION_2        =  102,
+  STREAM_MRACQUISITION_3        =  103,
+  STREAM_MRACQUISITION_4        =  104,
+  STREAM_MRACQUISITION_5        =  105,
+  STREAM_MRACQUISITION_6        =  106,
+  STREAM_MRACQUISITION_7        =  107,
+  STREAM_WAVEFORM_DEFAULT       =  200,
+  STREAM_WAVEFORM_1             =  201,
+  STREAM_WAVEFORM_2             =  202,
+  STREAM_WAVEFORM_3             =  203,
+  STREAM_IMAGE_DEFAULT          =  300,
+  STREAM_IMAGE_1                =  301,
+  STREAM_IMAGE_2                =  302,
+  STREAM_IMAGE_3                =  303,
+  STREAM_BLOB_DEFAULT           = 1000
 };
 
 /** Acquisition Flags */
@@ -162,6 +177,14 @@ enum ImageFlags {
     ISMRMRD_IMAGE_USER6 = 62,
     ISMRMRD_IMAGE_USER7 = 63,
     ISMRMRD_IMAGE_USER8 = 64
+};
+
+/** Index Entry - HDF5 file dataset data record */
+struct IndexEntry
+{
+  uint32_t stream;
+  uint32_t substream;
+  uint32_t index;     /**< Sequential number of an entry of specific stream and substream combination */
 };
 
 struct EntityHeader
@@ -629,7 +652,8 @@ class EXPORTISMRMRD Image
 };
 
 /**********************************************************************************************************************/
-class Waveform
+template <typename T>
+class EXPORTISMRMRD Waveform
 : public Entity
 {
   public:
@@ -658,11 +682,11 @@ class Waveform
   const WaveformHeader &getHead() const;
   void setHead(const WaveformHeader &other);
 
-  std::vector<double> &getData();
-  const std::vector<double> &getData() const;
-  void setData(const std::vector<double> &data);
+  std::vector<T> &getData();
+  const std::vector<T> &getData() const;
+  void setData(const std::vector<T> &data);
 
-  double &at(uint32_t sample);
+  T &at(uint32_t sample);
 
 // Functions inherited from Entity
   virtual EntityType getEntityType() const;
@@ -673,7 +697,7 @@ class Waveform
   protected:
 
   WaveformHeader head_;
-  std::vector<double> data_;
+  std::vector<T> data_;
 };
 
 /**********************************************************************************************************************/
@@ -722,6 +746,7 @@ public:
 
     // Accessors and mutators
     uint32_t getSignature() const;
+    uint32_t getVersion() const;
     StorageType getStorageType() const;
 
     uint32_t getNDim() const;
@@ -745,6 +770,9 @@ protected:
 };
 
 // Rotations and Quaternions
+
+/// Corresponds to the StreamId enumeration in ismrmrd.h
+std::string streamIdToString (StreamId id);
 
 /// Calculates the determinant of the matrix and return the sign
 EXPORTISMRMRD int sign_of_directions(float read_dir[3], float phase_dir[3], float slice_dir[3]);

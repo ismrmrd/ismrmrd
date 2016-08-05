@@ -208,12 +208,12 @@ int main(int argc, char** argv)
     //std::cout << xml_header << std::endl;
 
     //Write the header to the data file.
-    d.writeHeader(xml_header);
+    d.writeXmlHeader(xml_header);
 
     //Write out some arrays for convenience
-    d.appendNDArray("phantom", *phantom);
-    d.appendNDArray("csm", *coils);
-    d.appendNDArray("coil_images", coil_images);
+    d.appendNDArray(*phantom);
+    d.appendNDArray(*coils);
+    d.appendNDArray(coil_images);
 
     return 0;
 }

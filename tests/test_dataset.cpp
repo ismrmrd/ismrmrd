@@ -1,13 +1,15 @@
 #include "ismrmrd/ismrmrd.h"
 #include "ismrmrd/dataset.h"
 #include <fstream>
+#include <iostream>
 #include <boost/test/unit_test.hpp>
 #include <boost/test/test_case_template.hpp>
 #include <boost/mpl/list.hpp>
 
 using namespace ISMRMRD;
 
-typedef boost::mpl::list<int16_t, int32_t, float> test_types;
+typedef boost::mpl::list<int16_t, int32_t, float, double> test_types;
+//typedef boost::mpl::list<int16_t, int32_t, float> test_types;
 
 const std::string g_filename("test-data.h5");
 const std::string g_groupname("test-dataset");
@@ -112,8 +114,8 @@ BOOST_AUTO_TEST_CASE(dataset_read_write_header)
     cleanup();
 
     Dataset dataset(g_filename, g_groupname);
-    BOOST_CHECK_NO_THROW(dataset.writeHeader(g_xml_header));
-    std::string header = dataset.readHeader();
+    BOOST_CHECK_NO_THROW(dataset.writeXmlHeader(g_xml_header));
+    std::string header = dataset.readXmlHeader();
     BOOST_CHECK_EQUAL(g_xml_header, header);
 }
 
@@ -123,7 +125,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(dataset_append_acquisitions, T, test_types)
     cleanup();
 
     Dataset dataset(g_filename, g_groupname);
-    BOOST_CHECK_NO_THROW(dataset.writeHeader(g_xml_header));
+    BOOST_CHECK_NO_THROW(dataset.writeXmlHeader(g_xml_header));
 
     Acquisition<T> acq;
 
@@ -141,9 +143,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(dataset_append_acquisitions, T, test_types)
     for (size_t i = 0; i < acq.getNumberOfDataElements(); i++) {
         acq.getData()[i] = i / acq.getNumberOfDataElements();
     }
-    unsigned int noise_stream = repetitions;
-    BOOST_CHECK_NO_THROW(dataset.appendAcquisition<T>(acq, noise_stream));
-    BOOST_CHECK_EQUAL(dataset.getNumberOfAcquisitions(noise_stream), 1);
+    BOOST_CHECK_NO_THROW(dataset.appendAcquisition<T>(acq, ISMRMRD::STREAM_MRACQUISITION_7));
+    BOOST_CHECK_EQUAL(dataset.getNumberOfAcquisitions(ISMRMRD::STREAM_MRACQUISITION_7), 1);
 
     acq.setAvailableChannels(ncoils);
     acq.setCenterSample(readout / 2);
@@ -170,22 +171,54 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(dataset_append_acquisitions, T, test_types)
                         acq.at(s, c) = c * s;
                     }
                 }
-                BOOST_CHECK_NO_THROW(dataset.appendAcquisition<T>(acq, r));
+                BOOST_CHECK_NO_THROW(dataset.appendAcquisition<T>(acq, (StreamId)(ISMRMRD::STREAM_MRACQUISITION_DEFAULT + r)));
                 nacq++;
-                BOOST_CHECK_EQUAL(dataset.getNumberOfAcquisitions(r), nacq);
+                BOOST_CHECK_EQUAL(dataset.getNumberOfAcquisitions((StreamId)(ISMRMRD::STREAM_MRACQUISITION_DEFAULT + r)), nacq);
             }
         }
         total_nacq += nacq;
     }
-    BOOST_CHECK_EQUAL(dataset.getNumberOfAcquisitions(), total_nacq);
+    BOOST_CHECK_EQUAL(dataset.getNumberOfAcquisitions(STREAM_MRACQUISITION_7) +
+                      dataset.getNumberOfAcquisitions(STREAM_MRACQUISITION_DEFAULT) +
+                      dataset.getNumberOfAcquisitions((StreamId)(STREAM_MRACQUISITION_DEFAULT + 1)), total_nacq);
+
+    std::string name;
+    name = streamIdToString(STREAM_NONE);
+    BOOST_CHECK (name == "NONE");
+    name = streamIdToString(STREAM_HEADER);
+    BOOST_CHECK (name == "Header");
+    name = streamIdToString(STREAM_HANDSHAKE);
+    BOOST_CHECK (name == "Handshake");
+    name = streamIdToString(STREAM_COMMAND);
+    BOOST_CHECK (name == "Command");
+    name = streamIdToString(STREAM_ERROR);
+    BOOST_CHECK (name == "Error");
+    name = streamIdToString(STREAM_MRACQUISITION_DEFAULT);
+    BOOST_CHECK (name == "MrAcquisition_Default");
+    name = streamIdToString(STREAM_MRACQUISITION_1);
+    BOOST_CHECK (name == "MrAcquisition_1");
+    name = streamIdToString(STREAM_WAVEFORM_DEFAULT);
+    BOOST_CHECK (name == "Waveform_Default");
+    name = streamIdToString(STREAM_WAVEFORM_1);
+    BOOST_CHECK (name == "Waveform_1");
+    name = streamIdToString(STREAM_IMAGE_DEFAULT);
+    BOOST_CHECK (name == "Image_Default");
+    name = streamIdToString(STREAM_IMAGE_1);
+    BOOST_CHECK (name == "Image_1");
+    name = streamIdToString(STREAM_BLOB_DEFAULT);
+    BOOST_CHECK (name == "Blob_Default");
+    name = streamIdToString((StreamId)100500);
+    BOOST_CHECK (name == "ERROR");
+
 }
+
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(dataset_read_acquisitions, T, test_types)
 {
     cleanup();
 
     Dataset dataset(g_filename, g_groupname);
-    BOOST_CHECK_NO_THROW(dataset.writeHeader(g_xml_header));
+    BOOST_CHECK_NO_THROW(dataset.writeXmlHeader(g_xml_header));
 
     unsigned int matrix_size = 256;
     unsigned int ncoils = 8;
@@ -201,9 +234,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(dataset_read_acquisitions, T, test_types)
     for (size_t i = 0; i < acq_in.getNumberOfDataElements(); i++) {
         acq_in.getData()[i] = i / acq_in.getNumberOfDataElements();
     }
-    unsigned int noise_stream = nechoes;
-    BOOST_CHECK_NO_THROW(dataset.appendAcquisition<T>(acq_in, noise_stream));
-    Acquisition<T> acq_out = dataset.readAcquisition<T>(0, noise_stream);
+    BOOST_CHECK_NO_THROW(dataset.appendAcquisition<T>(acq_in, STREAM_MRACQUISITION_7));
+    Acquisition<T> acq_out = dataset.readAcquisition<T>(0, STREAM_MRACQUISITION_7);
     BOOST_CHECK(acq_in.getHead() == acq_out.getHead());
     BOOST_CHECK_EQUAL_COLLECTIONS(acq_in.getData().begin(), acq_in.getData().end(),
             acq_out.getData().begin(), acq_out.getData().end());
@@ -225,7 +257,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(dataset_read_acquisitions, T, test_types)
             // stuff very fake data into the acquisition
             std::vector<std::complex<T> > data(ncoils*readout, std::complex<T>(l, e));
             acq_in.setData(data);
-            BOOST_CHECK_NO_THROW(dataset.appendAcquisition<T>(acq_in, e));
+            BOOST_CHECK_NO_THROW(dataset.appendAcquisition<T>(acq_in, (StreamId)(STREAM_MRACQUISITION_DEFAULT + e)));
         }
     }
 
@@ -234,10 +266,15 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(dataset_read_acquisitions, T, test_types)
             // check both methods of retrieving acquisitions
             // 1. nth acquisition in a given stream
             // 2. nth acquisition in the entire dataset
-            Acquisition<T> acq = dataset.readAcquisition<T>(l, e);
-            Acquisition<T> acq2 = dataset.readAcquisition<T>(1 + e + l * nechoes);
+            // Update for ISMRMRD v 2.x:
+            //    Test #2 is no longer relevant because the index table will include entries for entities other
+            //    than acquisitions as was the case for the version 1. In version 2.x an index into the index table
+            //    may point to a waveform instead of an acquisition. Hence, the call to readAcquisition with omitted
+            //    stream nuumber will result in using the default stream number for acquisition search.
+            Acquisition<T> acq = dataset.readAcquisition<T>(l, (StreamId)(STREAM_MRACQUISITION_DEFAULT + e));
+            //Acquisition<T> acq2 = dataset.readAcquisition<T>(1 + e + l * nechoes);
 
-            BOOST_CHECK(acq.getHead() == acq2.getHead());
+            //BOOST_CHECK(acq.getHead() == acq2.getHead());
 
             if (l == 0) {
                 BOOST_CHECK(acq.isFlagSet(ISMRMRD_ACQ_FIRST_IN_SLICE));
@@ -253,10 +290,11 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(dataset_read_acquisitions, T, test_types)
 
             BOOST_CHECK_EQUAL_COLLECTIONS(data.begin(), data.end(),
                     acq.getData().begin(), acq.getData().end());
-            BOOST_CHECK_EQUAL_COLLECTIONS(data.begin(), data.end(),
-                    acq2.getData().begin(), acq2.getData().end());
+            //BOOST_CHECK_EQUAL_COLLECTIONS(data.begin(), data.end(),
+                    //acq2.getData().begin(), acq2.getData().end());
         }
     }
 }
+
 
 BOOST_AUTO_TEST_SUITE_END()

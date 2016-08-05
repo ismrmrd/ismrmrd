@@ -1,4 +1,5 @@
 //#include <stdlib.h>
+#include "boost/lexical_cast.hpp"
 #include "ismrmrd/ismrmrd.h"
 #include "ismrmrd/version.h"
 
@@ -1370,7 +1371,8 @@ void Image<T>::deserialize (const std::vector<unsigned char>& buffer)
 
 /**********************************************************************************************************************/
 // Waveform
-Waveform::Waveform(uint32_t num_samples)
+template <typename T>
+Waveform<T>::Waveform(uint32_t num_samples)
 {
   memset (&head_, 0, sizeof(head_));
   head_.number_of_samples = num_samples;
@@ -1378,19 +1380,22 @@ Waveform::Waveform(uint32_t num_samples)
 }
 
 /**********************************************************************************************************************/
-std::vector<double> &Waveform::getData()
+template <typename T>
+std::vector<T> &Waveform<T>::getData()
 {
   return data_;
 }
 
 /**********************************************************************************************************************/
-const std::vector<double> &Waveform::getData() const
+template <typename T>
+const std::vector<T> &Waveform<T>::getData() const
 {
   return data_;
 }
 
 /**********************************************************************************************************************/
-void Waveform::setData(const std::vector<double>& data)
+template <typename T>
+void Waveform<T>::setData(const std::vector<T>& data)
 {
   if (head_.number_of_samples != data.size())
   {
@@ -1401,7 +1406,8 @@ void Waveform::setData(const std::vector<double>& data)
 }
 
 /**********************************************************************************************************************/
-double &Waveform::at(uint32_t sample)
+template <typename T>
+T &Waveform<T>::at(uint32_t sample)
 {
   if (sample >= head_.number_of_samples)
   {
@@ -1411,49 +1417,57 @@ double &Waveform::at(uint32_t sample)
 }
 
 /**********************************************************************************************************************/
-uint64_t Waveform::getBeginTimeStamp() const
+template <typename T>
+uint64_t Waveform<T>::getBeginTimeStamp() const
 {
   return head_.begin_time_stamp;
 }
 
 /**********************************************************************************************************************/
-void Waveform::setBeginTimeStamp(uint64_t ts)
+template <typename T>
+void Waveform<T>::setBeginTimeStamp(uint64_t ts)
 {
   head_.begin_time_stamp = ts;
 }
 
 /**********************************************************************************************************************/
-uint64_t Waveform::getEndTimeStamp() const
+template <typename T>
+uint64_t Waveform<T>::getEndTimeStamp() const
 {
   return head_.end_time_stamp;
 }
 
 /**********************************************************************************************************************/
-void Waveform::setEndTimeStamp(uint64_t ts)
+template <typename T>
+void Waveform<T>::setEndTimeStamp(uint64_t ts)
 {
   head_.end_time_stamp = ts;
 }
 
 /**********************************************************************************************************************/
-uint32_t Waveform::getNumberOfSamples() const
+template <typename T>
+uint32_t Waveform<T>::getNumberOfSamples() const
 {
   return head_.number_of_samples;
 }
 
 /**********************************************************************************************************************/
-uint32_t Waveform::getDwellTime_ns() const
+template <typename T>
+uint32_t Waveform<T>::getDwellTime_ns() const
 {
   return head_.dwell_time_ns;
 }
 
 /**********************************************************************************************************************/
-void Waveform::setDwellTime_ns(uint32_t dwell_time)
+template <typename T>
+void Waveform<T>::setDwellTime_ns(uint32_t dwell_time)
 {
   head_.dwell_time_ns = dwell_time;
 }
 
 /**********************************************************************************************************************/
-int32_t Waveform::getUserInt(uint32_t idx) const
+template <typename T>
+int32_t Waveform<T>::getUserInt(uint32_t idx) const
 {
   if (idx >= ISMRMRD_USER_INTS)
   {
@@ -1463,7 +1477,8 @@ int32_t Waveform::getUserInt(uint32_t idx) const
 }
 
 /**********************************************************************************************************************/
-void Waveform::setUserInt(uint32_t idx, int32_t val)
+template <typename T>
+void Waveform<T>::setUserInt(uint32_t idx, int32_t val)
 {
   if (idx >= ISMRMRD_USER_INTS)
   {
@@ -1473,7 +1488,8 @@ void Waveform::setUserInt(uint32_t idx, int32_t val)
 }
 
 /**********************************************************************************************************************/
-float Waveform::getUserFloat(uint32_t idx) const
+template <typename T>
+float Waveform<T>::getUserFloat(uint32_t idx) const
 {
   if (idx >= ISMRMRD_USER_FLOATS)
   {
@@ -1483,7 +1499,8 @@ float Waveform::getUserFloat(uint32_t idx) const
 }
 
 /**********************************************************************************************************************/
-void Waveform::setUserFloat(uint32_t idx, float val)
+template <typename T>
+void Waveform<T>::setUserFloat(uint32_t idx, float val)
 {
   if (idx >= ISMRMRD_USER_FLOATS)
   {
@@ -1493,47 +1510,54 @@ void Waveform::setUserFloat(uint32_t idx, float val)
 }
 
 /**********************************************************************************************************************/
-void Waveform::resize(uint32_t num_samples)
+template <typename T>
+void Waveform<T>::resize(uint32_t num_samples)
 {
   head_.number_of_samples = num_samples;
   data_.resize(num_samples);
 }
 
 /**********************************************************************************************************************/
-WaveformHeader &Waveform::getHead()
+template <typename T>
+WaveformHeader &Waveform<T>::getHead()
 {
   return head_;
 }
 
 /**********************************************************************************************************************/
-const WaveformHeader &Waveform::getHead() const
+template <typename T>
+const WaveformHeader &Waveform<T>::getHead() const
 {
   return head_;
 }
 
 /**********************************************************************************************************************/
-void Waveform::setHead(const WaveformHeader &other)
+template <typename T>
+void Waveform<T>::setHead(const WaveformHeader &other)
 {
   this->head_ = other;
   data_.resize(head_.number_of_samples);
 }
 
 /**********************************************************************************************************************/
-EntityType Waveform::getEntityType() const
+template <typename T>
+EntityType Waveform<T>::getEntityType() const
 {
   return ISMRMRD_WAVEFORM;
 }
 
 /**********************************************************************************************************************/
-StorageType Waveform::getStorageType() const
+template <typename T>
+StorageType Waveform<T>::getStorageType() const
 {
   return ISMRMRD_DOUBLE;
 }
 
 /**********************************************************************************************************************/
-std::vector<unsigned char> Waveform::serialize()
+template <typename T>
+std::vector<unsigned char> Waveform<T>::serialize()
 {
-  size_t bytes = sizeof(WaveformHeader) + this->data_.size() * sizeof(double);
+  size_t bytes = sizeof(WaveformHeader) + this->data_.size() * sizeof(T);
 
   std::vector<unsigned char> buffer;
   buffer.reserve(bytes);
@@ -1553,7 +1577,8 @@ std::vector<unsigned char> Waveform::serialize()
 }
 
 /**********************************************************************************************************************/
-void Waveform::deserialize(const std::vector<unsigned char>& buffer)
+template <typename T>
+void Waveform<T>::deserialize(const std::vector<unsigned char>& buffer)
 {
   if (buffer.size() < sizeof(WaveformHeader))
   {
@@ -1562,7 +1587,7 @@ void Waveform::deserialize(const std::vector<unsigned char>& buffer)
 
   WaveformHeader* h_ptr = (WaveformHeader*)&buffer[0];
 
-  size_t expected_bytes = sizeof(WaveformHeader) + h_ptr->number_of_samples * sizeof(double);
+  size_t expected_bytes = sizeof(WaveformHeader) + h_ptr->number_of_samples * sizeof(T);
 
   if (expected_bytes != buffer.size())
   {
@@ -1744,7 +1769,12 @@ template <typename T> uint32_t NDArray<T>::getSignature() const {
 };
 
 template <typename T>
-StorageType NDArray<T>::getStorageType() const
+uint32_t NDArray<T>::getVersion() const
+{
+  return signature_ & 0xFF;
+};
+
+template <typename T> StorageType NDArray<T>::getStorageType() const
 {
   return static_cast<StorageType>(get_storage_type<T>());
 }
@@ -1826,6 +1856,16 @@ template EXPORTISMRMRD class Acquisition<int32_t>;
 template EXPORTISMRMRD class Acquisition<float>;
 template EXPORTISMRMRD class Acquisition<double>;
 
+// Waveforms
+template EXPORTISMRMRD class Waveform<uint16_t>;
+template EXPORTISMRMRD class Waveform<int16_t>;
+template EXPORTISMRMRD class Waveform<uint32_t>;
+template EXPORTISMRMRD class Waveform<int32_t>;
+template EXPORTISMRMRD class Waveform<float>;
+template EXPORTISMRMRD class Waveform<double>;
+template EXPORTISMRMRD class Waveform<std::complex<float> >;
+template EXPORTISMRMRD class Waveform<std::complex<double> >;
+
 // Images
 template EXPORTISMRMRD class Image<uint16_t>;
 template EXPORTISMRMRD class Image<int16_t>;
@@ -1847,6 +1887,36 @@ template EXPORTISMRMRD class NDArray<std::complex<float> >;
 template EXPORTISMRMRD class NDArray<std::complex<double> >;
 
 
+/**********************************************************************************************************************/
+// Corresponds to the StreamId enumeration in ismrmrd.h
+std::string streamIdToString (StreamId id)
+{
+  return (id == STREAM_NONE)                  ? "NONE"                  :
+         (id == STREAM_HEADER)                ? "Header"                :
+         (id == STREAM_HANDSHAKE)             ? "Handshake"             :
+         (id == STREAM_COMMAND)               ? "Command"               :
+         (id == STREAM_ERROR)                 ? "Error"                 :
+         (id == STREAM_MRACQUISITION_DEFAULT) ? "MrAcquisition_Default" :
+         (id == STREAM_MRACQUISITION_1)       ? "MrAcquisition_1"       :
+         (id == STREAM_MRACQUISITION_2)       ? "MrAcquisition_2"       :
+         (id == STREAM_MRACQUISITION_3)       ? "MrAcquisition_3"       :
+         (id == STREAM_MRACQUISITION_4)       ? "MrAcquisition_4"       :
+         (id == STREAM_MRACQUISITION_5)       ? "MrAcquisition_5"       :
+         (id == STREAM_MRACQUISITION_6)       ? "MrAcquisition_6"       :
+         (id == STREAM_MRACQUISITION_7)       ? "MrAcquisition_7"       :
+         (id == STREAM_WAVEFORM_DEFAULT)      ? "Waveform_Default"      :
+         (id == STREAM_WAVEFORM_1)            ? "Waveform_1"            :
+         (id == STREAM_WAVEFORM_2)            ? "Waveform_2"            :
+         (id == STREAM_WAVEFORM_3)            ? "Waveform_3"            :
+         (id == STREAM_IMAGE_DEFAULT)         ? "Image_Default"         :
+         (id == STREAM_IMAGE_1)               ? "Image_1"               :
+         (id == STREAM_IMAGE_2)               ? "Image_2"               :
+         (id == STREAM_IMAGE_3)               ? "Image_3"               :
+         (id == STREAM_BLOB_DEFAULT)          ? "Blob_Default"          :
+                                                "ERROR";
+}
+
+/**********************************************************************************************************************/
 int sign_of_directions(float read_dir[3], float phase_dir[3], float slice_dir[3]) {
     float r11 = read_dir[0], r12 = phase_dir[0], r13 = slice_dir[0];
     float r21 = read_dir[1], r22 = phase_dir[1], r23 = slice_dir[1];
