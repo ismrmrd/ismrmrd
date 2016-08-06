@@ -3,7 +3,7 @@
 #define ISMRMRD_DATASET_DTYPES_H
 
 #include "ismrmrd/ismrmrd.h"
-
+#include <stdexcept>
 #include <H5Cpp.h>
 
 #ifndef H5_NO_NAMESPACE
@@ -20,16 +20,10 @@ template <typename T> struct AcquisitionHeader_with_data
     hvl_t data;
 };
 
-template <typename T> struct ImageHeader_with_data
+struct WaveformHeader_with_data
 {
-	ImageHeader head;
-	hvl_t data;
-};
-
-struct IndexEntry
-{
-    uint32_t stream;
-    uint32_t index;
+ 	WaveformHeader head;
+ 	hvl_t          data;
 };
 
 template <typename T>
@@ -39,8 +33,9 @@ template <> DataType get_hdf5_data_type<IndexEntry>()
 {
     CompType dtype(sizeof(IndexEntry));
 
-    dtype.insertMember("stream", HOFFSET(IndexEntry, stream), PredType::NATIVE_UINT32);
-    dtype.insertMember("index", HOFFSET(IndexEntry, index), PredType::NATIVE_UINT32);
+    dtype.insertMember("stream",    HOFFSET(IndexEntry, stream),    PredType::NATIVE_UINT32);
+    dtype.insertMember("substream", HOFFSET(IndexEntry, substream), PredType::NATIVE_UINT32);
+    dtype.insertMember("index",     HOFFSET(IndexEntry, index),     PredType::NATIVE_UINT32);
 
     return dtype;
 }
@@ -69,7 +64,7 @@ template <> DataType get_hdf5_data_type<EncodingCounters>()
 
 template <> DataType get_hdf5_data_type<AcquisitionHeader>()
 {
-  CompType dtype (sizeof(AcquisitionHeader));
+  CompType dtype(sizeof(AcquisitionHeader));
 
   dtype.insertMember("time_stamp", HOFFSET(AcquisitionHeader, time_stamp),  PredType::NATIVE_UINT64);
   dtype.insertMember("flags",  HOFFSET(AcquisitionHeader, flags),  PredType::NATIVE_UINT64);
@@ -129,17 +124,17 @@ template <> DataType get_hdf5_data_type<AcquisitionHeader>()
 
 template <> DataType get_hdf5_data_type<AcquisitionHeader_with_data<double> >()
 {
-    CompType dtype(sizeof(AcquisitionHeader_with_data<double>));
+  CompType dtype(sizeof(AcquisitionHeader_with_data<double>));
 
-    DataType head_type = get_hdf5_data_type<AcquisitionHeader>();
+  DataType head_type          = get_hdf5_data_type<AcquisitionHeader>();
+  DataType realv_float_type   = DataType(H5Tvlen_create(PredType::NATIVE_FLOAT.getId()));
+  DataType realv_double_type  = DataType(H5Tvlen_create(PredType::NATIVE_DOUBLE.getId()));
 
-    DataType realv_type = DataType(H5Tvlen_create(PredType::NATIVE_FLOAT.getId()));
+  dtype.insertMember("head", HOFFSET(AcquisitionHeader_with_data<double>, head), head_type);
+  dtype.insertMember("traj", HOFFSET(AcquisitionHeader_with_data<double>, traj), realv_float_type);
+  dtype.insertMember("data", HOFFSET(AcquisitionHeader_with_data<double>, data), realv_double_type);
 
-    dtype.insertMember("head", HOFFSET(AcquisitionHeader_with_data<double>, head), head_type);
-    dtype.insertMember("traj", HOFFSET(AcquisitionHeader_with_data<double>, traj), realv_type);
-    dtype.insertMember("data", HOFFSET(AcquisitionHeader_with_data<double>, data), realv_type);
-
-    return dtype;
+  return dtype;
 }
 
 template <> DataType get_hdf5_data_type<AcquisitionHeader_with_data<float> >()
@@ -187,6 +182,174 @@ template <> DataType get_hdf5_data_type<AcquisitionHeader_with_data<int32_t> >()
     dtype.insertMember("data", HOFFSET(AcquisitionHeader_with_data<int32_t>, data), realv_int_type);
 
     return dtype;
+}
+
+/***********************************************************************************************************************
+ data types for Image class
+ **********************************************************************************************************************/
+/* Image data */
+template <> DataType get_hdf5_data_type<ImageHeader>()
+{
+  CompType dtype(sizeof(ImageHeader));
+
+  dtype.insertMember("time_stamp",   HOFFSET(ImageHeader, time_stamp),   PredType::NATIVE_UINT64);
+  dtype.insertMember("flags",        HOFFSET(ImageHeader, flags),        PredType::NATIVE_UINT64);
+
+  std::vector<hsize_t> dims(1, 3);
+  DataType array_type = ArrayType(PredType::NATIVE_UINT32, 1, &dims[0]);
+  dtype.insertMember("matrix_size", HOFFSET(ImageHeader, matrix_size), array_type);
+
+  DataType fov_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
+  dtype.insertMember("field_of_view", HOFFSET(ImageHeader, field_of_view), fov_array_type);
+
+  dtype.insertMember("channels",      HOFFSET(ImageHeader, channels),      PredType::NATIVE_UINT32);
+
+  DataType pos_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
+  dtype.insertMember("position", HOFFSET(ImageHeader, position), pos_array_type);
+
+  DataType read_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
+  dtype.insertMember("read_dir", HOFFSET(ImageHeader, read_dir), read_array_type);
+
+  DataType phase_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
+  dtype.insertMember("phase_dir", HOFFSET(ImageHeader, phase_dir), phase_array_type);
+
+  DataType slice_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
+  dtype.insertMember("slice_dir", HOFFSET(ImageHeader, slice_dir), slice_array_type);
+
+  DataType ptp_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
+  dtype.insertMember("patient_table_position", HOFFSET(ImageHeader, patient_table_position), ptp_array_type);
+  dtype.insertMember("average",                HOFFSET(ImageHeader, average),                PredType::NATIVE_UINT32);
+  dtype.insertMember("slice",                  HOFFSET(ImageHeader, slice),                  PredType::NATIVE_UINT32);
+  dtype.insertMember("contrast",               HOFFSET(ImageHeader, contrast),               PredType::NATIVE_UINT32);
+  dtype.insertMember("phase",                  HOFFSET(ImageHeader, phase),                  PredType::NATIVE_UINT32);
+  dtype.insertMember("repetition",             HOFFSET(ImageHeader, repetition),             PredType::NATIVE_UINT32);
+  dtype.insertMember("set",                    HOFFSET(ImageHeader, set),                    PredType::NATIVE_UINT32);
+
+  dims[0] = ISMRMRD_PHYS_STAMPS;
+  DataType pts_array_type = ArrayType(PredType::NATIVE_UINT32, 1, &dims[0]);
+  dtype.insertMember("physiology_time_stamp", HOFFSET(ImageHeader, physiology_time_stamp), pts_array_type);
+  dtype.insertMember("image_type",            HOFFSET(ImageHeader, image_type),            PredType::NATIVE_UINT32);
+  dtype.insertMember("image_index",           HOFFSET(ImageHeader, image_index),           PredType::NATIVE_UINT32);
+  dtype.insertMember("image_series_index",    HOFFSET(ImageHeader, image_series_index),    PredType::NATIVE_UINT32);
+
+  dims[0] = ISMRMRD_USER_INTS;
+  DataType usints_array_type = ArrayType(PredType::NATIVE_INT32, 1, &dims[0]);
+  dtype.insertMember("user_int", HOFFSET(ImageHeader, user_int), usints_array_type);
+
+  dims[0] = ISMRMRD_USER_FLOATS;
+  DataType usfloats_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
+  dtype.insertMember("user_float",           HOFFSET(ImageHeader, user_float),           usfloats_array_type);
+  dtype.insertMember("attribute_string_len", HOFFSET(ImageHeader, attribute_string_len), PredType::NATIVE_UINT32);
+
+  return dtype;
+}
+
+/* Image data */
+template <> DataType get_hdf5_data_type<std::complex<double> >()
+{
+  hid_t datatype = H5Tcreate(H5T_COMPOUND, sizeof(std::complex<double>));
+  herr_t h5status = H5Tinsert(datatype, "real", 0, H5T_NATIVE_DOUBLE);
+  if (h5status < 0)
+  {
+    throw std::runtime_error("Failed get complex float data type");
+  }
+  h5status = H5Tinsert(datatype, "imag", sizeof(double), H5T_NATIVE_DOUBLE);
+  if (h5status < 0)
+  {
+    throw std::runtime_error("Failed get complex float data type");
+  }
+  return datatype;
+}
+
+template <> DataType get_hdf5_data_type<std::complex<float> >()
+{
+  hid_t datatype = H5Tcreate(H5T_COMPOUND, sizeof(std::complex<float>));
+  herr_t h5status = H5Tinsert(datatype, "real", 0, H5T_NATIVE_FLOAT);
+  if (h5status < 0)
+  {
+    throw std::runtime_error("Failed get complex float data type");
+  }
+  h5status = H5Tinsert(datatype, "imag", sizeof(float), H5T_NATIVE_FLOAT);
+  if (h5status < 0)
+  {
+    throw std::runtime_error("Failed get complex float data type");
+  }
+  return datatype;
+}
+
+template <> DataType get_hdf5_data_type<uint16_t>()
+{
+  hid_t datatype = H5Tcopy(H5T_NATIVE_UINT16);
+  return datatype;
+}
+
+template <> DataType get_hdf5_data_type<int16_t>()
+{
+  hid_t datatype = H5Tcopy(H5T_NATIVE_INT16);
+  return datatype;
+}
+
+template <> DataType get_hdf5_data_type<uint32_t>()
+{
+  hid_t datatype = H5Tcopy(H5T_NATIVE_UINT32);
+  return datatype;
+}
+
+template <> DataType get_hdf5_data_type<int32_t>()
+{
+  hid_t datatype = H5Tcopy(H5T_NATIVE_INT32);
+  return datatype;
+}
+
+template <> DataType get_hdf5_data_type<float>()
+{
+  hid_t datatype = H5Tcopy(H5T_NATIVE_FLOAT);
+  return datatype;
+}
+
+template <> DataType get_hdf5_data_type<double>()
+{
+  hid_t datatype = H5Tcopy(H5T_NATIVE_DOUBLE);
+  return datatype;
+}
+
+/***********************************************************************************************************************
+ Data types for Waveform class
+ **********************************************************************************************************************/
+template <>
+DataType get_hdf5_data_type<WaveformHeader>()
+{
+  CompType dtype(sizeof(WaveformHeader));
+
+  dtype.insertMember("begin_time_stamp",  HOFFSET(WaveformHeader, begin_time_stamp),  PredType::NATIVE_UINT64);
+  dtype.insertMember("end_time_stamp",    HOFFSET(WaveformHeader, end_time_stamp),    PredType::NATIVE_UINT64);
+  dtype.insertMember("dwell_time_ns",     HOFFSET(WaveformHeader, dwell_time_ns),     PredType::NATIVE_UINT32);
+  dtype.insertMember("number_of_samples", HOFFSET(WaveformHeader, number_of_samples), PredType::NATIVE_UINT32);
+
+  std::vector<hsize_t> dims(1, ISMRMRD_USER_INTS);
+  DataType user_int_array_type = ArrayType(PredType::NATIVE_INT32, 1, &dims[0]);
+  dtype.insertMember("user_int", HOFFSET(AcquisitionHeader, user_int), user_int_array_type);
+
+  dims[0] = ISMRMRD_USER_FLOATS;
+  DataType user_float_array_type = ArrayType(PredType::NATIVE_FLOAT, 1, &dims[0]);
+  dtype.insertMember("user_float", HOFFSET(AcquisitionHeader, user_float), user_float_array_type);
+
+  return dtype;
+}
+
+/* WaveformHeader_with_data */
+template <>
+DataType get_hdf5_data_type<WaveformHeader_with_data>()
+{
+  CompType dtype(sizeof(WaveformHeader_with_data));
+
+  DataType head_type         = get_hdf5_data_type<WaveformHeader>();
+  DataType realv_double_type = DataType(H5Tvlen_create(PredType::NATIVE_DOUBLE.getId()));
+
+  dtype.insertMember ("head", HOFFSET(WaveformHeader_with_data, head), head_type);
+  dtype.insertMember ("data", HOFFSET(WaveformHeader_with_data, data), realv_double_type);
+
+  return dtype;
 }
 
 } // namespace ISMRMRD
