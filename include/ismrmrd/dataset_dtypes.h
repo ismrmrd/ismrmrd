@@ -3,6 +3,7 @@
 #define ISMRMRD_DATASET_DTYPES_H
 
 #include "ismrmrd/ismrmrd.h"
+#include <stdexcept>
 #include <H5Cpp.h>
 
 #ifndef H5_NO_NAMESPACE

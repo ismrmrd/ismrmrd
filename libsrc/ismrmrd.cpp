@@ -1731,8 +1731,8 @@ void IsmrmrdText::deserialize(const std::vector<unsigned char>& buffer)
 
   TextHeader* h_ptr = (TextHeader*)&buffer[0];
 
-  int left  = 0;
-  int right = sizeof(TextHeader);
+  size_t left  = 0;
+  size_t right = sizeof(TextHeader);
   std::copy(&buffer[left], &buffer[right], (unsigned char*)&this->_head);
 
   left = right;
@@ -1826,7 +1826,7 @@ T& NDArray<T>::at(uint32_t x, uint32_t y, uint32_t z, uint32_t w, uint32_t n, ui
   uint32_t indices[ISMRMRD_NDARRAY_MAXDIM] = {x,y,z,w,n,m,l};
   size_t stride = 1;
 
-  for (int ii = 0; ii < ISMRMRD_NDARRAY_MAXDIM; ii++)
+  for (size_t ii = 0; ii < ISMRMRD_NDARRAY_MAXDIM; ii++)
   {
     if (ii < dims_.size())
     {
@@ -1841,7 +1841,7 @@ T& NDArray<T>::at(uint32_t x, uint32_t y, uint32_t z, uint32_t w, uint32_t n, ui
     }
   }
 
-  for (uint32_t i = 0; i < dims_.size(); i++)
+  for (size_t i = 0; i < dims_.size(); i++)
   {
     index += indices[i] * stride;
     stride *= dims_[i];
