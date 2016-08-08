@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(waveform_create, T, test_types)
   Waveform<T> wvf;
   WaveformHeader head = wvf.getHead();
 
-  size_t expected_size = sizeof(uint64_t) * 2 +
+  size_t expected_size = sizeof(uint64_t) +
                          sizeof(uint32_t) * 2 + 
                          sizeof(int32_t) * ISMRMRD_USER_INTS + 
                          sizeof(float) * ISMRMRD_USER_FLOATS;
@@ -48,11 +48,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(waveform_getters_setters, T, test_types)
 {
   Waveform<T> wvf;
 
-  wvf.setBeginTimeStamp(3456789012);
-  BOOST_CHECK_EQUAL(wvf.getBeginTimeStamp(), 3456789012);
-
-  wvf.setEndTimeStamp(2134567890);
-  BOOST_CHECK_EQUAL(wvf.getEndTimeStamp(), 2134567890);
+  wvf.setTimeStamp(3456789012);
+  BOOST_CHECK_EQUAL(wvf.getTimeStamp(), 3456789012);
 
   wvf.resize(4096);
   BOOST_CHECK_EQUAL(wvf.getNumberOfSamples(), 4096);
@@ -125,8 +122,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(serialize, T, test_types)
 
 static void check_header(const WaveformHeader& head)
 {
-  BOOST_CHECK_EQUAL(head.begin_time_stamp, 0);
-  BOOST_CHECK_EQUAL(head.end_time_stamp, 0);
+  BOOST_CHECK_EQUAL(head.time_stamp_ns, 0);
   BOOST_CHECK_EQUAL(head.number_of_samples, 0);
   BOOST_CHECK_EQUAL(head.dwell_time_ns, 0);
 

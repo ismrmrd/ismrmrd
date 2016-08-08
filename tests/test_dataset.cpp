@@ -171,16 +171,16 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(dataset_append_acquisitions, T, test_types)
                         acq.at(s, c) = c * s;
                     }
                 }
-                BOOST_CHECK_NO_THROW(dataset.appendAcquisition<T>(acq, (StreamId)(ISMRMRD::STREAM_MRACQUISITION_DEFAULT + r)));
+                BOOST_CHECK_NO_THROW(dataset.appendAcquisition<T>(acq, (StreamId)(ISMRMRD::STREAM_MRACQUISITION_0 + r)));
                 nacq++;
-                BOOST_CHECK_EQUAL(dataset.getNumberOfAcquisitions((StreamId)(ISMRMRD::STREAM_MRACQUISITION_DEFAULT + r)), nacq);
+                BOOST_CHECK_EQUAL(dataset.getNumberOfAcquisitions((StreamId)(ISMRMRD::STREAM_MRACQUISITION_0 + r)), nacq);
             }
         }
         total_nacq += nacq;
     }
     BOOST_CHECK_EQUAL(dataset.getNumberOfAcquisitions(STREAM_MRACQUISITION_7) +
-                      dataset.getNumberOfAcquisitions(STREAM_MRACQUISITION_DEFAULT) +
-                      dataset.getNumberOfAcquisitions((StreamId)(STREAM_MRACQUISITION_DEFAULT + 1)), total_nacq);
+                      dataset.getNumberOfAcquisitions(STREAM_MRACQUISITION_0) +
+                      dataset.getNumberOfAcquisitions((StreamId)(STREAM_MRACQUISITION_0 + 1)), total_nacq);
 
     std::string name;
     name = streamIdToString(STREAM_NONE);
@@ -193,19 +193,19 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(dataset_append_acquisitions, T, test_types)
     BOOST_CHECK (name == "Command");
     name = streamIdToString(STREAM_ERROR);
     BOOST_CHECK (name == "Error");
-    name = streamIdToString(STREAM_MRACQUISITION_DEFAULT);
+    name = streamIdToString(STREAM_MRACQUISITION_0);
     BOOST_CHECK (name == "MrAcquisition_Default");
     name = streamIdToString(STREAM_MRACQUISITION_1);
     BOOST_CHECK (name == "MrAcquisition_1");
-    name = streamIdToString(STREAM_WAVEFORM_DEFAULT);
+    name = streamIdToString(STREAM_WAVEFORM_0);
     BOOST_CHECK (name == "Waveform_Default");
     name = streamIdToString(STREAM_WAVEFORM_1);
     BOOST_CHECK (name == "Waveform_1");
-    name = streamIdToString(STREAM_IMAGE_DEFAULT);
+    name = streamIdToString(STREAM_IMAGE_0);
     BOOST_CHECK (name == "Image_Default");
     name = streamIdToString(STREAM_IMAGE_1);
     BOOST_CHECK (name == "Image_1");
-    name = streamIdToString(STREAM_BLOB_DEFAULT);
+    name = streamIdToString(STREAM_BLOB_0);
     BOOST_CHECK (name == "Blob_Default");
     name = streamIdToString((StreamId)100500);
     BOOST_CHECK (name == "ERROR");
@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(dataset_read_acquisitions, T, test_types)
             // stuff very fake data into the acquisition
             std::vector<std::complex<T> > data(ncoils*readout, std::complex<T>(l, e));
             acq_in.setData(data);
-            BOOST_CHECK_NO_THROW(dataset.appendAcquisition<T>(acq_in, (StreamId)(STREAM_MRACQUISITION_DEFAULT + e)));
+            BOOST_CHECK_NO_THROW(dataset.appendAcquisition<T>(acq_in, (StreamId)(STREAM_MRACQUISITION_0 + e)));
         }
     }
 
@@ -271,7 +271,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(dataset_read_acquisitions, T, test_types)
             //    than acquisitions as was the case for the version 1. In version 2.x an index into the index table
             //    may point to a waveform instead of an acquisition. Hence, the call to readAcquisition with omitted
             //    stream nuumber will result in using the default stream number for acquisition search.
-            Acquisition<T> acq = dataset.readAcquisition<T>(l, (StreamId)(STREAM_MRACQUISITION_DEFAULT + e));
+            Acquisition<T> acq = dataset.readAcquisition<T>(l, (StreamId)(STREAM_MRACQUISITION_0 + e));
             //Acquisition<T> acq2 = dataset.readAcquisition<T>(1 + e + l * nechoes);
 
             //BOOST_CHECK(acq.getHead() == acq2.getHead());

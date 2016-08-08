@@ -32,22 +32,22 @@ class EXPORTISMRMRD Dataset {
 
     // Acquisitions
     template <typename T>
-    void appendAcquisition(const Acquisition<T>& acq, StreamId stream = STREAM_NONE);
+    void appendAcquisition(const Acquisition<T>& acq, StreamId stream = STREAM_MRACQUISITION_0);
     template <typename T>
-    Acquisition<T> readAcquisition(unsigned long index, StreamId stream = STREAM_NONE);
-    unsigned long getNumberOfAcquisitions(StreamId stream = STREAM_NONE);
+    Acquisition<T> readAcquisition(unsigned long index, StreamId stream = STREAM_MRACQUISITION_0);
+    unsigned long getNumberOfAcquisitions(StreamId stream = STREAM_MRACQUISITION_0);
 
     // Images
-    template <typename T> void appendImage(const Image<T> &im, StreamId stream = STREAM_NONE);
-    template <typename T> Image<T> readImage(unsigned long index, StreamId stream = STREAM_NONE);
-    unsigned long getNumberOfImages(StreamId stream = STREAM_NONE);
+    template <typename T> void appendImage(const Image<T> &im, StreamId stream = STREAM_IMAGE_0);
+    template <typename T> Image<T> readImage(unsigned long index, StreamId stream = STREAM_IMAGE_0);
+    unsigned long getNumberOfImages(StreamId stream = STREAM_IMAGE_0);
 
     // Waveforms
     template <typename T>
-    void appendWaveform(const Waveform<T> &wf, StreamId stream = STREAM_NONE);
+    void appendWaveform(const Waveform<T> &wf, StreamId stream = STREAM_WAVEFORM_0);
     template <typename T>
-    Waveform<T> readWaveform(unsigned long index, StreamId stream = STREAM_NONE);
-    unsigned long getNumberOfWaveforms(StreamId stream = STREAM_NONE);
+    Waveform<T> readWaveform(unsigned long index, StreamId stream = STREAM_WAVEFORM_0);
+    unsigned long getNumberOfWaveforms(StreamId stream = STREAM_WAVEFORM_0);
 
     // NDArrays
     template <typename T> void appendNDArray(const NDArray<T> &arr, StreamId stream = STREAM_NONE);

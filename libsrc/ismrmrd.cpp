@@ -1418,30 +1418,16 @@ T &Waveform<T>::at(uint32_t sample)
 
 /**********************************************************************************************************************/
 template <typename T>
-uint64_t Waveform<T>::getBeginTimeStamp() const
+uint64_t Waveform<T>::getTimeStamp() const
 {
-  return head_.begin_time_stamp;
+  return head_.time_stamp_ns;
 }
 
 /**********************************************************************************************************************/
 template <typename T>
-void Waveform<T>::setBeginTimeStamp(uint64_t ts)
+void Waveform<T>::setTimeStamp(uint64_t ts)
 {
-  head_.begin_time_stamp = ts;
-}
-
-/**********************************************************************************************************************/
-template <typename T>
-uint64_t Waveform<T>::getEndTimeStamp() const
-{
-  return head_.end_time_stamp;
-}
-
-/**********************************************************************************************************************/
-template <typename T>
-void Waveform<T>::setEndTimeStamp(uint64_t ts)
-{
-  head_.end_time_stamp = ts;
+  head_.time_stamp_ns = ts;
 }
 
 /**********************************************************************************************************************/
@@ -1891,29 +1877,29 @@ template EXPORTISMRMRD class NDArray<std::complex<double> >;
 // Corresponds to the StreamId enumeration in ismrmrd.h
 std::string streamIdToString (StreamId id)
 {
-  return (id == STREAM_NONE)                  ? "NONE"                  :
-         (id == STREAM_HEADER)                ? "Header"                :
-         (id == STREAM_HANDSHAKE)             ? "Handshake"             :
-         (id == STREAM_COMMAND)               ? "Command"               :
-         (id == STREAM_ERROR)                 ? "Error"                 :
-         (id == STREAM_MRACQUISITION_DEFAULT) ? "MrAcquisition_Default" :
-         (id == STREAM_MRACQUISITION_1)       ? "MrAcquisition_1"       :
-         (id == STREAM_MRACQUISITION_2)       ? "MrAcquisition_2"       :
-         (id == STREAM_MRACQUISITION_3)       ? "MrAcquisition_3"       :
-         (id == STREAM_MRACQUISITION_4)       ? "MrAcquisition_4"       :
-         (id == STREAM_MRACQUISITION_5)       ? "MrAcquisition_5"       :
-         (id == STREAM_MRACQUISITION_6)       ? "MrAcquisition_6"       :
-         (id == STREAM_MRACQUISITION_7)       ? "MrAcquisition_7"       :
-         (id == STREAM_WAVEFORM_DEFAULT)      ? "Waveform_Default"      :
-         (id == STREAM_WAVEFORM_1)            ? "Waveform_1"            :
-         (id == STREAM_WAVEFORM_2)            ? "Waveform_2"            :
-         (id == STREAM_WAVEFORM_3)            ? "Waveform_3"            :
-         (id == STREAM_IMAGE_DEFAULT)         ? "Image_Default"         :
-         (id == STREAM_IMAGE_1)               ? "Image_1"               :
-         (id == STREAM_IMAGE_2)               ? "Image_2"               :
-         (id == STREAM_IMAGE_3)               ? "Image_3"               :
-         (id == STREAM_BLOB_DEFAULT)          ? "Blob_Default"          :
-                                                "ERROR";
+  return (id == STREAM_NONE)             ? "NONE"                  :
+         (id == STREAM_HEADER)           ? "Header"                :
+         (id == STREAM_HANDSHAKE)        ? "Handshake"             :
+         (id == STREAM_COMMAND)          ? "Command"               :
+         (id == STREAM_ERROR)            ? "Error"                 :
+         (id == STREAM_MRACQUISITION_0)  ? "MrAcquisition_Default" :
+         (id == STREAM_MRACQUISITION_1)  ? "MrAcquisition_1"       :
+         (id == STREAM_MRACQUISITION_2)  ? "MrAcquisition_2"       :
+         (id == STREAM_MRACQUISITION_3)  ? "MrAcquisition_3"       :
+         (id == STREAM_MRACQUISITION_4)  ? "MrAcquisition_4"       :
+         (id == STREAM_MRACQUISITION_5)  ? "MrAcquisition_5"       :
+         (id == STREAM_MRACQUISITION_6)  ? "MrAcquisition_6"       :
+         (id == STREAM_MRACQUISITION_7)  ? "MrAcquisition_7"       :
+         (id == STREAM_WAVEFORM_0)       ? "Waveform_Default"      :
+         (id == STREAM_WAVEFORM_1)       ? "Waveform_1"            :
+         (id == STREAM_WAVEFORM_2)       ? "Waveform_2"            :
+         (id == STREAM_WAVEFORM_3)       ? "Waveform_3"            :
+         (id == STREAM_IMAGE_0)          ? "Image_Default"         :
+         (id == STREAM_IMAGE_1)          ? "Image_1"               :
+         (id == STREAM_IMAGE_2)          ? "Image_2"               :
+         (id == STREAM_IMAGE_3)          ? "Image_3"               :
+         (id == STREAM_BLOB_0)           ? "Blob_Default"          :
+                                           "ERROR";
 }
 
 /**********************************************************************************************************************/

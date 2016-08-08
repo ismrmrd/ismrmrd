@@ -154,11 +154,6 @@ std::string Dataset::readXmlHeader()
 /**********************************************************************************************************************/
 template <typename T> void Dataset::appendAcquisition(const Acquisition<T>& acq, StreamId stream)
 {
-    if (stream == STREAM_NONE)
-    {
-      stream = STREAM_MRACQUISITION_DEFAULT;
-    }
-
     std::string group_path = constructPath(groupname_, stream);
     std::string data_path = constructPath(group_path, "data");
     if (!linkExists(group_path))
@@ -281,8 +276,9 @@ void Dataset::readFromDataSet(const std::string& path, const DataType& dtype,
     dspace.getSimpleExtentDims(&dims[0]);
 
     if (index >= dims[0]) {
-std::cout << "readFromDataSet: data_path = " << path << ", index = " << index
-          << ", num entities = " << dims[0] << "\n";
+        //TODO: remove debug code
+        std::cout << "readFromDataSet: data_path = " << path << ", index = " << index
+                  << ", num entities = " << dims[0] << "\n";
         throw std::runtime_error("Attempting to access non-existent hyperslice in HDF5 dataset");
     }
 
@@ -299,11 +295,6 @@ std::cout << "readFromDataSet: data_path = " << path << ", index = " << index
 template <typename T>
 Acquisition<T> Dataset::readAcquisition(unsigned long index, StreamId stream)
 {
-    if (stream == STREAM_NONE)
-    {
-      stream = STREAM_MRACQUISITION_DEFAULT;
-    }
-
     std::string group_path = constructPath(groupname_, stream);
     std::string data_path  = constructPath(group_path, "data");
 
@@ -346,11 +337,6 @@ template void Dataset::appendAcquisition(const Acquisition<double>&, StreamId);
 /**********************************************************************************************************************/
 unsigned long Dataset::getNumberOfAcquisitions(StreamId stream)
 {
-  if (stream == STREAM_NONE)
-  {
-    stream = STREAM_MRACQUISITION_DEFAULT;
-  }
-
   return getNumberOfEntities (stream);
 }
 

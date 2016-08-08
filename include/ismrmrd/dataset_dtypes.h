@@ -321,8 +321,7 @@ DataType get_hdf5_data_type<WaveformHeader>()
 {
   CompType dtype(sizeof(WaveformHeader));
 
-  dtype.insertMember("begin_time_stamp",  HOFFSET(WaveformHeader, begin_time_stamp),  PredType::NATIVE_UINT64);
-  dtype.insertMember("end_time_stamp",    HOFFSET(WaveformHeader, end_time_stamp),    PredType::NATIVE_UINT64);
+  dtype.insertMember("time_stamp_ns",     HOFFSET(WaveformHeader, time_stamp_ns),     PredType::NATIVE_UINT64);
   dtype.insertMember("dwell_time_ns",     HOFFSET(WaveformHeader, dwell_time_ns),     PredType::NATIVE_UINT32);
   dtype.insertMember("number_of_samples", HOFFSET(WaveformHeader, number_of_samples), PredType::NATIVE_UINT32);
 

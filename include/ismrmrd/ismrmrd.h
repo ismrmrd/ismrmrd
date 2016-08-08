@@ -91,28 +91,28 @@ enum TextType {
 // !! If changing StreamID enumeration - make sure to update the streamIdToString function in ismrmrd.cpp !!
 // TODO Most of the values bellow are just for testing
 enum StreamId {
-  STREAM_NONE                   =    0,
-  STREAM_HEADER                 =    1,
-  STREAM_HANDSHAKE              =    2,
-  STREAM_COMMAND                =    3,
-  STREAM_ERROR                  =    4,
-  STREAM_MRACQUISITION_DEFAULT  =  100,
-  STREAM_MRACQUISITION_1        =  101,
-  STREAM_MRACQUISITION_2        =  102,
-  STREAM_MRACQUISITION_3        =  103,
-  STREAM_MRACQUISITION_4        =  104,
-  STREAM_MRACQUISITION_5        =  105,
-  STREAM_MRACQUISITION_6        =  106,
-  STREAM_MRACQUISITION_7        =  107,
-  STREAM_WAVEFORM_DEFAULT       =  200,
-  STREAM_WAVEFORM_1             =  201,
-  STREAM_WAVEFORM_2             =  202,
-  STREAM_WAVEFORM_3             =  203,
-  STREAM_IMAGE_DEFAULT          =  300,
-  STREAM_IMAGE_1                =  301,
-  STREAM_IMAGE_2                =  302,
-  STREAM_IMAGE_3                =  303,
-  STREAM_BLOB_DEFAULT           = 1000
+  STREAM_NONE              =    0,
+  STREAM_HEADER            =    1,
+  STREAM_HANDSHAKE         =    2,
+  STREAM_COMMAND           =    3,
+  STREAM_ERROR             =    4,
+  STREAM_MRACQUISITION_0   =  100,
+  STREAM_MRACQUISITION_1   =  101,
+  STREAM_MRACQUISITION_2   =  102,
+  STREAM_MRACQUISITION_3   =  103,
+  STREAM_MRACQUISITION_4   =  104,
+  STREAM_MRACQUISITION_5   =  105,
+  STREAM_MRACQUISITION_6   =  106,
+  STREAM_MRACQUISITION_7   =  107,
+  STREAM_WAVEFORM_0        =  200,
+  STREAM_WAVEFORM_1        =  201,
+  STREAM_WAVEFORM_2        =  202,
+  STREAM_WAVEFORM_3        =  203,
+  STREAM_IMAGE_0           =  300,
+  STREAM_IMAGE_1           =  301,
+  STREAM_IMAGE_2           =  302,
+  STREAM_IMAGE_3           =  303,
+  STREAM_BLOB_0            = 1000
 };
 
 /** Acquisition Flags */
@@ -270,8 +270,7 @@ struct ImageHeader
 /**********************************************************************************************************************/
 struct WaveformHeader
 {
-  uint64_t     begin_time_stamp;                /**< Experiment time stamp in nano seconds */
-  uint64_t     end_time_stamp;                  /**< Experiment time stamp in nano seconds */
+  uint64_t     time_stamp_ns;                   /**< Experiment time stamp in nano seconds */
   uint32_t     dwell_time_ns;                   /**< Time between samples in nano seconds */
   uint32_t     number_of_samples;               /**< Number of samples acquired */
   int32_t      user_int[ISMRMRD_USER_INTS];     /**< Free user parameters */
@@ -660,11 +659,8 @@ class EXPORTISMRMRD Waveform
 
   Waveform(uint32_t num_samples = 0);
 
-  uint64_t getBeginTimeStamp() const;
-  void setBeginTimeStamp(uint64_t);
-
-  uint64_t getEndTimeStamp() const;
-  void setEndTimeStamp(uint64_t);
+  uint64_t getTimeStamp() const;
+  void setTimeStamp(uint64_t);
 
   uint32_t getNumberOfSamples() const;
   void resize(uint32_t num_samples);
