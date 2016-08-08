@@ -74,18 +74,15 @@ public:
             boost::asio::read(sock, boost::asio::buffer(traj), error);
             acq.setTraj(traj);
 
-            //if (streams.count (head.ent_head.stream) == 0)
-            if (streams.count (ISMRMRD::ISMRMRD_MRACQUISITION_STREAM) == 0) //TODO: temporary workaround
+            if (streams.count (ISMRMRD::STREAM_MRACQUISITION_0) == 0)
             {
               std::vector<ISMRMRD::Acquisition<float> > stream;
               stream.push_back(acq);
-              //streams[head.ent_head.stream] = stream;
-              streams[ISMRMRD::ISMRMRD_MRACQUISITION_STREAM] = stream; // TODO: trmporary workaround
+              streams[ISMRMRD::STREAM_MRACQUISITION_0] = stream;
             }
             else
             {
-              //streams[head.ent_head.stream].push_back(acq);
-              streams[ISMRMRD::ISMRMRD_MRACQUISITION_STREAM].push_back(acq); // TODO: trmporary workaround
+              streams[ISMRMRD::STREAM_MRACQUISITION_0].push_back(acq);
             }
         }
 
@@ -199,7 +196,7 @@ int main(int argc, char* argv[])
     ISMRMRD::Dataset dataset(in_fname.c_str(), in_hdf5_group.c_str());
 
     // Read and deserialize XML header
-    std::string xml = dataset.readHeader();
+    std::string xml = dataset.readXmlHeader();
     ISMRMRD::IsmrmrdHeader xmlHeader;
     ISMRMRD::deserialize(xml.c_str(), xmlHeader);
 
