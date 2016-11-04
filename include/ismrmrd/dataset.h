@@ -9,6 +9,7 @@
 #define ISMRMRD_DATASET_H
 
 #include "ismrmrd/ismrmrd.h"
+#include <hdf5.h>
 
 #ifdef __cplusplus
 #include <string>
@@ -28,7 +29,7 @@ extern "C" {
 typedef struct ISMRMRD_Dataset {
     char *filename;
     char *groupname;
-    int fileid;
+    hid_t fileid;
 } ISMRMRD_Dataset;
 
 /**
