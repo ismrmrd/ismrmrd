@@ -3,13 +3,7 @@ project(ISMRMRD-C-EXAMPLE)
 
 # if building this example as a standalone project
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-    if(NOT DEFINED ENV{ISMRMRD_HOME})
-        message(FATAL_ERROR "ISMRMRD_HOME environment variable must be defined")
-    endif()
-
-    list(APPEND CMAKE_MODULE_PATH "$ENV{ISMRMRD_HOME}/share/ismrmrd/cmake")
-
-    find_package(Ismrmrd REQUIRED)
+    find_package(ISMRMRD REQUIRED)
 
 # otherwise, building it as part of ISMRMRD itself
 else()
