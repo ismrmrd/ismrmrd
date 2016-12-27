@@ -279,6 +279,15 @@ install(
     Devel
 )
 
+install(
+  FILES
+    cmake/FindFFTW3.cmake
+  DESTINATION
+    ${ConfigPackageLocation}
+  COMPONENT
+    Devel
+)
+  
 # Create package
 string(TOLOWER ${PROJECT_NAME} PROJECT_NAME_LOWER)
 include(${ISMRMRD_CMAKE_DIR}/ismrmrd_cpack.cmake)
