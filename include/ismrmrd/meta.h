@@ -231,7 +231,7 @@ namespace ISMRMRD
     {
       map_t::const_iterator it = map_.find(std::string(name));
       if (it == map_.end()) {
-	throw std::runtime_error("Attempting to access unkown parameter");
+	throw std::runtime_error("Attempting to access unknown parameter");
       }
       if (index >= it->second.size()) {
 	throw std::runtime_error("Attempting to access indexed value out of bounds");
