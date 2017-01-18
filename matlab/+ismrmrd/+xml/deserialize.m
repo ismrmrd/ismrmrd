@@ -123,6 +123,7 @@ function info = parseUserParameter(theNode)
     numChildNodes = getLength(childNodes);
     
     info = struct;
+    info.value = [];
     
     for n = 1:numChildNodes
         theChild = item(childNodes,n-1);
@@ -130,19 +131,11 @@ function info = parseUserParameter(theNode)
             info.name = char(getTextContent(theChild));
         end
         if strcmp(getNodeName(theChild),'value')
-            if strcmp(paramType, 'userParameterLong')
-                info.value = str2num(getTextContent(theChild));
+            if strcmp(paramType, 'userParameterLong') || strcmp(paramType, 'userParameterDouble')
+                info.value(end+1) = str2num(getTextContent(theChild));
             end
 
-            if strcmp(paramType, 'userParameterDouble')
-                info.value = str2num(getTextContent(theChild));
-            end
-
-            if strcmp(paramType, 'userParameterString')
-                info.value = char(getTextContent(theChild));
-            end
-
-            if strcmp(paramType, 'userParameterBase64')
+            if strcmp(paramType, 'userParameterString') || strcmp(paramType, 'userParameterBase64')
                 info.value = char(getTextContent(theChild));
             end
         end
