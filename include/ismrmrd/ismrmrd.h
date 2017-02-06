@@ -59,7 +59,7 @@ typedef double complex complex_double_t;
 
 /* Booleans - part of C++ */
 #ifndef __cplusplus
-#ifdef _MSC_VER /* MS C compiler */
+#if _MSC_VER < 1800 /* old MS C compiler */
 typedef int bool;
 #define false 0
 #define true 1
