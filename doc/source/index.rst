@@ -75,7 +75,7 @@ Linux installation
 
 The dependencies mentioned above should be included in most linux distributions. On Ubuntu you can install all required dependencies with::
 
-  sudo apt-get install libhdf5-serial-dev h5utils cmake cmake-curses-gui libboost-all-dev doxygen git
+  sudo apt-get install libhdf5-serial-dev h5utils cmake cmake-curses-gui libboost-all-dev libfftw3-dev doxygen git
 
 After installation of dependencies, the library can be installed with:
 
