@@ -166,7 +166,7 @@ namespace ISMRMRD
   {
     typedef std::map< std::string, std::vector<MetaValue> > map_t;
 
-    friend void serialize(MetaContainer& h, std::ostream& o);
+    friend void EXPORTISMRMRD serialize(MetaContainer& h, std::ostream& o);
 
   public:
     MetaContainer()
