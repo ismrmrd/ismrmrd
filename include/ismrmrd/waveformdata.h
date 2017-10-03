@@ -15,7 +15,13 @@
 #include <string>
 namespace ISMRMRD {
 	
-	class WaveformData();
+	class WaveformData() {
+		public void WaveformData();
+		public void ~WaveformData();
+
+
+	
+	}
 
 
 } /* ISMRMRD namespace */
