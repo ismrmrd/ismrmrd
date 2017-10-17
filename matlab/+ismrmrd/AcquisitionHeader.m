@@ -331,41 +331,41 @@ classdef AcquisitionHeader < handle
                 error('Wrong number of bytes for AcquisitionHeader.')
             end
             N = size(bytearray,2);
-            for p = 1:N
-                obj.version(p) =                  typecast(bytearray(  1:  2,p), 'uint16'); ... % First unsigned int indicates the version %
-                obj.flags(p) =                    typecast(bytearray(  3: 10,p), 'uint64'); ... % bit field with flags %
-                obj.measurement_uid(p) =          typecast(bytearray( 11: 14,p), 'uint32'); ... % Unique ID for the measurement %
-                obj.scan_counter(p) =             typecast(bytearray( 15: 18,p), 'uint32'); ... % Current acquisition number in the measurement %
-                obj.acquisition_time_stamp(p) =   typecast(bytearray( 19: 22,p), 'uint32'); ... % Acquisition clock %
-                obj.physiology_time_stamp(:,p) =  typecast(bytearray( 23: 34,p), 'uint32'); ... % Physiology time stamps, e.g. ecg, breating, etc. %
-                obj.number_of_samples(p) =        typecast(bytearray( 35: 36,p), 'uint16'); ... % Number of samples acquired %
-                obj.available_channels(p) =       typecast(bytearray( 37: 38,p), 'uint16'); ... % Available coils %
-                obj.active_channels(p) =          typecast(bytearray( 39: 40,p), 'uint16'); ... % Active coils on current acquisiton %
-                obj.channel_mask(:,p) =           typecast(bytearray( 41:168,p), 'uint64'); ... % Mask to indicate which channels are active. Support for 1024 channels %
-                obj.discard_pre(p) =              typecast(bytearray(169:170,p), 'uint16'); ... % Samples to be discarded at the beginning of acquisition %
-                obj.discard_post(p) =             typecast(bytearray(171:172,p), 'uint16'); ... % Samples to be discarded at the end of acquisition %
-                obj.center_sample(p) =            typecast(bytearray(173:174,p), 'uint16'); ... % Sample at the center of k-space %
-                obj.encoding_space_ref(p) =       typecast(bytearray(175:176,p), 'uint16'); ... % Reference to an encoding space, typically only one per acquisition %
-                obj.trajectory_dimensions(p) =    typecast(bytearray(177:178,p), 'uint16'); ... % Indicates the dimensionality of the trajectory vector (0 means no trajectory) %
-                obj.sample_time_us(p) =           typecast(bytearray(179:182,p), 'single'); ... % Time between samples in micro seconds, sampling BW %
-                obj.position(:,p) =               typecast(bytearray(183:194,p), 'single'); ... % Three-dimensional spatial offsets from isocenter %
-                obj.read_dir(:,p) =               typecast(bytearray(195:206,p), 'single'); ... % Directional cosines of the readout/frequency encoding %
-                obj.phase_dir(:,p) =              typecast(bytearray(207:218,p), 'single'); ... % Directional cosines of the phase encoding %
-                obj.slice_dir(:,p) =              typecast(bytearray(219:230,p), 'single'); ... % Directional cosines of the slice %
-                obj.patient_table_position(:,p) = typecast(bytearray(231:242,p), 'single'); ... % Patient table off-center %
-                obj.idx.kspace_encode_step_1(p) = typecast(bytearray(243:244,p), 'uint16'); ... % phase encoding line number %
-                obj.idx.kspace_encode_step_2(p) = typecast(bytearray(245:246,p), 'uint16'); ... % partition encodning number %
-                obj.idx.average(p) =              typecast(bytearray(247:248,p), 'uint16'); ... % signal average number %
-                obj.idx.slice(p) =                typecast(bytearray(249:250,p), 'uint16'); ... % imaging slice number %
-                obj.idx.contrast(p) =             typecast(bytearray(251:252,p), 'uint16'); ... % echo number in multi-echo %
-                obj.idx.phase(p) =                typecast(bytearray(253:254,p), 'uint16'); ... % cardiac phase number %
-                obj.idx.repetition(p) =           typecast(bytearray(255:256,p), 'uint16'); ... % dynamic number for dynamic scanning %
-                obj.idx.set(p) =                  typecast(bytearray(257:258,p), 'uint16'); ... % flow encoding set %
-                obj.idx.segment(p) =              typecast(bytearray(259:260,p), 'uint16'); ... % segment number for segmented acquisition %
-                obj.idx.user(:,p) =               typecast(bytearray(261:276,p), 'uint16'); ... % Free user parameters %
-                obj.user_int(:,p) =               typecast(bytearray(277:308,p), 'int32');  ... % Free user parameters %
-                obj.user_float(:,p) =             typecast(bytearray(309:340,p), 'single'); ... % Free user parameters %
-            end              
+
+            obj.version =                  reshape(typecast(reshape(bytearray(  1:   2, :), 1, 2 *      N), 'uint16'),  1, N);  % First unsigned int indicates the version %
+            obj.flags =                    reshape(typecast(reshape(bytearray(  3:  10, :), 1, 8 *      N), 'uint64'),  1, N);  % bit field with flags %
+            obj.measurement_uid =          reshape(typecast(reshape(bytearray(  11: 14, :), 1, 4 *      N), 'uint32'),  1, N);  % Unique ID for the measurement %
+            obj.scan_counter =             reshape(typecast(reshape(bytearray(  15: 18, :), 1, 4 *      N), 'uint32'),  1, N);  % Current acquisition number in the measurement %
+            obj.acquisition_time_stamp =   reshape(typecast(reshape(bytearray(  19: 22, :), 1, 4 *      N), 'uint32'),  1, N);  % Acquisition clock %
+            obj.physiology_time_stamp =    reshape(typecast(reshape(bytearray(  23: 34, :), 1, 4 *  3 * N), 'uint32'),  3, N);  % Physiology time stamps, e.g. ecg, breating, etc. %
+            obj.number_of_samples =        reshape(typecast(reshape(bytearray(  35: 36, :), 1, 2 *      N), 'uint16'),  1, N);  % Number of samples acquired %
+            obj.available_channels =       reshape(typecast(reshape(bytearray(  37: 38, :), 1, 2 *      N), 'uint16'),  1, N);  % Available coils %
+            obj.active_channels =          reshape(typecast(reshape(bytearray(  39: 40, :), 1, 2 *      N), 'uint16'),  1, N);  % Active coils on current acquisiton %
+            obj.channel_mask =             reshape(typecast(reshape(bytearray(  41:168, :), 1, 8 * 16 * N), 'uint64'), 16, N);  % Mask to indicate which channels are active. Support for 1024 channels %
+            obj.discard_pre =              reshape(typecast(reshape(bytearray( 169:170, :), 1, 2 *      N), 'uint16'),  1, N);  % Samples to be discarded at the beginning of acquisition %
+            obj.discard_post =             reshape(typecast(reshape(bytearray( 171:172, :), 1, 2 *      N), 'uint16'),  1, N);  % Samples to be discarded at the end of acquisition %
+            obj.center_sample =            reshape(typecast(reshape(bytearray( 173:174, :), 1, 2 *      N), 'uint16'),  1, N);  % Sample at the center of k-space %
+            obj.encoding_space_ref =       reshape(typecast(reshape(bytearray( 175:176, :), 1, 2 *      N), 'uint16'),  1, N);  % Reference to an encoding space, typically only one per acquisition %
+            obj.trajectory_dimensions =    reshape(typecast(reshape(bytearray( 177:178, :), 1, 2 *      N), 'uint16'),  1, N);  % Indicates the dimensionality of the trajectory vector (0 means no trajectory) %
+            obj.sample_time_us =           reshape(typecast(reshape(bytearray( 179:182, :), 1, 4 *      N), 'single'),  1, N);  % Time between samples in micro seconds, sampling BW %
+            obj.position =                 reshape(typecast(reshape(bytearray( 183:194, :), 1, 4 *  3 * N), 'single'),  3, N);  % Three-dimensional spatial offsets from isocenter %
+            obj.read_dir =                 reshape(typecast(reshape(bytearray( 195:206, :), 1, 4 *  3 * N), 'single'),  3, N);  % Directional cosines of the readout/frequency encoding %
+            obj.phase_dir =                reshape(typecast(reshape(bytearray( 207:218, :), 1, 4 *  3 * N), 'single'),  3, N);  % Directional cosines of the phase encoding %
+            obj.slice_dir =                reshape(typecast(reshape(bytearray( 219:230, :), 1, 4 *  3 * N), 'single'),  3, N);  % Directional cosines of the slice %
+            obj.patient_table_position =   reshape(typecast(reshape(bytearray( 231:242, :), 1, 4 *  3 * N), 'single'),  3, N);  % Patient table off-center %
+            obj.idx.kspace_encode_step_1 = reshape(typecast(reshape(bytearray( 243:244, :), 1, 2 *      N), 'uint16'),  1, N);  % phase encoding line number %
+            obj.idx.kspace_encode_step_2 = reshape(typecast(reshape(bytearray( 245:246, :), 1, 2 *      N), 'uint16'),  1, N);  % partition encodning number %
+            obj.idx.average =              reshape(typecast(reshape(bytearray( 247:248, :), 1, 2 *      N), 'uint16'),  1, N);  % signal average number %
+            obj.idx.slice =                reshape(typecast(reshape(bytearray( 249:250, :), 1, 2 *      N), 'uint16'),  1, N);  % imaging slice number %
+            obj.idx.contrast =             reshape(typecast(reshape(bytearray( 251:252, :), 1, 2 *      N), 'uint16'),  1, N);  % echo number in multi-echo %
+            obj.idx.phase =                reshape(typecast(reshape(bytearray( 253:254, :), 1, 2 *      N), 'uint16'),  1, N);  % cardiac phase number %
+            obj.idx.repetition =           reshape(typecast(reshape(bytearray( 255:256, :), 1, 2 *      N), 'uint16'),  1, N);  % dynamic number for dynamic scanning %
+            obj.idx.set =                  reshape(typecast(reshape(bytearray( 257:258, :), 1, 2 *      N), 'uint16'),  1, N);  % flow encoding set %
+            obj.idx.segment =              reshape(typecast(reshape(bytearray( 259:260, :), 1, 2 *      N), 'uint16'),  1, N);  % segment number for segmented acquisition %
+            obj.idx.user =                 reshape(typecast(reshape(bytearray( 261:276, :), 1, 2 *  8 * N), 'uint16'),  8, N);  % Free user parameters %
+            obj.user_int =                 reshape(typecast(reshape(bytearray( 277:308, :), 1, 4 *  8 * N), 'int32' ),  8, N);  % Free user parameters %
+            obj.user_float =               reshape(typecast(reshape(bytearray( 309:340, :), 1, 4 *  8 * N), 'single'),  8, N);  % Free user parameters %
+
         end
         
         function bytes = toBytes(obj)
