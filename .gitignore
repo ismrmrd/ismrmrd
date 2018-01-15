@@ -11,3 +11,5 @@ cmake/cpack_options.cmake
 .vscode/
 *.ipynb
 *.h5
+include/ismrmrd/version.h
+cmake-build-*/
