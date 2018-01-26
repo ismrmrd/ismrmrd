@@ -33,7 +33,7 @@ for n = 1:numChildNodes
     theChild = item(childNodes,n-1);
     name = char(getNodeName(theChild));
 
-    %Some elements occure more than once
+    %Some elements occur more than once
     if isfield(info,name)
         num = length(info.(name))+1;
     else

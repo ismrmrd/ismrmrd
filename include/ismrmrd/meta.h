@@ -60,7 +60,7 @@ namespace ISMRMRD
   {
 
   public:
-    /** Default construtor */
+    /** Default constructor */
     MetaValue()
     {
       set(0L);

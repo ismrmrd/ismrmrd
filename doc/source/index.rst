@@ -390,7 +390,7 @@ To reconstruct this synthetic dataset, you can use the test reconstruction appli
 Matlab Example Code and Datasets
 --------------------------------
 
-The ``examples`` folder contains some matlab code to illustrate simple interaction with the ISMRMRD data format. The examples use test data sets, wich can be downloaded from the Github website_. Go to the ``examples/data`` folder and type the following to download the data::
+The ``examples`` folder contains some matlab code to illustrate simple interaction with the ISMRMRD data format. The examples use test data sets, which can be downloaded from the Github website_. Go to the ``examples/data`` folder and type the following to download the data::
 
   wget https://sourceforge.net/projects/ismrmrd/files/data/3D_partial_fourier.h5
   wget https://sourceforge.net/projects/ismrmrd/files/data/simple_gre.h5
