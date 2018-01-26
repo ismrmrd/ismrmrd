@@ -88,7 +88,7 @@ catch
     nContrasts = 1;
 end
 
-% TODO add the other possibilites
+% TODO add the other possibilities
 
 %% Read all the data
 % Reading can be done one acquisition (or chunk) at a time, 

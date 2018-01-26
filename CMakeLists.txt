@@ -197,7 +197,7 @@ set_target_properties(ismrmrd PROPERTIES
 )
 target_link_libraries(ismrmrd ${ISMRMRD_TARGET_LINK_LIBS})
 list(APPEND ISMRMRD_LIBRARIES ismrmrd) # Add to list of libraries to be found
-list(APPEND ISMRMRD_LIBRARY_DIRS ${CMAKE_BINARY_DIR} ) # Add to list of directories to find libaries
+list(APPEND ISMRMRD_LIBRARY_DIRS ${CMAKE_BINARY_DIR} ) # Add to list of directories to find libraries
 
 # install the main library
 install(TARGETS ismrmrd EXPORT ISMRMRDTargets
