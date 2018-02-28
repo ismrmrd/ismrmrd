@@ -11,6 +11,7 @@
 #endif /* __cplusplus */
 
 #include <hdf5.h>
+#include <ismrmrd/waveform.h>
 #include "ismrmrd/dataset.h"
 
 #ifdef __cplusplus
@@ -152,12 +153,18 @@ static int delete_var(const ISMRMRD_Dataset *dset, const char *var) {
 /*********************************************/
 /* Private (Static) Functions for HDF5 Types */
 /*********************************************/
-typedef struct HDF5_Acquisition
+typedef struct HDF5_Acquisiton
 {
     ISMRMRD_AcquisitionHeader head;
     hvl_t traj;
     hvl_t data;
 } HDF5_Acquisition;
+
+typedef struct HDF5_Waveform
+{
+    ISMRMRD_WaveformHeader head;
+    hvl_t data;
+} HDF5_Waveform;
 
 static hid_t get_hdf5type_uint16(void) {
     hid_t datatype = H5Tcopy(H5T_NATIVE_UINT16);
@@ -259,6 +266,8 @@ static hid_t get_hdf5type_encoding(void) {
     H5Tclose(arraytype);
     return datatype;
 }
+
+
 
 static hid_t get_hdf5type_acquisitionheader(void) {
     hid_t datatype;
@@ -424,7 +433,55 @@ static hid_t get_hdf5type_image_attribute_string(void) {
     }
     return datatype;
 }
-    
+
+
+
+static hid_t get_hdf5type_waveformheader(void) {
+    hid_t datatype;
+    herr_t h5status;
+    hsize_t arraydims[1];
+    hid_t vartype;
+
+    datatype = H5Tcreate(H5T_COMPOUND, sizeof(ISMRMRD_WaveformHeader));
+    h5status = H5Tinsert(datatype, "version", HOFFSET(ISMRMRD_WaveformHeader, version), H5T_NATIVE_UINT16);
+    h5status = H5Tinsert(datatype, "flags", HOFFSET(ISMRMRD_WaveformHeader, flags), H5T_NATIVE_UINT64);
+    h5status = H5Tinsert(datatype, "measurement_uid", HOFFSET(ISMRMRD_WaveformHeader,  measurement_uid), H5T_NATIVE_UINT32);
+    h5status = H5Tinsert(datatype, "scan_counter", HOFFSET(ISMRMRD_WaveformHeader, scan_counter), H5T_NATIVE_UINT32);
+    h5status = H5Tinsert(datatype, "time_stamp", HOFFSET(ISMRMRD_WaveformHeader, time_stamp ), H5T_NATIVE_UINT32);
+    h5status = H5Tinsert(datatype, "number_of_samples", HOFFSET(ISMRMRD_WaveformHeader, number_of_samples), H5T_NATIVE_UINT16);
+    h5status = H5Tinsert(datatype, "available_channels", HOFFSET(ISMRMRD_WaveformHeader, available_channels), H5T_NATIVE_UINT16);
+    h5status = H5Tinsert(datatype, "sample_time_us", HOFFSET(ISMRMRD_WaveformHeader, sample_time_us), H5T_NATIVE_FLOAT);
+
+    arraydims[0] = 16;
+    vartype = H5Tarray_create2(H5T_NATIVE_CHAR, 1, arraydims);
+    h5status = H5Tinsert(datatype, "type", HOFFSET(ISMRMRD_AcquisitionHeader, position), vartype);
+    H5Tclose(vartype);
+    return  datatype;
+
+}
+
+static hid_t get_hdf5type_waveform(void) {
+    hid_t datatype, vartype, vlvartype;
+    herr_t h5status;
+
+    datatype = H5Tcreate(H5T_COMPOUND, sizeof(ISMRMRD_Waveform));
+    vartype = get_hdf5type_waveformheader();
+    h5status = H5Tinsert(datatype, "header", HOFFSET(ISMRMRD_Waveform, head), vartype);
+    H5Tclose(vartype);
+    vartype =  H5Tcopy(H5T_NATIVE_UINT32);
+    vlvartype = H5Tvlen_create(vartype);
+    h5status = H5Tinsert(datatype, "data", HOFFSET(ISMRMRD_Waveform, data), vlvartype);
+    H5Tclose(vartype);
+    H5Tclose(vlvartype);
+
+    /* Store acquisition data as an array of floats */
+
+    if (h5status < 0) {
+        ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get acquisition data type");
+    }
+
+    return datatype;
+}
 static hid_t get_hdf5type_ndarray(uint16_t data_type) {
     
     hid_t hdfdatatype = -1;
@@ -1335,6 +1392,102 @@ int ismrmrd_read_image(const ISMRMRD_Dataset *dset, const char *varname,
     free(path);
 
     return ISMRMRD_NOERROR;
+}
+
+
+int ismrmrd_append_waveform(const ISMRMRD_Dataset *dset, const ISMRMRD_Waveform *acq) {
+    int status;
+    char *path;
+    hid_t datatype;
+    HDF5_Waveform hdf5wav[1];
+
+    if (dset==NULL) {
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL.");
+    }
+    if (acq==NULL) {
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Acquisition pointer should not be NULL.");
+    }
+
+    /* The path to the acqusition data */
+    path = make_path(dset, "waveform");
+
+    /* The acquisition datatype */
+    datatype = get_hdf5type_waveform();
+
+    /* Create the HDF5 version of the acquisition */
+    hdf5wav[0].head = acq->head;
+    hdf5wav[0].data.len = acq->head.number_of_samples * acq->head.available_channels;
+    hdf5wav[0].data.p = acq->data;
+
+    /* Write it */
+    status = append_element(dset, path, hdf5wav, datatype, 0, NULL);
+    if (status != ISMRMRD_NOERROR) {
+        return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to append acquisition.");
+    }
+
+    free(path);
+
+    /* Clean up */
+    status = H5Tclose(datatype);
+    if (status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to close datatype.");
+    }
+
+    return ISMRMRD_NOERROR;
+}
+
+int ismrmrd_read_waveform(const ISMRMRD_Dataset *dset, uint32_t index, ISMRMRD_Waveform *wav)
+{
+    hid_t datatype;
+    herr_t status;
+    HDF5_Waveform hdf5wav;
+    char *path;
+
+    if (dset==NULL) {
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL.");
+    }
+    if (wav==NULL) {
+        return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Waveform pointer should not be NULL.");
+    }
+
+    /* The path to the acquisition data */
+    path = make_path(dset, "waveform");
+
+    /* The acquisition datatype */
+    datatype = get_hdf5type_waveform();
+
+    status = read_element(dset, path, &hdf5wav, datatype, index);
+    memcpy(&wav->head, &hdf5wav.head, sizeof(ISMRMRD_WaveformHeader));
+    ismrmrd_make_consistent_waveform(wav);
+    memcpy(wav->data, hdf5wav.data.p, ismrmrd_size_of_waveform_data(wav));
+
+    /* clean up */
+    free(path);
+    free(hdf5wav.data.p);
+
+    status = H5Tclose(datatype);
+    if (status < 0) {
+        H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+        return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to close datatype.");
+    }
+
+    return ISMRMRD_NOERROR;
+}
+
+uint32_t ismrmrd_get_number_of_waveforms(const ISMRMRD_Dataset *dset) {
+    char *path;
+    uint32_t numacq;
+
+    if (dset==NULL) {
+        ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
+        return 0;
+    }
+    /* The path to the acqusition data */
+    path = make_path(dset, "waveform");
+    numacq = get_number_of_elements(dset, path);
+    free(path);
+    return numacq;
 }
 
 int ismrmrd_append_array(const ISMRMRD_Dataset *dset, const char *varname, const ISMRMRD_NDArray *arr) {

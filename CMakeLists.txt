@@ -49,7 +49,7 @@ if (WIN32)
     add_definitions(-D__func__=__FUNCTION__)
 else ()
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wall")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
 endif ()
 
 #  ---   VERSIONING  (begin) ----
@@ -165,6 +165,8 @@ set(ISMRMRD_TARGET_SOURCES
   libsrc/ismrmrd.cpp
   libsrc/xml.cpp
   libsrc/meta.cpp
+  libsrc/waveform.cpp
+  libsrc/waveform.c
   ${ISMRMRD_DATASET_SOURCES}
 )
 
