@@ -34,3 +34,17 @@ int ismrmrd_size_of_waveform_data(ISMRMRD_Waveform* wav){
     return wav->head.available_channels*wav->head.number_of_samples*sizeof(uint32_t);
 }
 
+
+ISMRMRD_Waveform * ismrmrd_create_waveform() {
+	ISMRMRD_Waveform *wav = (ISMRMRD_Waveform *)malloc(sizeof(ISMRMRD_Waveform));
+	if (wav == NULL) {
+		ISMRMRD_PUSH_ERR(ISMRMRD_MEMORYERROR, "Failed to malloc new ISMRMRD_Waveform.");
+		return NULL;
+	}
+	if (ismrmrd_init_waveform(wav) != ISMRMRD_NOERROR)
+	{
+		ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Failed to initialize waveform.");
+		return NULL;
+	}
+	return wav;
+}

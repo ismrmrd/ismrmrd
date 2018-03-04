@@ -63,12 +63,12 @@ endif ()
 #in the utility libraries, that don't affect the data format itself.
 # For more information see http://semver.org/
 set(ISMRMRD_VERSION_MAJOR 1)
-set(ISMRMRD_VERSION_MINOR 3)
-set(ISMRMRD_VERSION_PATCH 3)
+set(ISMRMRD_VERSION_MINOR 4)
+set(ISMRMRD_VERSION_PATCH 0)
 set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
 set(ISMRMRD_SOVERSION ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR})
 
-set(ISMRMRD_XML_SCHEMA_SHA1 "9b899c6ad806bc2388c70461d6e5affe5cc6d750")
+set(ISMRMRD_XML_SCHEMA_SHA1 "a18ff3aeaa35aab79e405329d45a99229a996287")
 
 #Remove line breaks and white space that does not change the meaning of the schema
 file(STRINGS ${CMAKE_SOURCE_DIR}/schema/ismrmrd.xsd SCHEMA_STRINGS) #Read all strings from file
@@ -106,7 +106,7 @@ endif()
 
 
 # Find HDF5 for dataset support
-find_package(HDF5 1.8 COMPONENTS C)
+find_package(HDF5 COMPONENTS C)
 
 if (HDF5_FOUND)
     set (ISMRMRD_DATASET_SUPPORT true)
@@ -114,6 +114,7 @@ if (HDF5_FOUND)
     set (ISMRMRD_DATASET_INCLUDE_DIR ${HDF5_INCLUDE_DIRS})
     set (ISMRMRD_DATASET_LIBRARIES ${HDF5_LIBRARIES})
     add_definitions(${HDF5_DEFINITIONS})
+	include_directories(${HDF5_INCLUDE_DIRS})
 else ()
     set (ISMRMRD_DATASET_SUPPORT false)
     message (WARNING "HDF5 not found. Dataset and file support unavailable!")
