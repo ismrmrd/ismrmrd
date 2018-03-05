@@ -42,19 +42,26 @@ typedef struct ISMRMRD_Waveform
 
 
 EXPORTISMRMRD int ismrmrd_make_consistent_waveform(ISMRMRD_Waveform* wav);
-EXPORTISMRMRD int ismrmrd_size_of_waveform_data(ISMRMRD_Waveform* wav);
+EXPORTISMRMRD int ismrmrd_size_of_waveform_data(const ISMRMRD_Waveform* wav);
 EXPORTISMRMRD ISMRMRD_Waveform* ismrmrd_create_waveform();
 EXPORTISMRMRD int ismrmrd_free_waveform(ISMRMRD_Waveform*);
 EXPORTISMRMRD int ismrmrd_init_waveform(ISMRMRD_Waveform*);
+EXPORTISMRMRD int ismrmrd_init_waveformheader(ISMRMRD_WaveformHeader* header);
+EXPORTISMRMRD int ismrmrd_copy_waveform(ISMRMRD_Waveform* dest, const ISMRMRD_Waveform* src);
 
 #ifdef __cplusplus
 }
-    struct Waveform : public ISMRMRD_Waveform {
+    struct EXPORTISMRMRD Waveform : public ISMRMRD_Waveform {
+        Waveform();
+        Waveform(const Waveform &other);
+        Waveform(Waveform&& other);
         Waveform(uint16_t number_of_samples, uint16_t available_channels);
         ~Waveform();
+        Waveform & operator=(const Waveform &other);
+        Waveform & operator=(Waveform &&other);
 
     };
-};
-};
+}
+
 #endif
 #endif //ISMRMRD_WAVEFORM_H_H

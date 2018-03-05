@@ -191,6 +191,41 @@ namespace ISMRMRD
     return r;
   }
 
+  TrajectoryType parse_trajectory_type(const std::string trajectoryString) {
+      if (trajectoryString == "cartesian")
+          return TrajectoryType::CARTESIAN;
+      if (trajectoryString == "epi")
+          return TrajectoryType::EPI;
+      if (trajectoryString == "radial")
+          return TrajectoryType::RADIAL;
+      if (trajectoryString == "goldenangle")
+          return TrajectoryType::GOLDENANGLE;
+      if (trajectoryString == "spiral")
+          return TrajectoryType::SPIRAL;
+      if (trajectoryString == "other")
+          return TrajectoryType::OTHER;
+
+      throw std::runtime_error("Invalid trajectory type in xml header");
+  }
+
+  WaveformType parse_waveform_type(const std::string waveformString) {
+      if (waveformString == "ecg")
+          return WaveformType::ECG;
+      if ( waveformString == "pulse")
+          return WaveformType::PULSE;
+      if (waveformString == "respiratory")
+          return WaveformType::RESPIRATORY;
+      if (waveformString == "trigger")
+          return WaveformType::TRIGGER;
+      if (waveformString == "gradientwaveform")
+          return WaveformType::GRADIENTWAVEFORM;
+      if (waveformString == "other")
+          return WaveformType::OTHER;
+
+      throw std::runtime_error("Invalid waveform type in xml header");
+  }
+
+
   //End of utility functions for deserializing header
 
   void deserialize(const char* xml, IsmrmrdHeader& h) 
@@ -213,6 +248,7 @@ namespace ISMRMRD
       pugi::xml_node encoding = root.child("encoding");
       pugi::xml_node sequenceParameters = root.child("sequenceParameters");
       pugi::xml_node userParameters = root.child("userParameters");
+      pugi::xml_node waveformInformation = root.child("waveformInformation");
 
       // Parsing version
       h.version = parse_optional_long(root, "version");
@@ -262,7 +298,7 @@ namespace ISMRMRD
 	  if (!trajectory) {
 	    throw std::runtime_error("trajectory not found in encoding section");
 	  } else {
-	    e.trajectory = std::string(encoding.child_value("trajectory"));
+	    e.trajectory = parse_trajectory_type(std::string(encoding.child_value("trajectory")));
 	  }
 
 	  pugi::xml_node trajectoryDescription = encoding.child("trajectoryDescription");
@@ -426,9 +462,18 @@ namespace ISMRMRD
  	p.userParameterBase64 = parse_user_parameter_string(userParameters,"userParameterBase64");
 	h.userParameters = p;
       }
+
+    while (waveformInformation){
+        WaveformInformation w;
+        w.waveformName = parse_string(waveformInformation,"waveformName");
+        w.waveformType = parse_waveform_type(parse_string(waveformInformation,"waveformType"));
+        h.waveformInformation.push_back(w);
+        waveformInformation = waveformInformation.next_sibling();
+    }
     } else {
       throw std::runtime_error("Root node 'ismrmrdHeader' not found");
     }
+
 
   }
 
@@ -467,6 +512,55 @@ namespace ISMRMRD
     o = std::string(buffer);
   }
 
+  void to_string_val(const TrajectoryType& v, std::string& o)
+  {
+      switch (v){
+          case TrajectoryType::CARTESIAN:
+              o = "cartesian";
+              break;
+          case TrajectoryType::EPI:
+              o = "epi";
+              break;
+          case TrajectoryType::RADIAL:
+              o = "radial";
+              break;
+          case TrajectoryType::GOLDENANGLE:
+              o = "goldenangle";
+              break;
+          case TrajectoryType::SPIRAL:
+              o = "spiral";
+              break;
+          case TrajectoryType::OTHER:
+              o = "other";
+              break;
+      }
+  }
+
+  void to_string_val(const WaveformType& v, std::string& o)
+  {
+      switch (v){
+          case WaveformType::ECG:
+              o = "ecg";
+              break;
+          case WaveformType::PULSE:
+              o = "pulse";
+              break;
+          case WaveformType::RESPIRATORY:
+              o = "respiratory";
+              break;
+          case WaveformType::TRIGGER:
+              o = "trigger";
+              break;
+          case WaveformType::GRADIENTWAVEFORM:
+              o = "gradientwaveform";
+              break;
+          case WaveformType::OTHER:
+              o = "other";
+              break;
+
+      }
+  }
+
   template <class T> void append_optional_node(pugi::xml_node& n, const char* child, const Optional<T>& v) 
   {
     if (v) {
@@ -496,6 +590,13 @@ namespace ISMRMRD
     append_node(n3,"x",s.fieldOfView_mm.x);
     append_node(n3,"y",s.fieldOfView_mm.y);
     append_node(n3,"z",s.fieldOfView_mm.z);
+  }
+
+  void append_waveform_information(pugi::xml_node& n, const char* child, const WaveformInformation& w)
+  {
+      pugi::xml_node n2 = n.append_child(child);
+      append_node(n2,"waveformName",w.waveformName);
+      append_node(n2,"waveformType",w.waveformType);
   }
   
   void append_encoding_limit(pugi::xml_node& n, const char* child, const Optional<Limit>& l) 
@@ -715,6 +816,11 @@ namespace ISMRMRD
       append_user_parameter(n1,"userParameterString",h.userParameters->userParameterString);
       append_user_parameter(n1,"userParameterBase64",h.userParameters->userParameterBase64);
     }
+
+    for (auto w : h.waveformInformation){
+        append_waveform_information(root,"waveformInformation",w);
+    }
+
 
     doc.save(o);
   }

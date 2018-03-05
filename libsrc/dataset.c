@@ -456,6 +456,12 @@ static hid_t get_hdf5type_waveformheader(void) {
     vartype = H5Tarray_create2(H5T_NATIVE_CHAR, 1, arraydims);
     h5status = H5Tinsert(datatype, "type", HOFFSET(ISMRMRD_AcquisitionHeader, position), vartype);
     H5Tclose(vartype);
+
+    /* Clean up */
+    if (h5status < 0) {
+        ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get imageheader data type");
+    }
+
     return  datatype;
 
 }

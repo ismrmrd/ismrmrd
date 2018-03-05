@@ -183,6 +183,10 @@ public:
     template <typename T> void readNDArray(const std::string &var, uint32_t index, NDArray<T> &arr);
     uint32_t getNumberOfNDArrays(const std::string &var);
 
+    //Waveforms
+    void appendWaveform(const Waveform &wav);
+    void readWaveform(uint32_t index, Waveform & wav);
+    uint32_t getNumberOfWaveforms();
 protected:
     ISMRMRD_Dataset dset_;
 };

@@ -279,7 +279,6 @@
   <xs:complexType name="waveformInformation">
     <xs:sequence>
       <xs:element name="waveformName" type="xs:string"/>
-      <xs:element name="waveformId" type="xs:int"/>
       <xs:element name="waveformType">
         <xs:simpleType>
           <xs:restriction base="xs:string">
@@ -287,6 +286,7 @@
             <xs:enumeration value="pulse"/>
             <xs:enumeration value="respiratory" />
             <xs:enumeration value="trigger" />
+            <xs:enumeration value="gradientwaveform" />
             <xs:enumeration value="other" />
           </xs:restriction>
         </xs:simpleType>

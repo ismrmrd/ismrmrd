@@ -289,12 +289,21 @@ namespace ISMRMRD
     Optional<std::string> interleavingDimension;
   };
 
+  enum class TrajectoryType {
+      CARTESIAN,
+      EPI,
+      RADIAL,
+      GOLDENANGLE,
+      SPIRAL,
+      OTHER
+  };
+
   struct Encoding
   {
     EncodingSpace encodedSpace;
     EncodingSpace reconSpace;
     EncodingLimits encodingLimits;
-    std::string trajectory;
+    TrajectoryType trajectory;
     Optional<TrajectoryDescription> trajectoryDescription;
     Optional<ParallelImaging> parallelImaging;
     Optional<long> echoTrainLength;
@@ -310,6 +319,19 @@ namespace ISMRMRD
     Optional<std::vector<float> > echo_spacing;
   };
 
+  enum class WaveformType {
+      ECG,
+      PULSE,
+      RESPIRATORY,
+      TRIGGER,
+      GRADIENTWAVEFORM,
+      OTHER
+  };
+  struct WaveformInformation{
+      std::string waveformName;
+      WaveformType waveformType;
+  };
+
   struct IsmrmrdHeader
   {
     Optional<long> version;
@@ -320,7 +342,8 @@ namespace ISMRMRD
     ExperimentalConditions experimentalConditions;
     std::vector<Encoding> encoding;
     Optional<SequenceParameters> sequenceParameters;
-    Optional<UserParameters> userParameters;    
+    Optional<UserParameters> userParameters;
+    std::vector<WaveformInformation> waveformInformation;
   };
 
 
