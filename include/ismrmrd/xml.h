@@ -327,9 +327,12 @@ namespace ISMRMRD
       GRADIENTWAVEFORM,
       OTHER
   };
+
+
   struct WaveformInformation{
       std::string waveformName;
       WaveformType waveformType;
+      Optional<UserParameters> userParameters;
   };
 
   struct IsmrmrdHeader

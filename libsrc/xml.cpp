@@ -467,6 +467,15 @@ namespace ISMRMRD
         WaveformInformation w;
         w.waveformName = parse_string(waveformInformation,"waveformName");
         w.waveformType = parse_waveform_type(parse_string(waveformInformation,"waveformType"));
+        auto waveformUserparameters = waveformInformation.child("userParameters");
+        if (waveformUserparameters) {
+            UserParameters p;
+            p.userParameterLong = parse_user_parameter_long(waveformUserparameters, "userParameterLong");
+            p.userParameterDouble = parse_user_parameter_double(waveformUserparameters, "userParameterDouble");
+            p.userParameterString = parse_user_parameter_string(waveformUserparameters, "userParameterString");
+            p.userParameterBase64 = parse_user_parameter_string(waveformUserparameters, "userParameterBase64");
+            w.userParameters = p;
+        }
         h.waveformInformation.push_back(w);
         waveformInformation = waveformInformation.next_sibling();
     }
@@ -592,13 +601,6 @@ namespace ISMRMRD
     append_node(n3,"z",s.fieldOfView_mm.z);
   }
 
-  void append_waveform_information(pugi::xml_node& n, const char* child, const WaveformInformation& w)
-  {
-      pugi::xml_node n2 = n.append_child(child);
-      append_node(n2,"waveformName",w.waveformName);
-      append_node(n2,"waveformType",w.waveformType);
-  }
-  
   void append_encoding_limit(pugi::xml_node& n, const char* child, const Optional<Limit>& l) 
   {
     if (l) {
@@ -618,6 +620,20 @@ namespace ISMRMRD
       append_node(n2,"name",v[i].name);
       append_node(n2,"value",v[i].value);
     }
+  }
+
+  void append_waveform_information(pugi::xml_node& n, const char* child, const WaveformInformation& w)
+  {
+      pugi::xml_node n2 = n.append_child(child);
+      append_node(n2,"waveformName",w.waveformName);
+      append_node(n2,"waveformType",w.waveformType);
+      if (w.userParameters){
+          auto n3 = n2.append_child("userParameters");
+          append_user_parameter(n3,"userParameterLong",w.userParameters->userParameterLong);
+          append_user_parameter(n3,"userParameterDouble",w.userParameters->userParameterDouble);
+          append_user_parameter(n3,"userParameterString",w.userParameters->userParameterString);
+          append_user_parameter(n3,"userParameterBase64",w.userParameters->userParameterBase64);
+      }
   }
 
   //End utility functions for serialization

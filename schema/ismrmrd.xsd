@@ -275,7 +275,9 @@
   	 <xs:element maxOccurs="1" minOccurs="0" type="interleavingDimensionType" name="interleavingDimension"/>
   	</xs:sequence>
   </xs:complexType>
-  
+
+
+
   <xs:complexType name="waveformInformation">
     <xs:sequence>
       <xs:element name="waveformName" type="xs:string"/>
@@ -291,6 +293,7 @@
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
+    <xs:element name="userParameters" type="userParameters"/>
     </xs:sequence>
   </xs:complexType>
 </xs:schema>
