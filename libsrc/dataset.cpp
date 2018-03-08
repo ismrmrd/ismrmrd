@@ -54,14 +54,14 @@ void Dataset::readHeader(std::string& xmlstring){
 // Acquisitions
 void Dataset::appendAcquisition(const Acquisition &acq)
 {
-    int status = ismrmrd_append_acquisition(&dset_, reinterpret_cast<const ISMRMRD_Acquisition*>(&acq));
+    int status = ismrmrd_append_acquisition(&dset_, &acq.acq);
     if (status != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
 }
 
 void Dataset::readAcquisition(uint32_t index, Acquisition & acq) {
-    int status = ismrmrd_read_acquisition(&dset_, index, reinterpret_cast<ISMRMRD_Acquisition*>(&acq));
+    int status = ismrmrd_read_acquisition(&dset_, index, &acq.acq);
     if (status != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }

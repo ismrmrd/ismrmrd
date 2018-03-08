@@ -439,10 +439,8 @@ static hid_t get_hdf5type_image_attribute_string(void) {
 static hid_t get_hdf5type_waveformheader(void) {
     hid_t datatype;
     herr_t h5status;
-    hsize_t arraydims[1];
-    hid_t vartype;
 
-    datatype = H5Tcreate(H5T_COMPOUND, sizeof(ISMRMRD_WaveformHeader));
+	datatype = H5Tcreate(H5T_COMPOUND, sizeof(ISMRMRD_WaveformHeader));
     h5status = H5Tinsert(datatype, "version", HOFFSET(ISMRMRD_WaveformHeader, version), H5T_NATIVE_UINT16);
     h5status = H5Tinsert(datatype, "flags", HOFFSET(ISMRMRD_WaveformHeader, flags), H5T_NATIVE_UINT64);
     h5status = H5Tinsert(datatype, "measurement_uid", HOFFSET(ISMRMRD_WaveformHeader,  measurement_uid), H5T_NATIVE_UINT32);
@@ -451,15 +449,11 @@ static hid_t get_hdf5type_waveformheader(void) {
     h5status = H5Tinsert(datatype, "number_of_samples", HOFFSET(ISMRMRD_WaveformHeader, number_of_samples), H5T_NATIVE_UINT16);
     h5status = H5Tinsert(datatype, "available_channels", HOFFSET(ISMRMRD_WaveformHeader, available_channels), H5T_NATIVE_UINT16);
     h5status = H5Tinsert(datatype, "sample_time_us", HOFFSET(ISMRMRD_WaveformHeader, sample_time_us), H5T_NATIVE_FLOAT);
+	h5status = H5Tinsert(datatype, "waveform_id", HOFFSET(ISMRMRD_WaveformHeader, waveform_id), H5T_NATIVE_UINT16);
 
-    arraydims[0] = 16;
-    vartype = H5Tarray_create2(H5T_NATIVE_CHAR, 1, arraydims);
-    h5status = H5Tinsert(datatype, "type", HOFFSET(ISMRMRD_AcquisitionHeader, position), vartype);
-    H5Tclose(vartype);
-
-    /* Clean up */
+      /* Clean up */
     if (h5status < 0) {
-        ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get imageheader data type");
+        ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get waveform header data type");
     }
 
     return  datatype;
@@ -470,20 +464,23 @@ static hid_t get_hdf5type_waveform(void) {
     hid_t datatype, vartype, vlvartype;
     herr_t h5status;
 
-    datatype = H5Tcreate(H5T_COMPOUND, sizeof(ISMRMRD_Waveform));
+    datatype = H5Tcreate(H5T_COMPOUND, sizeof(HDF5_Waveform));
     vartype = get_hdf5type_waveformheader();
-    h5status = H5Tinsert(datatype, "header", HOFFSET(ISMRMRD_Waveform, head), vartype);
+    h5status = H5Tinsert(datatype, "head", HOFFSET(HDF5_Waveform, head), vartype);
+	if (h5status < 0) {
+		ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get waveform header data type");
+	}
     H5Tclose(vartype);
-    vartype =  H5Tcopy(H5T_NATIVE_UINT32);
+	vartype = get_hdf5type_uint32();
     vlvartype = H5Tvlen_create(vartype);
-    h5status = H5Tinsert(datatype, "data", HOFFSET(ISMRMRD_Waveform, data), vlvartype);
+    h5status = H5Tinsert(datatype, "data", HOFFSET(HDF5_Waveform, data), vlvartype);
     H5Tclose(vartype);
     H5Tclose(vlvartype);
 
     /* Store acquisition data as an array of floats */
 
     if (h5status < 0) {
-        ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get acquisition data type");
+        ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed get waveform data type");
     }
 
     return datatype;
@@ -720,6 +717,12 @@ static int append_element(const ISMRMRD_Dataset * dset, const char * path,
     offset[0] = hdfdims[0]-1;
     filespace = H5Dget_space(dataset);
     h5status  = H5Sselect_hyperslab (filespace, H5S_SELECT_SET, offset, NULL, ext_dims, NULL);
+	
+	if (h5status < 0) {
+	
+		H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+		return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to select hyperslab");
+	}
     memspace = H5Screate_simple(rank, ext_dims, NULL);
 
     free(hdfdims);

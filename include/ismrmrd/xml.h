@@ -44,6 +44,13 @@ namespace ISMRMRD
       value_ = v;      
     }
 
+	const Optional& operator=(const Optional& o) {
+		present_ = o.present_;
+		if (present_)
+			value_ = o.value_;	
+		return *this;
+	}
+
     const Optional& operator=(const T& v) {
       present_ = true;
       value_ = v;

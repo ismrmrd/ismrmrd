@@ -90,6 +90,16 @@ int ismrmrd_copy_waveform(ISMRMRD_Waveform *dest, const ISMRMRD_Waveform *src) {
 
 }
 
+int ismrmrd_free_waveform(ISMRMRD_Waveform* wav) {
+	if (wav == NULL) {
+		return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
+	}
+	free(wav->data);
+	free(wav);
+	return ISMRMRD_NOERROR;
+
+}
+
 #ifdef __cplusplus
 }
 }
