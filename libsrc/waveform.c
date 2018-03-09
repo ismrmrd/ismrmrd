@@ -39,7 +39,7 @@ int ismrmrd_make_consistent_waveform(ISMRMRD_Waveform *wav) {
 }
 
 int ismrmrd_size_of_waveform_data(const ISMRMRD_Waveform *wav) {
-    return wav->head.available_channels * wav->head.number_of_samples * sizeof(uint32_t);
+    return wav->head.channels * wav->head.number_of_samples * sizeof(uint32_t);
 }
 
 
@@ -58,7 +58,7 @@ ISMRMRD_Waveform *ismrmrd_create_waveform() {
 
 int ismrmrd_init_waveformheader(ISMRMRD_WaveformHeader *hdr) {
     memset(hdr, 0, sizeof(ISMRMRD_WaveformHeader));
-    hdr->available_channels = 1;
+    hdr->channels = 1;
     hdr->version = ISMRMRD_VERSION_MAJOR;
     return ISMRMRD_NOERROR;
 

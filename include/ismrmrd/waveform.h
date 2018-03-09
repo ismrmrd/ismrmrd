@@ -26,7 +26,7 @@ typedef struct ISMRMRD_WaveformHeader
     /**< Time stamp of the waveform */
     uint16_t number_of_samples;
     /**< Number of samples acquired */
-    uint16_t available_channels;
+    uint16_t channels;
     /**< Available channels */
     float sample_time_us;
     /**< Time between samples in micro seconds */

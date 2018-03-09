@@ -447,7 +447,7 @@ static hid_t get_hdf5type_waveformheader(void) {
     h5status = H5Tinsert(datatype, "scan_counter", HOFFSET(ISMRMRD_WaveformHeader, scan_counter), H5T_NATIVE_UINT32);
     h5status = H5Tinsert(datatype, "time_stamp", HOFFSET(ISMRMRD_WaveformHeader, time_stamp ), H5T_NATIVE_UINT32);
     h5status = H5Tinsert(datatype, "number_of_samples", HOFFSET(ISMRMRD_WaveformHeader, number_of_samples), H5T_NATIVE_UINT16);
-    h5status = H5Tinsert(datatype, "available_channels", HOFFSET(ISMRMRD_WaveformHeader, available_channels), H5T_NATIVE_UINT16);
+    h5status = H5Tinsert(datatype, "channels", HOFFSET(ISMRMRD_WaveformHeader, channels), H5T_NATIVE_UINT16);
     h5status = H5Tinsert(datatype, "sample_time_us", HOFFSET(ISMRMRD_WaveformHeader, sample_time_us), H5T_NATIVE_FLOAT);
 	h5status = H5Tinsert(datatype, "waveform_id", HOFFSET(ISMRMRD_WaveformHeader, waveform_id), H5T_NATIVE_UINT16);
 
@@ -1404,7 +1404,7 @@ int ismrmrd_read_image(const ISMRMRD_Dataset *dset, const char *varname,
 }
 
 
-int ismrmrd_append_waveform(const ISMRMRD_Dataset *dset, const ISMRMRD_Waveform *acq) {
+int ismrmrd_append_waveform(const ISMRMRD_Dataset *dset, const ISMRMRD_Waveform *wav) {
     int status;
     char *path;
     hid_t datatype;
@@ -1413,20 +1413,20 @@ int ismrmrd_append_waveform(const ISMRMRD_Dataset *dset, const ISMRMRD_Waveform 
     if (dset==NULL) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL.");
     }
-    if (acq==NULL) {
+    if (wav==NULL) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Acquisition pointer should not be NULL.");
     }
 
     /* The path to the acqusition data */
-    path = make_path(dset, "waveform");
+    path = make_path(dset, "waveforms");
 
     /* The acquisition datatype */
     datatype = get_hdf5type_waveform();
 
     /* Create the HDF5 version of the acquisition */
-    hdf5wav[0].head = acq->head;
-    hdf5wav[0].data.len = acq->head.number_of_samples * acq->head.available_channels;
-    hdf5wav[0].data.p = acq->data;
+    hdf5wav[0].head = wav->head;
+    hdf5wav[0].data.len = wav->head.number_of_samples * wav->head.channels;
+    hdf5wav[0].data.p = wav->data;
 
     /* Write it */
     status = append_element(dset, path, hdf5wav, datatype, 0, NULL);
@@ -1461,7 +1461,7 @@ int ismrmrd_read_waveform(const ISMRMRD_Dataset *dset, uint32_t index, ISMRMRD_W
     }
 
     /* The path to the acquisition data */
-    path = make_path(dset, "waveform");
+    path = make_path(dset, "waveforms");
 
     /* The acquisition datatype */
     datatype = get_hdf5type_waveform();
@@ -1493,7 +1493,7 @@ uint32_t ismrmrd_get_number_of_waveforms(const ISMRMRD_Dataset *dset) {
         return 0;
     }
     /* The path to the acqusition data */
-    path = make_path(dset, "waveform");
+    path = make_path(dset, "waveforms");
     numacq = get_number_of_elements(dset, path);
     free(path);
     return numacq;

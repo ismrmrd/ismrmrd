@@ -6,18 +6,18 @@
 #include "ismrmrd/waveform.h"
 #include <algorithm>
 
-ISMRMRD::Waveform::Waveform(uint16_t number_of_samples, uint16_t available_channels) {
+ISMRMRD::Waveform::Waveform(uint16_t number_of_samples, uint16_t channels) {
 
     ismrmrd_init_waveform(this);
-    this->head.available_channels = available_channels;
+    this->head.channels = channels;
     this->head.number_of_samples = number_of_samples;
     this->head.waveform_id =0;
-	this->data = new uint32_t[this->head.available_channels*this->head.number_of_samples];
+	this->data = new uint32_t[this->head.channels*this->head.number_of_samples];
 
 
 }
 size_t ISMRMRD::Waveform::size() const {
-	return head.available_channels*head.number_of_samples;
+	return head.channels*head.number_of_samples;
 }
 
 uint32_t* ISMRMRD::Waveform::begin_data() {
