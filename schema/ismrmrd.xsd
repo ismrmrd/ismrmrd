@@ -182,6 +182,7 @@
       <xs:element maxOccurs="1" minOccurs="1" name="identifier" type="xs:string"/>
       <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterLong" type="userParameterLongType"/>
       <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterDouble" type="userParameterDoubleType"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterString" type="userParameterStringType"/>
       <xs:element maxOccurs="1" minOccurs="0" name="comment" type="xs:string"/>
     </xs:sequence>
   </xs:complexType>
@@ -243,8 +244,8 @@
 
   <xs:complexType name="accelerationFactorType">
     <xs:all>
-      <xs:element name="kspace_encoding_step_1" type="xs:unsignedShort"/>
-      <xs:element name="kspace_encoding_step_2" type="xs:unsignedShort"/>
+      <xs:element name="kspace_encoding_step_1" type="xs:double"/>
+      <xs:element name="kspace_encoding_step_2" type="xs:double"/>
     </xs:all>
   </xs:complexType>
 
@@ -275,8 +276,6 @@
   	 <xs:element maxOccurs="1" minOccurs="0" type="interleavingDimensionType" name="interleavingDimension"/>
   	</xs:sequence>
   </xs:complexType>
-
-
 
   <xs:complexType name="waveformInformation">
     <xs:sequence>
