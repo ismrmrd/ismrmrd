@@ -86,9 +86,9 @@ classdef WaveformHeader < handle
             obj.time_stamp(1,range)               = zeros(1,N,'uint32');
             obj.number_of_samples(1,range)        = zeros(1,N,'uint16');
             obj.channels(1,range)                 = zeros(1,N,'uint16');
-            obj.active_channels(1,range)          = zeros(1,N,'uint16');
+            obj.channels(1,range)                 = zeros(1,N,'uint16');
             obj.sample_time_us(1,range)           = zeros(1,N,'single');
-            ojb.waveform_id(1,range)              = zeros(1,N,'uint16');
+            obj.waveform_id(1,range)              = zeros(1,N,'uint16');
         end
         
         function append(obj, head)
@@ -152,7 +152,7 @@ classdef WaveformHeader < handle
 
             obj.version =                  reshape(typecast(reshape(bytearray(  1:   2, :), 1, 2 *      N), 'uint16'),  1, N);  % First unsigned int indicates the version %
             obj.flags =                    reshape(typecast(reshape(bytearray(  9:  16, :), 1, 8 *      N), 'uint64'),  1, N);  % bit field with flags %
-            obj.measurement_uid =          reshape(typecast(reshape(bytearray(  16: 20, :), 1, 4 *      N), 'uint32'),  1, N);  % Unique ID for the measurement %
+            obj.measurement_uid =          reshape(typecast(reshape(bytearray(  17: 20, :), 1, 4 *      N), 'uint32'),  1, N);  % Unique ID for the measurement %
             obj.scan_counter =             reshape(typecast(reshape(bytearray(  21: 24, :), 1, 4 *      N), 'uint32'),  1, N);  % Current acquisition number in the measurement %
             obj.acquisition_time_stamp =   reshape(typecast(reshape(bytearray(  25: 28, :), 1, 4 *      N), 'uint32'),  1, N);  % Acquisition clock %
             obj.number_of_samples =        reshape(typecast(reshape(bytearray(  29: 30, :), 1, 2 *      N), 'uint16'),  1, N);  % Number of samples acquired %

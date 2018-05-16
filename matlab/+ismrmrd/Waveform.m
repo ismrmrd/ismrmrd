@@ -34,7 +34,8 @@ classdef Waveform < handle
                     if isempty(data)
                         obj.data{M} = [];
                     else
-                        obj.data = data;
+                        
+                        obj.dataFromInt(data);
                     end
                     
             otherwise
@@ -80,6 +81,20 @@ classdef Waveform < handle
                 obj.head.extend(N);
             end
             obj.data{M} = []; 
+        end
+        
+        function dataFromInt(obj,v)
+            if (isempty(obj.head) || (length(v) ~= length(obj.head.version)))
+                error('Mismatch between size of head and data.  Please set head first.');
+            end
+            obj.data = cell(1,length(v));
+            for p = 1:length(v)
+                dims = [ obj.head.number_of_samples(p),...
+                        obj.head.channels(p)
+                       ];
+                buff = v{p};
+                obj.data{p} = reshape(buff, dims);
+            end
         end
 
     end
