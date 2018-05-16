@@ -4,6 +4,7 @@ classdef Dataset
         fid = -1;
         filename = '';
         datapath = '';
+        waveformpath = '';
         xmlpath = '';
         htypes = [];
     end
@@ -37,6 +38,7 @@ classdef Dataset
             grouppath = ['/' groupname];
             obj.xmlpath   = ['/' groupname '/xml'];
             obj.datapath  = ['/' groupname '/data'];
+            obj.waveformpath= ['/' groupname '/waveforms'];
 
             % Check if the group exists
             lapl_id=H5P.create('H5P_LINK_ACCESS');
@@ -266,6 +268,151 @@ classdef Dataset
             H5S.close(file_space_id);
             H5D.close(data_id);
         end
+
+
+        function nacq = getNumberOfWaveforms(obj)
+
+            % Check if the Data exists
+            lapl_id=H5P.create('H5P_LINK_ACCESS');
+            if (H5L.exists(obj.fid, obj.waveformpath, lapl_id) == 0)
+                error([obj.datapath ' does not exist in the HDF5 dataset.']);
+            end
+            dset = H5D.open(obj.fid, obj.waveformpath);
+            space = H5D.get_space(dset);
+            H5S.get_simple_extent_dims(space);
+            [~,dims,~] = H5S.get_simple_extent_dims(space);
+            nacq = dims(1);
+            H5S.close(space);
+            H5D.close(dset);
+
+        end
+
+        function block = readWaveform(obj, start, stop)
+            if nargin == 1
+                % Read all the acquisitions
+                start = 1;
+                stop = -1;
+            elseif nargin == 2
+                % Read a single acquisition
+                stop = start;
+            end
+
+            % Check if the Data exists
+            lapl=H5P.create('H5P_LINK_ACCESS');
+            if (H5L.exists(obj.fid, obj.waveformpath, lapl) == 0)
+                error([obj.waveformpath ' does not exist in the HDF5 dataset.']);
+            end
+
+            % Open the data
+            dset = H5D.open(obj.fid, obj.waveformpath);
+
+            % Open the data space
+            space = H5D.get_space(dset);
+            
+            % Get the size
+            [~,dims,~] = H5S.get_simple_extent_dims(space);
+            nacq = dims(1);
+
+            % Create a mem_space for reading
+            if (stop >= start)
+                offset = [start-1];
+                dims = [stop-start+1];
+                mem_space = H5S.create_simple(1,dims,[]);
+            else
+                offset = [0];
+                dims = [nacq];
+                mem_space = H5S.create_simple(1,dims,[]);
+            end
+
+            % Read the desired acquisitions            
+            H5S.select_hyperslab(space,'H5S_SELECT_SET',offset,[1],[1],dims);
+            d = H5D.read(dset, obj.htypes.T_Waveform, ...
+                         mem_space, space, 'H5P_DEFAULT');
+                     
+            % Pack'em
+            block = ismrmrd.Waveform(d.head, d.data);
+
+            % Clean up
+            H5S.close(mem_space);
+            H5S.close(space);
+            H5D.close(dset);
+        end
+
+        function appendWaveform(obj, wav)
+            % Append an acquisition
+
+            % TODO: Check the type of the input
+            
+            % The number of acquisitions that we are going to append
+            N = wav.getNumber();
+            
+            % Check if the Data exists
+            %   if it does not exist, create it
+            %   if it does exist increase it's size
+            lapl_id=H5P.create('H5P_LINK_ACCESS');
+            if (H5L.exists(obj.fid, obj.waveformpath, lapl_id) == 0)
+                % Data does not exist
+                %   create with rank 1, unlimited, and set the chunk size
+                dims    = [N];
+                maxdims = [H5ML.get_constant_value('H5S_UNLIMITED')];
+                file_space_id = H5S.create_simple(1, dims, maxdims);
+
+                dcpl = H5P.create('H5P_DATASET_CREATE');
+                chunk = [1];
+                H5P.set_chunk (dcpl, chunk);
+                data_id = H5D.create(obj.fid, obj.waveformpath, ...
+                                     obj.htypes.T_Waveform, ...
+                                     file_space_id, dcpl);
+                H5P.close(dcpl);
+                H5S.close(file_space_id);
+
+            else
+                % Open the data
+                data_id = H5D.open(obj.fid, obj.waveformpath);
+
+                % Open the data space
+                file_space_id = H5D.get_space(data_id);
+
+                % Get the size, increment by N
+                H5S.get_simple_extent_dims(file_space_id);
+                [~,dims,~] = H5S.get_simple_extent_dims(file_space_id);
+                dims = [dims(1)+N];
+                H5D.set_extent (data_id, dims);
+                H5S.close(file_space_id);
+
+            end
+            H5P.close(lapl_id);
+
+            % Get the file space
+            file_space_id = H5D.get_space(data_id);
+            [~,dims,~] = H5S.get_simple_extent_dims(file_space_id);
+
+            % Select the last N block
+            offset = [dims(1)-N];
+            H5S.select_hyperslab(file_space_id,'H5S_SELECT_SET',offset,[1],[1],[N]);
+
+            % Mem space
+            mem_space_id = H5S.create_simple(1,[N],[]);
+
+            % Check and fix the acquisition header types
+            wav.head.check();
+            % TODO: Error checking on the sizes of the data and trajectories.
+            
+            % Pack the acquisition into the correct struct for writing
+            d = struct();
+            d.head = wav.head.toStruct();
+            d.data = cast(wav.data,'uin32');
+            
+            % Write
+            H5D.write(data_id, obj.htypes.T_Waveform, ...
+                      mem_space_id, file_space_id, 'H5P_DEFAULT', d);
+
+            % Clean up
+            H5S.close(mem_space_id);
+            H5S.close(file_space_id);
+            H5D.close(data_id);
+        end
+
 
     end
 

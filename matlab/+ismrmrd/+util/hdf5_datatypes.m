@@ -30,6 +30,8 @@ classdef hdf5_datatypes
             obj.T_EncodingCounters = ismrmrd.util.hdf5_datatypes.getType_EncodingCounters();
             obj.T_AcquisitionHeader = ismrmrd.util.hdf5_datatypes.getType_AcquisitionHeader();
             obj.T_Acquisition = ismrmrd.util.hdf5_datatypes.getType_Acquisition();
+            obj.T_Waveform = ismrmrd.util.hdf5_datatypes.getType_Waveform();
+            obj.T_WaveformHeader = ismrmrd.util.hdf5_datatypes.getType_WaveformHeader();
         end
         
     end
@@ -122,6 +124,34 @@ classdef hdf5_datatypes
             H5T.insert(b, 'data', 360, data);
 
         end
+
+
+        function b = getType_WaveformHeader()
+            b = H5T.create('H5T_COMPOUND',36);
+            H5T.insert(b, 'version', 0, 'H5T_NATIVE_UINT16');
+            H5T.insert(b, 'flags', 8, 'H5T_NATIVE_UINT64');
+            H5T.insert(b, 'measurement_uid', 16, 'H5T_NATIVE_UINT32');
+            H5T.insert(b, 'scan_counter', 20, 'H5T_NATIVE_UINT32');
+            H5T.insert(b, 'time_stamp', 24, 'H5T_NATIVE_UINT32');
+            H5T.insert(b, 'number_of_samples', 28, 'H5T_NATIVE_UINT16');
+            H5T.insert(b, 'channels', 30, 'H5T_NATIVE_UINT16');
+            H5T.insert(b, 'sample_time_us', 32, 'H5T_NATIVE_UINT16');
+            H5T.insert(b, 'waveform_id', 34, 'H5T_NATIVE_UINT16');
+        end
+
+        function b = getType_Waveform()
+
+            head = H5T.copy(ismrmrd.util.hdf5_datatypes.getType_WaveformHeader());
+            data = H5T.vlen_create(H5T.copy('H5T_NATIVE_UINT32');
+
+            b = H5T.create ('H5T_COMPOUND', 56);
+            H5T.insert(b, 'head', 0, head);
+            H5T.insert(b, 'data', 40, data);
+
+        end
+
+
+
     end % Methods (Static)
 
 end

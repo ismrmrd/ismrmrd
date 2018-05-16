@@ -81,7 +81,7 @@ classdef Waveform < handle
             end
             obj.data{M} = []; 
         end
-            
+
     end
 
 end
