@@ -29,10 +29,7 @@ Dataset::Dataset(const char* filename, const char* groupname, bool create_file_i
 // Destructor
 Dataset::~Dataset()
 {
-    int status = ismrmrd_close_dataset(&dset_);
-    if (status != ISMRMRD_NOERROR) {
-        throw std::runtime_error(build_exception_string());
-    }
+    ismrmrd_close_dataset(&dset_);
 }
 
 // XML Header
@@ -57,14 +54,14 @@ void Dataset::readHeader(std::string& xmlstring){
 // Acquisitions
 void Dataset::appendAcquisition(const Acquisition &acq)
 {
-    int status = ismrmrd_append_acquisition(&dset_, reinterpret_cast<const ISMRMRD_Acquisition*>(&acq));
+    int status = ismrmrd_append_acquisition(&dset_, &acq.acq);
     if (status != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
 }
 
 void Dataset::readAcquisition(uint32_t index, Acquisition & acq) {
-    int status = ismrmrd_read_acquisition(&dset_, index, reinterpret_cast<ISMRMRD_Acquisition*>(&acq));
+    int status = ismrmrd_read_acquisition(&dset_, index, &acq.acq);
     if (status != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
@@ -92,6 +89,25 @@ void Dataset::appendImage(const std::string &var, const ISMRMRD_Image *im)
     if (status != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
+}
+
+
+void Dataset::appendWaveform(const Waveform &wav) {
+    int status = ismrmrd_append_waveform(&dset_,&wav);
+    if (status != ISMRMRD_NOERROR){
+        throw std::runtime_error(build_exception_string());
+    }
+}
+
+void Dataset::readWaveform(uint32_t index, Waveform &wav) {
+    int status = ismrmrd_read_waveform(&dset_,index,&wav);
+    if (status != ISMRMRD_NOERROR){
+        throw std::runtime_error(build_exception_string());
+    }
+}
+
+uint32_t Dataset::getNumberOfWaveforms() {
+    return ismrmrd_get_number_of_waveforms(&dset_);
 }
 // Specific instantiations
 template EXPORTISMRMRD void Dataset::appendImage(const std::string &var, const Image<uint16_t> &im);

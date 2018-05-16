@@ -14,6 +14,7 @@
         <xs:element maxOccurs="unbounded" minOccurs="1" name="encoding" type="encoding"/>
         <xs:element maxOccurs="1" minOccurs="0" name="sequenceParameters" type="sequenceParametersType"/>
         <xs:element maxOccurs="1" minOccurs="0" name="userParameters" type="userParameters"/>
+       <xs:element maxOccurs="32" minOccurs="0" name="waveformInformation" type="waveformInformation" />
       </xs:sequence>
     </xs:complexType>
 
@@ -273,5 +274,26 @@
   	 <xs:element maxOccurs="1" minOccurs="0" type="calibrationModeType" name="calibrationMode"/>
   	 <xs:element maxOccurs="1" minOccurs="0" type="interleavingDimensionType" name="interleavingDimension"/>
   	</xs:sequence>
+  </xs:complexType>
+
+
+
+  <xs:complexType name="waveformInformation">
+    <xs:sequence>
+      <xs:element name="waveformName" type="xs:string"/>
+      <xs:element name="waveformType">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="ecg"/>
+            <xs:enumeration value="pulse"/>
+            <xs:enumeration value="respiratory" />
+            <xs:enumeration value="trigger" />
+            <xs:enumeration value="gradientwaveform" />
+            <xs:enumeration value="other" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    <xs:element name="userParameters" type="userParameters"/>
+    </xs:sequence>
   </xs:complexType>
 </xs:schema>
