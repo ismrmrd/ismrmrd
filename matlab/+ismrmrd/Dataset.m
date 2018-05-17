@@ -395,13 +395,14 @@ classdef Dataset
             mem_space_id = H5S.create_simple(1,[N],[]);
 
             % Check and fix the acquisition header types
-            wav.head.check();
+
             % TODO: Error checking on the sizes of the data and trajectories.
             
             % Pack the acquisition into the correct struct for writing
             d = struct();
             d.head = wav.head.toStruct();
-            d.data = cast(wav.data,'uin32');
+            d.data = cellfun(@uint32,wav.data,'UniformOutput',false);
+            
             
             % Write
             H5D.write(data_id, obj.htypes.T_Waveform, ...
@@ -411,6 +412,11 @@ classdef Dataset
             H5S.close(mem_space_id);
             H5S.close(file_space_id);
             H5D.close(data_id);
+        end
+        
+        
+        function delete(obj)
+            H5F.close(obj.fid);
         end
 
 

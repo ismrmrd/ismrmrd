@@ -20,11 +20,14 @@ classdef Waveform < handle
                         % First argument is a number
                         M = arg1;
                         extend(obj,M);
-                    else                        
+                    elseif isa(arg1,'ismrmrd.WaveformHeader')
+                        obj.head = arg1;
+                        obj.initializeData();
+                    else
                         % First argument is a header (hopefully)
                         M = length(arg1.version);
                         obj.head = ismrmrd.WaveformHeader(arg1);
-                        obj.data{M} = [];
+                        obj.initializeData();
                     end
                     
                 case 2
@@ -97,6 +100,14 @@ classdef Waveform < handle
             end
         end
 
+    end
+    
+    methods(Access = private)
+        function initializeData(obj)
+            for k = 1:length(obj.head.version)
+                obj.data{k} = zeros(obj.head.number_of_samples(k),obj.head.channels(k),'uint32');
+            end
+        end
     end
 
 end
