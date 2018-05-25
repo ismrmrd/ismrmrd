@@ -21,12 +21,14 @@ classdef Acquisition < handle
                         % First argument is a number
                         M = arg1;
                         extend(obj,M);
+                    elseif isa(arg1,'ismrmrd.AcquisitionHeader')
+                        obj.head = arg1;
+                        obj.initializeData();
                     else                        
                         % First argument is a header (hopefully)
                         M = length(arg1.version);
                         obj.head = ismrmrd.AcquisitionHeader(arg1);
-                        obj.traj{M} = [];
-                        obj.data{M} = [];
+                        obj.initializeData();
                     end
                     
                 case 3
@@ -139,6 +141,16 @@ classdef Acquisition < handle
             for p = 1:length(obj.traj)
                 v{p} = single(obj.traj{p});
             end
+        end               
+    end
+    
+    methods(Access = private)
+        function initializeData(obj)
+            for k = 1:length(obj.head.version)
+                obj.data{k} = complex(zeros(obj.head.number_of_samples(k),obj.head.active_channels(k),'single'));
+                obj.traj{k} = zeros(obj.head.trajectory_dimensions(k),obj.head.number_of_samples(k),'single');
+            end
+            
         end
     end
 
