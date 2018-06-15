@@ -12,7 +12,7 @@ ISMRMRD::Waveform::Waveform(uint16_t number_of_samples, uint16_t channels) {
     this->head.channels = channels;
     this->head.number_of_samples = number_of_samples;
     this->head.waveform_id =0;
-	this->data = new uint32_t[this->head.channels*this->head.number_of_samples];
+	this->data = (uint32_t*)malloc(this->head.channels*this->head.number_of_samples* sizeof(uint32_t));
 
 
 }
@@ -54,14 +54,14 @@ ISMRMRD::Waveform::Waveform(Waveform &&other) {
 }
 
 ISMRMRD::Waveform::~Waveform() {
-	if (data != NULL) delete[] data;
+	if (data != NULL) free(data);
     
 
 }
 
 ISMRMRD::Waveform & ISMRMRD::Waveform::operator=(Waveform &&other) {
 	
-	if (data != NULL) delete[] data;
+	if (data != NULL) free(data);
     this->data = other.data;
     other.data = nullptr;
 	this->head = other.head;
@@ -70,13 +70,13 @@ ISMRMRD::Waveform & ISMRMRD::Waveform::operator=(Waveform &&other) {
 
 ISMRMRD::Waveform & ISMRMRD::Waveform::operator=(const Waveform &other) {
 	
-	if (this->data != NULL) delete[] this->data;
+	if (this->data != NULL) free(this->data);
 	
 	size_t datasize = other.size();
 	if (datasize == 0)
 		this->data = NULL;
 	else {
-		this->data = new uint32_t[datasize];
+		this->data = (uint32_t*) malloc(sizeof(uint32_t)*datasize);
 		memcpy(this->data, other.data, other.size() * sizeof(uint32_t));
 	}
 

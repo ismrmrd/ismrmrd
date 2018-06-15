@@ -99,9 +99,7 @@ Acquisition & Acquisition::operator= (const Acquisition &other) {
 }
 
 Acquisition::~Acquisition() {
-    if (ismrmrd_cleanup_acquisition(&acq) != ISMRMRD_NOERROR) {
-        throw std::runtime_error(build_exception_string());
-    }
+    ismrmrd_cleanup_acquisition(&acq);
 }
 
 // Accessors and mutators
@@ -400,9 +398,7 @@ template <typename T> Image<T> & Image<T>::operator= (const Image<T> &other)
 }
 
 template <typename T> Image<T>::~Image() {
-    if (ismrmrd_cleanup_image(&im) != ISMRMRD_NOERROR) {
-        throw std::runtime_error(build_exception_string());
-    }
+    ismrmrd_cleanup_image(&im);
 }
 
 // Image dimensions
@@ -1039,9 +1035,7 @@ template <typename T> NDArray<T>::NDArray(const NDArray<T> &other)
 
 template <typename T> NDArray<T>::~NDArray()
 {
-    if (ismrmrd_cleanup_ndarray(&arr) != ISMRMRD_NOERROR) {
-        throw std::runtime_error(build_exception_string());
-    }
+    ismrmrd_cleanup_ndarray(&arr);
 }
 
 template <typename T> NDArray<T> & NDArray<T>::operator= (const NDArray<T> &other)
