@@ -51,6 +51,15 @@ EXPORTISMRMRD int ismrmrd_copy_waveform(ISMRMRD_Waveform* dest, const ISMRMRD_Wa
 
 #ifdef __cplusplus
 }
+    struct EXPORTISMRMRD WaveformHeader : public ISMRMRD_WaveformHeader {
+
+        // Flag methods
+        bool isFlagSet(const uint64_t val);
+        void setFlag(const uint64_t val);
+        void clearFlag(const uint64_t val);
+        void clearAllFlags();
+
+    };
     struct EXPORTISMRMRD Waveform : public ISMRMRD_Waveform {
         Waveform();
         Waveform(const Waveform &other);
@@ -65,6 +74,7 @@ EXPORTISMRMRD int ismrmrd_copy_waveform(ISMRMRD_Waveform* dest, const ISMRMRD_Wa
 		size_t size() const;
     };
 }
+
 
 #endif
 #endif //ISMRMRD_WAVEFORM_H_H

@@ -5,6 +5,7 @@
 #include <cstring>
 #include "ismrmrd/waveform.h"
 #include <algorithm>
+#include <ismrmrd/ismrmrd.h>
 
 ISMRMRD::Waveform::Waveform(uint16_t number_of_samples, uint16_t channels) {
 
@@ -85,4 +86,19 @@ ISMRMRD::Waveform & ISMRMRD::Waveform::operator=(const Waveform &other) {
     return *this;
 }
 
+bool ISMRMRD::WaveformHeader::isFlagSet(const uint64_t val) {
+    return ismrmrd_is_flag_set(flags, val);
+};
+
+void ISMRMRD::WaveformHeader::setFlag(const uint64_t val) {
+    ismrmrd_set_flag(&flags, val);
+};
+
+void ISMRMRD::WaveformHeader::clearFlag(const uint64_t val) {
+    ismrmrd_clear_flag(&flags, val);
+};
+
+void ISMRMRD::WaveformHeader::clearAllFlags() {
+    ismrmrd_clear_all_flags(&flags);
+};
 
