@@ -176,11 +176,15 @@ public:
     template <typename T> void appendImage(const std::string &var, const Image<T> &im);
     void appendImage(const std::string &var, const ISMRMRD_Image *im);
     template <typename T> void readImage(const std::string &var, uint32_t index, Image<T> &im);
+    void readImage(const std::string &var, uint32_t index, ISMRMRD_Image *im);
     uint32_t getNumberOfImages(const std::string &var);
     // NDArrays
     template <typename T> void appendNDArray(const std::string &var, const NDArray<T> &arr);
     void appendNDArray(const std::string &var, const ISMRMRD_NDArray *arr);
+
+    
     template <typename T> void readNDArray(const std::string &var, uint32_t index, NDArray<T> &arr);
+    void readNDArray(const std::string &var, uint32_t index, ISMRMRD_NDArray *arr);
     uint32_t getNumberOfNDArrays(const std::string &var);
 
     //Waveforms
