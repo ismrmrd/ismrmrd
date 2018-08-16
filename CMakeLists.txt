@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.12)
 foreach(p
     CMP0025 # CMake 3.0 Compiler id for Apple Clang is now ``AppleClang``.
     CMP0042 # CMake 3.0 ``MACOSX_RPATH`` is enabled by default.
@@ -198,6 +198,12 @@ set_target_properties(ismrmrd PROPERTIES
   VERSION ${ISMRMRD_VERSION_STRING}
   SOVERSION ${ISMRMRD_SOVERSION}
 )
+
+set_target_properties(ismrmrd
+  PROPERTIES
+  EXPORT_NAME ISMRMRD
+  INTERFACE_INCLUDE_DIRECTORIES $<INSTALL_INTERFACE:include/ismrmrd>)
+
 target_link_libraries(ismrmrd ${ISMRMRD_TARGET_LINK_LIBS})
 list(APPEND ISMRMRD_LIBRARIES ismrmrd) # Add to list of libraries to be found
 list(APPEND ISMRMRD_LIBRARY_DIRS ${CMAKE_BINARY_DIR} ) # Add to list of directories to find libraries
@@ -239,17 +245,9 @@ install(DIRECTORY matlab DESTINATION share/ismrmrd )
 
 #--- Create cmake package for downstream projects
 #
-##- include(CMakePackageConfigHelpers)
-##- write_basic_package_version_file(
-##-   "${CMAKE_CURRENT_BINARY_DIR}/ISMRMRDConfigVersion.cmake"
-##-   VERSION ${ISMRMRD_VERSION_STRING}
-##-   COMPATIBILITY AnyNewerVersion
-##- )
 
-##- export(EXPORT ISMRMRDTargets
-##-  FILE "${CMAKE_CURRENT_BINARY_DIR}/ISMRMRDTargets.cmake"
-##-  NAMESPACE ISMRMRD
-##-)
+include(CMakePackageConfigHelpers)
+set(INSTALL_CONFIGDIR lib/cmake/ISMRMRD)
 
 set(CONFIG_ISMRMRD_SCHEMA_DIR   ${ISMRMRD_SCHEMA_DIR})
 set(CONFIG_ISMRMRD_TARGET_INCLUDE_DIRS ${ISMRMRD_TARGET_INCLUDE_DIRS})
@@ -267,31 +265,47 @@ if (ISMRMRD_DATASET_SUPPORT)
   list(APPEND CONFIG_ISMRMRD_LIBRARY_DIRS ${HDF5_LIBRARY_DIRS})
   list(APPEND ISMRMRD_LIBRARIES ${HDF5_LIBRARIES})
 endif ()
-configure_file(cmake/ISMRMRDConfig.cmake.in
+
+configure_package_config_file(cmake/ISMRMRDConfig.cmake.in
   "${CMAKE_CURRENT_BINARY_DIR}/InstallFiles/ISMRMRDConfig.cmake"
-  @ONLY
-)
+  INSTALL_DESTINATION ${INSTALL_CONFIGDIR})
 
-set(ConfigPackageLocation lib/cmake/ISMRMRD)
-install(
-  FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/InstallFiles/ISMRMRDConfig.cmake"
-#--    "${CMAKE_CURRENT_BINARY_DIR}/ISMRMRDConfigVersion.cmake"
-  DESTINATION
-    ${ConfigPackageLocation}
-  COMPONENT
-    Devel
-)
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/ISMRMRDConfigVersion.cmake"
+  VERSION ${ISMRMRD_VERSION_STRING}
+  COMPATIBILITY SameMajorVersion
+  )
 
-install(
-  FILES
-    cmake/FindFFTW3.cmake
-  DESTINATION
-    ${ConfigPackageLocation}
-  COMPONENT
-    Devel
-)
-  
+# Write a CMake file with all the targets information
+# (not for installing, but for external project to import targets from the
+#  current build tree)
+if(CMAKE_VERSION VERSION_LESS 3.0)
+  export(TARGETS ismrmrd
+    FILE ${CMAKE_CURRENT_BINARY_DIR}/ISMRMRDTargets.cmake
+    NAMESPACE ISMRMRD::
+    )
+else()
+  export(EXPORT ISMRMRDTargets
+    FILE ${CMAKE_CURRENT_BINARY_DIR}/ISMRMRDTargets.cmake
+    NAMESPACE ISMRMRD::
+    )
+endif()
+
+install(EXPORT ISMRMRDTargets
+  FILE ISMRMRDTargets.cmake
+  NAMESPACE ISMRMRD::
+  DESTINATION ${INSTALL_CONFIGDIR}
+  )
+
+install(FILES
+  cmake/FindFFTW3.cmake
+  "${CMAKE_CURRENT_BINARY_DIR}/ISMRMRDConfigVersion.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/InstallFiles/ISMRMRDConfig.cmake"
+  DESTINATION ${INSTALL_CONFIGDIR}
+  COMPONENT Devel)
+
+export(PACKAGE ISMRMRD)
+ 
 # Create package
 string(TOLOWER ${PROJECT_NAME} PROJECT_NAME_LOWER)
 include(${ISMRMRD_CMAKE_DIR}/ismrmrd_cpack.cmake)
