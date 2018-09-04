@@ -6,8 +6,12 @@ container:
 build_task:
   build_cache:
     folder: build
-    populate_script: mkdir build
-  cmake_script: cd build && cmake ..
-  make_script: make -j
+
+  build_script:
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make -j
+
 
 
