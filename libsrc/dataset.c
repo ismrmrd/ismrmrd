@@ -922,7 +922,7 @@ int ismrmrd_init_dataset(ISMRMRD_Dataset *dset, const char *filename,
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "NULL Dataset parameter");
     }
 
-    /* Disable HDF5 automatic error printing */
+    /* Disable HDF5 automatic error prenting */
     H5Eset_auto2(H5E_DEFAULT, NULL, NULL);
 
     dset->filename = (char *) malloc(strlen(filename) + 1);
