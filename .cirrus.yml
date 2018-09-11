@@ -10,7 +10,8 @@ build_task:
     - make -j
 window_task:
   env:
-    PATH: C:\Program Files\CMake\bin
+    PATH: $PATH ;C:\Program Files\CMake\bin
+    CIRRUS_SHELL: powershell
   windows_container:
     image: gradientsoftware/gadgetron-windows
   make_script:
