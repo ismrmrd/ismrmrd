@@ -11,7 +11,7 @@ build_task:
 window_task:
   windows_container:
     image: gradientsoftware/gadgetron-windows
-    make_script:
+  make_script:
     - mkdir build
     - cd build
     - cmake .. -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -G "Visual Studio 15 2017 Win64"
