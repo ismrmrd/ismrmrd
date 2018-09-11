@@ -1,16 +1,21 @@
+build_task:
 container:
   image: gadgetron/ubuntu1604_base
-  cpu: 4
-  memory: 10G
-
-build_task:
-  build_cache:
-    folder: build
+  # build_cache:
+  #   folder: build
   make_script:
     - mkdir build
     - cd build
     - cmake ..
     - make -j
+window_task:
+  windows_container:
+    image: gradientsoftware/gadgetron-windows
+    make_script:
+    - mkdir build
+    - cd build
+    - cmake .. -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -G "Visual Studio 15 2017 Win64"
+    - cmake --build . --config Release
 
 
 
