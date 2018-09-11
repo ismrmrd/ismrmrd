@@ -1,6 +1,6 @@
 build_task:
-container:
-  image: gadgetron/ubuntu1604_base
+  container:
+    image: gadgetron/ubuntu1604_base
   # build_cache:
   #   folder: build
   make_script:
