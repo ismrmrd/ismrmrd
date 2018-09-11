@@ -40,7 +40,7 @@ ISMRMRD::Waveform::Waveform(const Waveform &other) {
 	if (datasize == 0)
 		this->data = NULL;
 	else {
-		this->data = new uint32_t[datasize];
+		this->data = (uint32_t *)malloc(datasize* sizeof(uint32_t));
 		memcpy(this->data, other.data, other.size() * sizeof(uint32_t));
 	}
 

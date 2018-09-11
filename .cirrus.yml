@@ -1,0 +1,24 @@
+build_task:
+  container:
+    image: gadgetron/ubuntu1604_base
+  # build_cache:
+  #   folder: build
+  make_script:
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make -j
+window_task:
+  env:
+    PATH: $PATH ;C:\Program Files\CMake\bin
+    CIRRUS_SHELL: powershell
+  windows_container:
+    image: gradientsoftware/gadgetron-windows
+  make_script:
+    - mkdir build
+    - cd build
+    - cmake .. -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -G "Visual Studio 15 2017 Win64"
+    - cmake --build . --config Release
+
+
+
