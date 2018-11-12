@@ -106,15 +106,27 @@ endif()
 
 
 # Find HDF5 for dataset support
-find_package(HDF5 COMPONENTS C)
 
+
+
+
+
+if (VCPKG_TARGET_TRIPLET) #VCPKG HDF5 is packaged differently. 
+	find_package(HDF5 CONFIG COMPONENTS C shared)
+	set (HDF5_C_LIBRARIES hdf5::hdf5-shared)
+else()
+	find_package(HDF5 COMPONENTS C)
+endif()
 if (HDF5_FOUND)
     set (ISMRMRD_DATASET_SUPPORT true)
     set (ISMRMRD_DATASET_SOURCES libsrc/dataset.c libsrc/dataset.cpp)
-    set (ISMRMRD_DATASET_INCLUDE_DIR ${HDF5_INCLUDE_DIRS})
-    set (ISMRMRD_DATASET_LIBRARIES ${HDF5_LIBRARIES})
+    set (ISMRMRD_DATASET_INCLUDE_DIR ${HDF5_INCLUDE_DIR})
+    set (ISMRMRD_DATASET_LIBRARIES ${HDF5_C_LIBRARIES})
     add_definitions(${HDF5_DEFINITIONS})
-	include_directories(${HDF5_INCLUDE_DIRS})
+	include_directories(${HDF5_INCLUDE_DIR})
+    message("FNAF ${ISMRMRD_DATASET_LIBRARIES}")
+	message("HDF5 found at: ${HDF5_INCLUDE_DIR}")
+	message("HDF5 found at: ${HDF5_C_LIBRARIES}")
 else ()
     set (ISMRMRD_DATASET_SUPPORT false)
     message (WARNING "HDF5 not found. Dataset and file support unavailable!")
