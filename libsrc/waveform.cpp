@@ -3,6 +3,7 @@
 //
 
 #include <cstring>
+#include <cstdlib>
 #include "ismrmrd/waveform.h"
 #include <algorithm>
 #include <ismrmrd/ismrmrd.h>
