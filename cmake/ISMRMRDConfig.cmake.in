@@ -4,14 +4,12 @@
 #
 # This file is configured by ISMRMRD and used by the UseISMRMRD.cmake module
 # to load ISMRMRD's settings for an external project.
-@ISMRMRD_CONFIG_CODE@
 
-##- include(${CMAKE_CURRENT_LIST_DIR}/ISMRMRDConfigVersion.cmake)
+@PACKAGE_INIT@
 
-# The ISMRMRD version number
-set(ISMRMRD_VERSION_MAJOR "@ISMRMRD_VERSION_MAJOR@")
-set(ISMRMRD_VERSION_MINOR "@ISMRMRD_VERSION_MINOR@")
-set(ISMRMRD_VERSION_PATCH "@ISMRMRD_VERSION_PATCH@")
+get_filename_component(ISMRMRD_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+
+include(${ISMRMRD_CMAKE_DIR}/ISMRMRDConfigVersion.cmake)
 
 #   ISMRMRD_SCHEMA_DIR   - where to find ismrmrd.xsd 
 set(ISMRMRD_SCHEMA_DIR   "@CONFIG_ISMRMRD_SCHEMA_DIR@")
@@ -22,8 +20,36 @@ set(ISMRMRD_LIBRARY_DIRS "@CONFIG_ISMRMRD_LIBRARY_DIRS@")
 #   ISMRMRD_LIBRARIES    - i.e. ismrmrd
 set(ISMRMRD_LIBRARIES    "@ISMRMRD_LIBRARIES@")
 
+set(USE_SYSTEM_PUGIXML @USE_SYSTEM_PUGIXML@)
+
 ## For backwards compatibility use existing variable name
 ## Include directories can be lists, and should be plural
 ## to conform with naming schemes in many other cmake packages
 set(ISMRMRD_INCLUDE_DIR  "@CONFIG_ISMRMRD_TARGET_INCLUDE_DIRS@")
 set(ISMRMRD_LIB_DIR "@CONFIG_ISMRMRD_LIBRARY_DIRS@")
+
+# ------------------------------------------------------------------------------
+
+include(CMakeFindDependencyMacro)
+
+list(INSERT CMAKE_MODULE_PATH 0 ${ISMRMRD_CMAKE_DIR})
+
+if(USE_SYSTEM_PUGIXML)
+  find_dependency(PugiXML)
+endif()
+
+if(CMAKE_VERSION VERSION_LESS 3.9)
+  # CMake <= 3.8 find_dependency does not support COMPONENTS
+  find_package(HDF5 COMPONENTS C)
+else()
+  find_dependency(HDF5 COMPONENTS C)
+endif()
+
+list(REMOVE_AT CMAKE_MODULE_PATH 0)
+
+# ==============================================================================
+
+set_and_check(ISMRMRDTargets "${ISMRMRD_CMAKE_DIR}/ISMRMRDTargets.cmake")
+include(${ISMRMRDTargets})
+
+# ==============================================================================
