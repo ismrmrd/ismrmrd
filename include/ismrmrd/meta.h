@@ -244,6 +244,18 @@ namespace ISMRMRD
         return map_.empty();
     }
 
+    void get_all_keys(std::vector<std::string>& keys)
+    {
+        keys.clear();
+
+        MetaContainer::map_t::iterator it = this->map_.begin();
+        while (it != this->map_.end())
+        {
+            keys.push_back(it->first);
+            it++;
+        }
+    }
+
   protected:
     map_t map_; 
   };
