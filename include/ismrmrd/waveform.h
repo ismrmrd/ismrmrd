@@ -10,6 +10,8 @@
 #include <cstdint>
 namespace ISMRMRD {
 extern "C" {
+#else
+#include <stdint.h>
 #endif
 
 typedef struct ISMRMRD_WaveformHeader
