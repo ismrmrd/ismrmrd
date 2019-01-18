@@ -954,7 +954,7 @@ template <typename T> void Image<T>::setAttributeString(const char *attr)
 
     // Set the null terminator and copy the string
     im.attribute_string[length] = '\0';
-    strncpy(im.attribute_string, attr, length);
+    strncpy(im.attribute_string, attr, length+1);
 }
 
 template <typename T> size_t Image<T>::getAttributeStringLength() const
