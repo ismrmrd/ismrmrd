@@ -478,13 +478,13 @@ public:
     AcquisitionHeader();
 
     // Flag methods
-    bool isFlagSet(const ISMRMRD_AcquisitionFlags val);
+    bool isFlagSet(const ISMRMRD_AcquisitionFlags val) const;
     void setFlag(const ISMRMRD_AcquisitionFlags val);
     void clearFlag(const ISMRMRD_AcquisitionFlags val);
     void clearAllFlags();
 
     // Channel mask methods
-    bool isChannelActive(uint16_t channel_id);
+    bool isChannelActive(uint16_t channel_id) const;
     void setChannelActive(uint16_t channel_id);
     void setChannelNotActive(uint16_t channel_id);
     void setAllChannelsNotActive();
