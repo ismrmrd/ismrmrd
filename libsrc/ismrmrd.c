@@ -565,7 +565,7 @@ int ismrmrd_set_all_channels_off(uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS]) {
     return ISMRMRD_NOERROR;
 }
     
-int ismrmrd_sign_of_directions(float read_dir[3], float phase_dir[3], float slice_dir[3]) {
+int ismrmrd_sign_of_directions(float const read_dir[3], float const phase_dir[3], float const slice_dir[3]) {
     float r11 = read_dir[0], r12 = phase_dir[0], r13 = slice_dir[0];
     float r21 = read_dir[1], r22 = phase_dir[1], r23 = slice_dir[1];
     float r31 = read_dir[2], r32 = phase_dir[2], r33 = slice_dir[2];
@@ -581,8 +581,8 @@ int ismrmrd_sign_of_directions(float read_dir[3], float phase_dir[3], float slic
     }
 }
 
-void ismrmrd_directions_to_quaternion(float read_dir[3], float phase_dir[3],
-                                      float slice_dir[3], float quat[4]) {
+void ismrmrd_directions_to_quaternion(float const read_dir[3], float const phase_dir[3],
+                                      float const slice_dir[3], float quat[4]) {
     float r11 = read_dir[0], r12 = phase_dir[0], r13 = slice_dir[0];
     float r21 = read_dir[1], r22 = phase_dir[1], r23 = slice_dir[1];
     float r31 = read_dir[2], r32 = phase_dir[2], r33 = slice_dir[2];
@@ -655,7 +655,7 @@ void ismrmrd_directions_to_quaternion(float read_dir[3], float phase_dir[3],
 }
 
 /* http://www.cs.princeton.edu/~gewang/projects/darth/stuff/quat_faq.html#Q54 */
-void ismrmrd_quaternion_to_directions(float quat[4], float read_dir[3],
+void ismrmrd_quaternion_to_directions(float const quat[4], float read_dir[3],
                                       float phase_dir[3], float slice_dir[3]) {
     float a = quat[0], b = quat[1], c = quat[2], d = quat[3];
     

@@ -421,13 +421,13 @@ bool ismrmrd_pop_error(char **file, int *line, char **func,
  *  @{
  */
 /** Calculates the determinant of the matrix and return the sign */
-EXPORTISMRMRD int ismrmrd_sign_of_directions(float read_dir[3], float phase_dir[3], float slice_dir[3]);
+EXPORTISMRMRD int ismrmrd_sign_of_directions(float const read_dir[3], float const phase_dir[3], float const slice_dir[3]);
 
 /** Creates a normalized quaternion from a 3x3 rotation matrix */
-EXPORTISMRMRD void ismrmrd_directions_to_quaternion(float read_dir[3], float phase_dir[3], float slice_dir[3], float quat[4]);
+EXPORTISMRMRD void ismrmrd_directions_to_quaternion(float const read_dir[3], float const phase_dir[3], float const slice_dir[3], float quat[4]);
 
 /** Converts a quaternion of the form | a b c d | to a 3x3 rotation matrix */
-EXPORTISMRMRD void ismrmrd_quaternion_to_directions(float quat[4], float read_dir[3], float phase_dir[3], float slice_dir[3]);
+EXPORTISMRMRD void ismrmrd_quaternion_to_directions(float const quat[4], float read_dir[3], float phase_dir[3], float slice_dir[3]);
 /** @} */
 
 #pragma pack(pop) /* Restore old alignment */
