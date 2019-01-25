@@ -19,7 +19,7 @@ AcquisitionHeader::AcquisitionHeader() {
 }
 
 // Flag methods
-bool AcquisitionHeader::isFlagSet(const ISMRMRD_AcquisitionFlags val) {
+bool AcquisitionHeader::isFlagSet(const ISMRMRD_AcquisitionFlags val) const {
     return ismrmrd_is_flag_set(flags, val);
 }
 
@@ -36,7 +36,7 @@ void AcquisitionHeader::clearAllFlags() {
 }
 
 // Channel mask methods
-bool AcquisitionHeader::isChannelActive(uint16_t channel_id) {
+bool AcquisitionHeader::isChannelActive(uint16_t channel_id) const {
     return ismrmrd_is_channel_on(channel_mask, channel_id);
 }
 void AcquisitionHeader::setChannelActive(uint16_t channel_id) {
