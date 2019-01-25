@@ -149,6 +149,7 @@ namespace ISMRMRD {
 
     /// Meta Container
     class MetaContainer {
+    protected:
         typedef std::map<std::string, std::vector<MetaValue> > map_t;
 
     public:
@@ -216,7 +217,7 @@ namespace ISMRMRD {
             return it->second[index];
         }
 
-        bool empty() {
+        bool empty() const {
             return map_.empty();
         }
 
