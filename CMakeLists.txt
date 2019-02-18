@@ -192,7 +192,7 @@ if(USE_SYSTEM_PUGIXML)
     list(APPEND ISMRMRD_TARGET_LINK_LIBS pugixml)
 	else()
 		find_package(PugiXML REQUIRED)
-		endif()
+
     message("Found system pugixml: ${PugiXML_INCLUDE_DIR} ${PugiXML_LIBRARY}")
     list(APPEND ISMRMRD_TARGET_INCLUDE_DIRS ${PugiXML_INCLUDE_DIR})
     list(APPEND ISMRMRD_TARGET_LINK_LIBS ${PugiXML_LIBRARY})
