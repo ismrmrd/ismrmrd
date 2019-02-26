@@ -30,6 +30,14 @@ uint32_t* ISMRMRD::Waveform::end_data() {
 	return data + this->size();
 }
 
+const uint32_t* ISMRMRD::Waveform::begin_data() const {
+	return data;
+}
+
+const uint32_t* ISMRMRD::Waveform::end_data() const {
+	return data + this->size();
+}
+
 ISMRMRD::Waveform::Waveform() {
     ismrmrd_init_waveform(this);
 }

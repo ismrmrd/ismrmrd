@@ -161,7 +161,7 @@ enum ISMRMRD_AcquisitionFlags {
     ISMRMRD_ACQ_IS_DUMMYSCAN_DATA                   = 27,
     ISMRMRD_ACQ_IS_RTFEEDBACK_DATA                  = 28,
     ISMRMRD_ACQ_IS_SURFACECOILCORRECTIONSCAN_DATA   = 29,
-    
+
 
     ISMRMRD_ACQ_COMPRESSION1                        = 53,
     ISMRMRD_ACQ_COMPRESSION2                        = 54,
