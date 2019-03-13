@@ -187,7 +187,7 @@ set(ISMRMRD_TARGET_LINK_LIBS ${ISMRMRD_DATASET_LIBRARIES})
 # optional handling of system-installed pugixml
 if(USE_SYSTEM_PUGIXML)
 
-	if (VCPKG_TARGET_TRIPLET) #VCPKG . 
+	if (VCPKG_TARGET_TRIPLET) #VCPKG .
     find_package(PugiXML CONFIG REQUIRED)
     list(APPEND ISMRMRD_TARGET_LINK_LIBS pugixml)
 	else()

@@ -73,6 +73,8 @@ EXPORTISMRMRD int ismrmrd_copy_waveform(ISMRMRD_Waveform* dest, const ISMRMRD_Wa
 
 		uint32_t* begin_data();
 		uint32_t* end_data();
+        const uint32_t* begin_data() const;
+		const uint32_t* end_data() const;
 		size_t size() const;
     };
 }
