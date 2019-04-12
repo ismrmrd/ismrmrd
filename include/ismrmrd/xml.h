@@ -44,17 +44,25 @@ namespace ISMRMRD
       value_ = v;      
     }
 
-	const Optional& operator=(const Optional& o) {
+	Optional& operator=(const Optional& o) {
 		present_ = o.present_;
 		if (present_)
 			value_ = o.value_;	
 		return *this;
 	}
 
-    const Optional& operator=(const T& v) {
+    Optional& operator=(const T& v) {
       present_ = true;
       value_ = v;
       return *this;
+    }
+
+     T* operator->() {
+      return &value_;
+    }
+
+    T& operator*() {
+      return value_;
     }
 
     const T* operator->() const {
@@ -79,6 +87,15 @@ namespace ISMRMRD
       }
       return value_;
     }
+
+
+    const T& get() const  {
+      if (!present_) {
+	throw std::runtime_error("Access optional value, which has not been set");
+      }
+      return value_;
+    }
+
     
     T& operator()() {
       return get();
