@@ -35,7 +35,10 @@ include(CMakeFindDependencyMacro)
 list(INSERT CMAKE_MODULE_PATH 0 ${ISMRMRD_CMAKE_DIR})
 
 if(USE_SYSTEM_PUGIXML)
-  find_dependency(PugiXML)
+  find_package(PugiXML CONFIG)
+  if (NOT PUGIXML_FOUND)
+    find_dependency(PugiXML)
+  endif()
 endif()
 
 if(CMAKE_VERSION VERSION_LESS 3.9)
