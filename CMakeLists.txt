@@ -18,15 +18,12 @@ set (ISMRMRD_CMAKE_DIR ${PROJECT_SOURCE_DIR}/cmake CACHE PATH
   "Location of CMake scripts")
 
 # command line options
-option(USE_SYSTEM_PUGIXML "Use pugixml installed on the system" OFF)
+option(USE_SYSTEM_PUGIXML "Use pugixml installed on the system" ON)
+option(USE_HDF5_DATASET_SUPPORT "Compile with support for reading and writing datasets to HDF5 files" ON)
 
 # and include it to the search list
 list(APPEND CMAKE_MODULE_PATH ${ISMRMRD_CMAKE_DIR})
 
-# whether to install dependencies
-if (WIN32)
-    option(ISMRMRD_INSTALL_DEPENDENCIES "Install ismrmrd dependencies in windows" Off)
-endif ()
 
 # set the build type to Release if not specified
 if(NOT CMAKE_BUILD_TYPE)
@@ -108,27 +105,25 @@ endif()
 # Find HDF5 for dataset support
 
 
-
-
-
-if (VCPKG_TARGET_TRIPLET) #VCPKG HDF5 is packaged differently. 
-	find_package(HDF5 CONFIG COMPONENTS C shared)
-	set (HDF5_C_LIBRARIES hdf5::hdf5-shared)
-else()
-	find_package(HDF5 COMPONENTS C)
-endif()
-if (HDF5_FOUND)
-    set (ISMRMRD_DATASET_SUPPORT true)
-    set (ISMRMRD_DATASET_SOURCES libsrc/dataset.c libsrc/dataset.cpp)
-    set (ISMRMRD_DATASET_INCLUDE_DIR ${HDF5_INCLUDE_DIRS})
-    set (ISMRMRD_DATASET_LIBRARIES ${HDF5_C_LIBRARIES})
+if (USE_HDF5_DATASET_SUPPORT)
+    if (VCPKG_TARGET_TRIPLET) #VCPKG HDF5 is packaged differently.
+        find_package(HDF5 CONFIG COMPONENTS C shared REQUIRED)
+        set(HDF5_C_LIBRARIES hdf5::hdf5-shared)
+    else ()
+        find_package(HDF5 COMPONENTS C REQUIRED)
+    endif ()
+    set(ISMRMRD_DATASET_SUPPORT true)
+    set(ISMRMRD_DATASET_SOURCES libsrc/dataset.c libsrc/dataset.cpp)
+    set(ISMRMRD_DATASET_INCLUDE_DIR ${HDF5_INCLUDE_DIRS})
+    set(ISMRMRD_DATASET_LIBRARIES ${HDF5_C_LIBRARIES})
     add_definitions(${HDF5_DEFINITIONS})
-	include_directories(${HDF5_INCLUDE_DIRS})
-	message("HDF5 found at: ${HDF5_INCLUDE_DIR}")
-	message("HDF5 found at: ${HDF5_C_LIBRARIES}")
+    include_directories(${HDF5_INCLUDE_DIRS})
+    message("HDF5 found at: ${HDF5_INCLUDE_DIR}")
+    message("HDF5 found at: ${HDF5_C_LIBRARIES}")
+
 else ()
-    set (ISMRMRD_DATASET_SUPPORT false)
-    message (WARNING "HDF5 not found. Dataset and file support unavailable!")
+    set(ISMRMRD_DATASET_SUPPORT false)
+    message(WARNING " Dataset and file support unavailable!")
 endif ()
 
 # Generate the version.h header file
@@ -155,15 +150,6 @@ install(FILES ${CMAKE_BINARY_DIR}/include/ismrmrd/version.h DESTINATION include/
 
 #  ---   Main Library  (begin) ----
 # in windows, install the HDF5 dependencies
-if (HDF5_FOUND AND WIN32 AND ISMRMRD_INSTALL_DEPENDENCIES)
-    if(DEFINED ENV{HDF5_ROOT})
-        set(HDF5_BIN_DIR $ENV{HDF5_ROOT}/bin)
-    else ()
-        set(HDF5_BIN_DIR ${HDF5_C_INCLUDE_DIR}/../bin)
-    endif ()
-    message("Install hdf5 libraries from ${HDF5_BIN_DIR} ")
-    install( DIRECTORY ${HDF5_BIN_DIR} DESTINATION bin/.. FILES_MATCHING PATTERN "*.dll" )
-endif ()
 
 # include directories for main library
 set(ISMRMRD_TARGET_INCLUDE_DIRS
@@ -185,23 +171,23 @@ set(ISMRMRD_TARGET_SOURCES
 set(ISMRMRD_TARGET_LINK_LIBS ${ISMRMRD_DATASET_LIBRARIES})
 
 # optional handling of system-installed pugixml
-if(USE_SYSTEM_PUGIXML)
+if (USE_SYSTEM_PUGIXML)
 
-	if (VCPKG_TARGET_TRIPLET) #VCPKG .
-    find_package(PugiXML CONFIG REQUIRED)
-    list(APPEND ISMRMRD_TARGET_LINK_LIBS pugixml)
-	else()
-		find_package(PugiXML REQUIRED)
+    if (VCPKG_TARGET_TRIPLET) #VCPKG .
+        find_package(PugiXML CONFIG REQUIRED)
+        list(APPEND ISMRMRD_TARGET_LINK_LIBS pugixml)
+    else ()
+        find_package(PugiXML REQUIRED)
 
-    message("Found system pugixml: ${PugiXML_INCLUDE_DIR} ${PugiXML_LIBRARY}")
-    list(APPEND ISMRMRD_TARGET_INCLUDE_DIRS ${PugiXML_INCLUDE_DIR})
-    list(APPEND ISMRMRD_TARGET_LINK_LIBS ${PugiXML_LIBRARY})
-  list(APPEND ISMRMRD_TARGET_INCLUDE_DIRS ${PugiXML_INCLUDE_DIR})
-  list(APPEND ISMRMRD_TARGET_LINK_LIBS ${PugiXML_LIBRARY})
-  endif()
-else()
-  list(APPEND ISMRMRD_TARGET_SOURCES libsrc/pugixml.cpp)
-endif()
+        message("Found system pugixml: ${PugiXML_INCLUDE_DIR} ${PugiXML_LIBRARY}")
+        list(APPEND ISMRMRD_TARGET_INCLUDE_DIRS ${PugiXML_INCLUDE_DIR})
+        list(APPEND ISMRMRD_TARGET_LINK_LIBS ${PugiXML_LIBRARY})
+        list(APPEND ISMRMRD_TARGET_INCLUDE_DIRS ${PugiXML_INCLUDE_DIR})
+        list(APPEND ISMRMRD_TARGET_LINK_LIBS ${PugiXML_LIBRARY})
+    endif ()
+else ()
+    list(APPEND ISMRMRD_TARGET_SOURCES libsrc/pugixml.cpp)
+endif ()
 
 # main library
 include_directories(${ISMRMRD_TARGET_INCLUDE_DIRS})
