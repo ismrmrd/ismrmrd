@@ -18,7 +18,7 @@ set (ISMRMRD_CMAKE_DIR ${PROJECT_SOURCE_DIR}/cmake CACHE PATH
   "Location of CMake scripts")
 
 # command line options
-option(USE_SYSTEM_PUGIXML "Use pugixml installed on the system" ON)
+option(USE_SYSTEM_PUGIXML "Use pugixml installed on the system" OFF)
 option(USE_HDF5_DATASET_SUPPORT "Compile with support for reading and writing datasets to HDF5 files" ON)
 
 # and include it to the search list
