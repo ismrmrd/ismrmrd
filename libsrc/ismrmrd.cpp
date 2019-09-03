@@ -86,6 +86,7 @@ Acquisition & Acquisition::operator= (const Acquisition &other) {
     int err = 0;
     if (this != &other )
     {
+        ismrmrd_cleanup_acquisition(&acq);
         err = ismrmrd_init_acquisition(&acq);
         if (err) {
             throw std::runtime_error(build_exception_string());
