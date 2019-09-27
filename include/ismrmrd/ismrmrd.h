@@ -443,9 +443,13 @@ std::string build_exception_string(void);
 /// Some typedefs to beautify the namespace
 typedef  ISMRMRD_EncodingCounters EncodingCounters;
 
+
 /** @addtogroup cxxapi
  *  @{
  */
+
+
+bool operator==(const EncodingCounters& ec1, const EncodingCounters& ec2);
 
 /// Allowed data types for Images and NDArrays
 template <typename T> EXPORTISMRMRD ISMRMRD_DataTypes get_data_type();
@@ -476,6 +480,9 @@ class EXPORTISMRMRD AcquisitionHeader: public ISMRMRD_AcquisitionHeader {
 public:
     // Constructors
     AcquisitionHeader();
+
+
+    bool operator==(const AcquisitionHeader& acq) const;
 
     // Flag methods
     bool isFlagSet(const ISMRMRD_AcquisitionFlags val) const;

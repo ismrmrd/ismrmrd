@@ -8,6 +8,21 @@
 
 namespace ISMRMRD {
 
+
+bool operator==(const EncodingCounters& ec1, const EncodingCounters& ec2){
+    return ec1.kspace_encode_step_1 == ec2.kspace_encode_step_1 &&
+        ec1.kspace_encode_step_2 == ec2.kspace_encode_step_2 &&
+        ec1.average == ec2.average &&
+        ec1.slice == ec2.slice &&
+        ec1.contrast == ec2.contrast &&
+        ec1.phase == ec2.phase &&
+        ec1.repetition == ec2.repetition &&
+        ec1.set == ec2.set &&
+        ec1.segment == ec2.segment &&
+        std::equal(std::begin(ec1.user),std::end(ec1.user),std::begin(ec2.user));
+
+
+}
 //
 // AcquisitionHeader class implementation
 //
@@ -49,6 +64,33 @@ void AcquisitionHeader::setAllChannelsNotActive() {
     ismrmrd_set_all_channels_off(channel_mask);
 }
 
+bool AcquisitionHeader::operator==(const AcquisitionHeader &hdr) const {
+
+    return version == hdr.version &&
+           flags == hdr.flags &&
+           measurement_uid == hdr.measurement_uid &&
+           scan_counter == hdr.scan_counter &&
+           acquisition_time_stamp == hdr.acquisition_time_stamp &&
+           std::equal(std::begin(physiology_time_stamp), std::end(physiology_time_stamp), std::begin(hdr.physiology_time_stamp)) &&
+           number_of_samples == hdr.number_of_samples &&
+           available_channels == hdr.available_channels &&
+           active_channels == hdr.active_channels &&
+           std::equal(std::begin(channel_mask), std::end(channel_mask), std::begin(hdr.channel_mask)) &&
+           discard_pre == hdr.discard_pre &&
+           discard_post == hdr.discard_post &&
+           center_sample == hdr.center_sample &&
+           encoding_space_ref == hdr.encoding_space_ref &&
+           trajectory_dimensions == hdr.trajectory_dimensions &&
+           sample_time_us == hdr.sample_time_us &&
+           std::equal(std::begin(position), std::end(position), std::begin(hdr.position)) &&
+           std::equal(std::begin(read_dir), std::end(read_dir), std::begin(hdr.read_dir)) &&
+           std::equal(std::begin(phase_dir), std::end(phase_dir), std::begin(hdr.phase_dir)) &&
+           std::equal(std::begin(slice_dir), std::end(slice_dir), std::begin(hdr.slice_dir)) &&
+           std::equal(std::begin(patient_table_position), std::end(patient_table_position), std::begin(hdr.patient_table_position)) &&
+           idx == hdr.idx &&
+           std::equal(std::begin(user_int), std::end(user_int), std::begin(hdr.user_int)) &&
+           std::equal(std::begin(user_int), std::end(user_int), std::begin(hdr.user_int));
+}
 
 //
 // Acquisition class Implementation
@@ -419,7 +461,7 @@ template <typename T> void Image<T>::resize(uint16_t matrix_size_x,
     if (channels == 0) {
         channels = 1;
     }
-    
+
     im.head.matrix_size[0] = matrix_size_x;
     im.head.matrix_size[1] = matrix_size_y;
     im.head.matrix_size[2] = matrix_size_z;
@@ -604,10 +646,10 @@ template <typename T> float Image<T>::getReadDirectionZ() const
 
 template <typename T> void Image<T>::setReadDirectionZ(float z)
 {
-    im.head.read_dir[2] = z;    
+    im.head.read_dir[2] = z;
 }
 
-    
+
 template <typename T> void Image<T>::setPhaseDirection(float x, float y, float z)
 {
     im.head.phase_dir[0] = x;
@@ -681,7 +723,7 @@ template <typename T> void Image<T>::setSliceDirectionZ(float z)
 {
     im.head.slice_dir[2] = z;
 }
-    
+
 template <typename T> void Image<T>::setPatientTablePosition(float x, float y, float z)
 {
     im.head.patient_table_position[0] = x;
@@ -779,7 +821,7 @@ template <typename T> void  Image<T>::setPhase(uint16_t phase)
 {
     im.head.phase = phase;
 }
-    
+
 template <typename T> uint16_t Image<T>::getRepetition() const
 {
     return im.head.repetition;
@@ -850,7 +892,7 @@ template <typename T> void Image<T>::setImageSeriesIndex(uint16_t image_series_i
     im.head.image_series_index = image_series_index;
 }
 
-    
+
 // User parameters
 template <typename T> float Image<T>::getUserFloat(unsigned int index) const
 {
@@ -913,7 +955,7 @@ template <typename T> void Image<T>::setHead(const ImageHeader &other) {
     if (other.data_type != im.head.data_type) {
         throw std::runtime_error("Cannot assign a header of a different data type.");
     }
-    
+
     memcpy(&im.head, &other, sizeof(ImageHeader));
     if (ismrmrd_make_consistent_image(&im) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
@@ -1069,7 +1111,7 @@ template <typename T> ISMRMRD_DataTypes NDArray<T>::getDataType() const {
 template <typename T> uint16_t NDArray<T>::getNDim() const {
     return  arr.ndim;
 };
-    
+
 template <typename T> const size_t (&NDArray<T>::getDims())[ISMRMRD_NDARRAY_MAXDIM] {
     return arr.dims;
 };
