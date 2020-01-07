@@ -235,7 +235,9 @@ endif ()
 
 # TODO: make this work on Windows
 if (NOT WIN32)
-    add_subdirectory(tests)
+   if (NOT Boost_USE_STATIC_LIBS)
+      add_subdirectory(tests)
+   endif ()
 endif ()
 
 # install the matlab api
