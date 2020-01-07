@@ -13,6 +13,11 @@ foreach(p
 endforeach()
 project(ISMRMRD)
 
+message("")
+message("*** Please remember to have environment variables SDKTOP and HDF5_ROOT set, so ***")
+message("*** cmake will configure ISMRMRD build to use these components from Orchestra. ***")
+message("")
+
 # set project specific cmake module path
 set (ISMRMRD_CMAKE_DIR ${PROJECT_SOURCE_DIR}/cmake CACHE PATH
   "Location of CMake scripts")
@@ -45,8 +50,13 @@ if (WIN32)
     set(CMAKE_MODULE_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
     add_definitions(-D__func__=__FUNCTION__)
 else ()
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wall")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w    -std=c++11 -D_GLIBCXX_USE_CXX11_ABI=0")
+    set(Boost_USE_STATIC_LIBS       "ON")
+    set(Boost_NO_SYSTEM_PATHS       "TRUE")
+    set(BOOST_ROOT                  "$ENV{SDKTOP}/3p")
+    set(HDF5_USE_STATIC_LIBRARIES   "yes")
+    set(CMAKE_C_FLAGS               "${CMAKE_C_FLAGS} -std=c99 -Wall")
+    set(CMAKE_CXX_FLAGS             "${CMAKE_CXX_FLAGS} -w -std=c++11 -D_GLIBCXX_USE_CXX11_ABI=0")
+    set(CMAKE_EXE_LINKER_FLAGS      "-lpthread -lz -ldl")
 endif ()
 
 #  ---   VERSIONING  (begin) ----
