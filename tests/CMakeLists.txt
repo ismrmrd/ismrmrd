@@ -6,7 +6,7 @@ if (NOT Boost_UNIT_TEST_FRAMEWORK_FOUND)
 endif ()
 
 if (NOT Boost_USE_STATIC_LIBS)
-    add_compile_definitions(BOOST_TEST_DYN_LINK)
+    add_definitions(-DBOOST_TEST_DYN_LINK)
 endif()
 
 include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include ${Boost_INCLUDE_DIR})
