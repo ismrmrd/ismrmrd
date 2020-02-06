@@ -13,11 +13,6 @@ foreach(p
 endforeach()
 project(ISMRMRD)
 
-message("")
-message("*** Please remember to have environment variables SDKTOP and HDF5_ROOT set, so ***")
-message("*** cmake will configure ISMRMRD build to use these components from Orchestra. ***")
-message("")
-
 # set project specific cmake module path
 set (ISMRMRD_CMAKE_DIR ${PROJECT_SOURCE_DIR}/cmake CACHE PATH
   "Location of CMake scripts")
@@ -25,6 +20,16 @@ set (ISMRMRD_CMAKE_DIR ${PROJECT_SOURCE_DIR}/cmake CACHE PATH
 # command line options
 option(USE_SYSTEM_PUGIXML "Use pugixml installed on the system" OFF)
 option(USE_HDF5_DATASET_SUPPORT "Compile with support for reading and writing datasets to HDF5 files" ON)
+# If defined, this will modify the build enviornment to use General Electric's Libaries,
+# which are needed to link against and use their SDK to open and process their raw data.
+option(build4GE FALSE OFF)
+
+if (build4GE)
+   message("")
+   message("*** Please remember to have environment variables SDKTOP so cmake will set ***")
+   message("*** up the ISMRMRD build to use HDF5 and Boost components from Orchestra.  ***")
+   message("")
+endif()
 
 # and include it to the search list
 list(APPEND CMAKE_MODULE_PATH ${ISMRMRD_CMAKE_DIR})
@@ -49,14 +54,19 @@ if (WIN32)
     set(CMAKE_STATIC_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
     set(CMAKE_MODULE_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
     add_definitions(-D__func__=__FUNCTION__)
-else ()
+elseif(build4GE)
+    message (STATUS, " Setting up ISMRMRD build to use GE SDK components for GE converter.")
+    set(HDF5_ROOT                   "$ENV{SDKTOP}/3p")
+    set(BOOST_ROOT                  "$ENV{SDKTOP}/3p")
     set(Boost_USE_STATIC_LIBS       "ON")
     set(Boost_NO_SYSTEM_PATHS       "TRUE")
-    set(BOOST_ROOT                  "$ENV{SDKTOP}/3p")
     set(HDF5_USE_STATIC_LIBRARIES   "yes")
     set(CMAKE_C_FLAGS               "${CMAKE_C_FLAGS} -std=c99 -Wall")
     set(CMAKE_CXX_FLAGS             "${CMAKE_CXX_FLAGS} -w -std=c++11 -D_GLIBCXX_USE_CXX11_ABI=0")
     set(CMAKE_EXE_LINKER_FLAGS      "-lpthread -lz -ldl")
+else()
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wall")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
 endif ()
 
 #  ---   VERSIONING  (begin) ----
@@ -245,7 +255,7 @@ endif ()
 
 # TODO: make this work on Windows
 if (NOT WIN32)
-   if (NOT Boost_USE_STATIC_LIBS)
+   if (NOT build4GE)
       add_subdirectory(tests)
    endif ()
 endif ()

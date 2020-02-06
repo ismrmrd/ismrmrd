@@ -36,6 +36,7 @@ int main(int argc, char** argv)
 	unsigned int ros;           //Readout ovesampling
 	unsigned int repetitions;
 	unsigned int acc_factor;
+	unsigned int cal_width; // Calibration area width (readouts)
 	float noise_level;
 	std::string outfile;
 	std::string dataset;
@@ -49,8 +50,9 @@ int main(int argc, char** argv)
 	    ("coils,c", po::value<unsigned int>(&ncoils)->default_value(8), "Number of Coils")
 	    ("oversampling,O", po::value<unsigned int>(&ros)->default_value(2), "Readout oversampling")
 	    ("repetitions,r", po::value<unsigned int>(&repetitions)->default_value(1), "Repetitions")
-	    ("acceleration,a", po::value<unsigned int>(&acc_factor)->default_value(1), "Acceleration factor")
-	    ("noise-level,n", po::value<float>(&noise_level)->default_value(0.05f,"0.05"), "Noise Level")
+		("acceleration,a", po::value<unsigned int>(&acc_factor)->default_value(1), "Acceleration factor")
+		("calibration-width,w", po::value<unsigned int>(&cal_width)->default_value(0), "Callibration area width")
+		("noise-level,n", po::value<float>(&noise_level)->default_value(0.05f,"0.05"), "Noise Level")
 	    ("output,o", po::value<std::string>(&outfile)->default_value("testdata.h5"), "Output File Name")
 	    ("dataset,d", po::value<std::string>(&dataset)->default_value("dataset"), "Output Dataset Name")
 	    ("noise-calibration,C", po::value<bool>(&noise_calibration)->zero_tokens(), "Add noise calibration")
@@ -116,6 +118,9 @@ int main(int argc, char** argv)
         acq.available_channels() = ncoils;
 	acq.center_sample() = (readout>>1);
 
+	int hw = cal_width/2;
+	int from = matrix_size / 2 - hw;
+	int till = matrix_size / 2 + hw - 1;
 
         for (unsigned int r = 0; r < repetitions; r++) {
             for (unsigned int a = 0; a < acc_factor; a++) {
@@ -123,17 +128,27 @@ int main(int argc, char** argv)
                 fft2c(cm);
 
                 add_noise(cm,noise_level);
-                for (size_t i = a; i < matrix_size; i+=acc_factor) {
-                    acq.clearAllFlags();
-                    
+                for (size_t i = 0; i < matrix_size; i++) {
+
+                    if ((i - a)%acc_factor && !(i >= from && i <= till))
+                        continue; // skip this readout
+
                     //Set some flags
+                    acq.clearAllFlags();
                     if (i == a) {
                         acq.setFlag(ISMRMRD_ACQ_FIRST_IN_SLICE);
                     }
-                    if (i >= (matrix_size-acc_factor)) {
+                    else if (i >= (matrix_size-acc_factor)) {
                         acq.setFlag(ISMRMRD_ACQ_LAST_IN_SLICE);
                     }
-                    acq.idx().kspace_encode_step_1 = i;
+                    else if (i >= from && i <= till) {
+                        if ((i - a) % acc_factor)
+                            acq.setFlag(ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION);
+                        else
+                            acq.setFlag(ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING);
+                    }
+
+					acq.idx().kspace_encode_step_1 = i;
                     acq.idx().repetition = r*acc_factor + a;
                     acq.sample_time_us() = 5.0;
                     for (size_t c = 0; c < ncoils; c++) {
