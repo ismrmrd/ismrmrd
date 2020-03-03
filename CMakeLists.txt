@@ -192,6 +192,7 @@ endif ()
 # main library
 include_directories(${ISMRMRD_TARGET_INCLUDE_DIRS})
 add_library(ismrmrd SHARED ${ISMRMRD_TARGET_SOURCES})
+add_library(ismrmrd::ismrmrd ALIAS ismrmrd)
 set_target_properties(ismrmrd PROPERTIES
   VERSION ${ISMRMRD_VERSION_STRING}
   SOVERSION ${ISMRMRD_SOVERSION}
@@ -200,7 +201,7 @@ set_target_properties(ismrmrd PROPERTIES
 set_target_properties(ismrmrd
   PROPERTIES
   EXPORT_NAME ISMRMRD
-  INTERFACE_INCLUDE_DIRECTORIES $<INSTALL_INTERFACE:include/ismrmrd>)
+  INTERFACE_INCLUDE_DIRECTORIES $<INSTALL_INTERFACE:include>)
 
 target_link_libraries(ismrmrd ${ISMRMRD_TARGET_LINK_LIBS})
 list(APPEND ISMRMRD_LIBRARIES ismrmrd) # Add to list of libraries to be found
@@ -294,7 +295,6 @@ install(EXPORT ISMRMRDTargets
   )
 
 install(FILES
-  cmake/FindFFTW3.cmake
   "${CMAKE_CURRENT_BINARY_DIR}/ISMRMRDConfigVersion.cmake"
   "${CMAKE_CURRENT_BINARY_DIR}/InstallFiles/ISMRMRDConfig.cmake"
   DESTINATION ${INSTALL_CONFIGDIR}
