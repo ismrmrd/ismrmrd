@@ -182,6 +182,13 @@ namespace ISMRMRD {
             }
         }
 
+        void remove(const char *name) {
+            map_t::iterator it = map_.find(std::string(name));
+            if (it != map_.end()) {
+                map_.erase(it);
+            }
+        }
+
         /// Return number of values of a particular parameter
         size_t length(const char *name) const {
             map_t::const_iterator it = map_.find(std::string(name));
