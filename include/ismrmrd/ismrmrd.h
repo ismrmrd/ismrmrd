@@ -547,7 +547,13 @@ typedef  ISMRMRD_EncodingCounters EncodingCounters;
  */
 
 
-bool operator==(const EncodingCounters& ec1, const EncodingCounters& ec2);
+EXPORTISMRMRD bool operator==(const EncodingCounters& ec1, const EncodingCounters& ec2);
+EXPORTISMRMRD bool operator==(ISMRMRD_AcquisitionHeader const &left, ISMRMRD_AcquisitionHeader const &right);
+EXPORTISMRMRD bool operator==(ISMRMRD_Acquisition const &left, ISMRMRD_Acquisition const &right);
+EXPORTISMRMRD bool operator==(ISMRMRD_ImageHeader const &left, ISMRMRD_ImageHeader const &right);
+EXPORTISMRMRD bool operator==(ISMRMRD_Image const &left, ISMRMRD_Image const &right);
+EXPORTISMRMRD bool operator==(ISMRMRD_NDArray const &left, ISMRMRD_NDArray const &right);
+
 
 /// Allowed data types for Images and NDArrays
 template <typename T> EXPORTISMRMRD ISMRMRD_DataTypes get_data_type();
@@ -610,6 +616,8 @@ public:
     Acquisition(uint16_t num_samples, uint16_t active_channels=1, uint16_t trajectory_dimensions=0);
     Acquisition(const Acquisition &other);
     Acquisition & operator= (const Acquisition &other);
+    bool operator==(Acquisition const &other) const;
+
     ~Acquisition();
 
     // Accessors and mutators
@@ -777,6 +785,8 @@ public:
           uint16_t matrix_size_z = 1, uint16_t channels = 1);
     Image(const Image &other);
     Image & operator= (const Image &other);
+    bool operator==(const Image<T> &other) const;
+
     ~Image();
 
     // Image dimensions
@@ -940,6 +950,7 @@ public:
     NDArray(const NDArray<T> &other);
     ~NDArray();
     NDArray<T> & operator= (const NDArray<T> &other);
+    bool operator==(NDArray<T> const &other) const;
 
     // Accessors and mutators
     ISMRMRD_DataTypes getDataType() const;

@@ -8,6 +8,28 @@
 #include <algorithm>
 #include <ismrmrd/ismrmrd.h>
 
+namespace ISMRMRD {
+
+bool operator==(const ISMRMRD_WaveformHeader& left, const ISMRMRD_WaveformHeader& right){
+    return left.version == right.version &&
+        left.flags == right.flags &&
+        left.measurement_uid == right.measurement_uid &&
+        left.scan_counter == right.scan_counter &&
+        left.time_stamp == right.time_stamp &&
+        left.number_of_samples == right.number_of_samples &&
+        left.channels == right.channels &&
+        left.sample_time_us == right.sample_time_us &&
+        left.waveform_id == right.waveform_id;
+}
+
+bool operator==(ISMRMRD_Waveform const &left, ISMRMRD_Waveform const &right)
+{
+    return (left.head == right.head) &&
+           ((left.data == right.data) || ((left.data != NULL) && (right.data != NULL) && (memcmp(left.data, right.data, ismrmrd_size_of_waveform_data(&left)) == 0)));
+}
+
+}
+
 ISMRMRD::Waveform::Waveform(uint16_t number_of_samples, uint16_t channels) {
 
     ismrmrd_init_waveform(this);
