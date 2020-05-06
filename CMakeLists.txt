@@ -20,6 +20,9 @@ set (ISMRMRD_CMAKE_DIR ${PROJECT_SOURCE_DIR}/cmake CACHE PATH
 # command line options
 option(USE_SYSTEM_PUGIXML "Use pugixml installed on the system" OFF)
 option(USE_HDF5_DATASET_SUPPORT "Compile with support for reading and writing datasets to HDF5 files" ON)
+option(BUILD_TESTS "Build unit tests " ON)
+option(BUILD_UTILITIES "Build utilities tests " ON)
+option(BUILD_EXAMPLES "Build examples tests " ON)
 # If defined, this will modify the build enviornment to use General Electric's Libaries,
 # which are needed to link against and use their SDK to open and process their raw data.
 option(build4GE FALSE OFF)
@@ -78,7 +81,7 @@ endif ()
 # For more information see http://semver.org/
 set(ISMRMRD_VERSION_MAJOR 1)
 set(ISMRMRD_VERSION_MINOR 4)
-set(ISMRMRD_VERSION_PATCH 0)
+set(ISMRMRD_VERSION_PATCH 2)
 set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
 set(ISMRMRD_SOVERSION ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR})
 
@@ -209,6 +212,7 @@ endif ()
 # main library
 include_directories(${ISMRMRD_TARGET_INCLUDE_DIRS})
 add_library(ismrmrd SHARED ${ISMRMRD_TARGET_SOURCES})
+add_library(ismrmrd::ismrmrd ALIAS ismrmrd)
 set_target_properties(ismrmrd PROPERTIES
   VERSION ${ISMRMRD_VERSION_STRING}
   SOVERSION ${ISMRMRD_SOVERSION}
@@ -245,13 +249,17 @@ install(FILES cmake/FindFFTW3.cmake DESTINATION share/ismrmrd/cmake COMPONENT De
 # process subdirectories
 add_subdirectory(doc)
 
-add_subdirectory(utilities)
-if (HDF5_FOUND)
+if (BUILD_UTILITIES)
+  add_subdirectory(utilities)
+endif()
+
+
+if (HDF5_FOUND AND BUILD_EXAMPLES)
     add_subdirectory(examples/c)
 endif ()
 
 # TODO: make this work on Windows
-if (NOT WIN32)
+if (BUILD_TESTS)
    if (NOT build4GE)
       add_subdirectory(tests)
    endif ()
@@ -313,7 +321,6 @@ install(EXPORT ISMRMRDTargets
   )
 
 install(FILES
-  cmake/FindFFTW3.cmake
   "${CMAKE_CURRENT_BINARY_DIR}/ISMRMRDConfigVersion.cmake"
   "${CMAKE_CURRENT_BINARY_DIR}/InstallFiles/ISMRMRDConfig.cmake"
   DESTINATION ${INSTALL_CONFIGDIR}
