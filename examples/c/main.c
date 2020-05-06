@@ -15,11 +15,11 @@ int main(void)
 {
 
 
-    printf("%i %i %i %i %i %i %i %i %i \n",HOFFSET(ISMRMRD_WaveformHeader, version),HOFFSET(ISMRMRD_WaveformHeader, flags),
+    printf("%lu %lu %lu %lu %lu %lu %lu %lu %lu \n",HOFFSET(ISMRMRD_WaveformHeader, version),HOFFSET(ISMRMRD_WaveformHeader, flags),
            HOFFSET(ISMRMRD_WaveformHeader, measurement_uid),HOFFSET(ISMRMRD_WaveformHeader, scan_counter),
            HOFFSET(ISMRMRD_WaveformHeader, time_stamp),HOFFSET(ISMRMRD_WaveformHeader, number_of_samples),
            HOFFSET(ISMRMRD_WaveformHeader, channels),HOFFSET(ISMRMRD_WaveformHeader, sample_time_us),HOFFSET(ISMRMRD_WaveformHeader, waveform_id));
-    printf("Size %i \n",sizeof(ISMRMRD_WaveformHeader));
+    printf("Size %lu \n",sizeof(ISMRMRD_WaveformHeader));
     /* Declarations */
     int nacq_write, n, k, c;
     ISMRMRD_Dataset dataset1;
