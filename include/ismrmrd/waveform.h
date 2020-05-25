@@ -81,6 +81,9 @@ EXPORTISMRMRD int ismrmrd_copy_waveform(ISMRMRD_Waveform* dest, const ISMRMRD_Wa
     EXPORTISMRMRD bool operator==(ISMRMRD_Waveform const &left, ISMRMRD_Waveform const &right);
 
     struct EXPORTISMRMRD WaveformHeader : public ISMRMRD_WaveformHeader {
+        WaveformHeader() = default;
+
+        WaveformHeader(ISMRMRD_WaveformHeader const &header): ISMRMRD_WaveformHeader(header) {};
 
         // Flag methods
         bool isFlagSet(const uint64_t val);
