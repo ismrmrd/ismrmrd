@@ -23,6 +23,9 @@ option(USE_HDF5_DATASET_SUPPORT "Compile with support for reading and writing da
 option(BUILD_TESTS "Build unit tests " ON)
 option(BUILD_UTILITIES "Build utilities tests " ON)
 option(BUILD_EXAMPLES "Build examples tests " ON)
+# If defined, this will modify the build enviornment to use General Electric's Libaries,
+# which are needed to link against and use their SDK to open and process their raw data.
+option(build4GE FALSE OFF)
 
 # and include it to the search list
 list(APPEND CMAKE_MODULE_PATH ${ISMRMRD_CMAKE_DIR})
@@ -47,6 +50,21 @@ if (WIN32)
     set(CMAKE_STATIC_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
     set(CMAKE_MODULE_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
     add_definitions(-D__func__=__FUNCTION__)
+elseif (build4GE)
+    message (STATUS, " Setting up ISMRMRD build to use GE SDK HDF5 and Boost components for GE converter.")
+    if(DEFINED ENV{SDKTOP})
+       cmake_policy (SET CMP0074 OLD)
+       set(HDF5_ROOT                   "$ENV{SDKTOP}/3p")
+       set(BOOST_ROOT                  "$ENV{SDKTOP}/3p")
+    else ()
+       message (FATAL_ERROR, " SDKTOP not defined - cannot configure ISMRMRD build for GE properly.")
+    endif ()
+    set(Boost_USE_STATIC_LIBS       "ON")
+    set(Boost_NO_SYSTEM_PATHS       "TRUE")
+    set(HDF5_USE_STATIC_LIBRARIES   "yes")
+    set(CMAKE_C_FLAGS               "${CMAKE_C_FLAGS} -std=c99 -Wall")
+    set(CMAKE_CXX_FLAGS             "${CMAKE_CXX_FLAGS} -w -std=c++11 -D_GLIBCXX_USE_CXX11_ABI=0")
+    set(CMAKE_EXE_LINKER_FLAGS      "-lpthread -lz -ldl")
 else ()
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wall")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
@@ -243,7 +261,9 @@ endif ()
 
 # TODO: make this work on Windows
 if (BUILD_TESTS)
-    add_subdirectory(tests)
+   if (NOT build4GE)
+      add_subdirectory(tests)
+   endif ()
 endif ()
 
 # install the matlab api
