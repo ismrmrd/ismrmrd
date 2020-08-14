@@ -64,7 +64,6 @@ elseif (build4GE)
     set(HDF5_USE_STATIC_LIBRARIES   "yes")
     set(CMAKE_C_FLAGS               "${CMAKE_C_FLAGS} -std=c99 -Wall")
     set(CMAKE_CXX_FLAGS             "${CMAKE_CXX_FLAGS} -w -std=c++11 -D_GLIBCXX_USE_CXX11_ABI=0")
-    set(CMAKE_EXE_LINKER_FLAGS      "-lpthread -lz -ldl")
 else ()
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wall")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
@@ -208,6 +207,10 @@ if (USE_SYSTEM_PUGIXML)
     endif ()
 else ()
     list(APPEND ISMRMRD_TARGET_SOURCES libsrc/pugixml.cpp)
+endif ()
+
+if (build4GE)
+   list(APPEND ISMRMRD_TARGET_LINK_LIBS pthread z dl)
 endif ()
 
 # main library
