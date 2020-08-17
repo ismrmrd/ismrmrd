@@ -13,6 +13,12 @@
 
 #endif /* __cplusplus */
 
+// Disable warnings
+#ifdef _WINDOWS
+#    pragma warning( push )
+#    pragma warning( disable : 4366 ) // error C4366 : The result of the unary '&' operator may be unaligned
+#endif
+
 #include "ismrmrd/ismrmrd.h"
 #include "ismrmrd/version.h"
 
@@ -548,7 +554,7 @@ int ismrmrd_set_channel_off(uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS], const 
     if (channel_mask==NULL) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer to channel_mask should not be NULL.");
     }
-    bitmask = 1 << (chan % 64);
+    bitmask = (uint64_t)(1) << (chan % 64);
     offset = chan / 64;
     channel_mask[offset] &= ~bitmask;
     return ISMRMRD_NOERROR;
@@ -764,4 +770,9 @@ static void ismrmrd_error_default(const char *file, int line,
 #ifdef __cplusplus
 } // extern "C"
 } // namespace ISMRMRD
+#endif
+
+// Re-enable warnings
+#ifdef _WINDOWS
+#    pragma warning( pop )
 #endif

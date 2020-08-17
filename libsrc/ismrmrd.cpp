@@ -6,6 +6,12 @@
 #include <iostream>
 #include "ismrmrd/ismrmrd.h"
 
+// Disable warnings
+#ifdef _WINDOWS
+#    pragma warning( push )
+#    pragma warning( disable : 4366 ) // error C4366 : The result of the unary '&' operator may be unaligned
+#endif
+
 namespace ISMRMRD {
 
 
@@ -1254,3 +1260,8 @@ std::string build_exception_string(void)
 
 
 } // namespace ISMRMRD
+
+// Re-enable warnings
+#ifdef _WINDOWS
+#    pragma warning( pop )
+#endif
