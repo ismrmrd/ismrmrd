@@ -139,7 +139,7 @@ int main(int argc, char** argv)
 
     //Allocate an image
     ISMRMRD::Image<float> img_out(r_space.matrixSize.x, r_space.matrixSize.y, 1, 1);
-    memset(img_out.getDataPtr(), 0, sizeof(float_t)*r_space.matrixSize.x*r_space.matrixSize.y);
+    memset(img_out.getDataPtr(), 0, sizeof(float)*r_space.matrixSize.x*r_space.matrixSize.y);
            
     //f there is oversampling in the readout direction remove it
     //Take the sqrt of the sum of squares
