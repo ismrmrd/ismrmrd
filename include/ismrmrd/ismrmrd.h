@@ -126,7 +126,7 @@ enum ISMRMRD_DataTypes {
 };
 
 /** Returns the size in bytes of an ISMRMRD_DataType */
-size_t ismrmrd_sizeof_data_type(int data_type);
+EXPORTISMRMRD size_t ismrmrd_sizeof_data_type(int data_type);
 
 /**
  * Acquisition Flags
