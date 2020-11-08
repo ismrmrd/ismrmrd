@@ -396,7 +396,11 @@ int ismrmrd_copy_ndarray(ISMRMRD_NDArray *arrdest, const ISMRMRD_NDArray *arrsou
     if (ismrmrd_make_consistent_ndarray(arrdest)!=ISMRMRD_NOERROR) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Failed to make ndarray consistent.");
     }
-    memcpy(arrdest->data, arrsource->data, ismrmrd_size_of_ndarray_data(arrdest));
+    if (arrsource->data == NULL) {
+        arrdest->data = NULL;
+    } else {
+        memcpy(arrdest->data, arrsource->data, ismrmrd_size_of_ndarray_data(arrdest));
+    }
     return ISMRMRD_NOERROR;
 }
 
