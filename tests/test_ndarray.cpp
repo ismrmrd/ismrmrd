@@ -44,7 +44,6 @@ BOOST_AUTO_TEST_CASE(test_ndarray_create_free)
     // Check cleanup
     BOOST_CHECK_EQUAL(ismrmrd_free_ndarray(NULL), ISMRMRD_RUNTIMEERROR);
     BOOST_CHECK_EQUAL(ismrmrd_free_ndarray(carrp), ISMRMRD_NOERROR);
-    BOOST_CHECK(!carrp->data);
 }
 
 BOOST_AUTO_TEST_CASE(test_ndarray_copy)
