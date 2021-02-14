@@ -18,6 +18,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get -y install doxygen git-core graphviz libboost-all-dev libfftw3-dev libhdf5-serial-dev python3-sphinx
+        pip3 install -U pip setuptools
         pip3 install sphinx_bootstrap_theme
 
     - name: Configure CMake
