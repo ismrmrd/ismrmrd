@@ -19,7 +19,11 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt-get -y install libhdf5-serial-dev git-core
+        sudo apt-get -y install \
+          git-core \ 
+          libboost-all-dev \
+          libfftw3-dev \
+          libhdf5-serial-dev
 
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
