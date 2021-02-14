@@ -128,7 +128,7 @@ int main(int argc, char** argv)
                 fft2c(cm);
 
                 add_noise(cm,noise_level);
-                for (size_t i = 0; i < matrix_size; i++) {
+                for (int64_t i = 0; i < matrix_size; i++) {
 
                     if ((i - a)%acc_factor && !(i >= from && i <= till))
                         continue; // skip this readout
