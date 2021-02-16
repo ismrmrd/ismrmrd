@@ -1,0 +1,23 @@
+name: WindowsCMake
+
+on: [push, pull_request]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Create Build Environment
+      run: cmake -E make_directory ${{github.workspace}}/build
+  
+    - name: Install dependencies
+      run: |
+        vcpkg list
+        vcpkg search fftw
+        vcpkg search boost
+        vcpkg search hdf5
