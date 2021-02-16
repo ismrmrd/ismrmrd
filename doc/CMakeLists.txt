@@ -15,25 +15,3 @@ else()
     message(STATUS "Doxygen not found. Not able to build API documentation")
 endif()
 
-find_program(SPHINXBUILD sphinx-build)
-if(SPHINXBUILD)
-    if(WIN32)
-        set(SPHINX_MAKEBAT ${CMAKE_CURRENT_BINARY_DIR}/make.sphinx.bat)
-        configure_file(make.sphinx.bat.in ${SPHINX_MAKEBAT} @ONLY)
-        add_custom_target(htmldoc
-            COMMAND ${SPHINX_MAKEBAT} html
-            COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/html/.nojekyll
-            COMMENT "Generating HTML docs using Sphinx" VERBATIM)
-    else()
-        set(SPHINX_MAKEFILE ${CMAKE_CURRENT_BINARY_DIR}/Makefile.sphinx)
-        configure_file(Makefile.sphinx.in ${SPHINX_MAKEFILE} @ONLY)
-        add_custom_target(htmldoc
-            COMMAND make -f ${SPHINX_MAKEFILE} html
-            COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/html/.nojekyll
-            COMMENT "Generating HTML docs using Sphinx" VERBATIM)
-    endif()
-    add_dependencies(doc htmldoc)
-else()
-    message(STATUS "sphinx-build not found. Not able to build HTML project documentation")
-endif()
-

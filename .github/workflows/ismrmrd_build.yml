@@ -17,9 +17,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt-get -y install doxygen git-core graphviz libboost-all-dev libfftw3-dev libhdf5-serial-dev python3-sphinx
-        pip3 install -U pip setuptools
-        pip3 install sphinx_bootstrap_theme
+        sudo apt-get -y install doxygen git-core graphviz libboost-all-dev libfftw3-dev libhdf5-serial-dev
 
     - name: Configure CMake
       working-directory: ${{github.workspace}}/build
@@ -29,7 +27,9 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}/build
       shell: bash
-      run: cmake --build . --config $BUILD_TYPE
+      run: |
+        cmake --build . --config $BUILD_TYPE
+        cmake --build . --target doc --config $BUILD_TYPE
 
     - name: Test
       working-directory: ${{github.workspace}}/build/tests

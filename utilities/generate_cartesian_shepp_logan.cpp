@@ -80,7 +80,7 @@ int main(int argc, char** argv)
 	dims.push_back(ncoils);
 
 	NDArray<complex_float_t> coil_images(dims);
-	memset(coil_images.getDataPtr(), 0, coil_images.getDataSize());
+    std::fill(coil_images.begin(), coil_images.end(), complex_float_t(0.0f, 0.0f));
 
 	for (unsigned int c = 0; c < ncoils; c++) {
             for (unsigned int y = 0; y < matrix_size; y++) {
