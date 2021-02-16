@@ -17,7 +17,11 @@ jobs:
   
     - name: Install dependencies
       run: |
+        vcpkg install fftw3 boost hdf5[cpp]
         vcpkg list
-        vcpkg search fftw
-        vcpkg search boost
-        vcpkg search hdf5
+    
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}/build
+      shell: PowerShell
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+
