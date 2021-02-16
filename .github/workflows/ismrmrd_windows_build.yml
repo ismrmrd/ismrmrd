@@ -19,6 +19,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: List Environment
+      run: Write-Host $env:PATH
+
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/build
   
@@ -30,5 +33,12 @@ jobs:
     - name: Configure CMake
       working-directory: ${{github.workspace}}/build
       shell: PowerShell
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+      run: cmake $env:GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$env:BUILD_TYPE
+    
+    - name: Build
+      working-directory: ${{github.workspace}}/build
+      shell: PowerShell
+      run: cmake --build . --config $env:BUILD_TYPE
+
+
 
