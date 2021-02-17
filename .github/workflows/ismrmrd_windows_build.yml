@@ -46,5 +46,10 @@ jobs:
       shell: pwsh
       run: cmake --build . --config $env:BUILD_TYPE
 
+    - name: Test
+      working-directory: ${{github.workspace}}/build/tests
+      shell: pwsh
+      run: .\test_ismrmrd.exe
+
 
 
