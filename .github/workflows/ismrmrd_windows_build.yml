@@ -49,7 +49,9 @@ jobs:
     - name: Test
       working-directory: ${{github.workspace}}/build/tests
       shell: pwsh
-      run: .\test_ismrmrd.exe
+      run: |
+        cd $env:BUILD_TYPE
+        .\test_ismrmrd.exe
 
 
 
