@@ -21,26 +21,22 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: List Environment
+      shell: pwsh
       run: Write-Host $env:PATH
 
     - name: Create Build Environment
+      shell: pwsh
       run: cmake -E make_directory ${{github.workspace}}/build
   
-    - name: Install dependencies
-      run: |
-        vcpkg install fftw3 boost-test boost-program-options boost-random hdf5 hdf5[cpp]
-        vcpkg list
-        dir c:\
-        dir d:\
     
     - name: Configure CMake
       working-directory: ${{github.workspace}}/build
-      shell: PowerShell
+      shell: pwsh
       run: cmake $env:GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$env:BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
     
     - name: Build
       working-directory: ${{github.workspace}}/build
-      shell: PowerShell
+      shell: pwsh
       run: cmake --build . --config $env:BUILD_TYPE
 
 
