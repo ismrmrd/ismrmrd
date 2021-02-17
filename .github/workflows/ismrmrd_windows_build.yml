@@ -52,8 +52,7 @@ jobs:
       run: |
         dir .
         dir .\Release\
-        dir .\${{env.BUILD_TYPE}}
-        .\${{env.BUILD_TYPE}}\test_ismrmrd.exe
+        .\Release\test_ismrmrd.exe
 
 
 
