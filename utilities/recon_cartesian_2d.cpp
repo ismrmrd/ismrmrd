@@ -94,7 +94,7 @@ int main(int argc, char** argv)
     dims.push_back(nY);
     dims.push_back(nCoils);
     ISMRMRD::NDArray<complex_float_t> buffer(dims);
-    memset(buffer.getDataPtr(), 0, sizeof(complex_float_t)*nX*nY*nCoils);
+    std::fill(buffer.begin(), buffer.end(), complex_float_t(0.0f, 0.0f));
     
     //Now loop through and copy data
     unsigned int number_of_acquisitions = d.getNumberOfAcquisitions();
@@ -139,7 +139,7 @@ int main(int argc, char** argv)
 
     //Allocate an image
     ISMRMRD::Image<float> img_out(r_space.matrixSize.x, r_space.matrixSize.y, 1, 1);
-    memset(img_out.getDataPtr(), 0, sizeof(float)*r_space.matrixSize.x*r_space.matrixSize.y);
+    std::fill(img_out.begin(), img_out.end(), 0.0f);
            
     //f there is oversampling in the readout direction remove it
     //Take the sqrt of the sum of squares
