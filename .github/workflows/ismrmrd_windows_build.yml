@@ -14,7 +14,7 @@ env:
   VCPKG_DEFAULT_TRIPLET: x64-windows
 
 jobs:
-  build:
+  windows-build:
     runs-on: windows-latest
 
     steps:
@@ -28,6 +28,13 @@ jobs:
       shell: pwsh
       run: cmake -E make_directory ${{github.workspace}}/build
   
+    - name: Install dependencies
+      shell: pwsh
+      run: |
+        vcpkg install fftw3 boost-test boost-program-options boost-random hdf5
+        vcpkg list
+        dir c:\
+        dir d:\
     
     - name: Configure CMake
       working-directory: ${{github.workspace}}/build
