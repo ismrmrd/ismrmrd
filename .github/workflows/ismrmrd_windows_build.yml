@@ -11,6 +11,7 @@ on:
 
 env:
   BUILD_TYPE: Release
+  VCPKG_DEFAULT_TRIPLET: x64-windows
 
 jobs:
   build:
@@ -29,11 +30,13 @@ jobs:
       run: |
         vcpkg install fftw3 boost-test boost-program-options hdf5 hdf5[cpp]
         vcpkg list
+        dir c:\
+        dir d:\
     
     - name: Configure CMake
       working-directory: ${{github.workspace}}/build
       shell: PowerShell
-      run: cmake $env:GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$env:BUILD_TYPE
+      run: cmake $env:GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$env:BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=D:\vcpkg\scripts\buildsystems\vcpkg.cmake
     
     - name: Build
       working-directory: ${{github.workspace}}/build
