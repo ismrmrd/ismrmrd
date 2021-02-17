@@ -21,7 +21,7 @@ if (HDF5_FOUND)
     target_link_libraries(ismrmrd_read_timing_test ismrmrd)
     install(TARGETS ismrmrd_read_timing_test DESTINATION bin)
 
-    find_package(Boost 1.43 COMPONENTS program_options)
+    find_package(Boost 1.43 COMPONENTS program_options random)
     find_package(FFTW3 COMPONENTS single)
 
     if(FFTW3_FOUND AND Boost_FOUND)

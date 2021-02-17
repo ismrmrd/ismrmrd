@@ -28,7 +28,7 @@ jobs:
   
     - name: Install dependencies
       run: |
-        vcpkg install fftw3 boost-test boost-program-options hdf5 hdf5[cpp]
+        vcpkg install fftw3 boost-test boost-program-options boost-random hdf5 hdf5[cpp]
         vcpkg list
         dir c:\
         dir d:\
