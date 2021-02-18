@@ -50,12 +50,8 @@ jobs:
       working-directory: ${{github.workspace}}/build
       shell: pwsh
       run: |
-        dir .
-        dir .\Release\
-        dir .\tests\Release\
         cp .\tests\Release\* .\Release\
         cd .\Release\
         .\test_ismrmrd.exe
-
 
 
