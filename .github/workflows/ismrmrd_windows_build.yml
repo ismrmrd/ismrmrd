@@ -1,0 +1,53 @@
+name: WindowsCMake
+
+on:
+  push:
+    branches:
+      - master
+  
+  pull_request:
+    branches:
+      - master
+
+env:
+  BUILD_TYPE: Release
+  VCPKG_DEFAULT_TRIPLET: x64-windows
+
+jobs:
+  windows-build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Create Build Environment
+      shell: pwsh
+      run: cmake -E make_directory ${{github.workspace}}/build
+  
+    - name: Install dependencies
+      shell: pwsh
+      run: |
+        vcpkg install fftw3 boost-test boost-program-options boost-random hdf5
+        vcpkg list
+        dir c:\
+        dir d:\
+    
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}/build
+      shell: pwsh
+      run: cmake $env:GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$env:BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
+    
+    - name: Build
+      working-directory: ${{github.workspace}}/build
+      shell: pwsh
+      run: cmake --build . --config $env:BUILD_TYPE
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      shell: pwsh
+      run: |
+        cp .\tests\Release\* .\Release\
+        cd .\Release\
+        .\test_ismrmrd.exe
+
+
