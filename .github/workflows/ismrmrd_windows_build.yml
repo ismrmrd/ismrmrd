@@ -47,12 +47,15 @@ jobs:
       run: cmake --build . --config $env:BUILD_TYPE
 
     - name: Test
-      working-directory: ${{github.workspace}}/build/tests
+      working-directory: ${{github.workspace}}/build
       shell: pwsh
       run: |
         dir .
         dir .\Release\
-        .\Release\test_ismrmrd.exe
+        dir .\tests\Release\
+        cp .\tests\Release\* .\Release\
+        cd .\Release\
+        .\test_ismrmrd.exe
 
 
 
