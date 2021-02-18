@@ -84,7 +84,7 @@ if (WIN32)
       list(APPEND _check_list ${_LIB}_LIBRARY)
     endforeach()
 
-    message("FFTW3 WINDOWS libraries: " ${FFTW3_LIBRARIES})
+    message(STATUS "FFTW3 WINDOWS libraries: " ${FFTW3_LIBRARIES})
 
 else ()
     foreach(_lib ${_libraries})
