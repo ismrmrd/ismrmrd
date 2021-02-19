@@ -32,8 +32,8 @@ int main(int argc, char** argv)
 	 */
 
 	unsigned int matrix_size; //Matrix size
-	unsigned int ncoils;      //Number of coils
-	unsigned int ros;           //Readout ovesampling
+	uint16_t ncoils;      //Number of coils
+	unsigned int ros;         //Readout ovesampling
 	unsigned int repetitions;
 	unsigned int acc_factor;
 	unsigned int cal_width; // Calibration area width (readouts)
@@ -47,7 +47,7 @@ int main(int argc, char** argv)
 	desc.add_options()
 	    ("help,h", "produce help message")
 	    ("matrix,m", po::value<unsigned int>(&matrix_size)->default_value(256), "Matrix Size")
-	    ("coils,c", po::value<unsigned int>(&ncoils)->default_value(8), "Number of Coils")
+	    ("coils,c", po::value<uint16_t>(&ncoils)->default_value(8), "Number of Coils")
 	    ("oversampling,O", po::value<unsigned int>(&ros)->default_value(2), "Readout oversampling")
 	    ("repetitions,r", po::value<unsigned int>(&repetitions)->default_value(1), "Repetitions")
 		("acceleration,a", po::value<unsigned int>(&acc_factor)->default_value(1), "Acceleration factor")
@@ -93,19 +93,19 @@ int main(int argc, char** argv)
 
         //Let's append the data to the file
         //Create if needed
-	Dataset d(outfile.c_str(),dataset.c_str(), true);
-	Acquisition acq;
-        size_t readout = matrix_size*ros;
+	    Dataset d(outfile.c_str(),dataset.c_str(), true);
+	    Acquisition acq;
+        uint16_t readout = static_cast<uint16_t>(matrix_size*ros);
         
-	if (noise_calibration)
-        {
-            acq.resize(readout, ncoils);
-            memset((void *)acq.getDataPtr(), 0, acq.getDataSize());
-            acq.setFlag(ISMRMRD_ACQ_IS_NOISE_MEASUREMENT);
-            add_noise(acq,noise_level);
-            acq.sample_time_us() = 5.0;
-            d.appendAcquisition(acq);
-	}
+	    if (noise_calibration)
+            {
+                acq.resize(readout, ncoils);
+                memset((void *)acq.getDataPtr(), 0, acq.getDataSize());
+                acq.setFlag(ISMRMRD_ACQ_IS_NOISE_MEASUREMENT);
+                add_noise(acq,noise_level);
+                acq.sample_time_us() = 5.0;
+                d.appendAcquisition(acq);
+	    }
         
         if (store_coordinates) {
             acq.resize(readout, ncoils, 2);
@@ -116,11 +116,11 @@ int main(int argc, char** argv)
         memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
         
         acq.available_channels() = ncoils;
-	acq.center_sample() = (readout>>1);
+	    acq.center_sample() = (readout>>1);
 
-	int hw = cal_width/2;
-	int from = matrix_size / 2 - hw;
-	int till = matrix_size / 2 + hw - 1;
+	    int hw = cal_width/2;
+	    int from = matrix_size / 2 - hw;
+	    int till = matrix_size / 2 + hw - 1;
 
         for (unsigned int r = 0; r < repetitions; r++) {
             for (unsigned int a = 0; a < acc_factor; a++) {
@@ -148,19 +148,19 @@ int main(int argc, char** argv)
                             acq.setFlag(ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING);
                     }
 
-					acq.idx().kspace_encode_step_1 = i;
+					acq.idx().kspace_encode_step_1 = static_cast<uint16_t>(i);
                     acq.idx().repetition = r*acc_factor + a;
                     acq.sample_time_us() = 5.0;
-                    for (size_t c = 0; c < ncoils; c++) {
-                        for (size_t s = 0; s < readout; s++) {
-                            acq.data(s,c) = cm(s,i,c);
+                    for (uint16_t c = 0; c < ncoils; c++) {
+                        for (uint16_t s = 0; s < readout; s++) {
+                            acq.data(s,c) = cm(s, static_cast<uint16_t>(i), c);
                         }
                     }
                     
                     if (store_coordinates) {
-                        float ky = (1.0*i-(matrix_size>>1))/(1.0*matrix_size);
-                        for (size_t x = 0; x < readout; x++) {
-                            float kx = (1.0*x-(readout>>1))/(1.0*readout);
+                        float ky = (1.0f*i-(matrix_size>>1))/(1.0f*matrix_size);
+                        for (uint16_t x = 0; x < readout; x++) {
+                            float kx = (1.0f*x-(readout>>1))/(1.0f*readout);
                             acq.traj(0,x) = kx;
                             acq.traj(1,x) = ky;
                         }

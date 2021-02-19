@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(test_set_channel_on)
 
     for (int chan = 0; chan < 64 * ISMRMRD_CHANNEL_MASKS; chan++) {
         BOOST_CHECK_EQUAL(ismrmrd_set_channel_on(channel_mask, chan), ISMRMRD_NOERROR);
-        uint64_t bitmask = 1 << (chan % 64);
+        uint64_t bitmask = static_cast<uint64_t>(1) << (chan % 64);
         size_t offset = chan / 64;
         BOOST_REQUIRE((channel_mask[offset] & bitmask) != 0);
     }
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(test_set_channel_off)
     for (int chan = 0; chan < 64 * ISMRMRD_CHANNEL_MASKS; chan++) {
         BOOST_CHECK_EQUAL(ismrmrd_set_channel_off(channel_mask, chan), ISMRMRD_NOERROR);
 
-        uint64_t bitmask = 1 << (chan % 64);
+        uint64_t bitmask = static_cast<uint64_t>(1) << (chan % 64);
         size_t offset = chan / 64;
         BOOST_REQUIRE((channel_mask[offset] & bitmask) == 0);
     }

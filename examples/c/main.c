@@ -15,11 +15,19 @@ int main(void)
 {
 
 
-    printf("%lu %lu %lu %lu %lu %lu %lu %lu %lu \n",HOFFSET(ISMRMRD_WaveformHeader, version),HOFFSET(ISMRMRD_WaveformHeader, flags),
-           HOFFSET(ISMRMRD_WaveformHeader, measurement_uid),HOFFSET(ISMRMRD_WaveformHeader, scan_counter),
-           HOFFSET(ISMRMRD_WaveformHeader, time_stamp),HOFFSET(ISMRMRD_WaveformHeader, number_of_samples),
-           HOFFSET(ISMRMRD_WaveformHeader, channels),HOFFSET(ISMRMRD_WaveformHeader, sample_time_us),HOFFSET(ISMRMRD_WaveformHeader, waveform_id));
-    printf("Size %lu \n",sizeof(ISMRMRD_WaveformHeader));
+    printf("%zu %zu %zu %zu %zu %zu %zu %zu %zu \n", 
+        HOFFSET(ISMRMRD_WaveformHeader, version),
+        HOFFSET(ISMRMRD_WaveformHeader, flags),
+        HOFFSET(ISMRMRD_WaveformHeader, measurement_uid),
+        HOFFSET(ISMRMRD_WaveformHeader, scan_counter),
+        HOFFSET(ISMRMRD_WaveformHeader, time_stamp),
+        HOFFSET(ISMRMRD_WaveformHeader, number_of_samples),
+        HOFFSET(ISMRMRD_WaveformHeader, channels),
+        HOFFSET(ISMRMRD_WaveformHeader, sample_time_us),
+        HOFFSET(ISMRMRD_WaveformHeader, waveform_id));
+
+    printf("Size %zu \n",sizeof(ISMRMRD_WaveformHeader));
+
     /* Declarations */
     int nacq_write, n, k, c;
     ISMRMRD_Dataset dataset1;
@@ -65,8 +73,8 @@ int main(void)
             for (c=0; c<acq.head.active_channels; c++) {
 #ifdef _MSC_VER
                 /* Windows C compilers don't have a good complex type */
-                acq.data[k*acq.head.active_channels + c].real = n;
-                acq.data[k*acq.head.active_channels + c].imag = n;
+                acq.data[k*acq.head.active_channels + c].real = (float)n;
+                acq.data[k*acq.head.active_channels + c].imag = (float)n;
 #else
                 acq.data[k*acq.head.active_channels + c] = n + I*n;
 #endif
@@ -147,7 +155,7 @@ int main(void)
     im.head.matrix_size[2] = 4;
     im.head.channels = 8;
     /* Add an attribute string */
-    im.head.attribute_string_len = strlen(attr_string);
+    im.head.attribute_string_len = (uint32_t)strlen(attr_string);
     ismrmrd_make_consistent_image(&im);
     memcpy(im.attribute_string, attr_string, im.head.attribute_string_len);
     memset(im.data, 0, 256*256*4*8*sizeof(float));

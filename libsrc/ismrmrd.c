@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 /* Language and Cross platform section for defining types */
 #ifdef __cplusplus
@@ -552,7 +553,7 @@ int ismrmrd_set_channel_off(uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS], const 
     if (channel_mask==NULL) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer to channel_mask should not be NULL.");
     }
-    bitmask = 1 << (chan % 64);
+    bitmask = UINT64_C(1) << (chan % 64);
     offset = chan / 64;
     channel_mask[offset] &= ~bitmask;
     return ISMRMRD_NOERROR;

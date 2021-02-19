@@ -20,9 +20,9 @@ boost::shared_ptr<NDArray<complex_float_t> > phantom(std::vector<PhantomEllipse>
     std::fill(out->begin(), out->end(), complex_float_t(0.0f, 0.0f));
     for (std::vector<PhantomEllipse>::iterator it = ellipses.begin(); it != ellipses.end(); it++) {
         for (unsigned int y = 0; y < matrix_size; y++) {
-            float y_co = (1.0*y-(matrix_size>>1))/(matrix_size>>1);
+            float y_co = (1.0f*y-(matrix_size>>1))/(matrix_size>>1);
             for (unsigned int x = 0; x < matrix_size; x++) {
-                float x_co = (1.0*x-(matrix_size>>1))/(matrix_size>>1);
+                float x_co = (1.0f*x-(matrix_size>>1))/(matrix_size>>1);
                 if (it->isInside(x_co,y_co)) {
                     (*out)(x,y) += std::complex<float>(it->getAmplitude(),0.0);
                 }
@@ -43,16 +43,16 @@ boost::shared_ptr<NDArray<complex_float_t> > shepp_logan_phantom(unsigned int ma
 boost::shared_ptr< std::vector<PhantomEllipse> > shepp_logan_ellipses()
 {
     boost::shared_ptr< std::vector<PhantomEllipse> > out(new std::vector<PhantomEllipse>);
-    out->push_back(PhantomEllipse(1,	.69,	.92,	0,		0,		0));
-    out->push_back(PhantomEllipse(-.98, .6624, 	.8740,  0,	-.0184,		0));
-    out->push_back(PhantomEllipse(-.02, .1100, 	.3100,  .22,	0,	   -18));
-    out->push_back(PhantomEllipse(-.02, .1600, .4100, -.22,    0,     18));
-    out->push_back(PhantomEllipse(.01, .2100, .2500,   0,    .35,    0));
-    out->push_back(PhantomEllipse(.01, .0460, .0460,   0,    .1,     0));
-    out->push_back(PhantomEllipse(.01, .0460, .0460,   0,   -.1,     0));
-    out->push_back(PhantomEllipse(.01, .0460, .0230, -.08,  -.605,   0));
-    out->push_back(PhantomEllipse(.01, .0230, .0230,   0,   -.606,   0));
-    out->push_back(PhantomEllipse( .01, .0230, .0460,  .06,  -.605,   0));
+    out->push_back(PhantomEllipse( 1.0f,   0.6900f, 0.9200f,  0.00f,   0.0000f,	  0.0f));
+    out->push_back(PhantomEllipse(-0.98f,  0.6624f, 0.8740f,  0.00f,  -0.0184f,	  0.0f));
+    out->push_back(PhantomEllipse(-0.02f,  0.1100f, 0.3100f,  0.22f,   0.0000f,	-18.0f));
+    out->push_back(PhantomEllipse(-0.02f,  0.1600f, 0.4100f, -0.22f,   0.0000f,  18.0f));
+    out->push_back(PhantomEllipse( 0.01f,  0.2100f, 0.2500f,  0.00f,   0.3500f,   0.0f));
+    out->push_back(PhantomEllipse( 0.01f,  0.0460f, 0.0460f,  0.00f,   0.1000f,   0.0f));
+    out->push_back(PhantomEllipse( 0.01f,  0.0460f, 0.0460f,  0.00f,  -0.1000f,   0.0f));
+    out->push_back(PhantomEllipse( 0.01f,  0.0460f, 0.0230f, -0.08f,  -0.6050f,   0.0f));
+    out->push_back(PhantomEllipse( 0.01f,  0.0230f, 0.0230f,  0.00f,  -0.6060f,   0.0f));
+    out->push_back(PhantomEllipse( 0.01f,  0.0230f, 0.0460f,  0.06f,  -0.6050f,   0.0f));
 
     return out;
 }
@@ -60,16 +60,16 @@ boost::shared_ptr< std::vector<PhantomEllipse> > shepp_logan_ellipses()
 boost::shared_ptr< std::vector<PhantomEllipse> > modified_shepp_logan_ellipses()
 {
     boost::shared_ptr< std::vector<PhantomEllipse> > out(new std::vector<PhantomEllipse>);
-    out->push_back(PhantomEllipse(  1,   .69,   .92,    0,     0,     0));
-    out->push_back(PhantomEllipse(-.8,  .6624, .8740,   0,  -.0184,   0));
-    out->push_back(PhantomEllipse(-.2,  .1100, .3100,  .22,    0,    -18));
-    out->push_back(PhantomEllipse(-.2,  .1600, .4100, -.22,    0,     18));
-    out->push_back(PhantomEllipse(.1,  .2100, .2500,   0,    .35,    0));
-    out->push_back(PhantomEllipse(.1,  .0460, .0460,   0,    .1,     0));
-    out->push_back(PhantomEllipse(.1,  .0460, .0460,   0,   -.1,     0));
-    out->push_back(PhantomEllipse(.1,  .0460, .0230, -.08,  -.605,   0));
-    out->push_back(PhantomEllipse(.1,  .0230, .0230,   0,  -.606,   0));
-    out->push_back(PhantomEllipse( .1,  .0230, .0460,  .06,  -.605,   0 ));
+    out->push_back(PhantomEllipse( 1.0f, .6900f, .9200f,  0.00f,  0.0000f,   0.0f));
+    out->push_back(PhantomEllipse(-0.8f, .6624f, .8740f,  0.00f, -0.0184f,   0.0f));
+    out->push_back(PhantomEllipse(-0.2f, .1100f, .3100f,  0.22f,  0.0000f, -18.0f));
+    out->push_back(PhantomEllipse(-0.2f, .1600f, .4100f, -0.22f,  0.0000f,  18.0f));
+    out->push_back(PhantomEllipse( 0.1f, .2100f, .2500f,  0.00f,  0.3500f,   0.0f));
+    out->push_back(PhantomEllipse( 0.1f, .0460f, .0460f,  0.00f,  0.1000f,   0.0f));
+    out->push_back(PhantomEllipse( 0.1f, .0460f, .0460f,  0.00f, -0.1000f,   0.0f));
+    out->push_back(PhantomEllipse( 0.1f, .0460f, .0230f, -0.08f, -0.6050f,   0.0f));
+    out->push_back(PhantomEllipse( 0.1f, .0230f, .0230f,  0.00f, -0.6060f,   0.0f));
+    out->push_back(PhantomEllipse( 0.1f, .0230f, .0460f,  0.06f, -0.6050f,   0.0f));
     return out;
 }
 
@@ -84,13 +84,13 @@ boost::shared_ptr<NDArray<complex_float_t> > generate_birdcage_sensititivies(uns
     std::fill(out->begin(), out->end(), complex_float_t(0.0f, 0.0f));
 
     for (unsigned int c = 0; c < ncoils; c++) {
-        float coilx = relative_radius*std::cos(c*(2*3.14159265359/ncoils));
-        float coily = relative_radius*std::sin(c*(2*3.14159265359/ncoils));
-        float coil_phase = -c*(2*3.14159265359/ncoils);
+        float coilx = relative_radius*std::cos(c*(2*3.14159265359f/ncoils));
+        float coily = relative_radius*std::sin(c*(2*3.14159265359f/ncoils));
+        float coil_phase = -1.0f*c*(2*3.14159265359f/ncoils);
         for (unsigned int y = 0; y < matrix_size; y++) {
-            float y_co = (1.0*y-(matrix_size>>1))/(matrix_size>>1)-coily;
+            float y_co = (1.0f*y-(matrix_size>>1))/(matrix_size>>1)-coily;
             for (unsigned int x = 0; x < matrix_size; x++) {
-                float x_co = (1.0*x-(matrix_size>>1))/(matrix_size>>1)-coilx;
+                float x_co = (1.0f*x-(matrix_size>>1))/(matrix_size>>1)-coilx;
                 float rr = std::sqrt(x_co*x_co+y_co*y_co);
                 float phi = atan2(x_co, -y_co) + coil_phase;
                 (*out)(x,y,c) = std::polar(1 / rr, phi);
