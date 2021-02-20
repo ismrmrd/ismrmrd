@@ -24,9 +24,9 @@ namespace ISMRMRD
     if (!fieldOfView_mm) {
       throw std::runtime_error("fieldOfView_mm not found in encodingSpace");
     } else {
-      e.fieldOfView_mm.x = std::atof(fieldOfView_mm.child_value("x"));
-      e.fieldOfView_mm.y = std::atof(fieldOfView_mm.child_value("y"));
-      e.fieldOfView_mm.z = std::atof(fieldOfView_mm.child_value("z"));
+      e.fieldOfView_mm.x = std::strtof(fieldOfView_mm.child_value("x"), nullptr);
+      e.fieldOfView_mm.y = std::strtof(fieldOfView_mm.child_value("y"), nullptr);
+      e.fieldOfView_mm.z = std::strtof(fieldOfView_mm.child_value("z"), nullptr);
     }
 
     return e;
@@ -68,7 +68,7 @@ namespace ISMRMRD
     Optional<float> r;
     pugi::xml_node nc = n.child(child);
     if (nc) {
-      r = std::atof(nc.child_value());
+      r = std::strtof(nc.child_value(), nullptr);
     }
     return r;
   }
@@ -98,7 +98,7 @@ namespace ISMRMRD
     pugi::xml_node nc = n.child(child);
 
     while (nc) {
-      float f = std::atof(nc.child_value());
+      float f = std::strtof(nc.child_value(), nullptr);
       r.push_back(f);
       nc = nc.next_sibling(child);
     }
@@ -314,7 +314,7 @@ namespace ISMRMRD
 	      traj.comment = parse_optional_string(trajectoryDescription, "comment");
 	      e.trajectoryDescription = traj;
 	    } catch (std::runtime_error& e) {
-	      std::cout << "Error parsing trajectory description" << std::endl;
+	      std::cout << "Error parsing trajectory description: " << e.what() << std::endl;
 	      throw;
 	    }
 	    

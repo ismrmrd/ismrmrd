@@ -33,7 +33,7 @@ namespace ISMRMRD {
 		{
 			float asq = a_*a_;                // a^2
 			float bsq = b_*b_;                // b^2
-			float phi = phi_*3.14159265359/180; // rotation angle in radians
+			float phi = phi_*3.14159265359f/180; // rotation angle in radians
 			float x0  = x-x0_; 					  // x offset
 			float y0 =  y-y0_;                     // y offset
 			float cosp = cos(phi);

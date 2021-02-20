@@ -598,7 +598,7 @@ static uint32_t get_number_of_elements(const ISMRMRD_Dataset *dset, const char *
         dims = (hsize_t *) malloc(rank*sizeof(hsize_t));
         maxdims = (hsize_t *) malloc(rank*sizeof(hsize_t));
         h5status = H5Sget_simple_extent_dims(dataspace, dims, maxdims);
-        num = dims[0];
+        num = (uint32_t)dims[0];
         free(dims);
         free(maxdims);
         h5status = H5Sclose(dataspace);

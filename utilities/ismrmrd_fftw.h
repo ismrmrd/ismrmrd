@@ -31,7 +31,7 @@ int fft2c(NDArray<complex_float_t> &a, bool forward)
 	}
 
 	size_t elements =  a.getDims()[0]*a.getDims()[1];
-	size_t ffts = a.getNumberOfElements()/elements;
+	uint16_t ffts = static_cast<uint16_t>(a.getNumberOfElements()/elements);
 
 	//Array for transformation
 	fftwf_complex* tmp = (fftwf_complex*)fftwf_malloc(sizeof(fftwf_complex)*a.getNumberOfElements());
@@ -41,20 +41,20 @@ int fft2c(NDArray<complex_float_t> &a, bool forward)
             return -1;
 	}
 
-	for (size_t f = 0; f < ffts; f++) {
+	for (uint16_t f = 0; f < ffts; f++) {
 
-            fftshift(reinterpret_cast<std::complex<float>*>(tmp),&a(0,0,f),a.getDims()[0],a.getDims()[1]);
+            fftshift(reinterpret_cast<std::complex<float> *>(tmp), &a(0, 0, f), (int)a.getDims()[0], (int)a.getDims()[1]);
 
             //Create the FFTW plan
             fftwf_plan p;
             if (forward) {
-                p = fftwf_plan_dft_2d(a.getDims()[1], a.getDims()[0], tmp,tmp, FFTW_FORWARD, FFTW_ESTIMATE);
+                p = fftwf_plan_dft_2d((int)a.getDims()[1], (int)a.getDims()[0], tmp, tmp, FFTW_FORWARD, FFTW_ESTIMATE);
             } else {
-                p = fftwf_plan_dft_2d(a.getDims()[1], a.getDims()[0], tmp,tmp, FFTW_BACKWARD, FFTW_ESTIMATE);
+                p = fftwf_plan_dft_2d((int)a.getDims()[1], (int)a.getDims()[0], tmp, tmp, FFTW_BACKWARD, FFTW_ESTIMATE);
             }
             fftwf_execute(p);
             
-            fftshift(&a(0,0,f),reinterpret_cast<std::complex<float>*>(tmp),a.getDims()[0],a.getDims()[1]);
+            fftshift(&a(0, 0, f), reinterpret_cast<std::complex<float> *>(tmp), (int)a.getDims()[0], (int)a.getDims()[1]);
             
             //Clean up.
             fftwf_destroy_plan(p);
