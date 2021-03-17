@@ -81,25 +81,56 @@ namespace ISMRMRD
       return present_;
     }
 
-    T& get() {
+    bool has_value() const noexcept {
+        return present_;
+    }
+
+
+  T &value() &{
       if (!present_) {
-	throw std::runtime_error("Access optional value, which has not been set");
+          throw std::runtime_error("Access optional value, which has not been set");
       }
       return value_;
-    }
+  }
 
 
-    const T& get() const  {
+  const T &value() const &{
       if (!present_) {
-	throw std::runtime_error("Access optional value, which has not been set");
+          throw std::runtime_error("Access optional value, which has not been set");
       }
       return value_;
-    }
+  }
 
-    
-    T& operator()() {
-      return get();
-    }
+  T &&value() &&{
+      if (!present_) {
+          throw std::runtime_error("Access optional value, which has not been set");
+      }
+      return std::move(value_);
+  }
+
+  const T &&value() const &&{
+      if (!present_) {
+          throw std::runtime_error("Access optional value, which has not been set");
+      }
+      return std::move(value_);
+  }
+
+  template<class U>
+  T value_or(U &&default_value) const &{
+      return bool(*this) ? **this : static_cast<T>(std::forward<U>(default_value));
+  }
+
+  template<class U>
+  T value_or(U &&default_value) &&{
+      return bool(*this) ? std::move(**this) : static_cast<T>(std::forward<U>(default_value));
+  }
+
+
+
+
+  T& operator()() {
+  return value();
+}
 
     void set(const T& v) {
       present_ = true;
