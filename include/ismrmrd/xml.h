@@ -115,6 +115,13 @@ namespace ISMRMRD
       return std::move(value_);
   }
 
+  T &get() & {
+      return  this->value();
+    }
+
+    T&& get()&&{
+        return this->value();
+    }
   template<class U>
   T value_or(U &&default_value) const &{
       return bool(*this) ? **this : static_cast<T>(std::forward<U>(default_value));
