@@ -1,0 +1,1633 @@
+<svg preserveAspectRatio="xMidYMin meet" y="0"  viewBox="0 0 2000 5500" width="100%"  height="600%" xmlns="http://www.w3.org/2000/svg">
+  <foreignObject width="100%" height="100%">
+    <div xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8"></meta>
+    <title>Table template</title>
+	<style type="text/css">
+	html {
+  font-family: sans-serif;
+}
+
+td, th {
+  border: 1px solid rgb(170, 170, 170);
+  padding: 5px 10px;
+}
+
+th {
+  background-color: rgb(235,235,235);
+}
+
+table.outer-table > thead th:nth-child(1) {
+  width: 5%;
+}
+table.outer-table > thead th:nth-child(2){
+  width: 70%;
+}
+table.outer-table > thead th:nth-child(3){
+  width: 5%;
+}
+table.outer-table > thead th:nth-child(4){
+  width: 10%;
+}
+
+table.first-table > thead th:nth-child(1){
+  width: 10%;
+}
+table.first-table > thead th:nth-child(2) {
+  width: 60%;
+}
+table.first-table > thead th:nth-child(3) {
+  width: 10%;
+}
+table.first-table > thead th:nth-child(4) {
+  width: 10%;
+}
+
+table.second-table > thead th:nth-child(1) {
+  width: 14%;
+} 
+table.second-table > thead th:nth-child(2) {
+  width: 45%;
+}
+table.second-table > thead th:nth-child(3) {
+  width: 14%;
+}
+table.second-table > thead th:nth-child(4) {
+  width: 27%;
+}
+
+table.third-table > thead th:nth-child(1) {
+  width: 35%;
+} 
+table.third-table > thead th:nth-child(2) {
+  width: 25%;
+}
+table.third-table > thead th:nth-child(3) {
+  width: 25%;
+}
+table.third-table > thead th:nth-child(4) {
+  width: 15%;
+}
+
+table.d2first-table > thead th:nth-child(1){
+  width: 10%;
+}
+table.d2first-table > thead th:nth-child(2) {
+  width: 35%;
+}
+table.d2first-table > thead th:nth-child(3) {
+  width: 10%;
+}
+table.d2first-table > thead th:nth-child(4) {
+  width: 35%;
+}
+
+table.d2second-table > thead th:nth-child(1) {
+  width: 25%;
+} 
+table.d2second-table > thead th:nth-child(2) {
+  width: 20%;
+}
+table.d2second-table > thead th:nth-child(3) {
+  width: 20%;
+}
+table.d2second-table > thead th:nth-child(4) {
+  width: 35%;
+}
+
+table.bare-table > thead th:nth-child(1) {
+  width: 12%;
+} 
+table.bare-table > thead th:nth-child(2) {
+  width: 12%;
+}
+table.bare-table > thead th:nth-child(3) {
+  width: 12%;
+}
+table.bare-table > thead th:nth-child(4) {
+  width: 64%;
+}
+
+td {
+  text-align: center;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+table {
+  border-collapse: collapse;
+  border: 1px solid rgb(170, 170, 170);
+  letter-spacing: 1px;
+  font-size: 0.8rem;
+}
+
+table.outer-table,
+table.bare-table,
+table.first-table,
+table.second-table,
+table.third-table,
+table.d2first-table,
+table.d2second-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+table.outer-table > thead > tr:nth-child(even) > td,
+table.outer-table > tbody > tr:nth-child(even) > td,
+table.outer-table > tfoot > tr:nth-child(even) > td,
+table.outer-table > tr:nth-child(even) > td {
+  background-color: rgb(250, 250, 250);
+}
+
+table.outer-table > thead > tr:nth-child(odd) > td,
+table.outer-table > tbody > tr:nth-child(odd) > td,
+table.outer-table > tfoot > tr:nth-child(odd) > td,
+table.outer-table > tr:nth-child(odd) > td {
+  background-color: rgb(215, 215, 215);
+}
+
+table.bare-table > thead > tr:nth-child(even) > td,
+table.bare-table > tbody > tr:nth-child(even) > td,
+table.bare-table > tfoot > tr:nth-child(even) > td,
+table.bare-table > tr:nth-child(even) > td,
+table.first-table > thead > tr:nth-child(even) > td,
+table.first-table > tbody > tr:nth-child(even) > td,
+table.first-table > tfoot > tr:nth-child(even) > td,
+table.first-table > tr:nth-child(even) > td,
+table.d2first-table > thead > tr:nth-child(even) > td,
+table.d2first-table > tbody > tr:nth-child(even) > td,
+table.d2first-table > tfoot > tr:nth-child(even) > td,
+table.d2first-table > tr:nth-child(even) > td {
+  background-color: rgb(233, 206, 206);
+}
+
+table.bare-table > thead > tr:nth-child(odd) > td,
+table.bare-table > tbody > tr:nth-child(odd) > td,
+table.bare-table > tfoot > tr:nth-child(odd) > td,
+table.bare-table > tr:nth-child(odd) > td,
+table.first-table > thead > tr:nth-child(odd) > td,
+table.first-table > tbody > tr:nth-child(odd) > td,
+table.first-table > tfoot > tr:nth-child(odd) > td,
+table.first-table > tr:nth-child(odd) > td,
+table.d2first-table > thead > tr:nth-child(odd) > td,
+table.d2first-table > tbody > tr:nth-child(odd) > td,
+table.d2first-table > tfoot > tr:nth-child(odd) > td,
+table.d2first-table > tr:nth-child(odd) > td {
+  background-color: rgb(197, 178, 178);
+}
+
+table.second-table > thead > tr:nth-child(even) > td,
+table.second-table > tbody > tr:nth-child(even) > td,
+table.second-table > tfoot > tr:nth-child(even) > td,
+table.second-table > tr:nth-child(even) > td,
+table.d2second-table > thead > tr:nth-child(even) > td,
+table.d2second-table > tbody > tr:nth-child(even) > td,
+table.d2second-table > tfoot > tr:nth-child(even) > td,
+table.d2second-table > tr:nth-child(even) > td {
+  background-color: rgb(160, 192, 158);
+}
+
+table.second-table > thead > tr:nth-child(odd) > td,
+table.second-table > tbody > tr:nth-child(odd) > td,
+table.second-table > tfoot > tr:nth-child(odd) > td,
+table.second-table > tr:nth-child(odd) > td,
+table.d2second-table > thead > tr:nth-child(odd) > td,
+table.d2second-table > tbody > tr:nth-child(odd) > td,
+table.d2second-table > tfoot > tr:nth-child(odd) > td,
+table.d2second-table > tr:nth-child(odd) > td {
+  background-color: rgb(206, 218, 208);
+}
+
+table.third-table > thead > tr:nth-child(even) > td,
+table.third-table > tbody > tr:nth-child(even) > td,
+table.third-table > tfoot > tr:nth-child(even) > td,
+table.third-table > tr:nth-child(even) > td {
+  background-color: rgb(181, 178, 207);
+}
+
+table.third-table > thead > tr:nth-child(odd) > td,
+table.third-table > tbody > tr:nth-child(odd) > td,
+table.third-table > tfoot > tr:nth-child(odd) > td,
+table.third-table > tr:nth-child(odd) > td {
+  background-color: rgb(204, 204, 221);
+}
+</style>
+</head>
+<body>
+    <table class="outer-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Multiplicity</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>version</td>
+                <td>long</td>
+                <td>0 - 1</td>
+                <td>Version of ISMRMRD (?) TODO</td>
+            </tr>
+            <tr>
+                <td>subjectInformation</td>
+                <td>
+                    <table class="bare-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Multiplicity</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>patientName</td>
+                                <td>string</td>
+                                <td>0 - 1</td>
+                                <td>Patient's full name.</td>
+                            </tr>
+                            <tr>
+                                <td>patientWeight_kg</td>
+                                <td>float</td>
+                                <td>0 - 1</td>
+                                <td>Patient's weight in kg.</td>
+                            </tr>
+                            <tr>
+                                <td>patientID</td>
+                                <td>string</td>
+                                <td>0 - 1</td>
+                                <td>Primary identifier for the Patient.</td>
+                            </tr>
+                            <tr>
+                                <td>patientBirthdate</td>
+                                <td>date</td>
+                                <td>0 - 1</td>
+                                <td>Birth date of the Patient. YYYY-MM-DD (?) TODO.</td>
+                            </tr>
+                            <tr>
+                                <td>patientGender</td>
+                                <td>string enum</td>
+                                <td>0 - 1</td>
+                                <td> Gender of the named Patient. Enumerated Values: [M - male, F - female, O - other].
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+                <td>0 - 1</td>
+                <td>Information about the scanned patient.</td>
+            </tr>
+            <tr>
+                <td>studyInformation</td>
+                <td>
+                    <table class="bare-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Multiplicity</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>studyDate</td>
+                                <td>date</td>
+                                <td>0 - 1</td>
+                                <td>Date the Study started.</td>
+                            </tr>
+                            <tr>
+                                <td>studyTime</td>
+                                <td>time</td>
+                                <td>0 - 1</td>
+                                <td>Time the Study started.</td>
+                            </tr>
+                            <tr>
+                                <td>studyID</td>
+                                <td>string</td>
+                                <td>0 - 1</td>
+                                <td>User or equipment generated Study identifier.</td>
+                            </tr>
+                            <tr>
+                                <td>accessionNumber</td>
+                                <td>long</td>
+                                <td>0 - 1</td>
+                                <td>A RIS generated number that identifies the order for the Study.</td>
+                            </tr>
+                            <tr>
+                                <td>referringPhysicianName</td>
+                                <td>string</td>
+                                <td>0 - 1</td>
+                                <td>Name of the Patient's referring physician</td>
+                            </tr>
+                            <tr>
+                                <td>studyDescription</td>
+                                <td>string</td>
+                                <td>0 - 1</td>
+                                <td>Institution-generated description or classification of the Study (component)
+                                    performed.</td>
+                            </tr>
+                            <tr>
+                                <td>studyInstanceUID</td>
+                                <td>string</td>
+                                <td>0 - 1</td>
+                                <td>Unique identifier for the Study.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+                <td>0 - 1</td>
+                <td>Information about the study for which this data was acquired if any.</td>
+            </tr>
+            <tr>
+                <td>measurementInformation</td>
+                <td>
+                    <table class="d2first-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Multiplicity</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>measurementID</td>
+                                <td>string</td>
+                                <td>0 - 1</td>
+                                <td>Unique identifier of the Series. (Series Instance UID?) TODO</td>
+                            </tr>
+                            <tr>
+                                <td>seriesDate</td>
+                                <td>date</td>
+                                <td>0 - 1</td>
+                                <td>Date the Series started.</td>
+                            </tr>
+                            <tr>
+                                <td>seriesTime</td>
+                                <td>time</td>
+                                <td>0 - 1</td>
+                                <td>Time the Series started.</td>
+                            </tr>
+                            <tr>
+                                <td>patientPosition</td>
+                                <td>string enum</td>
+                                <td>0 - 1</td>
+                                <td>Patient position descriptor relative to the equipment. [HFP - Head First-Prone, HFS
+                                    - Head First-Supine, HFDR - Head First-Decubitus Right, HFDL - Head First-Decubitus
+                                    Left, FFP - Feet First-Prone, FFS - Feet First-Supine, FFDR - Feet First-Decubitus
+                                    Right, FFDL - Feet First-Decubitus Left]</td>
+                            </tr>
+                            <tr>
+                                <td>initialSeriesNumber</td>
+                                <td>long</td>
+                                <td>0 - 1</td>
+                                <td>A number that identifies this Series. (Series Number?) TODO</td>
+                            </tr>
+                            <tr>
+                                <td>protocolName</td>
+                                <td>string</td>
+                                <td>0 - 1</td>
+                                <td>User-defined description of the conditions under which the Series was performed.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>seriesDescription</td>
+                                <td>string</td>
+                                <td>0 - 1</td>
+                                <td>Description of the Series</td>
+                            </tr>
+                            <tr>
+                                <td>measurementDependency</td>
+                                <td>
+                                    <table class="d2second-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Type</th>
+                                                <th>Multiplicity</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>dependencyType</td>
+                                                <td>string</td>
+                                                <td>1</td>
+                                                <td>Describes the purpose for which the reference is made. E.g. "PET
+                                                    fusion". (?) TODO</td>
+                                            </tr>
+                                            <tr>
+                                                <td>measurementID</td>
+                                                <td>string</td>
+                                                <td>1</td>
+                                                <td>Instance UID of Related Series. (Series Instance UID?) TODO</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+								</td>
+                                <td>0 - 4096</td>
+                                <td>Identification of Series significantly related to this Series. One or more Items are
+                                    permitted in this Sequence. (?) TODO</td>
+                            </tr>
+                            <tr>
+                                <td>seriesInstanceUIDRoot</td>
+                                <td>string</td>
+                                <td>0 - 1</td>
+                                <td>Unique identifier of the Series. (Series Instance UID?) TODO</td>
+                            </tr>
+                            <tr>
+                                <td>referencedImageSequence</td>
+                                <td>
+                                    <table class="d2second-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Type</th>
+                                                <th>Multiplicity</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>referenced-SOPInstanceUID</td>
+                                                <td>string</td>
+                                                <td>0 - 4096</td>
+                                                <td>Uniquely identifies the referenced SOP Instance.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+								</td>
+                                <td>0 - 1</td>
+                                <td>Other images significantly related to this image.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+                <td>0 - 1</td>
+                <td>General information about this measurement and its relation to other measurements.</td>
+            </tr>
+            <tr>
+                <td>acquisitionSystemInformation</td>
+                <td>
+                    <table class="d2first-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Multiplicity</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>systemVendor</td>
+                                <td>string</td>
+                                <td>0 - 1</td>
+                                <td>Manufacturer of the device.</td>
+                            </tr>
+                            <tr>
+                                <td>systemModel</td>
+                                <td>string</td>
+                                <td>0 - 1</td>
+                                <td>Manufacturer's model name of the device.</td>
+                            </tr>
+                            <tr>
+                                <td>relativeReceiverNoiseBandwidth</td>
+                                <td>float</td>
+                                <td>0 - 1</td>
+                                <td>Reciprocal of the total sampling period, in hertz per pixel. (?) TODO</td>
+                            </tr>
+                            <tr>
+                                <td>receiverChannels</td>
+                                <td>unsigned short</td>
+                                <td>0 - 1</td>
+                                <td>Count of coils used for this measurement.</td>
+                            </tr>
+                            <tr>
+                                <td>coilLabel</td>
+                                <td>
+                                    <table class="d2second-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Type</th>
+                                                <th>Multiplicity</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>coilNumber</td>
+                                                <td>unsigned short</td>
+                                                <td>1</td>
+                                                <td>Index of this receiver coil.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>coilName</td>
+                                                <td>string</td>
+                                                <td>1</td>
+                                                <td>Name of this receiver coil.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                                <td>0 - 4096</td>
+                                <td>List of the coils used for this measurement.</td>
+                            </tr>
+                            <tr>
+                                <td>institutionName</td>
+                                <td>string</td>
+                                <td>0 - 1</td>
+                                <td>Institution where the equipment that produced the Composite Instances is located.</td>
+                            </tr>
+                            <tr>
+                                <td>stationName</td>
+                                <td>string</td>
+                                <td>0 - 1</td>
+                                <td>User defined name identifying the machine that produced the Composite Instances.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+                <td>0 - 1</td>
+                <td>General information about the acquisition system.</td>
+            </tr>
+			<tr>
+				<td>experimentalConditions</td>
+				<td>
+					<table class="bare-table">
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th>Type</th>
+								<th>Multiplicity</th>
+								<th>Description</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>H1resonance-Frequency_Hz</td>
+								<td>long</td>
+								<td>1</td>
+								<td>The resonance frequency in Hz of hydrogen in the static magnetic field of this scanner.</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+				<td>1</td>
+				<td>Information about the experimental conditions.</td>
+            </tr>
+            <tr>
+                <td>encoding</td>
+                <td>
+                    <table class="first-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Multiplicity</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>encodedSpace</td>
+                                <td>
+                                    <table class="second-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Type</th>
+                                                <th>Multiplicity</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>matrixSize</td>
+                                                <td>
+                                                    <table class="third-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Name</th>
+                                                                <th>Type</th>
+                                                                <th>Multiplicity</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>x</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>y</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>z</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>1</td>
+                                                <td>Image extent encoded in k-space in pixels.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>fieldOfView_mm</td>
+                                                <td>
+                                                    <table class="third-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Name</th>
+                                                                <th>Type</th>
+                                                                <th>Multiplicity</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>x</td>
+                                                                <td>float</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>y</td>
+                                                                <td>float</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>z</td>
+                                                                <td>float</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>1</td>
+                                                <td>Image extent encoded in k-space in mm.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                                <td>1</td>
+                                <td>Description of the image extent in k-space.</td>
+                            </tr>
+                            <tr>
+                                <td>reconSpace</td>
+                                <td>
+                                    <table class="second-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Type</th>
+                                                <th>Multiplicity</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>matrixSize</td>
+                                                <td>
+                                                    <table class="third-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Name</th>
+                                                                <th>Type</th>
+                                                                <th>Multiplicity</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>x</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>y</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>z</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>1</td>
+                                                <td>Image extent in pixels.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>fieldOfView_mm</td>
+                                                <td>
+                                                    <table class="third-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Name</th>
+                                                                <th>Type</th>
+                                                                <th>Multiplicity</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>x</td>
+                                                                <td>float</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>y</td>
+                                                                <td>float</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>z</td>
+                                                                <td>float</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>1</td>
+                                                <td>Image extent in mm.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                                <td>0 - 1</td>
+                                <td>Description of the image extent after reconstruction.</td>
+                            </tr>
+                            <tr>
+                                <td>encodingLimits</td>
+                                <td>
+                                    <table class="second-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Type</th>
+                                                <th>Multiplicity</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>kspace_encoding_step_0</td>
+                                                <td>
+                                                    <table class="third-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Name</th>
+                                                                <th>Type</th>
+                                                                <th>Multiplicity</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>minimum</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>maximum</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>center</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>0 - 1</td>
+                                                <td>Kspace_encoding_step_0 loop counter limits.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>kspace_encoding_step_1</td>
+                                                <td>
+                                                    <table class="third-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Name</th>
+                                                                <th>Type</th>
+                                                                <th>Multiplicity</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>minimum</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>maximum</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>center</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>0 - 1</td>
+                                                <td>Kspace_encoding_step_1 loop counter limits.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>average</td>
+                                                <td>
+                                                    <table class="third-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Name</th>
+                                                                <th>Type</th>
+                                                                <th>Multiplicity</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>minimum</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>maximum</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>center</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>0 - 1</td>
+                                                <td>Average loop counter limits.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>slice</td>
+                                                <td>
+                                                    <table class="third-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Name</th>
+                                                                <th>Type</th>
+                                                                <th>Multiplicity</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>minimum</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>maximum</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>center</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>0 - 1</td>
+                                                <td>Slice loop counter limits.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>contrast</td>
+                                                <td>
+                                                    <table class="third-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Name</th>
+                                                                <th>Type</th>
+                                                                <th>Multiplicity</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>minimum</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>maximum</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>center</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>0 - 1</td>
+                                                <td>Contrast loop counter limits. </td>
+                                            </tr>
+                                            <tr>
+                                                <td>phase</td>
+                                                <td>
+                                                    <table class="third-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Name</th>
+                                                                <th>Type</th>
+                                                                <th>Multiplicity</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>minimum</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>maximum</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>center</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>0 - 1</td>
+                                                <td>Phase loop counter limits.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>repetition</td>
+                                                <td>
+                                                    <table class="third-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Name</th>
+                                                                <th>Type</th>
+                                                                <th>Multiplicity</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>minimum</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>maximum</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>center</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>0 - 1</td>
+                                                <td>Repetition loop counter limits.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>set</td>
+                                                <td>
+                                                    <table class="third-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Name</th>
+                                                                <th>Type</th>
+                                                                <th>Multiplicity</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>minimum</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>maximum</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>center</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>0 - 1</td>
+                                                <td>Set loop counter limits.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>segment</td>
+                                                <td>
+                                                    <table class="third-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Name</th>
+                                                                <th>Type</th>
+                                                                <th>Multiplicity</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>minimum</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>maximum</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>center</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>0 - 1</td>
+                                                <td>Segment loop counter limits.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                                <td>1</td>
+                                <td>Information about the limit values of the loop counters along the encoded
+                                    dimensions.</td>
+                            </tr>
+                            <tr>
+                                <td>trajectory</td>
+                                <td>string enum</td>
+                                <td>1</td>
+                                <td>Enum describing the type of this trajectory. Values are: [cartesian, epi, radial,
+                                    goldenangle, spiral, other"]</td>
+                            </tr>
+                            <tr>
+                                <td>trajectoryDescription</td>
+                                <td>
+                                    <table class="second-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Type</th>
+                                                <th>Multiplicity</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>identifier</td>
+                                                <td>string</td>
+                                                <td>1</td>
+                                                <td>Identifier of this trajectory. (?) TODO</td>
+                                            </tr>
+                                            <tr>
+                                                <td>userParameterLong</td>
+                                                <td>
+                                                    <table class="third-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Name</th>
+                                                                <th>Type</th>
+                                                                <th>Multiplicity</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>name</td>
+                                                                <td>string</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>value</td>
+                                                                <td>long</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>0 - 4096</td>
+                                                <td>Space to describe a trajectory with a number of long integers.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>userParameterDouble</td>
+                                                <td>
+                                                    <table class="third-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Name</th>
+                                                                <th>Type</th>
+                                                                <th>Multiplicity</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>name</td>
+                                                                <td>string</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>value</td>
+                                                                <td>double</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>0 - 4096</td>
+                                                <td>Space to describe a trajectory with a number of double precision
+                                                    floats.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>comment</td>
+                                                <td>string</td>
+                                                <td>0 - 1</td>
+                                                <td>User defined comment on this trajectory.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                                <td>0 - 1</td>
+                                <td>Description of the k-space trajectory used in this measurement.</td>
+                            </tr>
+                            <tr>
+                                <td>parallelImaging</td>
+                                <td>
+                                    <table class="second-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Type</th>
+                                                <th>Multiplicity</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>accelerationFactor</td>
+                                                <td>
+                                                    <table class="third-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Name</th>
+                                                                <th>Type</th>
+                                                                <th>Multiplicity</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>kspace_encoding_step_1</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>kspace_encoding_step_2</td>
+                                                                <td>unsigned short</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>1</td>
+                                                <td>The factor of undersampling applied in two encoding directions.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>calibrationMode</td>
+                                                <td>string enum</td>
+                                                <td>0 - 1</td>
+                                                <td>Enum describing which scheme was used to acquire calibration data.
+                                                    Values are: [embedded, interleaved, separate, external, other]</td>
+                                            </tr>
+                                            <tr>
+                                                <td>interleavingDimension</td>
+                                                <td>string enum</td>
+                                                <td>0 - 1</td>
+                                                <td>Enum describing which dimension was interleaved. Values are: [phase,
+                                                    repetition, contrast, average, other] TODO</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                                <td>0 - 1</td>
+                                <td>Parameters specific to parallel imaging techniques.</td>
+                            </tr>
+                            <tr>
+                                <td>echoTrainLength</td>
+                                <td>long</td>
+                                <td>0 - 1</td>
+                                <td>Number of lines in k-space acquired per excitation of the same volume regardless of
+                                    the type of echo or the number of frames derived from them.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+                <td>0 - 4096</td>
+                <td>Information how the measured data is layed out in k-space.</td>
+            </tr>
+            <tr>
+                <td>sequenceParameters</td>
+                <td>
+                    <table class="bare-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Multiplicity</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>TR</td>
+                                <td>float</td>
+                                <td>0 - 4096</td>
+                                <td>The period of time in msec between the beginning of a pulse sequence and the
+                                    beginning of the succeeding (essentially identical) pulse sequence.</td>
+                            </tr>
+                            <tr>
+                                <td>TE</td>
+                                <td>float</td>
+                                <td>0 - 4096</td>
+                                <td>Time in ms between the middle of the excitation pulse and the peak of the echo
+                                    produced (kx=0). In the case of segmented k-space, the TE(eff) is the time between
+                                    the middle of the excitation pulse to the peak of the echo that is used to cover the
+                                    center of k-space (i.e., -kx=0, ky=0).</td>
+                            </tr>
+                            <tr>
+                                <td>TI</td>
+                                <td>float</td>
+                                <td>0 - 4096</td>
+                                <td>Time in msec after the middle of inverting RF pulse to middle of excitation pulse to
+                                    detect the amount of longitudinal magnetization. Required if Scanning Sequence
+                                    (0018,0020) has values of IR.</td>
+                            </tr>
+                            <tr>
+                                <td>flipAngle_deg</td>
+                                <td>float</td>
+                                <td>0 - 4096</td>
+                                <td>Steady state angle in degrees to which the magnetic vector is flipped from the
+                                    magnetic vector of the primary field.</td>
+                            </tr>
+                            <tr>
+                                <td>sequence_type</td>
+                                <td>string</td>
+                                <td>0 - 1</td>
+                                <td>Identification of spatial data encoding scheme. Values: [1D, 2D, 3D]. (?) TODO</td>
+                            </tr>
+                            <tr>
+                                <td>echo_spacing</td>
+                                <td>float</td>
+                                <td>0 - 4096</td>
+                                <td>Time in ms between the middle of the excitation pulse and the peak of the echo
+                                    produced (kx=0). In the case of segmented k-space, the TE(eff) is the time between
+                                    the middle of the excitation pulse to the peak of the echo that is used to cover the
+                                    center of k-space (i.e., -kx=0, ky=0). (?) TODO</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+                <td>0 - 1</td>
+                <td>Parameters describing the acquisition sequence.</td>
+            </tr>
+            <tr>
+                <td>userParameters</td>
+                <td>
+                    <table class="first-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Multiplicity</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>userParameterLong</td>
+                                <td>
+                                    <table class="second-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Type</th>
+                                                <th>Multiplicity</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>name</td>
+                                                <td>string</td>
+                                                <td>1</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>value</td>
+                                                <td>long</td>
+                                                <td>1</td>
+                                                <td></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                                <td>0 - 4096</td>
+                                <td>Space to describe additional values with a number of long integers.</td>
+                            </tr>
+                            <tr>
+                                <td>userParameterDouble</td>
+                                <td>
+                                    <table class="second-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Type</th>
+                                                <th>Multiplicity</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>name</td>
+                                                <td>string</td>
+                                                <td>1</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>value</td>
+                                                <td>double</td>
+                                                <td>1</td>
+                                                <td></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                                <td>0 - 4096</td>
+                                <td>Space to describe additional values with a number of double precision floats.</td>
+                            </tr>
+                            <tr>
+                                <td>userParameterString</td>
+                                <td>
+                                    <table class="second-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Type</th>
+                                                <th>Multiplicity</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>name</td>
+                                                <td>string</td>
+                                                <td>1</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>value</td>
+                                                <td>string</td>
+                                                <td>1</td>
+                                                <td></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                                <td>0 - 4096</td>
+                                <td>Space to describe additional values with a number of strings.</td>
+                            </tr>
+                            <tr>
+                                <td>userParameterBase64</td>
+                                <td>
+                                    <table class="second-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Type</th>
+                                                <th>Multiplicity</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>name</td>
+                                                <td>string</td>
+                                                <td>1</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>value</td>
+                                                <td>base64binary</td>
+                                                <td>1</td>
+                                                <td></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                                <td>0 - 4096</td>
+                                <td>Space to describe additional values as base64 encoded binary blob.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+                <td>0 - 1</td>
+                <td>Space to describe additional user defined parameters.</td>
+            </tr>
+            <tr>
+                <td>waveformInformation</td>
+                <td>
+                    <table class="first-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Multiplicity</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>waveformName</td>
+                                <td>string</td>
+                                <td>1</td>
+                                <td>Name of an instance of waveform information.</td>
+                            </tr>
+                            <tr>
+                                <td>waveformType</td>
+                                <td>string enum</td>
+                                <td>1</td>
+                                <td>Enum describing the type of waveform. Values: [ecg, pulse, respiratory, trigger, gradientwaveform, other]</td>
+                            </tr>
+                            <tr>
+                                <td>userParameters</td>
+                                <td>
+                                    <table class="second-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Type</th>
+                                                <th>Multiplicity</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>userParameterLong</td>
+                                                <td>
+                                                    <table class="third-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Name</th>
+                                                                <th>Type</th>
+                                                                <th>Multiplicity</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>name</td>
+                                                                <td>string</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>value</td>
+                                                                <td>long</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>0 - 4096</td>
+                                                <td>Space to describe waveform values with a number of long integers.
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>userParameterDouble</td>
+                                                <td>
+                                                    <table class="third-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Name</th>
+                                                                <th>Type</th>
+                                                                <th>Multiplicity</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>name</td>
+                                                                <td>string</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>value</td>
+                                                                <td>double</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>0 - 4096</td>
+                                                <td>Space to describe waveform values with a number of double precision
+                                                    floats.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>userParameterString</td>
+                                                <td>
+                                                    <table class="third-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Name</th>
+                                                                <th>Type</th>
+                                                                <th>Multiplicity</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>name</td>
+                                                                <td>string</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>value</td>
+                                                                <td>string</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>0 - 4096</td>
+                                                <td>Space to describe waveform values with a number of strings.</td>
+                                            </tr>
+                                            <tr>
+                                                <td>userParameterBase64</td>
+                                                <td>
+                                                    <table class="third-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Name</th>
+                                                                <th>Type</th>
+                                                                <th>Multiplicity</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>name</td>
+                                                                <td>string</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>value</td>
+                                                                <td>base64binary</td>
+                                                                <td>1</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>0 - 4096</td>
+                                                <td>Space to describe waveform values with a number of base64 encoded
+                                                    binary data.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                                <td>1</td>
+                                <td>Space to describe the actual data of the Waveforms.</td>
+                            </tr>
+        </tbody>
+    </table>
+    </td>
+    <td>0 - 1</td>
+    <td>Additional waveform data.</td>
+    </tr>
+    </tbody>
+    </table>
+</body>
+    </div>
+  </foreignObject>
+</svg>
