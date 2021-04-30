@@ -1173,9 +1173,9 @@ int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquis
 
     /* Create the HDF5 version of the acquisition */
     hdf5acq[0].head = acq->head;
-    hdf5acq[0].traj.len = acq->head.number_of_samples * acq->head.trajectory_dimensions;
+    hdf5acq[0].traj.len = size_t(acq->head.number_of_samples) * size_t(acq->head.trajectory_dimensions);
     hdf5acq[0].traj.p = acq->traj;
-    hdf5acq[0].data.len = 2 * acq->head.number_of_samples * acq->head.active_channels;
+    hdf5acq[0].data.len = 2 * size_t(acq->head.number_of_samples) * size_t(acq->head.active_channels);
     hdf5acq[0].data.p = acq->data;
 
     /* Write it */
@@ -1425,7 +1425,7 @@ int ismrmrd_append_waveform(const ISMRMRD_Dataset *dset, const ISMRMRD_Waveform 
 
     /* Create the HDF5 version of the acquisition */
     hdf5wav[0].head = wav->head;
-    hdf5wav[0].data.len = wav->head.number_of_samples * wav->head.channels;
+    hdf5wav[0].data.len = size_t(wav->head.number_of_samples) * size_t(wav->head.channels);
     hdf5wav[0].data.p = wav->data;
 
     /* Write it */
