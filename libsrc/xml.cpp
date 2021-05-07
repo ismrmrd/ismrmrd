@@ -426,7 +426,7 @@ namespace ISMRMRD
 	}
 	info.institutionName = parse_optional_string(acquisitionSystemInformation, "institutionName");
 	info.stationName = parse_optional_string(acquisitionSystemInformation, "stationName");
-
+    info.stationID = parse_optional_string(acquisitionSystemInformation,"stationID");
 	h.acquisitionSystemInformation = info;
       }
 
