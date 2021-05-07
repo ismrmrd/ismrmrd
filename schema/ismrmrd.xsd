@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <xs:schema xmlns="http://www.ismrm.org/ISMRMRD" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.ismrm.org/ISMRMRD" version="2">
 
-    <xs:element name="ismrmrdHeader" type="ismrmrdHeader"/>
+  <xs:element name="ismrmrdHeader" type="ismrmrdHeader" />
 
-    <xs:complexType name="ismrmrdHeader">
-      <xs:sequence>
-        <xs:element maxOccurs="1" minOccurs="0" name="version" type="xs:long"/>
-        <xs:element maxOccurs="1" minOccurs="0" name="subjectInformation" type="subjectInformationType"/>
-        <xs:element maxOccurs="1" minOccurs="0" name="studyInformation" type="studyInformationType"/>
-        <xs:element maxOccurs="1" minOccurs="0" name="measurementInformation" type="measurementInformationType"/>
-        <xs:element maxOccurs="1" minOccurs="0" name="acquisitionSystemInformation" type="acquisitionSystemInformationType"/>
-        <xs:element maxOccurs="1" minOccurs="1" name="experimentalConditions" type="experimentalConditionsType"/>
-        <xs:element maxOccurs="unbounded" minOccurs="1" name="encoding" type="encoding"/>
-        <xs:element maxOccurs="1" minOccurs="0" name="sequenceParameters" type="sequenceParametersType"/>
-        <xs:element maxOccurs="1" minOccurs="0" name="userParameters" type="userParameters"/>
-       <xs:element maxOccurs="32" minOccurs="0" name="waveformInformation" type="waveformInformation" />
-      </xs:sequence>
-    </xs:complexType>
+  <xs:complexType name="ismrmrdHeader">
+    <xs:sequence>
+      <xs:element maxOccurs="1" minOccurs="0" name="version" type="xs:long" />
+      <xs:element maxOccurs="1" minOccurs="0" name="subjectInformation" type="subjectInformationType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="studyInformation" type="studyInformationType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="measurementInformation" type="measurementInformationType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="acquisitionSystemInformation" type="acquisitionSystemInformationType" />
+      <xs:element maxOccurs="1" minOccurs="1" name="experimentalConditions" type="experimentalConditionsType" />
+      <xs:element maxOccurs="unbounded" minOccurs="1" name="encoding" type="encodingType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="sequenceParameters" type="sequenceParametersType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="userParameters" type="userParametersType" />
+      <xs:element maxOccurs="32" minOccurs="0" name="waveformInformation" type="waveformInformationType" />
+    </xs:sequence>
+  </xs:complexType>
 
   <xs:complexType name="subjectInformationType">
     <xs:all>
-      <xs:element minOccurs="0" name="patientName" type="xs:string"/>
-      <xs:element minOccurs="0" name="patientWeight_kg" type="xs:float"/>
-      <xs:element minOccurs="0" name="patientID" type="xs:string"/>
-      <xs:element minOccurs="0" name="patientBirthdate" type="xs:date"/>
+      <xs:element minOccurs="0" name="patientName" type="xs:string" />
+      <xs:element minOccurs="0" name="patientWeight_kg" type="xs:float" />
+      <xs:element minOccurs="0" name="patientID" type="xs:string" />
+      <xs:element minOccurs="0" name="patientBirthdate" type="xs:date" />
       <xs:element minOccurs="0" name="patientGender">
         <xs:simpleType>
           <xs:restriction base="xs:string">
-            <xs:pattern value="[MFO]"/>
+            <xs:pattern value="[MFO]" />
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
@@ -36,49 +36,49 @@
 
   <xs:complexType name="studyInformationType">
     <xs:all>
-      <xs:element minOccurs="0" maxOccurs="1" name="studyDate" type="xs:date"/>
-      <xs:element minOccurs="0" maxOccurs="1" name="studyTime" type="xs:time"/>
-      <xs:element minOccurs="0" maxOccurs="1" name="studyID" type="xs:string"/>
-      <xs:element minOccurs="0" maxOccurs="1" name="accessionNumber" type="xs:long"/>
-      <xs:element minOccurs="0" maxOccurs="1" name="referringPhysicianName" type="xs:string"/>
-      <xs:element minOccurs="0" maxOccurs="1" name="studyDescription" type="xs:string"/>
-      <xs:element minOccurs="0" maxOccurs="1" name="studyInstanceUID" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="studyDate" type="xs:date" />
+      <xs:element minOccurs="0" maxOccurs="1" name="studyTime" type="xs:time" />
+      <xs:element minOccurs="0" maxOccurs="1" name="studyID" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="accessionNumber" type="xs:long" />
+      <xs:element minOccurs="0" maxOccurs="1" name="referringPhysicianName" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="studyDescription" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="studyInstanceUID" type="xs:string" />
     </xs:all>
   </xs:complexType>
 
+  <xs:simpleType name="patientPositionType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="HFP" />
+      <xs:enumeration value="HFS" />
+      <xs:enumeration value="HFDR" />
+      <xs:enumeration value="HFDL" />
+      <xs:enumeration value="FFP" />
+      <xs:enumeration value="FFS" />
+      <xs:enumeration value="FFDR" />
+      <xs:enumeration value="FFDL" />
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:complexType name="measurementInformationType">
     <xs:sequence>
-      <xs:element minOccurs="0" name="measurementID" type="xs:string"/>
-      <xs:element minOccurs="0" name="seriesDate" type="xs:date"/>
-      <xs:element minOccurs="0" name="seriesTime" type="xs:time"/>
-      <xs:element minOccurs="1" name="patientPosition">
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:enumeration value="HFP"/>
-            <xs:enumeration value="HFS"/>
-            <xs:enumeration value="HFDR"/>
-            <xs:enumeration value="HFDL"/>
-            <xs:enumeration value="FFP"/>
-            <xs:enumeration value="FFS"/>
-            <xs:enumeration value="FFDR"/>
-            <xs:enumeration value="FFDL"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:element>
-      <xs:element minOccurs="0" name="initialSeriesNumber" type="xs:long"/>
-      <xs:element minOccurs="0" name="protocolName" type="xs:string"/>
-      <xs:element minOccurs="0" name="seriesDescription" type="xs:string"/>
-      <xs:element maxOccurs="unbounded" minOccurs="0" name="measurementDependency" type="measurementDependencyType"/>
-      <xs:element minOccurs="0" name="seriesInstanceUIDRoot" type="xs:string"/>
-      <xs:element minOccurs="0" name="frameOfReferenceUID" type="xs:string"/>
-      <xs:element minOccurs="0" name="referencedImageSequence" type="referencedImageSequence"/>
+      <xs:element minOccurs="0" name="measurementID" type="xs:string" />
+      <xs:element minOccurs="0" name="seriesDate" type="xs:date" />
+      <xs:element minOccurs="0" name="seriesTime" type="xs:time" />
+      <xs:element minOccurs="1" name="patientPosition" type="patientPositionType" />
+      <xs:element minOccurs="0" name="initialSeriesNumber" type="xs:long" />
+      <xs:element minOccurs="0" name="protocolName" type="xs:string" />
+      <xs:element minOccurs="0" name="seriesDescription" type="xs:string" />
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="measurementDependency" type="measurementDependencyType" />
+      <xs:element minOccurs="0" name="seriesInstanceUIDRoot" type="xs:string" />
+      <xs:element minOccurs="0" name="frameOfReferenceUID" type="xs:string" />
+      <xs:element minOccurs="0" name="referencedImageSequence" type="referencedImageSequenceType" />
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="measurementDependencyType">
     <xs:sequence>
-        <xs:element maxOccurs="1" minOccurs="1" name="dependencyType" type="xs:string"/>
-        <xs:element maxOccurs="1" minOccurs="1" name="measurementID" type="xs:string"/>
+      <xs:element maxOccurs="1" minOccurs="1" name="dependencyType" type="xs:string" />
+      <xs:element maxOccurs="1" minOccurs="1" name="measurementID" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
 
@@ -91,201 +91,200 @@
 
   <xs:complexType name="acquisitionSystemInformationType">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" name="systemVendor" type="xs:string"/>
-      <xs:element minOccurs="0" maxOccurs="1" name="systemModel" type="xs:string"/>
-      <xs:element minOccurs="0" maxOccurs="1" name="systemFieldStrength_T" type="xs:float"/>
-      <xs:element minOccurs="0" maxOccurs="1" name="relativeReceiverNoiseBandwidth" type="xs:float"/>
-      <xs:element minOccurs="0" maxOccurs="1" name="receiverChannels" type="xs:unsignedShort"/>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="coilLabel" type="coilLabelType" />  
-      <xs:element minOccurs="0" maxOccurs="1" name="institutionName" type="xs:string"/>
-      <xs:element minOccurs="0" maxOccurs="1" name="stationName" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="systemVendor" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="systemModel" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="systemFieldStrength_T" type="xs:float" />
+      <xs:element minOccurs="0" maxOccurs="1" name="relativeReceiverNoiseBandwidth" type="xs:float" />
+      <xs:element minOccurs="0" maxOccurs="1" name="receiverChannels" type="xs:unsignedShort" />
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="coilLabel" type="coilLabelType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="institutionName" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="stationName" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="experimentalConditionsType">
     <xs:all>
-      <xs:element name="H1resonanceFrequency_Hz" type="xs:long"/>
+      <xs:element name="H1resonanceFrequency_Hz" type="xs:long" />
     </xs:all>
   </xs:complexType>
 
-  <xs:complexType name="encoding">
+  <xs:complexType name="encodingType">
     <xs:all>
-      <xs:element maxOccurs="1" minOccurs="1" name="encodedSpace" type="encodingSpaceType"/>
-      <xs:element maxOccurs="1" minOccurs="1" name="reconSpace" type="encodingSpaceType"/>
-      <xs:element maxOccurs="1" minOccurs="1" name="encodingLimits" type="encodingLimitsType"/>
-      <xs:element maxOccurs="1" minOccurs="1" name="trajectory" type="trajectoryType"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="trajectoryDescription" type="trajectoryDescriptionType"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="parallelImaging" type="parallelImagingType"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="echoTrainLength" type="xs:long"/>
+      <xs:element maxOccurs="1" minOccurs="1" name="encodedSpace" type="encodingSpaceType" />
+      <xs:element maxOccurs="1" minOccurs="1" name="reconSpace" type="encodingSpaceType" />
+      <xs:element maxOccurs="1" minOccurs="1" name="encodingLimits" type="encodingLimitsType" />
+      <xs:element maxOccurs="1" minOccurs="1" name="trajectory" type="trajectoryType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="trajectoryDescription" type="trajectoryDescriptionType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="parallelImaging" type="parallelImagingType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="echoTrainLength" type="xs:long" />
     </xs:all>
   </xs:complexType>
 
   <xs:complexType name="encodingSpaceType">
     <xs:all>
-      <xs:element maxOccurs="1" minOccurs="1" name="matrixSize" type="matrixSize"/>
-      <xs:element maxOccurs="1" minOccurs="1" name="fieldOfView_mm" type="fieldOfView_mm"/>
+      <xs:element maxOccurs="1" minOccurs="1" name="matrixSize" type="matrixSizeType" />
+      <xs:element maxOccurs="1" minOccurs="1" name="fieldOfView_mm" type="fieldOfView_mm" />
     </xs:all>
   </xs:complexType>
 
-  <xs:complexType name="matrixSize">
+  <xs:complexType name="matrixSizeType">
     <xs:sequence>
-      <xs:element default="1" maxOccurs="1" minOccurs="1" name="x" type="xs:unsignedShort"/>
-      <xs:element default="1" maxOccurs="1" minOccurs="1" name="y" type="xs:unsignedShort"/>
-      <xs:element default="1" maxOccurs="1" minOccurs="1" name="z" type="xs:unsignedShort"/>
+      <xs:element default="1" maxOccurs="1" minOccurs="1" name="x" type="xs:unsignedShort" />
+      <xs:element default="1" maxOccurs="1" minOccurs="1" name="y" type="xs:unsignedShort" />
+      <xs:element default="1" maxOccurs="1" minOccurs="1" name="z" type="xs:unsignedShort" />
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="fieldOfView_mm">
     <xs:sequence>
-      <xs:element maxOccurs="1" minOccurs="1" name="x" type="xs:float"/>
-      <xs:element maxOccurs="1" minOccurs="1" name="y" type="xs:float"/>
-      <xs:element maxOccurs="1" minOccurs="1" name="z" type="xs:float"/>
+      <xs:element maxOccurs="1" minOccurs="1" name="x" type="xs:float" />
+      <xs:element maxOccurs="1" minOccurs="1" name="y" type="xs:float" />
+      <xs:element maxOccurs="1" minOccurs="1" name="z" type="xs:float" />
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="limitType">
     <xs:all>
-      <xs:element default="0" name="minimum" type="xs:unsignedShort"/>
-      <xs:element default="0" name="maximum" type="xs:unsignedShort"/>
-      <xs:element default="0" name="center" type="xs:unsignedShort"/>
+      <xs:element default="0" name="minimum" type="xs:unsignedShort" />
+      <xs:element default="0" name="maximum" type="xs:unsignedShort" />
+      <xs:element default="0" name="center" type="xs:unsignedShort" />
     </xs:all>
   </xs:complexType>
 
   <xs:complexType name="encodingLimitsType">
     <xs:all>
-      <xs:element maxOccurs="1" minOccurs="0" name="kspace_encoding_step_0" type="limitType"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="kspace_encoding_step_1" type="limitType"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="kspace_encoding_step_2" type="limitType"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="average" type="limitType"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="slice" type="limitType"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="contrast" type="limitType"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="phase" type="limitType"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="repetition" type="limitType"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="set" type="limitType"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="segment" type="limitType"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="kspace_encoding_step_0" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="kspace_encoding_step_1" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="kspace_encoding_step_2" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="average" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="slice" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="contrast" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="phase" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="repetition" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="set" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="segment" type="limitType" />
     </xs:all>
   </xs:complexType>
 
   <xs:simpleType name="trajectoryType">
     <xs:restriction base="xs:string">
-      <xs:enumeration value="cartesian"/>
-      <xs:enumeration value="epi"/>
-      <xs:enumeration value="radial"/>
-      <xs:enumeration value="goldenangle"/>
-      <xs:enumeration value="spiral"/>
-      <xs:enumeration value="other"/>
+      <xs:enumeration value="cartesian" />
+      <xs:enumeration value="epi" />
+      <xs:enumeration value="radial" />
+      <xs:enumeration value="goldenangle" />
+      <xs:enumeration value="spiral" />
+      <xs:enumeration value="other" />
     </xs:restriction>
   </xs:simpleType>
 
   <xs:complexType name="trajectoryDescriptionType">
     <xs:sequence>
-      <xs:element maxOccurs="1" minOccurs="1" name="identifier" type="xs:string"/>
-      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterLong" type="userParameterLongType"/>
-      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterDouble" type="userParameterDoubleType"/>
-      <xs:element maxOccurs="1" minOccurs="0" name="comment" type="xs:string"/>
+      <xs:element maxOccurs="1" minOccurs="1" name="identifier" type="xs:string" />
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterLong" type="userParameterLongType" />
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterDouble" type="userParameterDoubleType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="comment" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="sequenceParametersType">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="TR"/>
-      <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="TE"/>
-      <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="TI"/>
-      <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="flipAngle_deg"/>
-      <xs:element minOccurs="0" maxOccurs="1" type="xs:string" name="sequence_type"/>
-      <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="echo_spacing"/>
+      <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="TR" />
+      <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="TE" />
+      <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="TI" />
+      <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="flipAngle_deg" />
+      <xs:element minOccurs="0" maxOccurs="1" type="xs:string" name="sequence_type" />
+      <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="echo_spacing" />
 
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="userParameterLongType">
     <xs:all>
-      <xs:element name="name" type="xs:string"/>
-      <xs:element name="value" type="xs:long"/>
+      <xs:element name="name" type="xs:string" />
+      <xs:element name="value" type="xs:long" />
     </xs:all>
   </xs:complexType>
 
   <xs:complexType name="userParameterDoubleType">
     <xs:all>
-      <xs:element name="name" type="xs:string"/>
-      <xs:element name="value" type="xs:double"/>
+      <xs:element name="name" type="xs:string" />
+      <xs:element name="value" type="xs:double" />
     </xs:all>
   </xs:complexType>
 
   <xs:complexType name="userParameterStringType">
     <xs:all>
-      <xs:element name="name" type="xs:string"/>
-      <xs:element name="value" type="xs:string"/>
+      <xs:element name="name" type="xs:string" />
+      <xs:element name="value" type="xs:string" />
     </xs:all>
   </xs:complexType>
 
   <xs:complexType name="userParameterBase64Type">
     <xs:all>
-      <xs:element name="name" type="xs:string"/>
-      <xs:element name="value" type="xs:base64Binary"/>
+      <xs:element name="name" type="xs:string" />
+      <xs:element name="value" type="xs:base64Binary" />
     </xs:all>
   </xs:complexType>
 
-  <xs:complexType name="referencedImageSequence">
+  <xs:complexType name="referencedImageSequenceType">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="referencedSOPInstanceUID" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="referencedSOPInstanceUID" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
-      
-  <xs:complexType name="userParameters">
+
+  <xs:complexType name="userParametersType">
     <xs:sequence>
-      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterLong" type="userParameterLongType"/>
-      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterDouble" type="userParameterDoubleType"/>
-      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterString" type="userParameterStringType"/>
-      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterBase64" type="userParameterBase64Type"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterLong" type="userParameterLongType" />
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterDouble" type="userParameterDoubleType" />
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterString" type="userParameterStringType" />
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterBase64" type="userParameterBase64Type" />
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="accelerationFactorType">
     <xs:all>
-      <xs:element name="kspace_encoding_step_1" type="xs:unsignedShort"/>
-      <xs:element name="kspace_encoding_step_2" type="xs:unsignedShort"/>
+      <xs:element name="kspace_encoding_step_1" type="xs:unsignedShort" />
+      <xs:element name="kspace_encoding_step_2" type="xs:unsignedShort" />
     </xs:all>
   </xs:complexType>
 
   <xs:simpleType name="calibrationModeType">
     <xs:restriction base="xs:string">
-      <xs:enumeration value="embedded"/>
-      <xs:enumeration value="interleaved"/>
-      <xs:enumeration value="separate"/>
-      <xs:enumeration value="external"/>
-      <xs:enumeration value="other"/>
+      <xs:enumeration value="embedded" />
+      <xs:enumeration value="interleaved" />
+      <xs:enumeration value="separate" />
+      <xs:enumeration value="external" />
+      <xs:enumeration value="other" />
     </xs:restriction>
   </xs:simpleType>
 
   <xs:simpleType name="interleavingDimensionType">
     <xs:restriction base="xs:string">
-      <xs:enumeration value="phase"/>
-      <xs:enumeration value="repetition"/>
-      <xs:enumeration value="contrast"/>
-      <xs:enumeration value="average"/>
-      <xs:enumeration value="other"/>
+      <xs:enumeration value="phase" />
+      <xs:enumeration value="repetition" />
+      <xs:enumeration value="contrast" />
+      <xs:enumeration value="average" />
+      <xs:enumeration value="other" />
     </xs:restriction>
   </xs:simpleType>
 
   <xs:complexType name="parallelImagingType">
-  	<xs:sequence>
-  	 <xs:element type="accelerationFactorType" name="accelerationFactor"/>
-  	 <xs:element maxOccurs="1" minOccurs="0" type="calibrationModeType" name="calibrationMode"/>
-  	 <xs:element maxOccurs="1" minOccurs="0" type="interleavingDimensionType" name="interleavingDimension"/>
-  	</xs:sequence>
+    <xs:sequence>
+      <xs:element type="accelerationFactorType" name="accelerationFactor" />
+      <xs:element maxOccurs="1" minOccurs="0" type="calibrationModeType" name="calibrationMode" />
+      <xs:element maxOccurs="1" minOccurs="0" type="interleavingDimensionType" name="interleavingDimension" />
+    </xs:sequence>
   </xs:complexType>
 
 
-
-  <xs:complexType name="waveformInformation">
+  <xs:complexType name="waveformInformationType">
     <xs:sequence>
-      <xs:element name="waveformName" type="xs:string"/>
+      <xs:element name="waveformName" type="xs:string" />
       <xs:element name="waveformType">
         <xs:simpleType>
           <xs:restriction base="xs:string">
-            <xs:enumeration value="ecg"/>
-            <xs:enumeration value="pulse"/>
+            <xs:enumeration value="ecg" />
+            <xs:enumeration value="pulse" />
             <xs:enumeration value="respiratory" />
             <xs:enumeration value="trigger" />
             <xs:enumeration value="gradientwaveform" />
@@ -293,7 +292,7 @@
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
-    <xs:element name="userParameters" type="userParameters"/>
+      <xs:element name="userParameters" type="userParametersType" />
     </xs:sequence>
   </xs:complexType>
 </xs:schema>
