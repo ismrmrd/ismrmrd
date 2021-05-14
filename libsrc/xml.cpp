@@ -426,7 +426,7 @@ namespace ISMRMRD
 	}
 	info.institutionName = parse_optional_string(acquisitionSystemInformation, "institutionName");
 	info.stationName = parse_optional_string(acquisitionSystemInformation, "stationName");
-
+    info.deviceID = parse_optional_string(acquisitionSystemInformation,"deviceID");
 	h.acquisitionSystemInformation = info;
       }
 
@@ -736,6 +736,7 @@ namespace ISMRMRD
       }
       append_optional_node(n1,"institutionName",h.acquisitionSystemInformation->institutionName);
       append_optional_node(n1,"stationName",h.acquisitionSystemInformation->stationName);
+      append_optional_node(n1,"deviceID",h.acquisitionSystemInformation->deviceID);
     }
 
     n1 = root.append_child();

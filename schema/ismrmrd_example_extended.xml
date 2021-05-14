@@ -177,6 +177,7 @@
     </coilLabel>
     <institutionName>Some University</institutionName>
     <stationName>MRI Scanner 1</stationName>
+    <deviceID>20434</deviceID>
   </acquisitionSystemInformation>
   <experimentalConditions>
     <H1resonanceFrequency_Hz>63642459</H1resonanceFrequency_Hz>

@@ -219,6 +219,7 @@ namespace ISMRMRD
     std::vector<CoilLabel> coilLabel;
     Optional<std::string> institutionName;
     Optional<std::string> stationName;
+    Optional<std::string> deviceID;
   };
 
 

@@ -99,6 +99,7 @@
       <xs:element minOccurs="0" maxOccurs="unbounded" name="coilLabel" type="coilLabelType" />
       <xs:element minOccurs="0" maxOccurs="1" name="institutionName" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="stationName" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="deviceID" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
 
