@@ -44,6 +44,16 @@ sudo make install
 This will install the library in `/usr/local/` by default. To specify
 an alternative installation directory, pass `-D CMAKE_INSTALL_PREFIX=<install dir>` to `cmake`.
 
+### macOS installation
+
+ISMRMRD and its dependencies can be installed via MacPorts (https://macports.org) with:
+
+```
+sudo port install ismrmrd
+```
+
+This will install the library, binaries, documentation, and examples into `/opt/local` by default. Changing the default MacPorts directory is not recommended as it prevents using pre-compiled packages.
+
 # Format Details
 
 The raw data format combines a mix of flexible data structures (XML header) and fixed structures (equivalent to C-structs). A raw data set consist mainly of 2 sections:
