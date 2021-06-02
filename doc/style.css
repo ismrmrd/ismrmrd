@@ -1,0 +1,207 @@
+html {
+  font-family: sans-serif;
+}
+
+td, th {
+  border: 1px solid rgb(170, 170, 170);
+  padding: 5px 10px;
+}
+
+th {
+  background-color: rgb(235,235,235);
+}
+
+table.outer-table > thead th:nth-child(1) {
+  width: 5%;
+}
+table.outer-table > thead th:nth-child(2){
+  width: 70%;
+}
+table.outer-table > thead th:nth-child(3){
+  width: 5%;
+}
+table.outer-table > thead th:nth-child(4){
+  width: 10%;
+}
+
+table.first-table > thead th:nth-child(1){
+  width: 10%;
+}
+table.first-table > thead th:nth-child(2) {
+  width: 60%;
+}
+table.first-table > thead th:nth-child(3) {
+  width: 10%;
+}
+table.first-table > thead th:nth-child(4) {
+  width: 10%;
+}
+
+table.second-table > thead th:nth-child(1) {
+  width: 14%;
+} 
+table.second-table > thead th:nth-child(2) {
+  width: 45%;
+}
+table.second-table > thead th:nth-child(3) {
+  width: 14%;
+}
+table.second-table > thead th:nth-child(4) {
+  width: 27%;
+}
+
+table.third-table > thead th:nth-child(1) {
+  width: 35%;
+} 
+table.third-table > thead th:nth-child(2) {
+  width: 25%;
+}
+table.third-table > thead th:nth-child(3) {
+  width: 25%;
+}
+table.third-table > thead th:nth-child(4) {
+  width: 15%;
+}
+
+table.d2first-table > thead th:nth-child(1){
+  width: 10%;
+}
+table.d2first-table > thead th:nth-child(2) {
+  width: 35%;
+}
+table.d2first-table > thead th:nth-child(3) {
+  width: 10%;
+}
+table.d2first-table > thead th:nth-child(4) {
+  width: 35%;
+}
+
+table.d2second-table > thead th:nth-child(1) {
+  width: 25%;
+} 
+table.d2second-table > thead th:nth-child(2) {
+  width: 20%;
+}
+table.d2second-table > thead th:nth-child(3) {
+  width: 20%;
+}
+table.d2second-table > thead th:nth-child(4) {
+  width: 35%;
+}
+
+table.bare-table > thead th:nth-child(1) {
+  width: 12%;
+} 
+table.bare-table > thead th:nth-child(2) {
+  width: 12%;
+}
+table.bare-table > thead th:nth-child(3) {
+  width: 12%;
+}
+table.bare-table > thead th:nth-child(4) {
+  width: 64%;
+}
+
+td {
+  text-align: center;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+table {
+  border-collapse: collapse;
+  border: 1px solid rgb(170, 170, 170);
+  letter-spacing: 1px;
+  font-size: 0.8rem;
+}
+
+table.outer-table,
+table.bare-table,
+table.first-table,
+table.second-table,
+table.third-table,
+table.d2first-table,
+table.d2second-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+table.outer-table > thead > tr:nth-child(even) > td,
+table.outer-table > tbody > tr:nth-child(even) > td,
+table.outer-table > tfoot > tr:nth-child(even) > td,
+table.outer-table > tr:nth-child(even) > td {
+  background-color: rgb(250, 250, 250);
+}
+
+table.outer-table > thead > tr:nth-child(odd) > td,
+table.outer-table > tbody > tr:nth-child(odd) > td,
+table.outer-table > tfoot > tr:nth-child(odd) > td,
+table.outer-table > tr:nth-child(odd) > td {
+  background-color: rgb(215, 215, 215);
+}
+
+table.bare-table > thead > tr:nth-child(even) > td,
+table.bare-table > tbody > tr:nth-child(even) > td,
+table.bare-table > tfoot > tr:nth-child(even) > td,
+table.bare-table > tr:nth-child(even) > td,
+table.first-table > thead > tr:nth-child(even) > td,
+table.first-table > tbody > tr:nth-child(even) > td,
+table.first-table > tfoot > tr:nth-child(even) > td,
+table.first-table > tr:nth-child(even) > td,
+table.d2first-table > thead > tr:nth-child(even) > td,
+table.d2first-table > tbody > tr:nth-child(even) > td,
+table.d2first-table > tfoot > tr:nth-child(even) > td,
+table.d2first-table > tr:nth-child(even) > td {
+  background-color: rgb(233, 206, 206);
+}
+
+table.bare-table > thead > tr:nth-child(odd) > td,
+table.bare-table > tbody > tr:nth-child(odd) > td,
+table.bare-table > tfoot > tr:nth-child(odd) > td,
+table.bare-table > tr:nth-child(odd) > td,
+table.first-table > thead > tr:nth-child(odd) > td,
+table.first-table > tbody > tr:nth-child(odd) > td,
+table.first-table > tfoot > tr:nth-child(odd) > td,
+table.first-table > tr:nth-child(odd) > td,
+table.d2first-table > thead > tr:nth-child(odd) > td,
+table.d2first-table > tbody > tr:nth-child(odd) > td,
+table.d2first-table > tfoot > tr:nth-child(odd) > td,
+table.d2first-table > tr:nth-child(odd) > td {
+  background-color: rgb(197, 178, 178);
+}
+
+table.second-table > thead > tr:nth-child(even) > td,
+table.second-table > tbody > tr:nth-child(even) > td,
+table.second-table > tfoot > tr:nth-child(even) > td,
+table.second-table > tr:nth-child(even) > td,
+table.d2second-table > thead > tr:nth-child(even) > td,
+table.d2second-table > tbody > tr:nth-child(even) > td,
+table.d2second-table > tfoot > tr:nth-child(even) > td,
+table.d2second-table > tr:nth-child(even) > td {
+  background-color: rgb(160, 192, 158);
+}
+
+table.second-table > thead > tr:nth-child(odd) > td,
+table.second-table > tbody > tr:nth-child(odd) > td,
+table.second-table > tfoot > tr:nth-child(odd) > td,
+table.second-table > tr:nth-child(odd) > td,
+table.d2second-table > thead > tr:nth-child(odd) > td,
+table.d2second-table > tbody > tr:nth-child(odd) > td,
+table.d2second-table > tfoot > tr:nth-child(odd) > td,
+table.d2second-table > tr:nth-child(odd) > td {
+  background-color: rgb(206, 218, 208);
+}
+
+table.third-table > thead > tr:nth-child(even) > td,
+table.third-table > tbody > tr:nth-child(even) > td,
+table.third-table > tfoot > tr:nth-child(even) > td,
+table.third-table > tr:nth-child(even) > td {
+  background-color: rgb(181, 178, 207);
+}
+
+table.third-table > thead > tr:nth-child(odd) > td,
+table.third-table > tbody > tr:nth-child(odd) > td,
+table.third-table > tfoot > tr:nth-child(odd) > td,
+table.third-table > tr:nth-child(odd) > td {
+  background-color: rgb(204, 204, 221);
+}
