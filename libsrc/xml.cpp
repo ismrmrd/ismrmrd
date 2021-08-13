@@ -349,6 +349,7 @@ namespace ISMRMRD
 	SubjectInformation info;
 	info.patientName = parse_optional_string(subjectInformation, "patientName");
 	info.patientWeight_kg = parse_optional_float(subjectInformation, "patientWeight_kg");
+	info.patientHeight_m = parse_optional_float(subjectInformation, "patientHeight_m");
 	info.patientID = parse_optional_string(subjectInformation, "patientID");
 	info.patientBirthdate = parse_optional_string(subjectInformation, "patientBirthdate");
 	info.patientGender = parse_optional_string(subjectInformation, "patientGender");
@@ -671,6 +672,7 @@ namespace ISMRMRD
       n1.set_name("subjectInformation");
       append_optional_node(n1,"patientName",h.subjectInformation->patientName);
       append_optional_node(n1,"patientWeight_kg",h.subjectInformation->patientWeight_kg);
+      append_optional_node(n1,"patientHeight_m",h.subjectInformation->patientHeight_m);
       append_optional_node(n1,"patientID",h.subjectInformation->patientID);
       append_optional_node(n1,"patientBirthdate",h.subjectInformation->patientBirthdate);
       append_optional_node(n1,"patientGender",h.subjectInformation->patientGender);

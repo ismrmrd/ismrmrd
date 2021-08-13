@@ -22,6 +22,7 @@
     <xs:all>
       <xs:element minOccurs="0" name="patientName" type="xs:string" />
       <xs:element minOccurs="0" name="patientWeight_kg" type="xs:float" />
+      <xs:element minOccurs="0" name="patientHeight_m" type="xs:float"/>
       <xs:element minOccurs="0" name="patientID" type="xs:string" />
       <xs:element minOccurs="0" name="patientBirthdate" type="xs:date" />
       <xs:element minOccurs="0" name="patientGender">

@@ -161,6 +161,7 @@ namespace ISMRMRD
   {
     Optional<std::string> patientName;
     Optional<float> patientWeight_kg;
+    Optional<float> patientHeight_m;
     Optional<std::string> patientID;
     Optional<std::string> patientBirthdate;
     Optional<std::string> patientGender;
