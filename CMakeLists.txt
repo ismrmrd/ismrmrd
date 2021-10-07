@@ -23,7 +23,7 @@ option(USE_HDF5_DATASET_SUPPORT "Compile with support for reading and writing da
 option(BUILD_TESTS "Build unit tests " ON)
 option(BUILD_UTILITIES "Build utilities tests " ON)
 option(BUILD_EXAMPLES "Build examples tests " ON)
-# If defined, this will modify the build enviornment to use General Electric's Libaries,
+# If defined, this will modify the build environment to use General Electric's Libraries,
 # which are needed to link against and use their SDK to open and process their raw data.
 option(build4GE FALSE OFF)
 
@@ -81,7 +81,7 @@ endif ()
 # For more information see http://semver.org/
 set(ISMRMRD_VERSION_MAJOR 1)
 set(ISMRMRD_VERSION_MINOR 5)
-set(ISMRMRD_VERSION_PATCH 0)
+set(ISMRMRD_VERSION_PATCH 1)
 set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
 set(ISMRMRD_SOVERSION ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR})
 
