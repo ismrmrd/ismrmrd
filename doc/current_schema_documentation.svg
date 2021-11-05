@@ -1,0 +1,527 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xs="http://www.w3.org/2001/XMLSchema" preserveAspectRatio="xMidYMin meet" y="0" viewBox="0 0 2000 5500" width="100%" height="600%"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml"><head><meta charset="utf-8"/><title>MRD header schema documentation</title><style type="text/css">
+		html {
+				font-family: sans-serif;
+			}
+				td, th {
+				  border: 0.05rem solid rgb(0,0,0);
+				  padding: 0.25rem 0.5rem;
+				}
+				td {
+				  text-align: center;
+				  word-wrap: break-word;
+				  overflow-wrap: break-word;
+				  vertical-align: top;
+				}
+				table {
+				  border-collapse: collapse;
+				  border: 0.1rem solid rgb(0,0,0);
+				  letter-spacing: 0.05rem;
+				  font-size: 0.8rem;
+				}
+
+				thead th { 
+				text-align:left; 
+				background:black; 
+				color:white
+				}
+
+				tbody tr:nth-child(odd) &gt; td,
+				tfoot tr:nth-child(odd) &gt; td,
+				tr:nth-child(odd) &gt; td
+				{ 
+				background:rgb(238, 238, 238); 
+				}
+
+				tbody tr:nth-child(even) &gt; td,
+				tfoot tr:nth-child(even) &gt; td,
+				tr:nth-child(even) &gt; td
+				{ 
+				background:rgb(215, 215, 215);
+				}
+
+				tbody table tbody tr:nth-child(odd) &gt; td,
+				tbody table tfoot tr:nth-child(odd) &gt; td,
+				tbody table tr:nth-child(odd) &gt; td
+				{ 
+				background:rgb(255, 255, 99) ; 
+				}
+
+				tbody table tbody tr:nth-child(even) &gt; td,
+				tbody table tfoot tr:nth-child(even) &gt; td,
+				tbody table tr:nth-child(even) &gt; td
+				{ 
+				background:rgb(229, 220, 59);
+				}
+
+				tbody table tbody table tbody tr:nth-child(odd) &gt; td,
+				tbody table tbody table tbody tfoot tr:nth-child(odd) &gt; td,
+				tbody table tbody table tbody tr:nth-child(odd) &gt; td
+				{ 
+				background:rgb(40, 255, 255) 
+				}
+
+				tbody table tbody table tbody tr:nth-child(even) &gt; td,
+				tbody table tbody table tbody tfoot tr:nth-child(even) &gt; td,
+				tbody table tbody table tbody tr:nth-child(even) &gt; td
+				{ 
+				background:rgb(20, 207, 235) 
+				}
+
+				tbody table tbody table tbody table tbody tr:nth-child(odd) &gt; td,
+				tbody table tbody table tbody table tbody tfoot tr:nth-child(odd) &gt; td,
+				tbody table tbody table tbody table tbody tr:nth-child(odd) &gt; td
+				{
+				background:rgb(255, 123, 221) ; 
+				}
+
+				tbody table tbody table tbody table tbody tr:nth-child(even) &gt; td,
+				tbody table tbody table tbody table tbody tfoot tr:nth-child(even) &gt; td,
+				tbody table tbody table tbody table tbody tr:nth-child(even) &gt; td
+				{
+				background:rgb(255, 83, 191) ; 
+				}
+	</style></head><body><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th><th>Description</th></tr></thead><tbody>
+    
+      <tr><td>version</td><td>xs:long</td><td>0 - 1</td><td>Major version of ISMRMRD.</td></tr>
+      <tr><td>subjectInformation</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th><th>Description</th></tr></thead><tbody>
+    
+      <tr><td>patientName</td><td>xs:string</td><td>0 - 1
+					</td><td>Patient's full name.</td></tr>
+      <tr><td>patientWeight_kg</td><td>xs:float</td><td>0 - 1
+					</td><td>Patient's weight in kg.</td></tr>
+      <tr><td>patientID</td><td>xs:string</td><td>0 - 1
+					</td><td>Primary identifier for the Patient.</td></tr>
+      <tr><td>patientBirthdate</td><td>xs:date</td><td>0 - 1
+					</td><td>Birth date of the Patient. YYYY-MM-DD.</td></tr>
+      <tr><td>patientGender</td><td>xs:string</td><td>0 - 1
+					</td><td>Gender of the named Patient.
+      Pattern is: [MFO]</td></tr>
+    
+  </tbody></table></td><td>0 - 1</td><td>Information about the scanned patient.</td></tr>
+      <tr><td>studyInformation</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th><th>Description</th></tr></thead><tbody>
+    
+      <tr><td>studyDate</td><td>xs:date</td><td>0 - 1</td><td>Date the Study started.</td></tr>
+      <tr><td>studyTime</td><td>xs:time</td><td>0 - 1</td><td>Time the Study started.</td></tr>
+      <tr><td>studyID</td><td>xs:string</td><td>0 - 1</td><td>User or equipment-generated Study identifier.</td></tr>
+      <tr><td>accessionNumber</td><td>xs:long</td><td>0 - 1</td><td>A RIS generated number that identifies the order for the Study.</td></tr>
+      <tr><td>referringPhysicianName</td><td>xs:string</td><td>0 - 1</td><td>Name of the Patient's referring physician</td></tr>
+      <tr><td>studyDescription</td><td>xs:string</td><td>0 - 1</td><td>Institution-generated description or classification of the Study (component) performed.</td></tr>
+      <tr><td>studyInstanceUID</td><td>xs:string</td><td>0 - 1</td><td>Unique identifier for the Study.</td></tr>
+    
+  </tbody></table></td><td>0 - 1</td><td>Information about the study for which this data was acquired if any.</td></tr>
+	  <tr><td>measurementInformation</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th><th>Description</th></tr></thead><tbody>
+    
+      <tr><td>measurementID</td><td>xs:string</td><td>0 - 1
+					</td><td>Unique identifier of the measurement.</td></tr>
+      <tr><td>seriesDate</td><td>xs:date</td><td>0 - 1
+					</td><td>Date the Series started.</td></tr>
+      <tr><td>seriesTime</td><td>xs:time</td><td>0 - 1
+					</td><td>Time the Series started.</td></tr>
+      <tr><td>patientPosition</td><td>xs:string</td><td>1</td><td>Patient position descriptor relative to the equipment.
+      Enumeration is: <br/>HFP<br/>HFS<br/>HFDR<br/>HFDL<br/>FFP<br/>FFS<br/>FFDR<br/>FFDL</td></tr>
+      <tr><td>initialSeriesNumber</td><td>xs:long</td><td>0 - 1
+					</td><td>Next available series number in the study.</td></tr>
+      <tr><td>protocolName</td><td>xs:string</td><td>0 - 1
+					</td><td>User-defined description of the conditions under which the Series was performed.</td></tr>
+      <tr><td>seriesDescription</td><td>xs:string</td><td>0 - 1
+					</td><td>Description of the Series.</td></tr>
+      <tr><td>measurementDependency</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th><th>Description</th></tr></thead><tbody>
+    
+      <tr><td>dependencyType</td><td>xs:string</td><td>1</td><td>Describes the purpose for which the reference is made. E.g. "Noise".</td></tr>
+      <tr><td>measurementID</td><td>xs:string</td><td>1</td><td>Unique identifier of dependent measurement.</td></tr>
+    
+  </tbody></table></td><td>0 - 4096
+					</td><td>Identification of measurement related to this measurement. One or more Items are permitted in this Sequence.</td></tr>
+      <tr><td>seriesInstanceUIDRoot</td><td>xs:string</td><td>0 - 1
+					</td><td>First portion of the series unique identifier.</td></tr>
+      <tr><td>frameOfReferenceUID</td><td>xs:string</td><td>0 - 1
+					</td><td>Unique identifier for the frame of reference the data was collected in. Data with the same frame of reference can be combined.</td></tr>
+      <tr><td>referencedImageSequence</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th><th>Description</th></tr></thead><tbody>
+    
+      <tr><td>referencedSOPInstanceUID</td><td>xs:string</td><td>0 - 4096
+					</td><td>Uniquely identifies the referenced SOP Instance.</td></tr>
+    
+  </tbody></table></td><td>0 - 1
+					</td><td>Other images significantly related to this image.</td></tr>
+    
+  </tbody></table></td><td>0 - 1</td><td>General information about this measurement and its relation to other measurements.</td></tr>
+      <tr><td>acquisitionSystemInformation</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th><th>Description</th></tr></thead><tbody>
+    
+      <tr><td>systemVendor</td><td>xs:string</td><td>0 - 1</td><td>Manufacturer of the device.</td></tr>
+      <tr><td>systemModel</td><td>xs:string</td><td>0 - 1</td><td>Manufacturer's model name of the device.</td></tr>
+      <tr><td>systemFieldStrength_T</td><td>xs:float</td><td>0 - 1</td><td>Fieldstrength of the device in Tesla.</td></tr>
+      <tr><td>relativeReceiverNoiseBandwidth</td><td>xs:float</td><td>0 - 1</td><td>Effective bandwidth of noise measurement data as fraction.</td></tr>
+      <tr><td>receiverChannels</td><td>xs:unsignedShort</td><td>0 - 1</td><td>Count of coils used for this measurement.</td></tr>
+      <tr><td>coilLabel</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th><th>Description</th></tr></thead><tbody>
+    
+      <tr><td>coilNumber</td><td>xs:unsignedShort</td><td>1</td><td>Index of this receiver coil.</td></tr>
+      <tr><td>coilName</td><td>xs:string</td><td>1</td><td>Name of this receiver coil.</td></tr>
+    
+  </tbody></table></td><td>0 - 4096
+					</td><td>List of the coils used for this measurement.</td></tr>
+      <tr><td>institutionName</td><td>xs:string</td><td>0 - 1</td><td>Institution where the equipment that produced the Composite Instances is located.</td></tr>
+      <tr><td>stationName</td><td>xs:string</td><td>0 - 1</td><td>User defined name identifying the machine that produced the Composite Instances.</td></tr>
+      <tr><td>deviceID</td><td>xs:string</td><td>0 - 1</td><td>Identifier for the machine that produced the Composite Instances.</td></tr>
+    
+  </tbody></table></td><td>0 - 1</td><td>General information about the acquisition system.</td></tr>
+      <tr><td>experimentalConditions</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th><th>Description</th></tr></thead><tbody>
+    
+      <tr><td>H1resonanceFrequency_Hz</td><td>xs:long</td><td>
+						1
+					</td><td>The resonance frequency in Hz of hydrogen in the static magnetic field of this scanner.</td></tr>
+    
+  </tbody></table></td><td>1</td><td>Information about the experimental conditions.</td></tr>
+      <tr><td>encoding</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th><th>Description</th></tr></thead><tbody>
+    
+      <tr><td>encodedSpace</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th><th>Description</th></tr></thead><tbody>
+    
+      <tr><td>matrixSize</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th></tr></thead><tbody>
+    
+      <tr><td>x</td><td>xs:unsignedShort</td><td>1</td></tr>
+      <tr><td>y</td><td>xs:unsignedShort</td><td>1</td></tr>
+      <tr><td>z</td><td>xs:unsignedShort</td><td>1</td></tr>
+    
+  </tbody></table></td><td>1</td><td>Image extent encoded in k-space in pixels.</td></tr>
+      <tr><td>fieldOfView_mm</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th></tr></thead><tbody>
+    
+      <tr><td>x</td><td>xs:float</td><td>1</td></tr>
+      <tr><td>y</td><td>xs:float</td><td>1</td></tr>
+      <tr><td>z</td><td>xs:float</td><td>1</td></tr>
+    
+  </tbody></table></td><td>1</td><td>Image extent encoded in k-space in mm.</td></tr>
+    
+  </tbody></table></td><td>1</td><td>Description of the image extent in k-space.</td></tr>
+      <tr><td>reconSpace</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th><th>Description</th></tr></thead><tbody>
+    
+      <tr><td>matrixSize</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th></tr></thead><tbody>
+    
+      <tr><td>x</td><td>xs:unsignedShort</td><td>1</td></tr>
+      <tr><td>y</td><td>xs:unsignedShort</td><td>1</td></tr>
+      <tr><td>z</td><td>xs:unsignedShort</td><td>1</td></tr>
+    
+  </tbody></table></td><td>1</td><td>Image extent encoded in k-space in pixels.</td></tr>
+      <tr><td>fieldOfView_mm</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th></tr></thead><tbody>
+    
+      <tr><td>x</td><td>xs:float</td><td>1</td></tr>
+      <tr><td>y</td><td>xs:float</td><td>1</td></tr>
+      <tr><td>z</td><td>xs:float</td><td>1</td></tr>
+    
+  </tbody></table></td><td>1</td><td>Image extent encoded in k-space in mm.</td></tr>
+    
+  </tbody></table></td><td>1</td><td>Description of the image extent after reconstruction.</td></tr>
+      <tr><td>encodingLimits</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th><th>Description</th></tr></thead><tbody>
+    
+      <tr><td>kspace_encoding_step_0</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th></tr></thead><tbody>
+    
+      <tr><td>minimum</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+      <tr><td>maximum</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+      <tr><td>center</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+    
+  </tbody></table></td><td>0 - 1</td><td>Kspace_encoding_step_0 loop counter limits.</td></tr>
+      <tr><td>kspace_encoding_step_1</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th></tr></thead><tbody>
+    
+      <tr><td>minimum</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+      <tr><td>maximum</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+      <tr><td>center</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+    
+  </tbody></table></td><td>0 - 1</td><td>Kspace_encoding_step_1 loop counter limits.</td></tr>
+      <tr><td>kspace_encoding_step_2</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th></tr></thead><tbody>
+    
+      <tr><td>minimum</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+      <tr><td>maximum</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+      <tr><td>center</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+    
+  </tbody></table></td><td>0 - 1</td><td>Kspace_encoding_step_2 loop counter limits.</td></tr>
+      <tr><td>average</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th></tr></thead><tbody>
+    
+      <tr><td>minimum</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+      <tr><td>maximum</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+      <tr><td>center</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+    
+  </tbody></table></td><td>0 - 1</td><td>Average loop counter limits.</td></tr>
+      <tr><td>slice</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th></tr></thead><tbody>
+    
+      <tr><td>minimum</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+      <tr><td>maximum</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+      <tr><td>center</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+    
+  </tbody></table></td><td>0 - 1</td><td>Slice loop counter limits.</td></tr>
+      <tr><td>contrast</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th></tr></thead><tbody>
+    
+      <tr><td>minimum</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+      <tr><td>maximum</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+      <tr><td>center</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+    
+  </tbody></table></td><td>0 - 1</td><td>Contrast loop counter limits.</td></tr>
+      <tr><td>phase</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th></tr></thead><tbody>
+    
+      <tr><td>minimum</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+      <tr><td>maximum</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+      <tr><td>center</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+    
+  </tbody></table></td><td>0 - 1</td><td>Phase loop counter limits.</td></tr>
+      <tr><td>repetition</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th></tr></thead><tbody>
+    
+      <tr><td>minimum</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+      <tr><td>maximum</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+      <tr><td>center</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+    
+  </tbody></table></td><td>0 - 1</td><td>Repetition loop counter limits.</td></tr>
+      <tr><td>set</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th></tr></thead><tbody>
+    
+      <tr><td>minimum</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+      <tr><td>maximum</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+      <tr><td>center</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+    
+  </tbody></table></td><td>0 - 1</td><td>Set loop counter limits.</td></tr>
+      <tr><td>segment</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th></tr></thead><tbody>
+    
+      <tr><td>minimum</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+      <tr><td>maximum</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+      <tr><td>center</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+    
+  </tbody></table></td><td>0 - 1</td><td>Segment loop counter limits.</td></tr>
+    
+  </tbody></table></td><td>1</td><td>Information about the limit values of the loop counters along the encoded dimensions.</td></tr>
+      <tr><td>trajectory</td><td>xs:string</td><td>1</td><td>Enum describing the type of this trajectory.
+      Enumeration is: <br/>cartesian<br/>epi<br/>radial<br/>goldenangle<br/>spiral<br/>other</td></tr>
+      <tr><td>trajectoryDescription</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th><th>Description</th></tr></thead><tbody>
+    
+      <tr><td>identifier</td><td>xs:string</td><td>1</td><td>Human readable type of trajectory e.g. Cartesian, Spiral, Radial.</td></tr>
+      <tr><td>userParameterLong</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th></tr></thead><tbody>
+    
+      <tr><td>name</td><td>xs:string</td><td>
+						1
+					</td></tr>
+      <tr><td>value</td><td>xs:long</td><td>
+						1
+					</td></tr>
+    
+  </tbody></table></td><td>0 - 4096
+					</td><td>Space to describe a trajectory with a number of long integers.</td></tr>
+      <tr><td>userParameterDouble</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th></tr></thead><tbody>
+    
+      <tr><td>name</td><td>xs:string</td><td>
+						1
+					</td></tr>
+      <tr><td>value</td><td>xs:double</td><td>
+						1
+					</td></tr>
+    
+  </tbody></table></td><td>0 - 4096
+					</td><td>Space to describe a trajectory with a number of double precision floats.</td></tr>
+      <tr><td>comment</td><td>xs:string</td><td>0 - 1</td><td>User defined comment on this trajectory.</td></tr>
+    
+  </tbody></table></td><td>0 - 1</td><td>Description of the k-space trajectory used in this measurement.</td></tr>
+      <tr><td>parallelImaging</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th><th>Description</th></tr></thead><tbody>
+    
+      <tr><td>accelerationFactor</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th></tr></thead><tbody>
+    
+      <tr><td>kspace_encoding_step_1</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+      <tr><td>kspace_encoding_step_2</td><td>xs:unsignedShort</td><td>
+						1
+					</td></tr>
+    
+  </tbody></table></td><td>
+						1
+					</td><td>The factor of undersampling applied in two encoding directions.</td></tr>
+      <tr><td>calibrationMode</td><td>xs:string</td><td>0 - 1</td><td>Enum describing which scheme was used to acquire calibration data.
+      Enumeration is: <br/>embedded<br/>interleaved<br/>separate<br/>external<br/>other</td></tr>
+      <tr><td>interleavingDimension</td><td>xs:string</td><td>0 - 1</td><td>Dimension of varying parallel acquisition.
+      Enumeration is: <br/>phase<br/>repetition<br/>contrast<br/>average<br/>other</td></tr>
+    
+  </tbody></table></td><td>0 - 1</td><td>Parameters specific to parallel imaging techniques.</td></tr>
+      <tr><td>echoTrainLength</td><td>xs:long</td><td>0 - 1</td><td>Number of lines in k-space acquired per excitation of the same volume regardless of the type of echo or the number of frames derived from them.</td></tr>
+    
+  </tbody></table></td><td>1 - 4096
+					</td><td>Information how the measured data is layed out in k-space.</td></tr>
+      <tr><td>sequenceParameters</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th><th>Description</th></tr></thead><tbody>
+    
+      <tr><td>TR</td><td>xs:float</td><td>0 - 4096
+					</td><td>The period of time in msec between the beginning of a pulse sequence and the beginning of the succeeding (essentially identical) pulse sequence.</td></tr>
+      <tr><td>TE</td><td>xs:float</td><td>0 - 4096
+					</td><td>Time in ms between the middle of the excitation pulse and the peak of the echo produced (kx=0). In the case of segmented k-space, the TE(eff) is the time between the middle of the excitation pulse to the peak of the echo that is used to cover the center of k-space (i.e., -kx=0, ky=0).</td></tr>
+      <tr><td>TI</td><td>xs:float</td><td>0 - 4096
+					</td><td>Time in msec after the middle of inverting RF pulse to middle of excitation pulse to detect the amount of longitudinal magnetization. Required if Scanning Sequence (0018,0020) has values of IR.</td></tr>
+      <tr><td>flipAngle_deg</td><td>xs:float</td><td>0 - 4096
+					</td><td>Steady state angle in degrees to which the magnetic vector is flipped from the magnetic vector of the primary field.</td></tr>
+      <tr><td>sequence_type</td><td>xs:string</td><td>0 - 1</td><td>Brief human readable description of the sequence type.</td></tr>
+      <tr><td>echo_spacing</td><td>xs:float</td><td>0 - 4096
+					</td><td>Time between excitation RF pulses, which in turn defines the time between echos.</td></tr>
+
+    
+  </tbody></table></td><td>0 - 1</td><td>Parameters describing the acquisition sequence.</td></tr>
+      <tr><td>userParameters</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th><th>Description</th></tr></thead><tbody>
+    
+      <tr><td>userParameterLong</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th></tr></thead><tbody>
+    
+      <tr><td>name</td><td>xs:string</td><td>
+						1
+					</td></tr>
+      <tr><td>value</td><td>xs:long</td><td>
+						1
+					</td></tr>
+    
+  </tbody></table></td><td>0 - 4096
+					</td><td>Space to describe additional values with a number of long integers.</td></tr>
+      <tr><td>userParameterDouble</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th></tr></thead><tbody>
+    
+      <tr><td>name</td><td>xs:string</td><td>
+						1
+					</td></tr>
+      <tr><td>value</td><td>xs:double</td><td>
+						1
+					</td></tr>
+    
+  </tbody></table></td><td>0 - 4096
+					</td><td>Space to describe additional values with a number of double precision floats.</td></tr>
+      <tr><td>userParameterString</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th></tr></thead><tbody>
+    
+      <tr><td>name</td><td>xs:string</td><td>
+						1
+					</td></tr>
+      <tr><td>value</td><td>xs:string</td><td>
+						1
+					</td></tr>
+    
+  </tbody></table></td><td>0 - 4096
+					</td><td>Space to describe additional values with a number of strings.</td></tr>
+      <tr><td>userParameterBase64</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th></tr></thead><tbody>
+    
+      <tr><td>name</td><td>xs:string</td><td>
+						1
+					</td></tr>
+      <tr><td>value</td><td>xs:base64Binary</td><td>
+						1
+					</td></tr>
+    
+  </tbody></table></td><td>0 - 4096
+					</td><td>Space to describe additional values as base64 encoded binary blob.</td></tr>
+    
+  </tbody></table></td><td>0 - 1</td><td>Space to describe additional user defined parameters.</td></tr>
+      <tr><td>waveformInformation</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th><th>Description</th></tr></thead><tbody>
+    
+      <tr><td>waveformName</td><td>xs:string</td><td>
+						1
+					</td><td>Name of an instance of waveform information.</td></tr>
+      <tr><td>waveformType</td><td>xs:string</td><td>
+						1
+					</td><td>Enum describing the type of waveform. 
+      Enumeration is: <br/>ecg<br/>pulse<br/>respiratory<br/>trigger<br/>gradientwaveform<br/>other</td></tr>
+      <tr><td>userParameters</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th><th>Description</th></tr></thead><tbody>
+    
+      <tr><td>userParameterLong</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th></tr></thead><tbody>
+    
+      <tr><td>name</td><td>xs:string</td><td>
+						1
+					</td></tr>
+      <tr><td>value</td><td>xs:long</td><td>
+						1
+					</td></tr>
+    
+  </tbody></table></td><td>0 - 4096
+					</td><td>Space to describe additional values with a number of long integers.</td></tr>
+      <tr><td>userParameterDouble</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th></tr></thead><tbody>
+    
+      <tr><td>name</td><td>xs:string</td><td>
+						1
+					</td></tr>
+      <tr><td>value</td><td>xs:double</td><td>
+						1
+					</td></tr>
+    
+  </tbody></table></td><td>0 - 4096
+					</td><td>Space to describe additional values with a number of double precision floats.</td></tr>
+      <tr><td>userParameterString</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th></tr></thead><tbody>
+    
+      <tr><td>name</td><td>xs:string</td><td>
+						1
+					</td></tr>
+      <tr><td>value</td><td>xs:string</td><td>
+						1
+					</td></tr>
+    
+  </tbody></table></td><td>0 - 4096
+					</td><td>Space to describe additional values with a number of strings.</td></tr>
+      <tr><td>userParameterBase64</td><td><table><thead><tr><th>Name</th><th>Type</th><th>Multiplicity</th></tr></thead><tbody>
+    
+      <tr><td>name</td><td>xs:string</td><td>
+						1
+					</td></tr>
+      <tr><td>value</td><td>xs:base64Binary</td><td>
+						1
+					</td></tr>
+    
+  </tbody></table></td><td>0 - 4096
+					</td><td>Space to describe additional values as base64 encoded binary blob.</td></tr>
+    
+  </tbody></table></td><td>
+						1
+					</td><td>Space to describe the actual data of the Waveforms.</td></tr>
+    
+  </tbody></table></td><td>0 - 32</td><td>Additional waveform data.</td></tr>
+    
+  </tbody></table></body></div></foreignObject></svg>

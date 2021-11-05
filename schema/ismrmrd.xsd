@@ -5,26 +5,85 @@
 
   <xs:complexType name="ismrmrdHeader">
     <xs:sequence>
-      <xs:element maxOccurs="1" minOccurs="0" name="version" type="xs:long" />
-      <xs:element maxOccurs="1" minOccurs="0" name="subjectInformation" type="subjectInformationType" />
-      <xs:element maxOccurs="1" minOccurs="0" name="studyInformation" type="studyInformationType" />
-      <xs:element maxOccurs="1" minOccurs="0" name="measurementInformation" type="measurementInformationType" />
-      <xs:element maxOccurs="1" minOccurs="0" name="acquisitionSystemInformation" type="acquisitionSystemInformationType" />
-      <xs:element maxOccurs="1" minOccurs="1" name="experimentalConditions" type="experimentalConditionsType" />
-      <xs:element maxOccurs="unbounded" minOccurs="1" name="encoding" type="encodingType" />
-      <xs:element maxOccurs="1" minOccurs="0" name="sequenceParameters" type="sequenceParametersType" />
-      <xs:element maxOccurs="1" minOccurs="0" name="userParameters" type="userParametersType" />
-      <xs:element maxOccurs="32" minOccurs="0" name="waveformInformation" type="waveformInformationType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="version" type="xs:long">
+	  	<xs:annotation>
+			<xs:documentation xml:lang="en">Major version of ISMRMRD.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="0" name="subjectInformation" type="subjectInformationType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Information about the scanned patient.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="0" name="studyInformation" type="studyInformationType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Information about the study for which this data was acquired if any.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+	  <xs:element maxOccurs="1" minOccurs="0" name="measurementInformation" type="measurementInformationType">
+	  		<xs:annotation>
+			<xs:documentation xml:lang="en">General information about this measurement and its relation to other measurements.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="0" name="acquisitionSystemInformation" type="acquisitionSystemInformationType">
+	  		<xs:annotation>
+			<xs:documentation xml:lang="en">General information about the acquisition system.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="1" name="experimentalConditions" type="experimentalConditionsType">
+	  		<xs:annotation>
+			<xs:documentation xml:lang="en">Information about the experimental conditions.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="unbounded" minOccurs="1" name="encoding" type="encodingType">
+	  		<xs:annotation>
+			<xs:documentation xml:lang="en">Information how the measured data is layed out in k-space.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="0" name="sequenceParameters" type="sequenceParametersType">
+	  		<xs:annotation>
+			<xs:documentation xml:lang="en">Parameters describing the acquisition sequence.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="0" name="userParameters" type="userParametersType">
+	  		<xs:annotation>
+			<xs:documentation xml:lang="en">Space to describe additional user defined parameters.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="32" minOccurs="0" name="waveformInformation" type="waveformInformationType">
+	  	<xs:annotation>
+			<xs:documentation xml:lang="en">Additional waveform data.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="subjectInformationType">
     <xs:all>
-      <xs:element minOccurs="0" name="patientName" type="xs:string" />
-      <xs:element minOccurs="0" name="patientWeight_kg" type="xs:float" />
-      <xs:element minOccurs="0" name="patientID" type="xs:string" />
-      <xs:element minOccurs="0" name="patientBirthdate" type="xs:date" />
+      <xs:element minOccurs="0" name="patientName" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Patient's full name.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" name="patientWeight_kg" type="xs:float">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Patient's weight in kg.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" name="patientID" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Primary identifier for the Patient.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" name="patientBirthdate" type="xs:date">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Birth date of the Patient. YYYY-MM-DD.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
       <xs:element minOccurs="0" name="patientGender">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Gender of the named Patient.</xs:documentation>
+		</xs:annotation>
         <xs:simpleType>
           <xs:restriction base="xs:string">
             <xs:pattern value="[MFO]" />
@@ -36,13 +95,41 @@
 
   <xs:complexType name="studyInformationType">
     <xs:all>
-      <xs:element minOccurs="0" maxOccurs="1" name="studyDate" type="xs:date" />
-      <xs:element minOccurs="0" maxOccurs="1" name="studyTime" type="xs:time" />
-      <xs:element minOccurs="0" maxOccurs="1" name="studyID" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="accessionNumber" type="xs:long" />
-      <xs:element minOccurs="0" maxOccurs="1" name="referringPhysicianName" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="studyDescription" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="studyInstanceUID" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="studyDate" type="xs:date">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Date the Study started.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" maxOccurs="1" name="studyTime" type="xs:time">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Time the Study started.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" maxOccurs="1" name="studyID" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">User or equipment-generated Study identifier.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" maxOccurs="1" name="accessionNumber" type="xs:long">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">A RIS generated number that identifies the order for the Study.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" maxOccurs="1" name="referringPhysicianName" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Name of the Patient's referring physician</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" maxOccurs="1" name="studyDescription" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Institution-generated description or classification of the Study (component) performed.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" maxOccurs="1" name="studyInstanceUID" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Unique identifier for the Study.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
     </xs:all>
   </xs:complexType>
 
@@ -61,70 +148,206 @@
 
   <xs:complexType name="measurementInformationType">
     <xs:sequence>
-      <xs:element minOccurs="0" name="measurementID" type="xs:string" />
-      <xs:element minOccurs="0" name="seriesDate" type="xs:date" />
-      <xs:element minOccurs="0" name="seriesTime" type="xs:time" />
-      <xs:element minOccurs="1" name="patientPosition" type="patientPositionType" />
-      <xs:element minOccurs="0" name="initialSeriesNumber" type="xs:long" />
-      <xs:element minOccurs="0" name="protocolName" type="xs:string" />
-      <xs:element minOccurs="0" name="seriesDescription" type="xs:string" />
-      <xs:element maxOccurs="unbounded" minOccurs="0" name="measurementDependency" type="measurementDependencyType" />
-      <xs:element minOccurs="0" name="seriesInstanceUIDRoot" type="xs:string" />
-      <xs:element minOccurs="0" name="frameOfReferenceUID" type="xs:string" />
-      <xs:element minOccurs="0" name="referencedImageSequence" type="referencedImageSequenceType" />
+      <xs:element minOccurs="0" name="measurementID" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Unique identifier of the measurement.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" name="seriesDate" type="xs:date">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Date the Series started.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" name="seriesTime" type="xs:time">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Time the Series started.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="1" name="patientPosition" type="patientPositionType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Patient position descriptor relative to the equipment.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" name="initialSeriesNumber" type="xs:long">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Next available series number in the study.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" name="protocolName" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">User-defined description of the conditions under which the Series was performed.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" name="seriesDescription" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Description of the Series.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="measurementDependency" type="measurementDependencyType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Identification of measurement related to this measurement. One or more Items are permitted in this Sequence.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" name="seriesInstanceUIDRoot" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">First portion of the series unique identifier.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" name="frameOfReferenceUID" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Unique identifier for the frame of reference the data was collected in. Data with the same frame of reference can be combined.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" name="referencedImageSequence" type="referencedImageSequenceType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Other images significantly related to this image.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="measurementDependencyType">
     <xs:sequence>
-      <xs:element maxOccurs="1" minOccurs="1" name="dependencyType" type="xs:string" />
-      <xs:element maxOccurs="1" minOccurs="1" name="measurementID" type="xs:string" />
+      <xs:element maxOccurs="1" minOccurs="1" name="dependencyType" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Describes the purpose for which the reference is made. E.g. "Noise".</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="1" name="measurementID" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Unique identifier of dependent measurement.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="coilLabelType">
     <xs:sequence>
-      <xs:element maxOccurs="1" minOccurs="1" name="coilNumber" type="xs:unsignedShort" />
-      <xs:element maxOccurs="1" minOccurs="1" name="coilName" type="xs:string" />
+      <xs:element maxOccurs="1" minOccurs="1" name="coilNumber" type="xs:unsignedShort">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Index of this receiver coil.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="1" name="coilName" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Name of this receiver coil.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="acquisitionSystemInformationType">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" name="systemVendor" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="systemModel" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="systemFieldStrength_T" type="xs:float" />
-      <xs:element minOccurs="0" maxOccurs="1" name="relativeReceiverNoiseBandwidth" type="xs:float" />
-      <xs:element minOccurs="0" maxOccurs="1" name="receiverChannels" type="xs:unsignedShort" />
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="coilLabel" type="coilLabelType" />
-      <xs:element minOccurs="0" maxOccurs="1" name="institutionName" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="stationName" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="deviceID" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="systemVendor" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Manufacturer of the device.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" maxOccurs="1" name="systemModel" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Manufacturer's model name of the device.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" maxOccurs="1" name="systemFieldStrength_T" type="xs:float">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Fieldstrength of the device in Tesla.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" maxOccurs="1" name="relativeReceiverNoiseBandwidth" type="xs:float">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Effective bandwidth of noise measurement data as fraction.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" maxOccurs="1" name="receiverChannels" type="xs:unsignedShort">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Count of coils used for this measurement.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="coilLabel" type="coilLabelType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">List of the coils used for this measurement.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" maxOccurs="1" name="institutionName" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Institution where the equipment that produced the Composite Instances is located.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" maxOccurs="1" name="stationName" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">User defined name identifying the machine that produced the Composite Instances.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" maxOccurs="1" name="deviceID" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Identifier for the machine that produced the Composite Instances.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="experimentalConditionsType">
     <xs:all>
-      <xs:element name="H1resonanceFrequency_Hz" type="xs:long" />
+      <xs:element name="H1resonanceFrequency_Hz" type="xs:long">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">The resonance frequency in Hz of hydrogen in the static magnetic field of this scanner.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
     </xs:all>
   </xs:complexType>
 
   <xs:complexType name="encodingType">
     <xs:all>
-      <xs:element maxOccurs="1" minOccurs="1" name="encodedSpace" type="encodingSpaceType" />
-      <xs:element maxOccurs="1" minOccurs="1" name="reconSpace" type="encodingSpaceType" />
-      <xs:element maxOccurs="1" minOccurs="1" name="encodingLimits" type="encodingLimitsType" />
-      <xs:element maxOccurs="1" minOccurs="1" name="trajectory" type="trajectoryType" />
-      <xs:element maxOccurs="1" minOccurs="0" name="trajectoryDescription" type="trajectoryDescriptionType" />
-      <xs:element maxOccurs="1" minOccurs="0" name="parallelImaging" type="parallelImagingType" />
-      <xs:element maxOccurs="1" minOccurs="0" name="echoTrainLength" type="xs:long" />
+      <xs:element maxOccurs="1" minOccurs="1" name="encodedSpace" type="encodingSpaceType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Description of the image extent in k-space.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="1" name="reconSpace" type="encodingSpaceType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Description of the image extent after reconstruction.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="1" name="encodingLimits" type="encodingLimitsType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Information about the limit values of the loop counters along the encoded dimensions.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="1" name="trajectory" type="trajectoryType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Enum describing the type of this trajectory.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="0" name="trajectoryDescription" type="trajectoryDescriptionType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Description of the k-space trajectory used in this measurement.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="0" name="parallelImaging" type="parallelImagingType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Parameters specific to parallel imaging techniques.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="0" name="echoTrainLength" type="xs:long">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Number of lines in k-space acquired per excitation of the same volume regardless of the type of echo or the number of frames derived from them.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
     </xs:all>
   </xs:complexType>
 
   <xs:complexType name="encodingSpaceType">
     <xs:all>
-      <xs:element maxOccurs="1" minOccurs="1" name="matrixSize" type="matrixSizeType" />
-      <xs:element maxOccurs="1" minOccurs="1" name="fieldOfView_mm" type="fieldOfView_mm" />
+      <xs:element maxOccurs="1" minOccurs="1" name="matrixSize" type="matrixSizeType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Image extent encoded in k-space in pixels.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="1" name="fieldOfView_mm" type="fieldOfView_mm">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Image extent encoded in k-space in mm.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
     </xs:all>
   </xs:complexType>
 
@@ -154,16 +377,56 @@
 
   <xs:complexType name="encodingLimitsType">
     <xs:all>
-      <xs:element maxOccurs="1" minOccurs="0" name="kspace_encoding_step_0" type="limitType" />
-      <xs:element maxOccurs="1" minOccurs="0" name="kspace_encoding_step_1" type="limitType" />
-      <xs:element maxOccurs="1" minOccurs="0" name="kspace_encoding_step_2" type="limitType" />
-      <xs:element maxOccurs="1" minOccurs="0" name="average" type="limitType" />
-      <xs:element maxOccurs="1" minOccurs="0" name="slice" type="limitType" />
-      <xs:element maxOccurs="1" minOccurs="0" name="contrast" type="limitType" />
-      <xs:element maxOccurs="1" minOccurs="0" name="phase" type="limitType" />
-      <xs:element maxOccurs="1" minOccurs="0" name="repetition" type="limitType" />
-      <xs:element maxOccurs="1" minOccurs="0" name="set" type="limitType" />
-      <xs:element maxOccurs="1" minOccurs="0" name="segment" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="kspace_encoding_step_0" type="limitType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Kspace_encoding_step_0 loop counter limits.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="0" name="kspace_encoding_step_1" type="limitType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Kspace_encoding_step_1 loop counter limits.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="0" name="kspace_encoding_step_2" type="limitType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Kspace_encoding_step_2 loop counter limits.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="0" name="average" type="limitType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Average loop counter limits.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="0" name="slice" type="limitType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Slice loop counter limits.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="0" name="contrast" type="limitType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Contrast loop counter limits.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="0" name="phase" type="limitType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Phase loop counter limits.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="0" name="repetition" type="limitType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Repetition loop counter limits.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="0" name="set" type="limitType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Set loop counter limits.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="0" name="segment" type="limitType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Segment loop counter limits.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
     </xs:all>
   </xs:complexType>
 
@@ -180,21 +443,61 @@
 
   <xs:complexType name="trajectoryDescriptionType">
     <xs:sequence>
-      <xs:element maxOccurs="1" minOccurs="1" name="identifier" type="xs:string" />
-      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterLong" type="userParameterLongType" />
-      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterDouble" type="userParameterDoubleType" />
-      <xs:element maxOccurs="1" minOccurs="0" name="comment" type="xs:string" />
+      <xs:element maxOccurs="1" minOccurs="1" name="identifier" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Human readable type of trajectory e.g. Cartesian, Spiral, Radial.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterLong" type="userParameterLongType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Space to describe a trajectory with a number of long integers.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterDouble" type="userParameterDoubleType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Space to describe a trajectory with a number of double precision floats.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="0" name="comment" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">User defined comment on this trajectory.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="sequenceParametersType">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="TR" />
-      <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="TE" />
-      <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="TI" />
-      <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="flipAngle_deg" />
-      <xs:element minOccurs="0" maxOccurs="1" type="xs:string" name="sequence_type" />
-      <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="echo_spacing" />
+      <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="TR">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">The period of time in msec between the beginning of a pulse sequence and the beginning of the succeeding (essentially identical) pulse sequence.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="TE">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Time in ms between the middle of the excitation pulse and the peak of the echo produced (kx=0). In the case of segmented k-space, the TE(eff) is the time between the middle of the excitation pulse to the peak of the echo that is used to cover the center of k-space (i.e., -kx=0, ky=0).</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="TI">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Time in msec after the middle of inverting RF pulse to middle of excitation pulse to detect the amount of longitudinal magnetization. Required if Scanning Sequence (0018,0020) has values of IR.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="flipAngle_deg">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Steady state angle in degrees to which the magnetic vector is flipped from the magnetic vector of the primary field.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" maxOccurs="1" type="xs:string" name="sequence_type">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Brief human readable description of the sequence type.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="echo_spacing">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Time between excitation RF pulses, which in turn defines the time between echos.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
 
     </xs:sequence>
   </xs:complexType>
@@ -229,16 +532,36 @@
 
   <xs:complexType name="referencedImageSequenceType">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="referencedSOPInstanceUID" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="referencedSOPInstanceUID" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Uniquely identifies the referenced SOP Instance.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="userParametersType">
     <xs:sequence>
-      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterLong" type="userParameterLongType" />
-      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterDouble" type="userParameterDoubleType" />
-      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterString" type="userParameterStringType" />
-      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterBase64" type="userParameterBase64Type" />
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterLong" type="userParameterLongType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Space to describe additional values with a number of long integers.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterDouble" type="userParameterDoubleType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Space to describe additional values with a number of double precision floats.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterString" type="userParameterStringType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Space to describe additional values with a number of strings.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterBase64" type="userParameterBase64Type">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Space to describe additional values as base64 encoded binary blob.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
     </xs:sequence>
   </xs:complexType>
 
@@ -271,17 +594,36 @@
 
   <xs:complexType name="parallelImagingType">
     <xs:sequence>
-      <xs:element type="accelerationFactorType" name="accelerationFactor" />
-      <xs:element maxOccurs="1" minOccurs="0" type="calibrationModeType" name="calibrationMode" />
-      <xs:element maxOccurs="1" minOccurs="0" type="interleavingDimensionType" name="interleavingDimension" />
+      <xs:element type="accelerationFactorType" name="accelerationFactor">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">The factor of undersampling applied in two encoding directions.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="0" type="calibrationModeType" name="calibrationMode">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Enum describing which scheme was used to acquire calibration data.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
+      <xs:element maxOccurs="1" minOccurs="0" type="interleavingDimensionType" name="interleavingDimension">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Dimension of varying parallel acquisition.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
     </xs:sequence>
   </xs:complexType>
 
 
   <xs:complexType name="waveformInformationType">
     <xs:sequence>
-      <xs:element name="waveformName" type="xs:string" />
+      <xs:element name="waveformName" type="xs:string">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Name of an instance of waveform information.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
       <xs:element name="waveformType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Enum describing the type of waveform. </xs:documentation>
+		</xs:annotation>
         <xs:simpleType>
           <xs:restriction base="xs:string">
             <xs:enumeration value="ecg" />
@@ -293,7 +635,11 @@
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
-      <xs:element name="userParameters" type="userParametersType" />
+      <xs:element name="userParameters" type="userParametersType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Space to describe the actual data of the Waveforms.</xs:documentation>
+		</xs:annotation>
+	  </xs:element>
     </xs:sequence>
   </xs:complexType>
 </xs:schema>
