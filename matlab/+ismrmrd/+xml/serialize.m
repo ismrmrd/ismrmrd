@@ -202,14 +202,14 @@ if isfield(header,'userParameters')
 end
 
 if isfield(header,'waveformInformation')
-    n1 = docNode.createElement('waveformInformation')
+    n1 = docNode.createElement('waveformInformation');
     waveformInformation = header.waveformInformation;
 
     append_node(docNode,n1,waveformInformation,'waveformName');
     append_node(docNode,n1,waveformInformation,'waveformType');
 
     if isfield(waveformInformation,'userParameters')
-        n2 = n1.createElement('userParameters')
+        n2 = n1.createElement('userParameters');
         userParameters = waveformInformation.userParameters;
 
         if isfield(userParameters,'userParameterLong')
