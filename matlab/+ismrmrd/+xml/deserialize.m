@@ -34,7 +34,7 @@ for n = 1:numChildNodes
     name = char(getNodeName(theChild));
 
     %Some elements occur more than once
-    if isfield(info,name)
+    if isfield(info, name)
         num = length(info.(name))+1;
     else
         num = 1;
