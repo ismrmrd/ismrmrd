@@ -1,0 +1,28 @@
+Name:       {{{ git_dir_name }}}
+Version:    {{{ git_dir_version }}}
+Release:    1%{?dist}
+Summary:    Library for working with MRI data in the ISMRMRD format 
+
+License:    MIT
+URL:        https://github.com/ismrmrd/ismrmrd
+VCS:        {{{ git_dir_vcs }}}
+
+Source: {{{ git_dir_pack }}}
+
+%description
+ The ISMRMRD format combines a mix of flexible data structures (XML header) and fixed structures (equivalent to C-structs) to represent MRI data.
+In addition, the ISMRMRD format also specifies an image header for storing reconstructed images and the accompanying C++ library provides a convenient way of writing such images into HDF5 files along with generic arrays for storing less well defined data structures, e.g. coil sensitivity maps or other calibration data. 
+
+%prep
+{{{ git_dir_setup_macro }}}
+
+%changelog
+{{{ git_dir_changelog }}}
+
+%build
+%cmake .
+%make_build
+
+
+%install
+%make_install

@@ -331,7 +331,7 @@ install(FILES
   COMPONENT Devel)
 
 export(PACKAGE ISMRMRD)
- 
+
 # Create package
 string(TOLOWER ${PROJECT_NAME} PROJECT_NAME_LOWER)
 include(${ISMRMRD_CMAKE_DIR}/ismrmrd_cpack.cmake)
