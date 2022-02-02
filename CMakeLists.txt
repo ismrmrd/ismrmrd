@@ -231,22 +231,21 @@ target_link_libraries(ismrmrd ${ISMRMRD_TARGET_LINK_LIBS})
 list(APPEND ISMRMRD_LIBRARIES ismrmrd) # Add to list of libraries to be found
 list(APPEND ISMRMRD_LIBRARY_DIRS ${CMAKE_BINARY_DIR} ) # Add to list of directories to find libraries
 
+include(GNUInstallDirs)
+
 # install the main library
 install(TARGETS ismrmrd EXPORT ISMRMRDTargets
-   LIBRARY DESTINATION lib
-   ARCHIVE DESTINATION lib
-   RUNTIME DESTINATION bin
+   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} 
    COMPONENT Devel
 )
 
 # install the headers
-install(DIRECTORY include/ismrmrd  DESTINATION include COMPONENT Devel)
+install(DIRECTORY include/ismrmrd  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} COMPONENT Devel)
 
 # install the schema file
 install(FILES schema/ismrmrd.xsd DESTINATION share/ismrmrd/schema COMPONENT Devel)
-
-# install the cmake modules
-install(FILES cmake/FindFFTW3.cmake DESTINATION share/ismrmrd/cmake COMPONENT Devel)
 
 #  ---   Main Library  (end) ----
 
@@ -276,7 +275,7 @@ install(DIRECTORY matlab DESTINATION share/ismrmrd )
 #
 
 include(CMakePackageConfigHelpers)
-set(INSTALL_CONFIGDIR lib/cmake/ISMRMRD)
+set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/ISMRMRD)
 
 set(CONFIG_ISMRMRD_SCHEMA_DIR   ${ISMRMRD_SCHEMA_DIR})
 set(CONFIG_ISMRMRD_TARGET_INCLUDE_DIRS ${ISMRMRD_TARGET_INCLUDE_DIRS})

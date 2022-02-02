@@ -13,10 +13,17 @@ BuildRequires: make, cmake, gcc, gcc-c++, pugixml-devel, hdf5-devel, pugixml, hd
 
 Requires: pugixml, hdf5
 
+%package devel
+Requires:	%{name}%{?_isa} = %{?epoch:%{epoch}:}%{version}-%{release}
+Summary: ismrmrd development files
+
 
 %description
  The ISMRMRD format combines a mix of flexible data structures (XML header) and fixed structures (equivalent to C-structs) to represent MRI data.
 In addition, the ISMRMRD format also specifies an image header for storing reconstructed images and the accompanying C++ library provides a convenient way of writing such images into HDF5 files along with generic arrays for storing less well defined data structures, e.g. coil sensitivity maps or other calibration data. 
+
+%description devel 
+Header files for the ISMRMRD package 
 
 %prep
 {{{ git_dir_setup_macro }}}
@@ -25,9 +32,24 @@ In addition, the ISMRMRD format also specifies an image header for storing recon
 {{{ git_dir_changelog }}}
 
 %build
-%cmake .
-%make_build
+%cmake 
+%cmake_build
 
 
 %install
-%make_install
+%cmake_install
+rm -rf %{buildroot}/usr/share/ismrmrd/matlab 
+
+%files
+%license LICENSE
+%{_libdir}/libismrmrd.so*
+%{_bindir}/ismrmrd_*
+
+%files devel 
+%{_includedir}/ismrmrd
+%{_libdir}/libismrmrd.so
+%{_libdir}/cmake/ISMRMRD
+%{_datadir}/ismrmrd/schema/ismrmrd.xsd
+
+%clean
+rm -rf %{buildroot}
