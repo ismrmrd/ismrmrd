@@ -9,6 +9,11 @@ VCS:        {{{ git_dir_vcs }}}
 
 Source: {{{ git_dir_pack }}}
 
+BuildRequires: make, cmake, gcc, gcc-c++, pugixml-devel, hdf5-devel, pugixml, hdf5
+
+Requires: pugixml, hdf5
+
+
 %description
  The ISMRMRD format combines a mix of flexible data structures (XML header) and fixed structures (equivalent to C-structs) to represent MRI data.
 In addition, the ISMRMRD format also specifies an image header for storing reconstructed images and the accompanying C++ library provides a convenient way of writing such images into HDF5 files along with generic arrays for storing less well defined data structures, e.g. coil sensitivity maps or other calibration data. 
