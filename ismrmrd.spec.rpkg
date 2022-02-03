@@ -1,0 +1,55 @@
+Name:       {{{ git_dir_name }}}
+Version:    {{{ git_dir_version }}}
+Release:    1%{?dist}
+Summary:    Library for working with MRI data in the ISMRMRD format 
+
+License:    MIT
+URL:        https://github.com/ismrmrd/ismrmrd
+VCS:        {{{ git_dir_vcs }}}
+
+Source: {{{ git_dir_pack }}}
+
+BuildRequires: make, cmake, gcc, gcc-c++, pugixml-devel, hdf5-devel, pugixml, hdf5
+
+Requires: pugixml, hdf5
+
+%package devel
+Requires:	%{name}%{?_isa} = %{?epoch:%{epoch}:}%{version}-%{release}
+Summary: ismrmrd development files
+
+
+%description
+ The ISMRMRD format combines a mix of flexible data structures (XML header) and fixed structures (equivalent to C-structs) to represent MRI data.
+In addition, the ISMRMRD format also specifies an image header for storing reconstructed images and the accompanying C++ library provides a convenient way of writing such images into HDF5 files along with generic arrays for storing less well defined data structures, e.g. coil sensitivity maps or other calibration data. 
+
+%description devel 
+Header files for the ISMRMRD package 
+
+%prep
+{{{ git_dir_setup_macro }}}
+
+%changelog
+{{{ git_dir_changelog }}}
+
+%build
+%cmake 
+%cmake_build
+
+
+%install
+%cmake_install
+rm -rf %{buildroot}/usr/share/ismrmrd/matlab 
+
+%files
+%license LICENSE
+%{_libdir}/libismrmrd.so*
+%{_bindir}/ismrmrd_*
+
+%files devel 
+%{_includedir}/ismrmrd
+%{_libdir}/libismrmrd.so
+%{_libdir}/cmake/ISMRMRD
+%{_datadir}/ismrmrd/schema/ismrmrd.xsd
+
+%clean
+rm -rf %{buildroot}
