@@ -1,0 +1,3 @@
+usr/share/ismrmrd/matlab/+ismrmrd/*.m
+usr/share/ismrmrd/matlab/+ismrmrd/*/*.m
+
