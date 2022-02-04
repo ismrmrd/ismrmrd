@@ -1,1 +1,7 @@
-ismrmrd_1.4.2-1focal2_source.buildinfo libs optional
+ismrmrd-misc-dbgsym_1.5_amd64.ddeb debug optional automatic=yes
+ismrmrd-misc_1.5_amd64.deb science optional
+ismrmrd_1.5_amd64.buildinfo libs optional
+libismrmrd-dbgsym_1.5_amd64.ddeb debug optional automatic=yes
+libismrmrd-dev_1.5_amd64.deb libdevel optional
+libismrmrd-matlab_1.5_all.deb libs optional
+libismrmrd_1.5_amd64.deb libs optional
