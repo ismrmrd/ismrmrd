@@ -1,5 +1,3 @@
-![Build Status](https://github.com/ismrmrd/ismrmrd/workflows/CMake/badge.svg?branch=master)
-
 # ISMRM Raw Data Format (ISMRMRD)
 
 A prerequisite for sharing magnetic resonance (imaging) reconstruction algorithms and code is a common raw data format. This repository describes such a common raw data format, which attempts to capture the data fields that are required to describe the magnetic resonance experiment with enough detail to reconstruct images. The repository also contains a C/C++ library for working with the format. This standard was developed by a subcommittee of the ISMRM Sedona 2013 workshop and is described in detail in:
