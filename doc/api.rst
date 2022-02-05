@@ -1,6 +1,8 @@
 ISMRMRD API
 ###########
 
+The project includes both a C and A C++ API:
+
 
 .. toctree::
    :maxdepth: 3
