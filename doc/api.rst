@@ -10,3 +10,5 @@ The project includes both a C and A C++ API:
 
    c-api.rst
    cpp-api.rst
+   meta.rst
+   xml.rst

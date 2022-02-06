@@ -1,19 +1,12 @@
-ISMRMRD C++ API
-###############
+C++ API
+#######
 
-.. doxygenclass:: ISMRMRD::AcquisitionHeader
-    :members:
-    :undoc-members:
-
-
-.. doxygenclass:: ISMRMRD::Acquisition
-    :members:
-    :undoc-members:
-
-.. doxygenclass:: ISMRMRD::ImageHeader
-    :members:
-    :undoc-members:
-
-.. doxygenclass:: ISMRMRD::Image
-    :members:
-    :undoc-members:
+.. doxygengroup:: cxxapi
+   :project: ISMRMRD
+   :content-only:
+   :outline:
+   :members:
+   :protected-members:
+   :private-members:
+   :undoc-members:
+   :inner:

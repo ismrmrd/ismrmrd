@@ -1,7 +1,7 @@
-C API
-######
+XML API
+#######
 
-.. doxygengroup:: capi
+.. doxygengroup:: xml
    :project: ISMRMRD
    :content-only:
    :outline:

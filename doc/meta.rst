@@ -1,7 +1,7 @@
-C API
-######
+Meta API
+#########
 
-.. doxygengroup:: capi
+.. doxygengroup:: meta
    :project: ISMRMRD
    :content-only:
    :outline:
