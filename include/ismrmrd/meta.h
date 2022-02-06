@@ -45,10 +45,6 @@ namespace ISMRMRD {
      */
 
 
-/**
- * @addtogroup xml
- * @{
- */
 
     /**
        This class can represent a meta data value of any
