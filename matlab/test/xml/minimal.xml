@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ismrmrdHeader xmlns="http://www.ismrm.org/ISMRMRD" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.ismrm.org/ISMRMRD ismrmrd.xsd">
+   <experimentalConditions>
+      <H1resonanceFrequency_Hz>63620740</H1resonanceFrequency_Hz>
+   </experimentalConditions>
+   <encoding>
+      <encodedSpace>
+         <matrixSize>
+            <x>500</x>
+            <y>500</y>
+            <z>1</z>
+         </matrixSize>
+         <fieldOfView_mm>
+            <x>500</x>
+            <y>500</y>
+            <z>1</z>
+         </fieldOfView_mm>
+      </encodedSpace>
+      <reconSpace>
+         <matrixSize>
+            <x>500</x>
+            <y>500</y>
+            <z>1</z>
+         </matrixSize>
+         <fieldOfView_mm>
+            <x>500</x>
+            <y>500</y>
+            <z>1</z>
+         </fieldOfView_mm>
+      </reconSpace>
+      <trajectory>cartesian</trajectory>
+      <encodingLimits>
+         <kspace_encoding_step_1>
+            <minimum>0</minimum>
+            <maximum>499</maximum>
+            <center>250</center>
+         </kspace_encoding_step_1>
+      </encodingLimits>
+   </encoding>
+</ismrmrdHeader>
