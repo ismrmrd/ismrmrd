@@ -1,6 +1,6 @@
 %% Generating a simple ISMRMRD data set
 
-% This is an example of how to construct a datset from synthetic data
+% This is an example of how to construct a dataset from synthetic data
 % simulating a fully sampled acquisition on a cartesian grid.
 % data from 4 coils from a single slice object that looks like a square
 
@@ -46,7 +46,7 @@ end
 % It is very slow to append one acquisition at a time, so we're going
 % to append a block of acquisitions at a time.
 % In this case, we'll do it one repetition at a time to show off this
-% feature.  Each block has nY aquisitions
+% feature.  Each block has nY acquisitions
 acqblock = ismrmrd.Acquisition(nY);
 
 % Set the header elements that don't change

@@ -18,7 +18,7 @@
 
 namespace ISMRMRD {
     /*
-      The serialized version of the structues would look like this
+      The serialized version of the structures would look like this
 
       <?xml version="1.0"?>
       <ismrmrdMeta>
