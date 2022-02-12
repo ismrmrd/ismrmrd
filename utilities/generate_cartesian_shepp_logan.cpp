@@ -72,7 +72,7 @@ int main(int argc, char** argv)
 	std::cout << "Acceleration: " << acc_factor << std::endl;
 
 	boost::shared_ptr<NDArray<complex_float_t> > phantom = shepp_logan_phantom(matrix_size);
-	boost::shared_ptr<NDArray<complex_float_t> > coils = generate_birdcage_sensititivies(matrix_size, ncoils, 1.5);
+	boost::shared_ptr<NDArray<complex_float_t> > coils = generate_birdcage_sensitivities(matrix_size, ncoils, 1.5);
 
 	std::vector<size_t> dims;
 	dims.push_back(matrix_size*ros); //oversampling in the readout direction

@@ -73,7 +73,7 @@ boost::shared_ptr< std::vector<PhantomEllipse> > modified_shepp_logan_ellipses()
     return out;
 }
 
-boost::shared_ptr<NDArray<complex_float_t> > generate_birdcage_sensititivies(unsigned int matrix_size, unsigned int ncoils, float relative_radius)
+boost::shared_ptr<NDArray<complex_float_t> > generate_birdcage_sensitivities(unsigned int matrix_size, unsigned int ncoils, float relative_radius)
 {
     //This function is heavily inspired by the mri_birdcage.m Matlab script in Jeff Fessler's IRT packake
     //http://web.eecs.umich.edu/~fessler/code/
