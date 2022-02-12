@@ -1,5 +1,5 @@
 /*
- * ismrmrd_phanthom.cpp
+ * ismrmrd_phantom.cpp
  *
  *  Created on: Apr 1, 2013
  *      Author: Michael S. Hansen

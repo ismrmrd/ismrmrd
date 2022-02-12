@@ -228,10 +228,10 @@ typedef struct ISMRMRD_AcquisitionHeader {
     uint32_t measurement_uid;                            /**< Unique ID for the measurement */
     uint32_t scan_counter;                               /**< Current acquisition number in the measurement */
     uint32_t acquisition_time_stamp;                     /**< Acquisition clock */
-    uint32_t physiology_time_stamp[ISMRMRD_PHYS_STAMPS]; /**< Physiology time stamps, e.g. ecg, breating, etc. */
+    uint32_t physiology_time_stamp[ISMRMRD_PHYS_STAMPS]; /**< Physiology time stamps, e.g. ecg, breathing, etc. */
     uint16_t number_of_samples;                          /**< Number of samples acquired */
     uint16_t available_channels;                         /**< Available coils */
-    uint16_t active_channels;                            /**< Active coils on current acquisiton */
+    uint16_t active_channels;                            /**< Active coils on current acquisition */
     uint64_t channel_mask[ISMRMRD_CHANNEL_MASKS];        /**< Mask to indicate which channels are active. Support for 1024 channels */
     uint16_t discard_pre;                                /**< Samples to be discarded at the beginning of  acquisition */
     uint16_t discard_post;                               /**< Samples to be discarded at the end of acquisition */
@@ -301,7 +301,7 @@ typedef struct ISMRMRD_ImageHeader {
     uint16_t contrast;                                   /**< e.g. echo number in multi-echo */
     uint16_t phase;                                      /**< e.g. cardiac phase number */
     uint16_t repetition;                                 /**< e.g. dynamic number for dynamic scanning */
-    uint16_t set;                                        /**< e.g. flow encodning set */
+    uint16_t set;                                        /**< e.g. flow encoding set */
     uint32_t acquisition_time_stamp;                     /**< Acquisition clock */
     uint32_t physiology_time_stamp[ISMRMRD_PHYS_STAMPS]; /**< Physiology time stamps, e.g. ecg, breathing, etc. */
     uint16_t image_type;                                 /**< e.g. magnitude, phase, complex, real, imag, etc. */

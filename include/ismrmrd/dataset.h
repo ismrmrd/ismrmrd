@@ -43,7 +43,7 @@ EXPORTISMRMRD int ismrmrd_init_dataset(ISMRMRD_Dataset *dset, const char *filena
  * Opens an ISMRMRD dataset.
  *
  */
-EXPORTISMRMRD int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool create_if_neded);
+EXPORTISMRMRD int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool create_if_needed);
 
 /**
  * Closes all references to the underlying HDF5 file.
