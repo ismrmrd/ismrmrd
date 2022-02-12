@@ -17,6 +17,5 @@
 %:
 	dh $@
 
-# For some reason, I'm missing the dh_strip_nondeterminism script on Fedora. 
 override_dh_strip_nondeterminism:
 
