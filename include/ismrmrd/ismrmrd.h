@@ -187,8 +187,7 @@ enum ISMRMRD_ImageTypes {
     ISMRMRD_IMTYPE_PHASE     = 2,
     ISMRMRD_IMTYPE_REAL      = 3,
     ISMRMRD_IMTYPE_IMAG      = 4,
-    ISMRMRD_IMTYPE_COMPLEX   = 5,
-    ISMRMRD_IMTYPE_RGB       = 6
+    ISMRMRD_IMTYPE_COMPLEX   = 5
 };
 
 /**
