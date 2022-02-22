@@ -18,7 +18,7 @@ set(ISMRMRD_INCLUDE_DIRS "@CONFIG_ISMRMRD_TARGET_INCLUDE_DIRS@")
 #   ISMRMRD_LIBRARY_DIRS - where to search for libraries
 set(ISMRMRD_LIBRARY_DIRS "@CONFIG_ISMRMRD_LIBRARY_DIRS@")
 #   ISMRMRD_LIBRARIES    - i.e. ismrmrd
-set(ISMRMRD_LIBRARIES    "@ISMRMRD_LIBRARIES@")
+set(ISMRMRD_LIBRARIES    ISMRMRD::ISMRMRD)
 
 set(USE_SYSTEM_PUGIXML @USE_SYSTEM_PUGIXML@)
 
@@ -41,11 +41,13 @@ if(USE_SYSTEM_PUGIXML)
   endif()
 endif()
 
-if(CMAKE_VERSION VERSION_LESS 3.9)
-  # CMake <= 3.8 find_dependency does not support COMPONENTS
-  find_package(HDF5 COMPONENTS C)
-else()
-  find_dependency(HDF5 COMPONENTS C)
+if (@USE_HDF5_DATASET_SUPPORT@)
+  if(CMAKE_VERSION VERSION_LESS 3.9)
+    # CMake <= 3.8 find_dependency does not support COMPONENTS
+    find_package(HDF5 REQUIRED COMPONENTS C)
+  else()
+    find_dependency(HDF5 COMPONENTS C)
+  endif()
 endif()
 
 list(REMOVE_AT CMAKE_MODULE_PATH 0)

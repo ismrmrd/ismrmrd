@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.0)
 foreach(p
     CMP0025 # CMake 3.0 Compiler id for Apple Clang is now ``AppleClang``.
     CMP0042 # CMake 3.0 ``MACOSX_RPATH`` is enabled by default.
@@ -81,7 +81,7 @@ endif ()
 # For more information see http://semver.org/
 set(ISMRMRD_VERSION_MAJOR 1)
 set(ISMRMRD_VERSION_MINOR 7)
-set(ISMRMRD_VERSION_PATCH 0)
+set(ISMRMRD_VERSION_PATCH 1)
 set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
 set(ISMRMRD_SOVERSION ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR})
 
@@ -136,10 +136,8 @@ if (USE_HDF5_DATASET_SUPPORT)
     set(ISMRMRD_DATASET_SOURCES libsrc/dataset.c libsrc/dataset.cpp)
     set(ISMRMRD_DATASET_INCLUDE_DIR ${HDF5_INCLUDE_DIRS})
     set(ISMRMRD_DATASET_LIBRARIES ${HDF5_C_LIBRARIES})
-    add_definitions(${HDF5_DEFINITIONS})
-    include_directories(${HDF5_INCLUDE_DIRS})
-    message("HDF5 found at: ${HDF5_INCLUDE_DIR}")
-    message("HDF5 found at: ${HDF5_C_LIBRARIES}")
+    message(STATUS "HDF5 include found at: ${HDF5_INCLUDE_DIRS}")
+    message(STATUS "HDF5 libs found at: ${HDF5_C_LIBRARIES}")
 
 else ()
     set(ISMRMRD_DATASET_SUPPORT false)
@@ -173,8 +171,9 @@ install(FILES ${CMAKE_BINARY_DIR}/include/ismrmrd/version.h DESTINATION include/
 
 # include directories for main library
 set(ISMRMRD_TARGET_INCLUDE_DIRS
-  ${CMAKE_CURRENT_LIST_DIR}/include
-  ${CMAKE_BINARY_DIR}/include
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>
   ${ISMRMRD_DATASET_INCLUDE_DIR}
 )
 
@@ -214,8 +213,11 @@ if (build4GE)
 endif ()
 
 # main library
-include_directories(${ISMRMRD_TARGET_INCLUDE_DIRS})
 add_library(ismrmrd SHARED ${ISMRMRD_TARGET_SOURCES})
+target_include_directories(ismrmrd PUBLIC ${ISMRMRD_TARGET_INCLUDE_DIRS})
+if (USE_HDF5_DATASET_SUPPORT)
+  target_compile_options(ismrmrd PUBLIC ${HDF5_DEFINITIONS})
+endif()
 add_library(ismrmrd::ismrmrd ALIAS ismrmrd)
 set_target_properties(ismrmrd PROPERTIES
   VERSION ${ISMRMRD_VERSION_STRING}
@@ -224,8 +226,7 @@ set_target_properties(ismrmrd PROPERTIES
 
 set_target_properties(ismrmrd
   PROPERTIES
-  EXPORT_NAME ISMRMRD
-  INTERFACE_INCLUDE_DIRECTORIES $<INSTALL_INTERFACE:include>)
+  EXPORT_NAME ISMRMRD)
 
 target_link_libraries(ismrmrd ${ISMRMRD_TARGET_LINK_LIBS})
 list(APPEND ISMRMRD_LIBRARIES ismrmrd) # Add to list of libraries to be found
