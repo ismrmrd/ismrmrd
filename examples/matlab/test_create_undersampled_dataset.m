@@ -1,7 +1,7 @@
 %% Generating a simple ISMRMRD data set to simulate GRAPPA undersampling
 % Based on test_create_dataset
 %
-% This is an example of how to construct a datset from synthetic data
+% This is an example of how to construct a dataset from synthetic data
 % simulating an under sampled acquisition on a cartesian grid with a 
 % central fully sampled (ACS) region.
 % Data from 4 coils from a single slice object with 6 repetitions.
@@ -80,7 +80,7 @@ end
 % It is very slow to append one acquisition at a time, so we're going
 % to append a block of acquisitions at a time.
 % In this case, we'll do it one repetition at a time to show off this
-% feature.  Each block has nYsamp aquisitions
+% feature.  Each block has nYsamp acquisitions
 acqblock = ismrmrd.Acquisition(nYsamp);
 
 % Set the header elements that don't change

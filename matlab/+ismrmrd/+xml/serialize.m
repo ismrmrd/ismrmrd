@@ -181,51 +181,23 @@ if isfield(header,'sequenceParameters')
 end
 
 if isfield(header,'userParameters')
-    n1 = docNode.createElement('userParameters');
-    userParameters = header.userParameters;
-
-    if isfield(userParameters,'userParameterLong')
-        append_user_parameter(docNode,n1,userParameters,'userParameterLong',@int2str);
-    end
-
-    if isfield(userParameters,'userParameterDouble')
-        append_user_parameter(docNode,n1,userParameters,'userParameterDouble',@num2str);
-    end
-    if isfield(userParameters,'userParameterString')
-        append_user_parameter(docNode,n1,userParameters,'userParameterString');
-    end
-    if isfield(userParameters,'userParameterBase64')
-        append_user_parameter(docNode,n1,userParameters,'userParameterBase64');
-    end
-
-    docRootNode.appendChild(n1);
+    append_user_parameters(docNode, docRootNode, header.userParameters);
 end
 
 if isfield(header,'waveformInformation')
-    n1 = docNode.createElement('waveformInformation')
-    waveformInformation = header.waveformInformation;
 
-    append_node(docNode,n1,waveformInformation,'waveformName');
-    append_node(docNode,n1,waveformInformation,'waveformType');
+    for waveformInformation = header.waveformInformation
+        
+        waveformInfoNode = docNode.createElement('waveformInformation');
+        append_node(docNode,waveformInfoNode,waveformInformation,'waveformName');
+        append_node(docNode,waveformInfoNode,waveformInformation,'waveformType');
 
-    if isfield(waveformInformation,'userParameters')
-        n2 = n1.createElement('userParameters')
-        userParameters = waveformInformation.userParameters;
-
-        if isfield(userParameters,'userParameterLong')
-            append_user_parameter(docNode,n2,userParameters,'userParameterLong',@int2str);
-        end
-
-        if isfield(userParameters,'userParameterDouble')
-            append_user_parameter(docNode,n2,userParameters,'userParameterDouble',@num2str);
-        end
-        if isfield(userParameters,'userParameterString')
-            append_user_parameter(docNode,n2,userParameters,'userParameterString');
-        end
-        if isfield(userParameters,'userParameterBase64')
-            append_user_parameter(docNode,n2,userParameters,'userParameterBase64');
-        end
-    end
+        if isfield(waveformInformation,'userParameters')
+            append_user_parameters(docNode,waveformInfoNode,waveformInformation.userParameters)
+        end 
+        
+        docRootNode.appendChild(waveformInfoNode);
+    end            
 end
 
 
@@ -235,6 +207,30 @@ xml_doc = xmlwrite(docNode);
 
 
 
+end
+
+function append_user_parameters(docNode, destination, userParams)
+
+    userParametersNode = docNode.createElement('userParameters');
+
+    for userParameters = userParams
+
+        if isfield(userParameters,'userParameterLong')
+            append_user_parameter(docNode,userParametersNode,userParameters,'userParameterLong',@int2str);
+        end
+        if isfield(userParameters,'userParameterDouble')
+            append_user_parameter(docNode,userParametersNode,userParameters,'userParameterDouble',@num2str);
+        end
+        if isfield(userParameters,'userParameterString')
+            append_user_parameter(docNode,userParametersNode,userParameters,'userParameterString');
+        end
+        if isfield(userParameters,'userParameterBase64')
+            append_user_parameter(docNode,userParametersNode,userParameters,'userParameterBase64');
+        end
+        
+    end
+
+    destination.appendChild(userParametersNode);
 end
 
 function append_user_parameter(docNode,subNode,values,name,tostr)
