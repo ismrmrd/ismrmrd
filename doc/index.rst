@@ -11,8 +11,8 @@ Please cite this paper if you use the format.
   :maxdepth: 2
   :caption: Contents:
 
-  building
   overview
+  building
   filestorage
   cpplibrary
   api
