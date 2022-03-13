@@ -45,6 +45,7 @@ namespace ISMRMRD {
      */
 
 
+
     /**
        This class can represent a meta data value of any
        type and it guarantees that any value will have a
@@ -249,6 +250,8 @@ namespace ISMRMRD {
         map_t map_;
     };
 
+    /** @} */
+
     //Template function instantiations
     /*
     template void MetaContainer::set<const char*>(const char* name, const char* value);
@@ -260,6 +263,5 @@ namespace ISMRMRD {
     */
 }
 
-/** @} */
 
 #endif //ISMRMRDMETA_H
