@@ -618,6 +618,15 @@ namespace ISMRMRD
     append_node(n3,"z",s.fieldOfView_mm.z);
   }
 
+void append_optional_three_dimensional_float(pugi::xml_node& n, const char* child, const Optional<threeDimensionalFloat>& s) 
+  {
+    if (s){
+      pugi::xml_node n2 = n.append_child(child);  
+      append_node(n2,"x",s->x);
+      append_node(n2,"y",s->y);
+      append_node(n2,"z",s->z);
+    }
+  }
   void append_encoding_limit(pugi::xml_node& n, const char* child, const Optional<Limit>& l) 
   {
     if (l) {
@@ -712,7 +721,7 @@ namespace ISMRMRD
       append_optional_node(n1,"seriesDate",h.measurementInformation->seriesDate);
       append_optional_node(n1,"seriesTime",h.measurementInformation->seriesTime);
       append_node(n1,"patientPosition",h.measurementInformation->patientPosition);
-      append_optional_node(n1,"relativeTablePosition",h.measurementInformation->relativeTablePosition);
+      append_optional_three_dimensional_float(n1,"relativeTablePosition",h.measurementInformation->relativeTablePosition);
       append_optional_node(n1,"initialSeriesNumber",h.measurementInformation->initialSeriesNumber);
       append_optional_node(n1,"protocolName",h.measurementInformation->protocolName);
       append_optional_node(n1,"seriesDescription",h.measurementInformation->seriesDescription);

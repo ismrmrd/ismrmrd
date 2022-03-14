@@ -157,6 +157,13 @@ namespace ISMRMRD
 
   }; 
 
+  struct threeDimensionalFloat
+  {    
+    float x;
+    float y;
+    float z;
+  };
+
   struct SubjectInformation 
   {
     Optional<std::string> patientName;
@@ -262,13 +269,6 @@ namespace ISMRMRD
 
   struct FieldOfView_mm
   {
-    float x;
-    float y;
-    float z;
-  };
-
-  struct threeDimensionalFloat
-  {    
     float x;
     float y;
     float z;

@@ -43,7 +43,7 @@ if isfield(header,'measurementInformation')
     append_optional(docNode,measurementInformationNode,measurementInformation,'seriesTime');
 
     append_node(docNode,measurementInformationNode,measurementInformation,'patientPosition');
-    append_three_dimensional_float(docNode,measurementInformationNode,measurementInformation,'relativeTablePosition');
+    append_optional_three_dimensional_float(docNode,measurementInformationNode,measurementInformation,'relativeTablePosition');
 
     append_optional(docNode,measurementInformationNode,measurementInformation,'initialSeriesNumber',@int2str);
     append_optional(docNode,measurementInformationNode,measurementInformation,'protocolName');
