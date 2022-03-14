@@ -194,6 +194,7 @@ namespace ISMRMRD
     Optional<std::string> seriesDate;
     Optional<std::string> seriesTime;
     std::string patientPosition;
+    Optional<threeDimensionalFloat> relativeTablePosition;
     Optional<long int> initialSeriesNumber;
     Optional<std::string> protocolName;
     Optional<std::string> seriesDescription;
@@ -261,6 +262,13 @@ namespace ISMRMRD
 
   struct FieldOfView_mm
   {
+    float x;
+    float y;
+    float z;
+  };
+
+  struct threeDimensionalFloat
+  {    
     float x;
     float y;
     float z;

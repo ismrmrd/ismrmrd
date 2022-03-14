@@ -118,6 +118,22 @@ namespace ISMRMRD
     return r;
   }
 
+  Optional<threeDimensionalFloat> parse_optional_threeDimensionalFloat(pugi::xml_node &n, const char *child) {
+
+      Optional<threeDimensionalFloat> r;
+    
+      pugi::xml_node nc = n.child(child);
+      if (nc) {
+          threeDimensionalFloat s;
+          s.x = std::strtof(nc.child_value("x"), nullptr);
+          s.y = std::strtof(nc.child_value("y"), nullptr);
+          s.z = std::strtof(nc.child_value("z"), nullptr);
+          r = s;
+      }
+
+      return r;
+  }
+
   std::vector<UserParameterLong> parse_user_parameter_long(pugi::xml_node& n, const char* child) 
   {
     std::vector<UserParameterLong> r;
@@ -373,6 +389,7 @@ namespace ISMRMRD
 	info.seriesDate = parse_optional_string(measurementInformation, "seriesDate");
 	info.seriesTime = parse_optional_string(measurementInformation, "seriesTime");
 	info.patientPosition = parse_string(measurementInformation, "patientPosition");
+  info.relativeTablePosition = parse_optional_threeDimensionalFloat(measurementInformation, "relativeTablePosition");
 	info.initialSeriesNumber = parse_optional_long(measurementInformation, "initialSeriesNumber");
 	info.protocolName = parse_optional_string(measurementInformation, "protocolName");
 	info.seriesDescription = parse_optional_string(measurementInformation, "seriesDescription");
@@ -695,6 +712,7 @@ namespace ISMRMRD
       append_optional_node(n1,"seriesDate",h.measurementInformation->seriesDate);
       append_optional_node(n1,"seriesTime",h.measurementInformation->seriesTime);
       append_node(n1,"patientPosition",h.measurementInformation->patientPosition);
+      append_optional_node(n1,"relativeTablePosition",h.measurementInformation->relativeTablePosition);
       append_optional_node(n1,"initialSeriesNumber",h.measurementInformation->initialSeriesNumber);
       append_optional_node(n1,"protocolName",h.measurementInformation->protocolName);
       append_optional_node(n1,"seriesDescription",h.measurementInformation->seriesDescription);
