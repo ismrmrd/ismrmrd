@@ -283,7 +283,7 @@ end
 function append_optional_three_dimensional_float(docNode, subnode, subheader, name)
     if isfield(subheader,name)
     n2 = docNode.createElement(name);
-    threeDimensionalFloat = subHeader.(matlab.lang.makeValidName(name));
+    threeDimensionalFloat = subheader.(matlab.lang.makeValidName(name));
     append_optional(docNode,n2,threeDimensionalFloat,'x',@num2str);
     append_optional(docNode,n2,threeDimensionalFloat,'y',@num2str);
     append_optional(docNode,n2,threeDimensionalFloat,'z',@num2str);
