@@ -292,6 +292,9 @@ function append_optional(docNode,subnode,subheader,name,tostr)
 end
 
 function append_node(docNode,subnode,subheader,name,tostr)
+    if ~exist('tostr', 'var')
+        tostr = @char;
+    end
 
     if ischar(subheader.(name))
         n1 = docNode.createElement(name);
@@ -303,8 +306,11 @@ function append_node(docNode,subnode,subheader,name,tostr)
         val = subheader.(name)(:);
         for thisval = 1:length(val)
             n1 = docNode.createElement(name);
-            n1.appendChild...
-                (docNode.createTextNode(tostr(val(thisval))));
+            if iscell(val)
+	            n1.appendChild(docNode.createTextNode(tostr(val{thisval})));
+            else
+	            n1.appendChild(docNode.createTextNode(tostr(val(thisval))));
+            end
             subnode.appendChild(n1);
         end
     end

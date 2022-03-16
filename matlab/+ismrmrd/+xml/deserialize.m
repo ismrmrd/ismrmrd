@@ -35,6 +35,11 @@ for n = 1:numChildNodes
 
     %Some elements occur more than once
     if isfield(info, name)
+        % Use cell arrays for multiple valued strings and dates
+        if (isStringType(name) || isDateType(name)) && ~iscell(info.(name))
+            info.(name) = {info.(name)};
+        end
+
         num = length(info.(name))+1;
     else
         num = 1;
@@ -88,7 +93,7 @@ for n = 1:numChildNodes
         if num == 1
             info.(name) = char(getTextContent(theChild));
         else
-            info.(name)(num) = char(getTextContent(theChild));
+            info.(name){num} = char(getTextContent(theChild));
         end
         continue;
     end
@@ -106,7 +111,7 @@ for n = 1:numChildNodes
         if num == 1
             info.(name) = char(getTextContent(theChild));
         else
-            info.(name)(num) = char(getTextContent(theChild));
+            info.(name){num} = char(getTextContent(theChild));
         end
         continue;
     end
