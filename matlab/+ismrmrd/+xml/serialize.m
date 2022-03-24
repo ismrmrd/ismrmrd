@@ -67,6 +67,7 @@ if isfield(header,'measurementInformation')
         for ref = referencedImageSequence(:)
             append_node(docNode,referencedImageSequenceNode,ref,'referencedSOPInstanceUID');
         end
+        measurementInformationNode.appendChild(referencedImageSequenceNode)
     end
 
     docRootNode.appendChild(measurementInformationNode);
@@ -93,6 +94,7 @@ if isfield(header,'acquisitionSystemInformation')
 
     append_optional(docNode,acquisitionSystemInformationNode,acquisitionSystemInformation,'institutionName');
     append_optional(docNode,acquisitionSystemInformationNode,acquisitionSystemInformation,'stationName',@num2str);
+    append_optional(docNode,acquisitionSystemInformationNode,acquisitionSystemInformation,'deviceID',@num2str);
     docRootNode.appendChild(acquisitionSystemInformationNode);
 end
 
@@ -105,7 +107,7 @@ if ~isfield(header,'encoding')
     error('Illegal header: missing encoding section');
 end
 
-for enc = header.encoding(:)
+for enc = header.encoding(:)'
     node = docNode.createElement('encoding');
 
     append_encoding_space(docNode,node,'encodedSpace',enc.encodedSpace);
@@ -126,7 +128,6 @@ for enc = header.encoding(:)
     node.appendChild(n2);
 
     append_node(docNode,node,enc,'trajectory');
-    node.appendChild(n2);
 
     % sometimes the encoding has the fields, but they are empty
     if isfield(enc,'trajectoryDescription')
@@ -291,6 +292,9 @@ function append_optional(docNode,subnode,subheader,name,tostr)
 end
 
 function append_node(docNode,subnode,subheader,name,tostr)
+    if ~exist('tostr', 'var')
+        tostr = @char;
+    end
 
     if ischar(subheader.(name))
         n1 = docNode.createElement(name);
@@ -302,8 +306,11 @@ function append_node(docNode,subnode,subheader,name,tostr)
         val = subheader.(name)(:);
         for thisval = 1:length(val)
             n1 = docNode.createElement(name);
-            n1.appendChild...
-                (docNode.createTextNode(tostr(val(thisval))));
+            if iscell(val)
+	            n1.appendChild(docNode.createTextNode(tostr(val{thisval})));
+            else
+	            n1.appendChild(docNode.createTextNode(tostr(val(thisval))));
+            end
             subnode.appendChild(n1);
         end
     end
