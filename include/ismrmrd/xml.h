@@ -1,7 +1,6 @@
 /**
  * @file xml.h
  * @defgroup xml XML API
- * @{
  */
 
 #ifndef ISMRMRDXML_H
@@ -26,6 +25,10 @@
 
  */
 
+/**
+ * @addtogroup xml
+ * @{
+ */
 
 namespace ISMRMRD
 {
@@ -428,10 +431,11 @@ namespace ISMRMRD
   };
 
 
-
   EXPORTISMRMRD void deserialize(const char* xml, IsmrmrdHeader& h);
   EXPORTISMRMRD void serialize(const IsmrmrdHeader& h, std::ostream& o);
-}
 
 /** @} */
+
+}
+
 #endif //ISMRMRDXML_H
