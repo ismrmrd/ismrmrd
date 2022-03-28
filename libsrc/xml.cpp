@@ -389,7 +389,7 @@ namespace ISMRMRD
 	info.seriesDate = parse_optional_string(measurementInformation, "seriesDate");
 	info.seriesTime = parse_optional_string(measurementInformation, "seriesTime");
 	info.patientPosition = parse_string(measurementInformation, "patientPosition");
-  info.relativeTablePosition = parse_optional_threeDimensionalFloat(measurementInformation, "relativeTablePosition");
+	info.relativeTablePosition = parse_optional_threeDimensionalFloat(measurementInformation, "relativeTablePosition");
 	info.initialSeriesNumber = parse_optional_long(measurementInformation, "initialSeriesNumber");
 	info.protocolName = parse_optional_string(measurementInformation, "protocolName");
 	info.seriesDescription = parse_optional_string(measurementInformation, "seriesDescription");
