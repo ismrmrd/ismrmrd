@@ -43,6 +43,7 @@ if isfield(header,'measurementInformation')
     append_optional(docNode,measurementInformationNode,measurementInformation,'seriesTime');
 
     append_node(docNode,measurementInformationNode,measurementInformation,'patientPosition');
+    append_optional_three_dimensional_float(docNode,measurementInformationNode,measurementInformation,'relativeTablePosition');
 
     append_optional(docNode,measurementInformationNode,measurementInformation,'initialSeriesNumber',@int2str);
     append_optional(docNode,measurementInformationNode,measurementInformation,'protocolName');
@@ -280,6 +281,16 @@ function append_encoding_space(docNode,subnode,name,encodedSpace)
     subnode.appendChild(n2);
 end
 
+function append_optional_three_dimensional_float(docNode, subnode, subheader, name)
+    if isfield(subheader,name)
+        n2 = docNode.createElement(name);
+        threeDimensionalFloat = subheader.(matlab.lang.makeValidName(name));
+        append_optional(docNode,n2,threeDimensionalFloat,'x',@num2str);
+        append_optional(docNode,n2,threeDimensionalFloat,'y',@num2str);
+        append_optional(docNode,n2,threeDimensionalFloat,'z',@num2str);
+        subnode.appendChild(n2);
+    end
+end
 
 function append_optional(docNode,subnode,subheader,name,tostr)
     if isfield(subheader,name)

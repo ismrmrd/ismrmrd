@@ -160,6 +160,13 @@ namespace ISMRMRD
 
   }; 
 
+  struct threeDimensionalFloat
+  {    
+    float x;
+    float y;
+    float z;
+  };
+
   struct SubjectInformation 
   {
     Optional<std::string> patientName;
@@ -197,6 +204,7 @@ namespace ISMRMRD
     Optional<std::string> seriesDate;
     Optional<std::string> seriesTime;
     std::string patientPosition;
+    Optional<threeDimensionalFloat> relativeTablePosition;
     Optional<long int> initialSeriesNumber;
     Optional<std::string> protocolName;
     Optional<std::string> seriesDescription;
