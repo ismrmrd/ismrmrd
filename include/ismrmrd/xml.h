@@ -1,7 +1,6 @@
 /**
  * @file xml.h
  * @defgroup xml XML API
- * @{
  */
 
 #ifndef ISMRMRDXML_H
@@ -26,6 +25,10 @@
 
  */
 
+/**
+ * @addtogroup xml
+ * @{
+ */
 
 namespace ISMRMRD
 {
@@ -157,6 +160,13 @@ namespace ISMRMRD
 
   }; 
 
+  struct threeDimensionalFloat
+  {    
+    float x;
+    float y;
+    float z;
+  };
+
   struct SubjectInformation 
   {
     Optional<std::string> patientName;
@@ -194,6 +204,7 @@ namespace ISMRMRD
     Optional<std::string> seriesDate;
     Optional<std::string> seriesTime;
     std::string patientPosition;
+    Optional<threeDimensionalFloat> relativeTablePosition;
     Optional<long int> initialSeriesNumber;
     Optional<std::string> protocolName;
     Optional<std::string> seriesDescription;
@@ -420,10 +431,11 @@ namespace ISMRMRD
   };
 
 
-
   EXPORTISMRMRD void deserialize(const char* xml, IsmrmrdHeader& h);
   EXPORTISMRMRD void serialize(const IsmrmrdHeader& h, std::ostream& o);
-}
 
 /** @} */
+
+}
+
 #endif //ISMRMRDXML_H

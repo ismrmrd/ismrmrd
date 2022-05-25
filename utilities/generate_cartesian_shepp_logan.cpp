@@ -51,7 +51,7 @@ int main(int argc, char** argv)
 	    ("oversampling,O", po::value<unsigned int>(&ros)->default_value(2), "Readout oversampling")
 	    ("repetitions,r", po::value<unsigned int>(&repetitions)->default_value(1), "Repetitions")
 		("acceleration,a", po::value<unsigned int>(&acc_factor)->default_value(1), "Acceleration factor")
-		("calibration-width,w", po::value<unsigned int>(&cal_width)->default_value(0), "Callibration area width")
+		("calibration-width,w", po::value<unsigned int>(&cal_width)->default_value(0), "Calibration area width")
 		("noise-level,n", po::value<float>(&noise_level)->default_value(0.05f,"0.05"), "Noise Level")
 	    ("output,o", po::value<std::string>(&outfile)->default_value("testdata.h5"), "Output File Name")
 	    ("dataset,d", po::value<std::string>(&dataset)->default_value("dataset"), "Output Dataset Name")
@@ -72,7 +72,7 @@ int main(int argc, char** argv)
 	std::cout << "Acceleration: " << acc_factor << std::endl;
 
 	boost::shared_ptr<NDArray<complex_float_t> > phantom = shepp_logan_phantom(matrix_size);
-	boost::shared_ptr<NDArray<complex_float_t> > coils = generate_birdcage_sensititivies(matrix_size, ncoils, 1.5);
+	boost::shared_ptr<NDArray<complex_float_t> > coils = generate_birdcage_sensitivities(matrix_size, ncoils, 1.5);
 
 	std::vector<size_t> dims;
 	dims.push_back(matrix_size*ros); //oversampling in the readout direction

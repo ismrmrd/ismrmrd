@@ -43,6 +43,7 @@ if isfield(header,'measurementInformation')
     append_optional(docNode,measurementInformationNode,measurementInformation,'seriesTime');
 
     append_node(docNode,measurementInformationNode,measurementInformation,'patientPosition');
+    append_optional_three_dimensional_float(docNode,measurementInformationNode,measurementInformation,'relativeTablePosition');
 
     append_optional(docNode,measurementInformationNode,measurementInformation,'initialSeriesNumber',@int2str);
     append_optional(docNode,measurementInformationNode,measurementInformation,'protocolName');
@@ -67,6 +68,7 @@ if isfield(header,'measurementInformation')
         for ref = referencedImageSequence(:)
             append_node(docNode,referencedImageSequenceNode,ref,'referencedSOPInstanceUID');
         end
+        measurementInformationNode.appendChild(referencedImageSequenceNode)
     end
 
     docRootNode.appendChild(measurementInformationNode);
@@ -93,6 +95,7 @@ if isfield(header,'acquisitionSystemInformation')
 
     append_optional(docNode,acquisitionSystemInformationNode,acquisitionSystemInformation,'institutionName');
     append_optional(docNode,acquisitionSystemInformationNode,acquisitionSystemInformation,'stationName',@num2str);
+    append_optional(docNode,acquisitionSystemInformationNode,acquisitionSystemInformation,'deviceID',@num2str);
     docRootNode.appendChild(acquisitionSystemInformationNode);
 end
 
@@ -105,7 +108,7 @@ if ~isfield(header,'encoding')
     error('Illegal header: missing encoding section');
 end
 
-for enc = header.encoding(:)
+for enc = header.encoding(:)'
     node = docNode.createElement('encoding');
 
     append_encoding_space(docNode,node,'encodedSpace',enc.encodedSpace);
@@ -126,7 +129,6 @@ for enc = header.encoding(:)
     node.appendChild(n2);
 
     append_node(docNode,node,enc,'trajectory');
-    node.appendChild(n2);
 
     % sometimes the encoding has the fields, but they are empty
     if isfield(enc,'trajectoryDescription')
@@ -181,51 +183,23 @@ if isfield(header,'sequenceParameters')
 end
 
 if isfield(header,'userParameters')
-    n1 = docNode.createElement('userParameters');
-    userParameters = header.userParameters;
-
-    if isfield(userParameters,'userParameterLong')
-        append_user_parameter(docNode,n1,userParameters,'userParameterLong',@int2str);
-    end
-
-    if isfield(userParameters,'userParameterDouble')
-        append_user_parameter(docNode,n1,userParameters,'userParameterDouble',@num2str);
-    end
-    if isfield(userParameters,'userParameterString')
-        append_user_parameter(docNode,n1,userParameters,'userParameterString');
-    end
-    if isfield(userParameters,'userParameterBase64')
-        append_user_parameter(docNode,n1,userParameters,'userParameterBase64');
-    end
-
-    docRootNode.appendChild(n1);
+    append_user_parameters(docNode, docRootNode, header.userParameters);
 end
 
 if isfield(header,'waveformInformation')
-    n1 = docNode.createElement('waveformInformation')
-    waveformInformation = header.waveformInformation;
 
-    append_node(docNode,n1,waveformInformation,'waveformName');
-    append_node(docNode,n1,waveformInformation,'waveformType');
+    for waveformInformation = header.waveformInformation
+        
+        waveformInfoNode = docNode.createElement('waveformInformation');
+        append_node(docNode,waveformInfoNode,waveformInformation,'waveformName');
+        append_node(docNode,waveformInfoNode,waveformInformation,'waveformType');
 
-    if isfield(waveformInformation,'userParameters')
-        n2 = n1.createElement('userParameters')
-        userParameters = waveformInformation.userParameters;
-
-        if isfield(userParameters,'userParameterLong')
-            append_user_parameter(docNode,n2,userParameters,'userParameterLong',@int2str);
-        end
-
-        if isfield(userParameters,'userParameterDouble')
-            append_user_parameter(docNode,n2,userParameters,'userParameterDouble',@num2str);
-        end
-        if isfield(userParameters,'userParameterString')
-            append_user_parameter(docNode,n2,userParameters,'userParameterString');
-        end
-        if isfield(userParameters,'userParameterBase64')
-            append_user_parameter(docNode,n2,userParameters,'userParameterBase64');
-        end
-    end
+        if isfield(waveformInformation,'userParameters')
+            append_user_parameters(docNode,waveformInfoNode,waveformInformation.userParameters)
+        end 
+        
+        docRootNode.appendChild(waveformInfoNode);
+    end            
 end
 
 
@@ -235,6 +209,30 @@ xml_doc = xmlwrite(docNode);
 
 
 
+end
+
+function append_user_parameters(docNode, destination, userParams)
+
+    userParametersNode = docNode.createElement('userParameters');
+
+    for userParameters = userParams
+
+        if isfield(userParameters,'userParameterLong')
+            append_user_parameter(docNode,userParametersNode,userParameters,'userParameterLong',@int2str);
+        end
+        if isfield(userParameters,'userParameterDouble')
+            append_user_parameter(docNode,userParametersNode,userParameters,'userParameterDouble',@num2str);
+        end
+        if isfield(userParameters,'userParameterString')
+            append_user_parameter(docNode,userParametersNode,userParameters,'userParameterString');
+        end
+        if isfield(userParameters,'userParameterBase64')
+            append_user_parameter(docNode,userParametersNode,userParameters,'userParameterBase64');
+        end
+        
+    end
+
+    destination.appendChild(userParametersNode);
 end
 
 function append_user_parameter(docNode,subNode,values,name,tostr)
@@ -283,6 +281,16 @@ function append_encoding_space(docNode,subnode,name,encodedSpace)
     subnode.appendChild(n2);
 end
 
+function append_optional_three_dimensional_float(docNode, subnode, subheader, name)
+    if isfield(subheader,name)
+        n2 = docNode.createElement(name);
+        threeDimensionalFloat = subheader.(matlab.lang.makeValidName(name));
+        append_optional(docNode,n2,threeDimensionalFloat,'x',@num2str);
+        append_optional(docNode,n2,threeDimensionalFloat,'y',@num2str);
+        append_optional(docNode,n2,threeDimensionalFloat,'z',@num2str);
+        subnode.appendChild(n2);
+    end
+end
 
 function append_optional(docNode,subnode,subheader,name,tostr)
     if isfield(subheader,name)
@@ -295,6 +303,9 @@ function append_optional(docNode,subnode,subheader,name,tostr)
 end
 
 function append_node(docNode,subnode,subheader,name,tostr)
+    if ~exist('tostr', 'var')
+        tostr = @char;
+    end
 
     if ischar(subheader.(name))
         n1 = docNode.createElement(name);
@@ -306,8 +317,11 @@ function append_node(docNode,subnode,subheader,name,tostr)
         val = subheader.(name)(:);
         for thisval = 1:length(val)
             n1 = docNode.createElement(name);
-            n1.appendChild...
-                (docNode.createTextNode(tostr(val(thisval))));
+            if iscell(val)
+	            n1.appendChild(docNode.createTextNode(tostr(val{thisval})));
+            else
+	            n1.appendChild(docNode.createTextNode(tostr(val(thisval))));
+            end
             subnode.appendChild(n1);
         end
     end

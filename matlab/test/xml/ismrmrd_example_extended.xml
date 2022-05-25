@@ -21,11 +21,6 @@
     <seriesDate>2012-08-13</seriesDate>
     <seriesTime>09:10:12</seriesTime>
     <patientPosition>HFS</patientPosition>
-    <relativeTablePosition>
-      <x>0</x>
-      <y>0</y>
-      <z>10</z>
-    </relativeTablePosition>
     <initialSeriesNumber>1</initialSeriesNumber>
     <protocolName>ExampleProt</protocolName>
     <seriesDescription>MRIStudy1</seriesDescription>
