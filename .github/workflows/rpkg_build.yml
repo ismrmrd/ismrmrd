@@ -19,6 +19,8 @@ jobs:
       run: sudo dnf install rpkg git dnf-plugins-core -y
 
     - uses: actions/checkout@v2
+      with: 
+        fetch-depth: 1
     - name: Run RPKG 
       run: |
         cd "$GITHUB_WORKSPACE" 
