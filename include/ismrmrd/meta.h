@@ -18,7 +18,7 @@
 
 namespace ISMRMRD {
     /*
-      The serialized version of the structues would look like this
+      The serialized version of the structures would look like this
 
       <?xml version="1.0"?>
       <ismrmrdMeta>
@@ -43,6 +43,7 @@ namespace ISMRMRD {
          </meta>
       </ismrmrdMeta>
      */
+
 
 
     /**
@@ -249,6 +250,8 @@ namespace ISMRMRD {
         map_t map_;
     };
 
+    /** @} */
+
     //Template function instantiations
     /*
     template void MetaContainer::set<const char*>(const char* name, const char* value);
@@ -260,6 +263,5 @@ namespace ISMRMRD {
     */
 }
 
-/** @} */
 
 #endif //ISMRMRDMETA_H
