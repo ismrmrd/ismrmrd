@@ -20,7 +20,7 @@ jobs:
 
     - uses: actions/checkout@v2
       with: 
-        fetch-depth: 1
+        fetch-depth: 0
     - name: Run RPKG 
       run: |
         cd "$GITHUB_WORKSPACE" 
