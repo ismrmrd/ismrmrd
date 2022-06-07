@@ -194,15 +194,27 @@ enum ISMRMRD_ImageTypes {
  * Image Flags
  */
 enum ISMRMRD_ImageFlags {
-    ISMRMRD_IMAGE_IS_NAVIGATION_DATA =  1,
-    ISMRMRD_IMAGE_USER1              = 57,
-    ISMRMRD_IMAGE_USER2              = 58,
-    ISMRMRD_IMAGE_USER3              = 59,
-    ISMRMRD_IMAGE_USER4              = 60,
-    ISMRMRD_IMAGE_USER5              = 61,
-    ISMRMRD_IMAGE_USER6              = 62,
-    ISMRMRD_IMAGE_USER7              = 63,
-    ISMRMRD_IMAGE_USER8              = 64
+    ISMRMRD_IMAGE_IS_NAVIGATION_DATA  =  1,
+    ISMRMRD_IMAGE_FIRST_IN_AVERAGE    =  5,
+    ISMRMRD_IMAGE_LAST_IN_AVERAGE     =  6,
+    ISMRMRD_IMAGE_FIRST_IN_SLICE      =  7,
+    ISMRMRD_IMAGE_LAST_IN_SLICE       =  8,
+    ISMRMRD_IMAGE_FIRST_IN_CONTRAST   =  9,
+    ISMRMRD_IMAGE_LAST_IN_CONTRAST    = 10,
+    ISMRMRD_IMAGE_FIRST_IN_PHASE      = 11,
+    ISMRMRD_IMAGE_LAST_IN_PHASE       = 12,
+    ISMRMRD_IMAGE_FIRST_IN_REPETITION = 13,
+    ISMRMRD_IMAGE_LAST_IN_REPETITION  = 14,
+    ISMRMRD_IMAGE_FIRST_IN_SET        = 15,
+    ISMRMRD_IMAGE_LAST_IN_SET         = 16,
+    ISMRMRD_IMAGE_USER1               = 57,
+    ISMRMRD_IMAGE_USER2               = 58,
+    ISMRMRD_IMAGE_USER3               = 59,
+    ISMRMRD_IMAGE_USER4               = 60,
+    ISMRMRD_IMAGE_USER5               = 61,
+    ISMRMRD_IMAGE_USER6               = 62,
+    ISMRMRD_IMAGE_USER7               = 63,
+    ISMRMRD_IMAGE_USER8               = 64
 };
 
 /**
