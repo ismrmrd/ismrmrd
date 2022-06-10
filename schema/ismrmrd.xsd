@@ -66,6 +66,7 @@
       <xs:element minOccurs="0" name="seriesDate" type="xs:date" />
       <xs:element minOccurs="0" name="seriesTime" type="xs:time" />
       <xs:element minOccurs="1" name="patientPosition" type="patientPositionType" />
+      <xs:element minOccurs="0" name="relativeTablePosition" type="threeDimensionalFloat" />
       <xs:element minOccurs="0" name="initialSeriesNumber" type="xs:long" />
       <xs:element minOccurs="0" name="protocolName" type="xs:string" />
       <xs:element minOccurs="0" name="seriesDescription" type="xs:string" />
@@ -144,6 +145,15 @@
       <xs:element maxOccurs="1" minOccurs="1" name="z" type="xs:float" />
     </xs:sequence>
   </xs:complexType>
+
+  <xs:complexType name="threeDimensionalFloat">
+    <xs:sequence>
+      <xs:element maxOccurs="1" minOccurs="1" name="x" type="xs:float" />
+      <xs:element maxOccurs="1" minOccurs="1" name="y" type="xs:float" />
+      <xs:element maxOccurs="1" minOccurs="1" name="z" type="xs:float" />
+    </xs:sequence>
+  </xs:complexType>
+
 
   <xs:complexType name="limitType">
     <xs:all>
