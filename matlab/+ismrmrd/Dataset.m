@@ -123,6 +123,7 @@ classdef Dataset
 
             % Close the XML
             H5D.close(xml_id);
+            H5T.close(xml_dtype);
         end
 
         function nacq = getNumberOfAcquisitions(obj)
@@ -139,7 +140,7 @@ classdef Dataset
             nacq = dims(1);
             H5S.close(space);
             H5D.close(dset);
-
+            H5P.close(lapl_id);
         end
 
         function block = readAcquisition(obj, start, stop)
@@ -157,6 +158,7 @@ classdef Dataset
             if (H5L.exists(obj.fid, obj.datapath, lapl) == 0)
                 error([obj.datapath ' does not exist in the HDF5 dataset.']);
             end
+            H5P.close(lapl);
 
             % Open the data
             dset = H5D.open(obj.fid, obj.datapath);
@@ -284,7 +286,7 @@ classdef Dataset
             nacq = dims(1);
             H5S.close(space);
             H5D.close(dset);
-
+            H5P.close(lapl_id);
         end
 
         function block = readWaveform(obj, start, stop)
@@ -302,6 +304,7 @@ classdef Dataset
             if (H5L.exists(obj.fid, obj.waveformpath, lapl) == 0)
                 error([obj.waveformpath ' does not exist in the HDF5 dataset.']);
             end
+            H5P.close(lapl);
 
             % Open the data
             dset = H5D.open(obj.fid, obj.waveformpath);
