@@ -1,0 +1,5 @@
+#pragma once
+#include <string>
+
+const std::string basic_xml = "${ismrmrd_example}";
+const std::string extended_xml = "${ismrmrd_example_extended}";
