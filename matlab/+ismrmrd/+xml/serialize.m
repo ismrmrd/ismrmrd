@@ -16,6 +16,7 @@ if isfield(header,'subjectInformation')
     subjectInformationNode = docNode.createElement('subjectInformation');
     append_optional(docNode,subjectInformationNode,subjectInformation,'patientName');
     append_optional(docNode,subjectInformationNode,subjectInformation,'patientWeight_kg',@num2str);
+    append_optional(docNode,subjectInformationNode,subjectInformation,'patientHeight_m',@num2str);
     append_optional(docNode,subjectInformationNode,subjectInformation,'patientID');
     append_optional(docNode,subjectInformationNode,subjectInformation,'patientBirthdate');
     append_optional(docNode,subjectInformationNode,subjectInformation,'patientGender');
