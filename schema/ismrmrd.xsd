@@ -119,6 +119,7 @@
       <xs:element maxOccurs="1" minOccurs="0" name="trajectoryDescription" type="trajectoryDescriptionType" />
       <xs:element maxOccurs="1" minOccurs="0" name="parallelImaging" type="parallelImagingType" />
       <xs:element maxOccurs="1" minOccurs="0" name="echoTrainLength" type="xs:long" />
+      <xs:element maxOccurs="1" minOccurs="0" name="multiband" type="multibandType"/>
     </xs:all>
   </xs:complexType>
 
@@ -127,6 +128,13 @@
       <xs:element maxOccurs="1" minOccurs="1" name="matrixSize" type="matrixSizeType" />
       <xs:element maxOccurs="1" minOccurs="1" name="fieldOfView_mm" type="fieldOfView_mm" />
     </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="multibandType">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="1" name="spacing" type="xs:float"/>
+      <xs:element name="factor" type="xs:float"/>
+    </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="matrixSizeType">

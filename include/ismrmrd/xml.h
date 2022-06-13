@@ -142,7 +142,16 @@ namespace ISMRMRD
       return bool(*this) ? std::move(**this) : static_cast<T>(std::forward<U>(default_value));
   }
 
+    bool operator==(const Optional<T>& other) const {
+      if (this->present_ && other.present_) return this->get() == *other;
+      if ((!this->present_) && (!other.present_)) return true;
+      return false;
+    }
 
+    bool operator==(const T& val) const {
+      if (this->present_) return this->get() == val;
+      return false; 
+    }
 
 
   T& operator()() {
@@ -161,7 +170,7 @@ namespace ISMRMRD
   }; 
 
   struct threeDimensionalFloat
-  {    
+  {
     float x;
     float y;
     float z;
@@ -178,6 +187,7 @@ namespace ISMRMRD
 
   struct StudyInformation
   {
+
     Optional<std::string> studyDate;
     Optional<std::string> studyTime;
     Optional<std::string> studyID;
@@ -189,13 +199,14 @@ namespace ISMRMRD
 
   struct MeasurementDependency
   {
-    std::string dependencyType;
+
+      std::string dependencyType;
     std::string measurementID;
   };
 
   struct ReferencedImageSequence
   {
-    std::string referencedSOPInstanceUID;
+      std::string referencedSOPInstanceUID;
   };
   
   struct MeasurementInformation
@@ -236,7 +247,7 @@ namespace ISMRMRD
 
   struct ExperimentalConditions
   {
-    long int H1resonanceFrequency_Hz;
+      long int H1resonanceFrequency_Hz;
   };
 
   struct MatrixSize
@@ -264,7 +275,7 @@ namespace ISMRMRD
     {
 
     }
-    
+
     unsigned short x;
     unsigned short y;
     unsigned short z;
@@ -301,7 +312,7 @@ namespace ISMRMRD
     {
 
     }
-    
+
     unsigned short minimum;
     unsigned short maximum;
     unsigned short center;
@@ -309,7 +320,9 @@ namespace ISMRMRD
 
   struct EncodingLimits
   {
-    Optional<Limit> kspace_encoding_step_0;
+      friend bool operator==(const EncodingLimits &lhs, const EncodingLimits &rhs);
+      friend bool operator!=(const EncodingLimits &lhs, const EncodingLimits &rhs);
+      Optional<Limit> kspace_encoding_step_0;
     Optional<Limit> kspace_encoding_step_1;
     Optional<Limit> kspace_encoding_step_2;
     Optional<Limit> average;
@@ -335,9 +348,8 @@ namespace ISMRMRD
   };
   
   struct UserParameterString
-
   {
-    std::string name;
+      std::string name;
     std::string value;
   };
 
@@ -379,6 +391,11 @@ namespace ISMRMRD
       OTHER
   };
 
+  struct Multiband{
+      std::vector<float> spacing;
+    float factor;
+  };
+
   struct Encoding
   {
     EncodingSpace encodedSpace;
@@ -388,6 +405,7 @@ namespace ISMRMRD
     Optional<TrajectoryDescription> trajectoryDescription;
     Optional<ParallelImaging> parallelImaging;
     Optional<long> echoTrainLength;
+    Optional<Multiband> multiband;
   };
 
   struct SequenceParameters
@@ -431,8 +449,65 @@ namespace ISMRMRD
   };
 
 
-  EXPORTISMRMRD void deserialize(const char* xml, IsmrmrdHeader& h);
-  EXPORTISMRMRD void serialize(const IsmrmrdHeader& h, std::ostream& o);
+    EXPORTISMRMRD void deserialize(const char* xml, IsmrmrdHeader& h);
+    EXPORTISMRMRD void serialize(const IsmrmrdHeader& h, std::ostream& o);
+
+    EXPORTISMRMRD std::ostream& operator<<(std::ostream & os, const IsmrmrdHeader&);
+
+EXPORTISMRMRD bool operator==(const IsmrmrdHeader&, const IsmrmrdHeader&);
+ EXPORTISMRMRD bool operator!=(const IsmrmrdHeader &lhs, const IsmrmrdHeader &rhs);
+ EXPORTISMRMRD bool operator==(const SubjectInformation &lhs, const SubjectInformation &rhs);
+ EXPORTISMRMRD bool operator!=(const SubjectInformation &lhs, const SubjectInformation &rhs);
+ EXPORTISMRMRD bool operator==(const StudyInformation &lhs, const StudyInformation &rhs);
+ EXPORTISMRMRD bool operator!=(const StudyInformation &lhs, const StudyInformation &rhs);
+ EXPORTISMRMRD bool operator==(const ReferencedImageSequence &lhs, const ReferencedImageSequence &rhs);
+ EXPORTISMRMRD bool operator!=(const ReferencedImageSequence &lhs, const ReferencedImageSequence &rhs);
+ EXPORTISMRMRD bool operator==(const MeasurementInformation &lhs, const MeasurementInformation &rhs);
+ EXPORTISMRMRD bool operator!=(const MeasurementInformation &lhs, const MeasurementInformation &rhs);
+ EXPORTISMRMRD bool operator==(const CoilLabel &lhs, const CoilLabel &rhs);
+ EXPORTISMRMRD bool operator!=(const CoilLabel &lhs, const CoilLabel &rhs);
+ EXPORTISMRMRD bool operator==(const AcquisitionSystemInformation &lhs, const AcquisitionSystemInformation &rhs);
+ EXPORTISMRMRD bool operator!=(const AcquisitionSystemInformation &lhs, const AcquisitionSystemInformation &rhs);
+ EXPORTISMRMRD bool operator==(const ExperimentalConditions &lhs, const ExperimentalConditions &rhs);
+ EXPORTISMRMRD bool operator!=(const ExperimentalConditions &lhs, const ExperimentalConditions &rhs);
+ EXPORTISMRMRD bool operator==(const MatrixSize &lhs, const MatrixSize &rhs);
+ EXPORTISMRMRD bool operator!=(const MatrixSize &lhs, const MatrixSize &rhs);
+ EXPORTISMRMRD bool operator==(const FieldOfView_mm &lhs, const FieldOfView_mm &rhs);
+ EXPORTISMRMRD bool operator!=(const FieldOfView_mm &lhs, const FieldOfView_mm &rhs);
+ EXPORTISMRMRD bool operator==(const EncodingSpace &lhs, const EncodingSpace &rhs);
+ EXPORTISMRMRD bool operator!=(const EncodingSpace &lhs, const EncodingSpace &rhs);
+ EXPORTISMRMRD bool operator==(const Limit &lhs, const Limit &rhs);
+ EXPORTISMRMRD bool operator!=(const Limit &lhs, const Limit &rhs);
+ EXPORTISMRMRD bool operator==(const EncodingLimits &lhs, const EncodingLimits &rhs);
+ EXPORTISMRMRD bool operator!=(const EncodingLimits &lhs, const EncodingLimits &rhs);
+ EXPORTISMRMRD bool operator==(const UserParameterLong &lhs, const UserParameterLong &rhs);
+ EXPORTISMRMRD bool operator!=(const UserParameterLong &lhs, const UserParameterLong &rhs);
+ EXPORTISMRMRD bool operator==(const UserParameterDouble &lhs, const UserParameterDouble &rhs);
+ EXPORTISMRMRD bool operator!=(const UserParameterDouble &lhs, const UserParameterDouble &rhs);
+ EXPORTISMRMRD bool operator==(const UserParameterString &lhs, const UserParameterString &rhs);
+ EXPORTISMRMRD bool operator!=(const UserParameterString &lhs, const UserParameterString &rhs);
+ EXPORTISMRMRD bool operator==(const UserParameters &lhs, const UserParameters &rhs);
+ EXPORTISMRMRD bool operator!=(const UserParameters &lhs, const UserParameters &rhs);
+ EXPORTISMRMRD bool operator==(const TrajectoryDescription &lhs, const TrajectoryDescription &rhs);
+ EXPORTISMRMRD bool operator!=(const TrajectoryDescription &lhs, const TrajectoryDescription &rhs);
+ EXPORTISMRMRD bool operator==(const AccelerationFactor &lhs, const AccelerationFactor &rhs);
+ EXPORTISMRMRD bool operator!=(const AccelerationFactor &lhs, const AccelerationFactor &rhs);
+ EXPORTISMRMRD bool operator==(const ParallelImaging &lhs, const ParallelImaging &rhs);
+ EXPORTISMRMRD bool operator!=(const ParallelImaging &lhs, const ParallelImaging &rhs);
+ EXPORTISMRMRD bool operator==(const Multiband &lhs, const Multiband &rhs);
+ EXPORTISMRMRD bool operator!=(const Multiband &lhs, const Multiband &rhs);
+ EXPORTISMRMRD bool operator==(const Encoding &lhs, const Encoding &rhs);
+ EXPORTISMRMRD bool operator!=(const Encoding &lhs, const Encoding &rhs);
+ EXPORTISMRMRD bool operator==(const SequenceParameters &lhs, const SequenceParameters &rhs);
+ EXPORTISMRMRD bool operator!=(const SequenceParameters &lhs, const SequenceParameters &rhs);
+ EXPORTISMRMRD bool operator==(const WaveformInformation &lhs, const WaveformInformation &rhs);
+ EXPORTISMRMRD bool operator!=(const WaveformInformation &lhs, const WaveformInformation &rhs);
+ EXPORTISMRMRD bool operator==(const threeDimensionalFloat &lhs, const threeDimensionalFloat &rhs);
+ EXPORTISMRMRD bool operator!=(const threeDimensionalFloat &lhs, const threeDimensionalFloat &rhs);
+ EXPORTISMRMRD bool operator==(const MeasurementDependency &lhs, const MeasurementDependency &rhs);
+ EXPORTISMRMRD bool operator!=(const MeasurementDependency &lhs, const MeasurementDependency &rhs);
+
+
 
 /** @} */
 

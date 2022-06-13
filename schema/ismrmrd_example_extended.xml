@@ -235,6 +235,11 @@
       </set>
     </encodingLimits>
     <trajectory>cartesian</trajectory>
+    <multiband>
+      <spacing>0</spacing>
+      <spacing>1.2</spacing>
+      <factor>2.0</factor>
+    </multiband>
   </encoding>
   <encoding>
     <encodedSpace>
@@ -379,4 +384,3 @@
     </userParameterBase64>
   </userParameters>
 </ismrmrdHeader>
-

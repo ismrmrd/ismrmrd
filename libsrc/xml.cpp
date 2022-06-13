@@ -2,6 +2,7 @@
 #include "ismrmrd/version.h"
 #include "pugixml.hpp"
 #include <cstdlib>
+#include <tuple>
 
 namespace ISMRMRD
 {
@@ -354,6 +355,15 @@ namespace ISMRMRD
 	  }
 
 	  e.echoTrainLength = parse_optional_long(encoding, "echoTrainLength");
+
+    pugi::xml_node multiband = encoding.child("multiband");
+    if (multiband){
+      Multiband mb;
+      mb.factor = std::atof(multiband.child_value("factor"));
+      mb.spacing = parse_vector_float(multiband,"spacing");
+      e.multiband = mb;
+    }
+
 
 	  h.encoding.push_back(e);
 	  encoding = encoding.next_sibling("encoding");
@@ -808,6 +818,14 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
 	append_optional_node(n2, "interleavingDimension", h.encoding[i].parallelImaging->interleavingDimension);
       }
 
+      if (h.encoding[i].multiband){
+        n2 = n1.append_child("multiband");
+        for (auto mb : h.encoding[i].multiband->spacing){
+            append_node(n2,"spacing",mb);
+        }
+        append_node(n2,"factor",h.encoding[i].multiband->factor);
+      }
+
       append_optional_node(n1, "echoTrainLength", h.encoding[i].echoTrainLength);
 
     }
@@ -870,4 +888,177 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
   }
 
 
-}
+  std::ostream& operator<<(std::ostream& stream, const IsmrmrdHeader& header){
+    serialize(header, stream);
+    return stream;
+  }
+
+  bool operator==(const IsmrmrdHeader &lhs, const IsmrmrdHeader &rhs) {
+      return std::tie(lhs.version, lhs.subjectInformation, lhs.studyInformation, lhs.measurementInformation, lhs.acquisitionSystemInformation, lhs.experimentalConditions, lhs.encoding, lhs.sequenceParameters, lhs.userParameters, lhs.waveformInformation) == std::tie(rhs.version, rhs.subjectInformation, rhs.studyInformation, rhs.measurementInformation, rhs.acquisitionSystemInformation, rhs.experimentalConditions, rhs.encoding, rhs.sequenceParameters, rhs.userParameters, rhs.waveformInformation);
+  }
+  bool operator!=(const IsmrmrdHeader &lhs, const IsmrmrdHeader &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const SubjectInformation &lhs, const SubjectInformation &rhs) {
+      return std::tie(lhs.patientName, lhs.patientWeight_kg, lhs.patientID, lhs.patientBirthdate, lhs.patientGender) == std::tie(rhs.patientName, rhs.patientWeight_kg, rhs.patientID, rhs.patientBirthdate, rhs.patientGender);
+  }
+  bool operator!=(const SubjectInformation &lhs, const SubjectInformation &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const StudyInformation &lhs, const StudyInformation &rhs) {
+      return std::tie(lhs.studyDate, lhs.studyTime, lhs.studyID, lhs.accessionNumber, lhs.referringPhysicianName, lhs.studyDescription, lhs.studyInstanceUID) == std::tie(rhs.studyDate, rhs.studyTime, rhs.studyID, rhs.accessionNumber, rhs.referringPhysicianName, rhs.studyDescription, rhs.studyInstanceUID);
+  }
+  bool operator!=(const StudyInformation &lhs, const StudyInformation &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator<(const MeasurementDependency &lhs, const MeasurementDependency &rhs) {
+      return std::tie(lhs.dependencyType, lhs.measurementID) < std::tie(rhs.dependencyType, rhs.measurementID);
+  }
+  bool operator>(const MeasurementDependency &lhs, const MeasurementDependency &rhs) {
+      return rhs < lhs;
+  }
+  bool operator<=(const MeasurementDependency &lhs, const MeasurementDependency &rhs) {
+      return !(rhs < lhs);
+  }
+  bool operator>=(const MeasurementDependency &lhs, const MeasurementDependency &rhs) {
+      return !(lhs < rhs);
+  }
+  bool operator==(const ReferencedImageSequence &lhs, const ReferencedImageSequence &rhs) {
+      return lhs.referencedSOPInstanceUID == rhs.referencedSOPInstanceUID;
+  }
+  bool operator!=(const ReferencedImageSequence &lhs, const ReferencedImageSequence &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const MeasurementInformation &lhs, const MeasurementInformation &rhs) {
+      return std::tie(lhs.measurementID, lhs.seriesDate, lhs.seriesTime, lhs.patientPosition, lhs.relativeTablePosition, lhs.initialSeriesNumber, lhs.protocolName, lhs.seriesDescription, lhs.measurementDependency, lhs.seriesInstanceUIDRoot, lhs.frameOfReferenceUID, lhs.referencedImageSequence) == std::tie(rhs.measurementID, rhs.seriesDate, rhs.seriesTime, rhs.patientPosition, rhs.relativeTablePosition, rhs.initialSeriesNumber, rhs.protocolName, rhs.seriesDescription, rhs.measurementDependency, rhs.seriesInstanceUIDRoot, rhs.frameOfReferenceUID, rhs.referencedImageSequence);
+  }
+  bool operator!=(const MeasurementInformation &lhs, const MeasurementInformation &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const CoilLabel &lhs, const CoilLabel &rhs) {
+      return std::tie(lhs.coilNumber, lhs.coilName) == std::tie(rhs.coilNumber, rhs.coilName);
+  }
+  bool operator!=(const CoilLabel &lhs, const CoilLabel &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const AcquisitionSystemInformation &lhs, const AcquisitionSystemInformation &rhs) {
+      return std::tie(lhs.systemVendor, lhs.systemModel, lhs.systemFieldStrength_T, lhs.relativeReceiverNoiseBandwidth, lhs.receiverChannels, lhs.coilLabel, lhs.institutionName, lhs.stationName, lhs.deviceID) == std::tie(rhs.systemVendor, rhs.systemModel, rhs.systemFieldStrength_T, rhs.relativeReceiverNoiseBandwidth, rhs.receiverChannels, rhs.coilLabel, rhs.institutionName, rhs.stationName, rhs.deviceID);
+  }
+  bool operator!=(const AcquisitionSystemInformation &lhs, const AcquisitionSystemInformation &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const ExperimentalConditions &lhs, const ExperimentalConditions &rhs) {
+      return lhs.H1resonanceFrequency_Hz == rhs.H1resonanceFrequency_Hz;
+  }
+  bool operator!=(const ExperimentalConditions &lhs, const ExperimentalConditions &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const MatrixSize &lhs, const MatrixSize &rhs) {
+      return std::tie(lhs.x, lhs.y, lhs.z) == std::tie(rhs.x, rhs.y, rhs.z);
+  }
+  bool operator!=(const MatrixSize &lhs, const MatrixSize &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const FieldOfView_mm &lhs, const FieldOfView_mm &rhs) {
+      return std::tie(lhs.x, lhs.y, lhs.z) == std::tie(rhs.x, rhs.y, rhs.z);
+  }
+  bool operator!=(const FieldOfView_mm &lhs, const FieldOfView_mm &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const EncodingSpace &lhs, const EncodingSpace &rhs) {
+      return std::tie(lhs.matrixSize, lhs.fieldOfView_mm) == std::tie(rhs.matrixSize, rhs.fieldOfView_mm);
+  }
+  bool operator!=(const EncodingSpace &lhs, const EncodingSpace &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const Limit &lhs, const Limit &rhs) {
+      return std::tie(lhs.minimum, lhs.maximum, lhs.center) == std::tie(rhs.minimum, rhs.maximum, rhs.center);
+  }
+  bool operator!=(const Limit &lhs, const Limit &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const EncodingLimits &lhs, const EncodingLimits &rhs) {
+      return std::tie(lhs.kspace_encoding_step_0, lhs.kspace_encoding_step_1, lhs.kspace_encoding_step_2, lhs.average, lhs.slice, lhs.contrast, lhs.phase, lhs.repetition, lhs.set, lhs.segment) == std::tie(rhs.kspace_encoding_step_0, rhs.kspace_encoding_step_1, rhs.kspace_encoding_step_2, rhs.average, rhs.slice, rhs.contrast, rhs.phase, rhs.repetition, rhs.set, rhs.segment);
+  }
+  bool operator!=(const EncodingLimits &lhs, const EncodingLimits &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const UserParameterLong &lhs, const UserParameterLong &rhs) {
+      return std::tie(lhs.name, lhs.value) == std::tie(rhs.name, rhs.value);
+  }
+  bool operator!=(const UserParameterLong &lhs, const UserParameterLong &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const UserParameterDouble &lhs, const UserParameterDouble &rhs) {
+      return std::tie(lhs.name, lhs.value) == std::tie(rhs.name, rhs.value);
+  }
+  bool operator!=(const UserParameterDouble &lhs, const UserParameterDouble &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const UserParameterString &lhs, const UserParameterString &rhs) {
+      return std::tie(lhs.name, lhs.value) == std::tie(rhs.name, rhs.value);
+  }
+  bool operator!=(const UserParameterString &lhs, const UserParameterString &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const UserParameters &lhs, const UserParameters &rhs) {
+      return std::tie(lhs.userParameterLong, lhs.userParameterDouble, lhs.userParameterString, lhs.userParameterBase64) == std::tie(rhs.userParameterLong, rhs.userParameterDouble, rhs.userParameterString, rhs.userParameterBase64);
+  }
+  bool operator!=(const UserParameters &lhs, const UserParameters &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const TrajectoryDescription &lhs, const TrajectoryDescription &rhs) {
+      return std::tie(lhs.identifier, lhs.userParameterLong, lhs.userParameterDouble, lhs.comment) == std::tie(rhs.identifier, rhs.userParameterLong, rhs.userParameterDouble, rhs.comment);
+  }
+  bool operator!=(const TrajectoryDescription &lhs, const TrajectoryDescription &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const AccelerationFactor &lhs, const AccelerationFactor &rhs) {
+      return std::tie(lhs.kspace_encoding_step_1, lhs.kspace_encoding_step_2) == std::tie(rhs.kspace_encoding_step_1, rhs.kspace_encoding_step_2);
+  }
+  bool operator!=(const AccelerationFactor &lhs, const AccelerationFactor &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const ParallelImaging &lhs, const ParallelImaging &rhs) {
+      return std::tie(lhs.accelerationFactor, lhs.calibrationMode, lhs.interleavingDimension) == std::tie(rhs.accelerationFactor, rhs.calibrationMode, rhs.interleavingDimension);
+  }
+  bool operator!=(const ParallelImaging &lhs, const ParallelImaging &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const Multiband &lhs, const Multiband &rhs) {
+      return std::tie(lhs.spacing, lhs.factor) == std::tie(rhs.spacing, rhs.factor);
+  }
+  bool operator!=(const Multiband &lhs, const Multiband &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const Encoding &lhs, const Encoding &rhs) {
+      return std::tie(lhs.encodedSpace, lhs.reconSpace, lhs.encodingLimits, lhs.trajectory, lhs.trajectoryDescription, lhs.parallelImaging, lhs.echoTrainLength, lhs.multiband) == std::tie(rhs.encodedSpace, rhs.reconSpace, rhs.encodingLimits, rhs.trajectory, rhs.trajectoryDescription, rhs.parallelImaging, rhs.echoTrainLength, rhs.multiband);
+  }
+  bool operator!=(const Encoding &lhs, const Encoding &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const SequenceParameters &lhs, const SequenceParameters &rhs) {
+      return std::tie(lhs.TR, lhs.TE, lhs.TI, lhs.flipAngle_deg, lhs.sequence_type, lhs.echo_spacing) == std::tie(rhs.TR, rhs.TE, rhs.TI, rhs.flipAngle_deg, rhs.sequence_type, rhs.echo_spacing);
+  }
+  bool operator!=(const SequenceParameters &lhs, const SequenceParameters &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const WaveformInformation &lhs, const WaveformInformation &rhs) {
+      return std::tie(lhs.waveformName, lhs.waveformType, lhs.userParameters) == std::tie(rhs.waveformName, rhs.waveformType, rhs.userParameters);
+  }
+  bool operator!=(const WaveformInformation &lhs, const WaveformInformation &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const threeDimensionalFloat &lhs, const threeDimensionalFloat &rhs) {
+      return std::tie(lhs.x, lhs.y, lhs.z) == std::tie(rhs.x, rhs.y, rhs.z);
+  }
+  bool operator!=(const threeDimensionalFloat &lhs, const threeDimensionalFloat &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const MeasurementDependency &lhs, const MeasurementDependency &rhs) {
+      return std::tie(lhs.dependencyType, lhs.measurementID) == std::tie(rhs.dependencyType, rhs.measurementID);
+  }
+  bool operator!=(const MeasurementDependency &lhs, const MeasurementDependency &rhs) {
+      return !(rhs == lhs);
+  }
+  }
