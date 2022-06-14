@@ -83,7 +83,7 @@ int main(int argc, char** argv)
 	dims.push_back(ncoils);
 
 	NDArray<complex_float_t> coil_images(dims);
-    std::fill(coil_images.begin(), coil_images.end(), complex_float_t(0.0f, 0.0f));
+    	std::fill(coil_images.begin(), coil_images.end(), complex_float_t(0.0f, 0.0f));
 
 	for (unsigned int c = 0; c < ncoils; c++) {
             for (unsigned int y = 0; y < matrix_size; y++) {
@@ -96,19 +96,19 @@ int main(int argc, char** argv)
 
         //Let's append the data to the file
         //Create if needed
-	    Dataset d(outfile.c_str(),dataset.c_str(), true);
-	    Acquisition acq;
+        Dataset d(outfile.c_str(),dataset.c_str(), true);
+        Acquisition acq;
         uint16_t readout = static_cast<uint16_t>(matrix_size*ros);
         
-	    if (noise_calibration)
-            {
-                acq.resize(readout, ncoils);
-                memset((void *)acq.getDataPtr(), 0, acq.getDataSize());
-                acq.setFlag(ISMRMRD_ACQ_IS_NOISE_MEASUREMENT);
-                add_noise(acq,noise_level);
-                acq.sample_time_us() = 5.0;
-                d.appendAcquisition(acq);
-	    }
+        if (noise_calibration)
+        {
+            acq.resize(readout, ncoils);
+            memset((void *)acq.getDataPtr(), 0, acq.getDataSize());
+            acq.setFlag(ISMRMRD_ACQ_IS_NOISE_MEASUREMENT);
+            add_noise(acq,noise_level);
+            acq.sample_time_us() = 5.0;
+            d.appendAcquisition(acq);
+        }
         
         if (store_coordinates) {
             acq.resize(readout, ncoils, 2);
@@ -119,11 +119,11 @@ int main(int argc, char** argv)
         memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
         
         acq.available_channels() = ncoils;
-	    acq.center_sample() = (readout>>1);
-
-	    int hw = cal_width/2;
-	    int from = matrix_size / 2 - hw;
-	    int till = matrix_size / 2 + hw - 1;
+        acq.center_sample() = (readout>>1);
+	
+        int hw = cal_width/2;
+        int from = matrix_size / 2 - hw;
+        int till = matrix_size / 2 + hw - 1;
 
         for (unsigned int r = 0; r < repetitions; r++) {
             for (unsigned int a = 0; a < acc_factor; a++) {
@@ -151,7 +151,7 @@ int main(int argc, char** argv)
                             acq.setFlag(ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING);
                     }
 
-					acq.idx().kspace_encode_step_1 = static_cast<uint16_t>(i);
+                    acq.idx().kspace_encode_step_1 = static_cast<uint16_t>(i);
                     acq.idx().repetition = r*acc_factor + a;
                     acq.sample_time_us() = 5.0;
                     for (uint16_t c = 0; c < ncoils; c++) {
@@ -183,14 +183,14 @@ int main(int argc, char** argv)
 	sys.receiverChannels = ncoils;
 	h.acquisitionSystemInformation = sys;
 
-    SubjectInformation subject;
-    subject.patientID = "ISMRMRDSheppLoganPhantom";
-    h.subjectInformation = subject;
+	SubjectInformation subject;
+	subject.patientID = "ISMRMRDSheppLoganPhantom";
+	h.subjectInformation = subject;
 
-    MeasurementInformation meas;
-    boost::uuids::random_generator uuidGenerator;
-    meas.measurementID = boost::uuids::to_string(uuidGenerator());
-    h.measurementInformation = meas;
+	MeasurementInformation meas;
+	boost::uuids::random_generator uuidGenerator;
+	meas.measurementID = boost::uuids::to_string(uuidGenerator());
+	h.measurementInformation = meas;
     
 	//Create an encoding section
         Encoding e;
