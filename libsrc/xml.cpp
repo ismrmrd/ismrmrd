@@ -364,7 +364,7 @@ namespace ISMRMRD
     pugi::xml_node multiband = encoding.child("multiband");
     if (multiband){
       Multiband mb;
-      mb.phaseShift = std::atof(multiband.child_value("phaseShift"));
+      mb.phaseShift = std::strtof(multiband.child_value("phaseShift"), nullptr);
       mb.spacing = parse_vector_float(multiband,"spacing");
       e.multiband = mb;
     }
