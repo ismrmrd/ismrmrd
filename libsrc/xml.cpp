@@ -308,6 +308,11 @@ namespace ISMRMRD
 	    e.encodingLimits.repetition             = parse_encoding_limit(encodingLimits,"repetition");
 	    e.encodingLimits.set                    = parse_encoding_limit(encodingLimits,"set");
 	    e.encodingLimits.segment                = parse_encoding_limit(encodingLimits,"segment");
+      for (size_t k = 0; k < ISMRMRD_USER_INTS; k++){
+        auto name = std::string("user_") + std::to_string(k);
+        e.encodingLimits.user[k]              = parse_encoding_limit(encodingLimits,name.c_str()); 
+      }
+
 	  }
 	  
 	  pugi::xml_node trajectory = encoding.child("trajectory");
@@ -791,6 +796,12 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       append_encoding_limit(n2,"repetition",h.encoding[i].encodingLimits.repetition);
       append_encoding_limit(n2,"set",h.encoding[i].encodingLimits.set);
       append_encoding_limit(n2,"segment",h.encoding[i].encodingLimits.segment);
+
+      for (size_t k = 0; k < ISMRMRD_USER_INTS; k++){
+        auto name = std::string("user_") + std::to_string(k);
+        append_encoding_limit(n2,name.c_str(),h.encoding[i].encodingLimits.user[k]);
+      }
+
       append_node(n1,"trajectory",h.encoding[i].trajectory);
       
       if (h.encoding[i].trajectoryDescription) {

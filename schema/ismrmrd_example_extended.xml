@@ -234,6 +234,11 @@
         <maximum>0</maximum>
         <center>0</center>
       </set>
+      <user_1>
+         <minimum>0</minimum>
+        <maximum>0</maximum>
+        <center>0</center>
+      </user_1>
     </encodingLimits>
     <trajectory>cartesian</trajectory>
   </encoding>

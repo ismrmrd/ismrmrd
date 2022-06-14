@@ -85,9 +85,7 @@ set(ISMRMRD_VERSION_PATCH 0)
 set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
 set(ISMRMRD_SOVERSION ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR})
 
-
-set(ISMRMRD_XML_SCHEMA_SHA1 "fc6b428548242c8ce0fb2c209a5f8eea2aba9b2d")
-
+set(ISMRMRD_XML_SCHEMA_SHA1 "6cc1e8c8badb7d735089ad3aa7a1be0b96b97800")
 
 #Remove line breaks and white space that does not change the meaning of the schema
 file(STRINGS ${CMAKE_SOURCE_DIR}/schema/ismrmrd.xsd SCHEMA_STRINGS) #Read all strings from file
