@@ -3,6 +3,7 @@
   <subjectInformation>
     <patientName>phantom</patientName>
     <patientWeight_kg>70.3068</patientWeight_kg>
+    <patientHeight_m>1.80</patientHeight_m>
   </subjectInformation>
   <acquisitionSystemInformation>
     <systemVendor>SIEMENS</systemVendor>

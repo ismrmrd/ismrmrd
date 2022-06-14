@@ -22,6 +22,7 @@
     <xs:all>
       <xs:element minOccurs="0" name="patientName" type="xs:string" />
       <xs:element minOccurs="0" name="patientWeight_kg" type="xs:float" />
+      <xs:element minOccurs="0" name="patientHeight_m" type="xs:float"/>
       <xs:element minOccurs="0" name="patientID" type="xs:string" />
       <xs:element minOccurs="0" name="patientBirthdate" type="xs:date" />
       <xs:element minOccurs="0" name="patientGender">
@@ -43,6 +44,7 @@
       <xs:element minOccurs="0" maxOccurs="1" name="referringPhysicianName" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="studyDescription" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="studyInstanceUID" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="bodyPartExamined" type="xs:string" />
     </xs:all>
   </xs:complexType>
 
@@ -68,6 +70,7 @@
       <xs:element minOccurs="0" name="relativeTablePosition" type="threeDimensionalFloat" />
       <xs:element minOccurs="0" name="initialSeriesNumber" type="xs:long" />
       <xs:element minOccurs="0" name="protocolName" type="xs:string" />
+      <xs:element minOccurs="0" name="sequenceName" type="xs:string" />
       <xs:element minOccurs="0" name="seriesDescription" type="xs:string" />
       <xs:element maxOccurs="unbounded" minOccurs="0" name="measurementDependency" type="measurementDependencyType" />
       <xs:element minOccurs="0" name="seriesInstanceUIDRoot" type="xs:string" />
@@ -101,6 +104,7 @@
       <xs:element minOccurs="0" maxOccurs="1" name="institutionName" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="stationName" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="deviceID" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="deviceSerialNumber" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
 
@@ -174,6 +178,14 @@
       <xs:element maxOccurs="1" minOccurs="0" name="repetition" type="limitType" />
       <xs:element maxOccurs="1" minOccurs="0" name="set" type="limitType" />
       <xs:element maxOccurs="1" minOccurs="0" name="segment" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="user_0" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="user_1" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="user_2" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="user_3" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="user_4" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="user_5" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="user_6" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="user_7" type="limitType" />
     </xs:all>
   </xs:complexType>
 
