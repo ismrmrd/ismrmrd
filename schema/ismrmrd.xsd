@@ -44,6 +44,7 @@
       <xs:element minOccurs="0" maxOccurs="1" name="referringPhysicianName" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="studyDescription" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="studyInstanceUID" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="bodyPartExamined" type="xs:string" />
     </xs:all>
   </xs:complexType>
 
@@ -69,6 +70,7 @@
       <xs:element minOccurs="0" name="relativeTablePosition" type="threeDimensionalFloat" />
       <xs:element minOccurs="0" name="initialSeriesNumber" type="xs:long" />
       <xs:element minOccurs="0" name="protocolName" type="xs:string" />
+      <xs:element minOccurs="0" name="sequenceName" type="xs:string" />
       <xs:element minOccurs="0" name="seriesDescription" type="xs:string" />
       <xs:element maxOccurs="unbounded" minOccurs="0" name="measurementDependency" type="measurementDependencyType" />
       <xs:element minOccurs="0" name="seriesInstanceUIDRoot" type="xs:string" />
@@ -102,6 +104,7 @@
       <xs:element minOccurs="0" maxOccurs="1" name="institutionName" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="stationName" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="deviceID" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="deviceSerialNumber" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
 
