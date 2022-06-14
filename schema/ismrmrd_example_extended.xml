@@ -3,6 +3,7 @@
   <subjectInformation>
     <patientName>Anonymous Patient</patientName>
     <patientWeight_kg>70.3068</patientWeight_kg>
+    <patientHeight_m>1.80</patientHeight_m>
     <patientID>BHHG8866789</patientID>
     <patientBirthdate>1980-06-12</patientBirthdate>
     <patientGender>M</patientGender>
@@ -233,6 +234,11 @@
         <maximum>0</maximum>
         <center>0</center>
       </set>
+      <user_1>
+         <minimum>0</minimum>
+        <maximum>0</maximum>
+        <center>0</center>
+      </user_1>
     </encodingLimits>
     <trajectory>cartesian</trajectory>
     <multiband>
