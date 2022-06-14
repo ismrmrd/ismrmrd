@@ -8,6 +8,9 @@
  */
 
 #include <iostream>
+#include <boost/uuid/uuid.hpp>            
+#include <boost/uuid/uuid_generators.hpp> 
+#include <boost/uuid/uuid_io.hpp>         
 #include "ismrmrd/ismrmrd.h"
 #include "ismrmrd/xml.h"
 #include "ismrmrd/dataset.h"
@@ -180,6 +183,15 @@ int main(int argc, char** argv)
 	sys.receiverChannels = ncoils;
 	h.acquisitionSystemInformation = sys;
 
+    SubjectInformation subject;
+    subject.patientID = "ISMRMRDSheppLoganPhantom";
+    h.subjectInformation = subject;
+
+    MeasurementInformation meas;
+    boost::uuids::random_generator uuidGenerator;
+    meas.measurementID = boost::uuids::to_string(uuidGenerator());
+    h.measurementInformation = meas;
+    
 	//Create an encoding section
         Encoding e;
         e.encodedSpace.matrixSize.x = readout;
@@ -220,7 +232,7 @@ int main(int argc, char** argv)
         
 	//Write the header to the data file.
 	d.writeHeader(xml_header);
-
+    
         //Write out some arrays for convenience
         d.appendNDArray("phantom", *phantom);
         d.appendNDArray("csm", *coils);
