@@ -409,7 +409,7 @@ namespace ISMRMRD
 	info.relativeTablePosition = parse_optional_threeDimensionalFloat(measurementInformation, "relativeTablePosition");
 	info.initialSeriesNumber = parse_optional_long(measurementInformation, "initialSeriesNumber");
 	info.protocolName = parse_optional_string(measurementInformation, "protocolName");
-	info.protocolName = parse_optional_string(measurementInformation, "sequenceName");
+	info.sequenceName = parse_optional_string(measurementInformation, "sequenceName");
 	info.seriesDescription = parse_optional_string(measurementInformation, "seriesDescription");
 	pugi::xml_node measurementDependency = measurementInformation.child("measurementDependency");
 	while (measurementDependency) {
@@ -924,7 +924,7 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       return !(rhs == lhs);
   }
   bool operator==(const StudyInformation &lhs, const StudyInformation &rhs) {
-      return std::tie(lhs.studyDate, lhs.studyTime, lhs.studyID, lhs.accessionNumber, lhs.referringPhysicianName, lhs.studyDescription, lhs.studyInstanceUID) == std::tie(rhs.studyDate, rhs.studyTime, rhs.studyID, rhs.accessionNumber, rhs.referringPhysicianName, rhs.studyDescription, rhs.studyInstanceUID);
+      return std::tie(lhs.studyDate, lhs.studyTime, lhs.studyID, lhs.accessionNumber, lhs.referringPhysicianName, lhs.studyDescription, lhs.studyInstanceUID, lhs.bodyPartExamined) == std::tie(rhs.studyDate, rhs.studyTime, rhs.studyID, rhs.accessionNumber, rhs.referringPhysicianName, rhs.studyDescription, rhs.studyInstanceUID,lhs.bodyPartExamined);
   }
   bool operator!=(const StudyInformation &lhs, const StudyInformation &rhs) {
       return !(rhs == lhs);
@@ -948,7 +948,7 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       return !(rhs == lhs);
   }
   bool operator==(const MeasurementInformation &lhs, const MeasurementInformation &rhs) {
-      return std::tie(lhs.measurementID, lhs.seriesDate, lhs.seriesTime, lhs.patientPosition, lhs.relativeTablePosition, lhs.initialSeriesNumber, lhs.protocolName, lhs.seriesDescription, lhs.measurementDependency, lhs.seriesInstanceUIDRoot, lhs.frameOfReferenceUID, lhs.referencedImageSequence) == std::tie(rhs.measurementID, rhs.seriesDate, rhs.seriesTime, rhs.patientPosition, rhs.relativeTablePosition, rhs.initialSeriesNumber, rhs.protocolName, rhs.seriesDescription, rhs.measurementDependency, rhs.seriesInstanceUIDRoot, rhs.frameOfReferenceUID, rhs.referencedImageSequence);
+      return std::tie(lhs.measurementID, lhs.seriesDate, lhs.seriesTime, lhs.patientPosition, lhs.relativeTablePosition, lhs.initialSeriesNumber, lhs.protocolName, lhs.seriesDescription, lhs.measurementDependency, lhs.seriesInstanceUIDRoot, lhs.frameOfReferenceUID, lhs.referencedImageSequence,lhs.sequenceName) == std::tie(rhs.measurementID, rhs.seriesDate, rhs.seriesTime, rhs.patientPosition, rhs.relativeTablePosition, rhs.initialSeriesNumber, rhs.protocolName, rhs.seriesDescription, rhs.measurementDependency, rhs.seriesInstanceUIDRoot, rhs.frameOfReferenceUID, rhs.referencedImageSequence,lhs.sequenceName);
   }
   bool operator!=(const MeasurementInformation &lhs, const MeasurementInformation &rhs) {
       return !(rhs == lhs);
@@ -960,7 +960,7 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       return !(rhs == lhs);
   }
   bool operator==(const AcquisitionSystemInformation &lhs, const AcquisitionSystemInformation &rhs) {
-      return std::tie(lhs.systemVendor, lhs.systemModel, lhs.systemFieldStrength_T, lhs.relativeReceiverNoiseBandwidth, lhs.receiverChannels, lhs.coilLabel, lhs.institutionName, lhs.stationName, lhs.deviceID) == std::tie(rhs.systemVendor, rhs.systemModel, rhs.systemFieldStrength_T, rhs.relativeReceiverNoiseBandwidth, rhs.receiverChannels, rhs.coilLabel, rhs.institutionName, rhs.stationName, rhs.deviceID);
+      return std::tie(lhs.systemVendor, lhs.systemModel, lhs.systemFieldStrength_T, lhs.relativeReceiverNoiseBandwidth, lhs.receiverChannels, lhs.coilLabel, lhs.institutionName, lhs.stationName, lhs.deviceID, lhs.deviceSerialNumber) == std::tie(rhs.systemVendor, rhs.systemModel, rhs.systemFieldStrength_T, rhs.relativeReceiverNoiseBandwidth, rhs.receiverChannels, rhs.coilLabel, rhs.institutionName, rhs.stationName, rhs.deviceID,lhs.deviceSerialNumber);
   }
   bool operator!=(const AcquisitionSystemInformation &lhs, const AcquisitionSystemInformation &rhs) {
       return !(rhs == lhs);
