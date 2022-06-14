@@ -325,9 +325,7 @@ namespace ISMRMRD
 
   struct EncodingLimits
   {
-      friend bool operator==(const EncodingLimits &lhs, const EncodingLimits &rhs);
-      friend bool operator!=(const EncodingLimits &lhs, const EncodingLimits &rhs);
-      Optional<Limit> kspace_encoding_step_0;
+    Optional<Limit> kspace_encoding_step_0;
     Optional<Limit> kspace_encoding_step_1;
     Optional<Limit> kspace_encoding_step_2;
     Optional<Limit> average;
