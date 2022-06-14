@@ -22,6 +22,7 @@
     <xs:all>
       <xs:element minOccurs="0" name="patientName" type="xs:string" />
       <xs:element minOccurs="0" name="patientWeight_kg" type="xs:float" />
+      <xs:element minOccurs="0" name="patientHeight_m" type="xs:float"/>
       <xs:element minOccurs="0" name="patientID" type="xs:string" />
       <xs:element minOccurs="0" name="patientBirthdate" type="xs:date" />
       <xs:element minOccurs="0" name="patientGender">
@@ -177,6 +178,14 @@
       <xs:element maxOccurs="1" minOccurs="0" name="repetition" type="limitType" />
       <xs:element maxOccurs="1" minOccurs="0" name="set" type="limitType" />
       <xs:element maxOccurs="1" minOccurs="0" name="segment" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="user_0" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="user_1" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="user_2" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="user_3" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="user_4" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="user_5" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="user_6" type="limitType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="user_7" type="limitType" />
     </xs:all>
   </xs:complexType>
 
