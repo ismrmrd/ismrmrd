@@ -16,6 +16,7 @@ if isfield(header,'subjectInformation')
     subjectInformationNode = docNode.createElement('subjectInformation');
     append_optional(docNode,subjectInformationNode,subjectInformation,'patientName');
     append_optional(docNode,subjectInformationNode,subjectInformation,'patientWeight_kg',@num2str);
+    append_optional(docNode,subjectInformationNode,subjectInformation,'patientHeight_m',@num2str);
     append_optional(docNode,subjectInformationNode,subjectInformation,'patientID');
     append_optional(docNode,subjectInformationNode,subjectInformation,'patientBirthdate');
     append_optional(docNode,subjectInformationNode,subjectInformation,'patientGender');
@@ -126,6 +127,15 @@ for enc = header.encoding(:)'
     append_encoding_limits(docNode,n2,'repetition',enc.encodingLimits);
     append_encoding_limits(docNode,n2,'set',enc.encodingLimits);
     append_encoding_limits(docNode,n2,'segment',enc.encodingLimits);
+    append_encoding_limits(docNode,n2,'user_0',enc.encodingLimits);
+    append_encoding_limits(docNode,n2,'user_1',enc.encodingLimits);
+    append_encoding_limits(docNode,n2,'user_2',enc.encodingLimits);
+    append_encoding_limits(docNode,n2,'user_3',enc.encodingLimits);
+    append_encoding_limits(docNode,n2,'user_4',enc.encodingLimits);
+    append_encoding_limits(docNode,n2,'user_5',enc.encodingLimits);
+    append_encoding_limits(docNode,n2,'user_6',enc.encodingLimits);
+    append_encoding_limits(docNode,n2,'user_7',enc.encodingLimits);
+
     node.appendChild(n2);
 
     append_node(docNode,node,enc,'trajectory');

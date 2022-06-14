@@ -309,6 +309,11 @@ namespace ISMRMRD
 	    e.encodingLimits.repetition             = parse_encoding_limit(encodingLimits,"repetition");
 	    e.encodingLimits.set                    = parse_encoding_limit(encodingLimits,"set");
 	    e.encodingLimits.segment                = parse_encoding_limit(encodingLimits,"segment");
+      for (size_t k = 0; k < ISMRMRD_USER_INTS; k++){
+        auto name = std::string("user_") + std::to_string(k);
+        e.encodingLimits.user[k]              = parse_encoding_limit(encodingLimits,name.c_str()); 
+      }
+
 	  }
 	  
 	  pugi::xml_node trajectory = encoding.child("trajectory");
@@ -359,7 +364,7 @@ namespace ISMRMRD
     pugi::xml_node multiband = encoding.child("multiband");
     if (multiband){
       Multiband mb;
-      mb.factor = std::atof(multiband.child_value("factor"));
+      mb.phaseShift = std::atof(multiband.child_value("phaseShift"));
       mb.spacing = parse_vector_float(multiband,"spacing");
       e.multiband = mb;
     }
@@ -375,6 +380,7 @@ namespace ISMRMRD
 	SubjectInformation info;
 	info.patientName = parse_optional_string(subjectInformation, "patientName");
 	info.patientWeight_kg = parse_optional_float(subjectInformation, "patientWeight_kg");
+	info.patientHeight_m = parse_optional_float(subjectInformation, "patientHeight_m");
 	info.patientID = parse_optional_string(subjectInformation, "patientID");
 	info.patientBirthdate = parse_optional_string(subjectInformation, "patientBirthdate");
 	info.patientGender = parse_optional_string(subjectInformation, "patientGender");
@@ -707,6 +713,7 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       n1.set_name("subjectInformation");
       append_optional_node(n1,"patientName",h.subjectInformation->patientName);
       append_optional_node(n1,"patientWeight_kg",h.subjectInformation->patientWeight_kg);
+      append_optional_node(n1,"patientHeight_m",h.subjectInformation->patientHeight_m);
       append_optional_node(n1,"patientID",h.subjectInformation->patientID);
       append_optional_node(n1,"patientBirthdate",h.subjectInformation->patientBirthdate);
       append_optional_node(n1,"patientGender",h.subjectInformation->patientGender);
@@ -799,6 +806,12 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       append_encoding_limit(n2,"repetition",h.encoding[i].encodingLimits.repetition);
       append_encoding_limit(n2,"set",h.encoding[i].encodingLimits.set);
       append_encoding_limit(n2,"segment",h.encoding[i].encodingLimits.segment);
+
+      for (size_t k = 0; k < ISMRMRD_USER_INTS; k++){
+        auto name = std::string("user_") + std::to_string(k);
+        append_encoding_limit(n2,name.c_str(),h.encoding[i].encodingLimits.user[k]);
+      }
+
       append_node(n1,"trajectory",h.encoding[i].trajectory);
       
       if (h.encoding[i].trajectoryDescription) {
@@ -823,7 +836,7 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
         for (auto mb : h.encoding[i].multiband->spacing){
             append_node(n2,"spacing",mb);
         }
-        append_node(n2,"factor",h.encoding[i].multiband->factor);
+        append_node(n2,"phaseShift",h.encoding[i].multiband->phaseShift);
       }
 
       append_optional_node(n1, "echoTrainLength", h.encoding[i].echoTrainLength);
@@ -1026,7 +1039,7 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       return !(rhs == lhs);
   }
   bool operator==(const Multiband &lhs, const Multiband &rhs) {
-      return std::tie(lhs.spacing, lhs.factor) == std::tie(rhs.spacing, rhs.factor);
+      return std::tie(lhs.spacing, lhs.phaseShift) == std::tie(rhs.spacing, rhs.phaseShift);
   }
   bool operator!=(const Multiband &lhs, const Multiband &rhs) {
       return !(rhs == lhs);
