@@ -197,6 +197,7 @@ namespace ISMRMRD
     Optional<std::string> referringPhysicianName;
     Optional<std::string> studyDescription;
     Optional<std::string> studyInstanceUID;
+    Optional<std::string> bodyPartExamined;
   };
 
   struct MeasurementDependency
@@ -220,6 +221,7 @@ namespace ISMRMRD
     Optional<threeDimensionalFloat> relativeTablePosition;
     Optional<long int> initialSeriesNumber;
     Optional<std::string> protocolName;
+    Optional<std::string> sequenceName;
     Optional<std::string> seriesDescription;
     std::vector<MeasurementDependency> measurementDependency;
     Optional<std::string> seriesInstanceUIDRoot;
@@ -244,6 +246,7 @@ namespace ISMRMRD
     Optional<std::string> institutionName;
     Optional<std::string> stationName;
     Optional<std::string> deviceID;
+    Optional<std::string> deviceSerialNumber;
   };
 
 

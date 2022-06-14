@@ -16,6 +16,7 @@
     <referringPhysicianName>John Doe, MD</referringPhysicianName>
     <studyDescription>This is an example study with all headers set</studyDescription>
     <studyInstanceUID>1.34.896.2789852.787873.9999</studyInstanceUID>
+    <bodyPartExamined>WHOLEBODY</bodyPartExamined>
   </studyInformation>
   <measurementInformation>
     <measurementID>LLJGHH888986</measurementID>
@@ -29,6 +30,7 @@
     </relativeTablePosition>
     <initialSeriesNumber>1</initialSeriesNumber>
     <protocolName>ExampleProt</protocolName>
+    <sequenceName>ep_b0_1000</sequenceName>
     <seriesDescription>MRIStudy1</seriesDescription>
     <measurementDependency>
       <dependencyType>Noise</dependencyType>
@@ -184,6 +186,7 @@
     <institutionName>Some University</institutionName>
     <stationName>MRI Scanner 1</stationName>
     <deviceID>20434</deviceID>
+    <deviceSerialNumber>27182818284590452</deviceSerialNumber>
   </acquisitionSystemInformation>
   <experimentalConditions>
     <H1resonanceFrequency_Hz>63642459</H1resonanceFrequency_Hz>
