@@ -8,9 +8,6 @@
  */
 
 #include <iostream>
-#include <boost/uuid/uuid.hpp>            
-#include <boost/uuid/uuid_generators.hpp> 
-#include <boost/uuid/uuid_io.hpp>         
 #include "ismrmrd/ismrmrd.h"
 #include "ismrmrd/xml.h"
 #include "ismrmrd/dataset.h"
@@ -19,6 +16,7 @@
 #include "ismrmrd_fftw.h"
 
 #include <boost/program_options.hpp>
+#include <fstream>
 
 using namespace ISMRMRD;
 namespace po = boost::program_options;
@@ -43,6 +41,8 @@ int main(int argc, char** argv)
 	float noise_level;
 	std::string outfile;
 	std::string dataset;
+    std::string header_template;
+
 	bool store_coordinates = false;
 	bool noise_calibration = false;
 
@@ -60,6 +60,7 @@ int main(int argc, char** argv)
 	    ("dataset,d", po::value<std::string>(&dataset)->default_value("dataset"), "Output Dataset Name")
 	    ("noise-calibration,C", po::value<bool>(&noise_calibration)->zero_tokens(), "Add noise calibration")
 	    ("k-coordinates,k",  po::value<bool>(&store_coordinates)->zero_tokens(), "Store k-space coordinates")
+	    ("header-template,t", po::value<std::string>(&header_template)->default_value(""), "Template header xml file")
 	;
 
 	po::variables_map vm;
@@ -83,7 +84,7 @@ int main(int argc, char** argv)
 	dims.push_back(ncoils);
 
 	NDArray<complex_float_t> coil_images(dims);
-    	std::fill(coil_images.begin(), coil_images.end(), complex_float_t(0.0f, 0.0f));
+    std::fill(coil_images.begin(), coil_images.end(), complex_float_t(0.0f, 0.0f));
 
 	for (unsigned int c = 0; c < ncoils; c++) {
             for (unsigned int y = 0; y < matrix_size; y++) {
@@ -94,13 +95,13 @@ int main(int argc, char** argv)
             }
 	}
 
-        //Let's append the data to the file
-        //Create if needed
-        Dataset d(outfile.c_str(),dataset.c_str(), true);
-        Acquisition acq;
-        uint16_t readout = static_cast<uint16_t>(matrix_size*ros);
-        
-        if (noise_calibration)
+    //Let's append the data to the file
+    //Create if needed
+    Dataset d(outfile.c_str(),dataset.c_str(), true);
+    Acquisition acq;
+    uint16_t readout = static_cast<uint16_t>(matrix_size*ros);
+    
+    if (noise_calibration)
         {
             acq.resize(readout, ncoils);
             memset((void *)acq.getDataPtr(), 0, acq.getDataSize());
@@ -108,74 +109,93 @@ int main(int argc, char** argv)
             add_noise(acq,noise_level);
             acq.sample_time_us() = 5.0;
             d.appendAcquisition(acq);
-        }
-        
-        if (store_coordinates) {
-            acq.resize(readout, ncoils, 2);
-        }
-        else {
-            acq.resize(readout, ncoils);
-        }
-        memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
-        
-        acq.available_channels() = ncoils;
-        acq.center_sample() = (readout>>1);
-	
-        int hw = cal_width/2;
-        int from = matrix_size / 2 - hw;
-        int till = matrix_size / 2 + hw - 1;
+    }
+    
+    if (store_coordinates) {
+        acq.resize(readout, ncoils, 2);
+    }
+    else {
+        acq.resize(readout, ncoils);
+    }
+    memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
+    
+    acq.available_channels() = ncoils;
+    acq.center_sample() = (readout>>1);
 
-        for (unsigned int r = 0; r < repetitions; r++) {
-            for (unsigned int a = 0; a < acc_factor; a++) {
-                NDArray<complex_float_t> cm = coil_images;
-                fft2c(cm);
+    int hw = cal_width/2;
+    int from = matrix_size / 2 - hw;
+    int till = matrix_size / 2 + hw - 1;
 
-                add_noise(cm,noise_level);
-                for (int64_t i = 0; i < matrix_size; i++) {
+    for (unsigned int r = 0; r < repetitions; r++) {
+        for (unsigned int a = 0; a < acc_factor; a++) {
+            NDArray<complex_float_t> cm = coil_images;
+            fft2c(cm);
 
-                    if ((i - a)%acc_factor && !(i >= from && i <= till))
-                        continue; // skip this readout
+            add_noise(cm,noise_level);
+            for (int64_t i = 0; i < matrix_size; i++) {
 
-                    //Set some flags
-                    acq.clearAllFlags();
-                    if (i == a) {
-                        acq.setFlag(ISMRMRD_ACQ_FIRST_IN_SLICE);
-                    }
-                    else if (i >= (matrix_size-acc_factor)) {
-                        acq.setFlag(ISMRMRD_ACQ_LAST_IN_SLICE);
-                    }
-                    else if (i >= from && i <= till) {
-                        if ((i - a) % acc_factor)
-                            acq.setFlag(ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION);
-                        else
-                            acq.setFlag(ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING);
-                    }
+                if ((i - a)%acc_factor && !(i >= from && i <= till))
+                    continue; // skip this readout
 
-                    acq.idx().kspace_encode_step_1 = static_cast<uint16_t>(i);
-                    acq.idx().repetition = r*acc_factor + a;
-                    acq.sample_time_us() = 5.0;
-                    for (uint16_t c = 0; c < ncoils; c++) {
-                        for (uint16_t s = 0; s < readout; s++) {
-                            acq.data(s,c) = cm(s, static_cast<uint16_t>(i), c);
-                        }
-                    }
-                    
-                    if (store_coordinates) {
-                        float ky = (1.0f*i-(matrix_size>>1))/(1.0f*matrix_size);
-                        for (uint16_t x = 0; x < readout; x++) {
-                            float kx = (1.0f*x-(readout>>1))/(1.0f*readout);
-                            acq.traj(0,x) = kx;
-                            acq.traj(1,x) = ky;
-                        }
-                    }
-                    d.appendAcquisition(acq);
+                //Set some flags
+                acq.clearAllFlags();
+                if (i == a) {
+                    acq.setFlag(ISMRMRD_ACQ_FIRST_IN_SLICE);
                 }
+                else if (i >= (matrix_size-acc_factor)) {
+                    acq.setFlag(ISMRMRD_ACQ_LAST_IN_SLICE);
+                }
+                else if (i >= from && i <= till) {
+                    if ((i - a) % acc_factor)
+                        acq.setFlag(ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION);
+                    else
+                        acq.setFlag(ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING);
+                }
+
+                acq.idx().kspace_encode_step_1 = static_cast<uint16_t>(i);
+                acq.idx().repetition = r*acc_factor + a;
+                acq.sample_time_us() = 5.0;
+                for (uint16_t c = 0; c < ncoils; c++) {
+                    for (uint16_t s = 0; s < readout; s++) {
+                        acq.data(s,c) = cm(s, static_cast<uint16_t>(i), c);
+                    }
+                }
+                
+                if (store_coordinates) {
+                    float ky = (1.0f*i-(matrix_size>>1))/(1.0f*matrix_size);
+                    for (uint16_t x = 0; x < readout; x++) {
+                        float kx = (1.0f*x-(readout>>1))/(1.0f*readout);
+                        acq.traj(0,x) = kx;
+                        acq.traj(1,x) = ky;
+                    }
+                }
+                d.appendAcquisition(acq);
             }
+        }
 	}
 
 	//Let's create a header, we will use the C++ classes in ismrmrd/xml.h
 	IsmrmrdHeader h;
-        h.version = ISMRMRD_XMLHDR_VERSION;
+
+    // If a template xml file is given, use it as the base for the generated header
+    // - Encodings present in the template will be removed
+    // - All other fields will be copied, or overwritten by the generated header information below
+    if(!header_template.empty()){
+        std::ifstream t;
+        t.open(header_template);
+        std::stringstream buffer;
+        buffer << t.rdbuf();
+       // std::cout << buffer.str() << std::endl;
+        try{
+            ISMRMRD::deserialize(buffer.str().c_str(), h);
+            h.encoding.clear(); // Clear the encoding section from the template 
+            std::cout << "Using header template: " << header_template <<  std::endl;
+        }
+        catch(const std::exception& e){
+            std::cout << "Error with header template: " << header_template << "(" << e.what() << ")" << std::endl;
+        }
+    }
+    h.version = ISMRMRD_XMLHDR_VERSION;
 	h.experimentalConditions.H1resonanceFrequency_Hz = 63500000; //~1.5T        
 
 	AcquisitionSystemInformation sys;
@@ -183,32 +203,23 @@ int main(int argc, char** argv)
 	sys.receiverChannels = ncoils;
 	h.acquisitionSystemInformation = sys;
 
-	SubjectInformation subject;
-	subject.patientID = "ISMRMRDSheppLoganPhantom";
-	h.subjectInformation = subject;
-
-	MeasurementInformation meas;
-	boost::uuids::random_generator uuidGenerator;
-	meas.measurementID = boost::uuids::to_string(uuidGenerator());
-	h.measurementInformation = meas;
-    
 	//Create an encoding section
-        Encoding e;
-        e.encodedSpace.matrixSize.x = readout;
-        e.encodedSpace.matrixSize.y = matrix_size;
-        e.encodedSpace.matrixSize.z = 1;
-        e.encodedSpace.fieldOfView_mm.x = 600;
-        e.encodedSpace.fieldOfView_mm.y = 300;
-        e.encodedSpace.fieldOfView_mm.z = 6;
-        e.reconSpace.matrixSize.x = readout/2;
-        e.reconSpace.matrixSize.y = matrix_size;
-        e.reconSpace.matrixSize.z = 1;
-        e.reconSpace.fieldOfView_mm.x = 300;
-        e.reconSpace.fieldOfView_mm.y = 300;
-        e.reconSpace.fieldOfView_mm.z = 6;
-        e.trajectory = TrajectoryType::CARTESIAN;
-        e.encodingLimits.kspace_encoding_step_1 = Limit(0, matrix_size-1,(matrix_size>>1));
-        e.encodingLimits.repetition = Limit(0, repetitions*acc_factor - 1,0);
+    Encoding e;
+    e.encodedSpace.matrixSize.x = readout;
+    e.encodedSpace.matrixSize.y = matrix_size;
+    e.encodedSpace.matrixSize.z = 1;
+    e.encodedSpace.fieldOfView_mm.x = 600;
+    e.encodedSpace.fieldOfView_mm.y = 300;
+    e.encodedSpace.fieldOfView_mm.z = 6;
+    e.reconSpace.matrixSize.x = readout/2;
+    e.reconSpace.matrixSize.y = matrix_size;
+    e.reconSpace.matrixSize.z = 1;
+    e.reconSpace.fieldOfView_mm.x = 300;
+    e.reconSpace.fieldOfView_mm.y = 300;
+    e.reconSpace.fieldOfView_mm.z = 6;
+    e.trajectory = TrajectoryType::CARTESIAN;
+    e.encodingLimits.kspace_encoding_step_1 = Limit(0, matrix_size-1,(matrix_size>>1));
+    e.encodingLimits.repetition = Limit(0, repetitions*acc_factor - 1,0);
         
 	//e.g. parallel imaging
 	if (acc_factor > 1) {
@@ -225,18 +236,18 @@ int main(int argc, char** argv)
 	//Add any additional fields that you may want would go here....
 
 	//Serialize the header
-        std::stringstream str;
-        ISMRMRD::serialize( h, str);
-        std::string xml_header = str.str();
-        //std::cout << xml_header << std::endl;
+    std::stringstream str;
+    ISMRMRD::serialize( h, str);
+    std::string xml_header = str.str();
+    std::cout << xml_header << std::endl;
         
 	//Write the header to the data file.
 	d.writeHeader(xml_header);
+
+    //Write out some arrays for convenience
+    d.appendNDArray("phantom", *phantom);
+    d.appendNDArray("csm", *coils);
+    d.appendNDArray("coil_images", coil_images);
     
-        //Write out some arrays for convenience
-        d.appendNDArray("phantom", *phantom);
-        d.appendNDArray("csm", *coils);
-        d.appendNDArray("coil_images", coil_images);
-        
 	return 0;
 }
