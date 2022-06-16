@@ -239,7 +239,7 @@ int main(int argc, char** argv)
     std::stringstream str;
     ISMRMRD::serialize( h, str);
     std::string xml_header = str.str();
-    std::cout << xml_header << std::endl;
+    //std::cout << xml_header << std::endl;
         
 	//Write the header to the data file.
 	d.writeHeader(xml_header);
