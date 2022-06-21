@@ -16,7 +16,7 @@ Package: libismrmrd-dev
 Section: libdevel
 Architecture: any
 Multi-Arch: same
-Depends: libismrmrd (= ${binary:Version}), ${misc:Depends}
+Depends: libismrmrd (= ${binary:Version}), ${misc:Depends}, libhdf5-dev, libpugixml-dev
 Description: ISMRM Raw Data Format development files.
 
 Package: libismrmrd-matlab
