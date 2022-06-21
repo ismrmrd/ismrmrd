@@ -18,9 +18,13 @@ jobs:
     - name: Install dependencies
       run: sudo dnf install rpkg git dnf-plugins-core -y
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
+      with: 
+        fetch-depth: 0
     - name: Run RPKG 
       run: |
+        git config --global --add safe.directory "*"
+        chown -hR root "$GITHUB_WORKSPACE"
         cd "$GITHUB_WORKSPACE" 
         rpkg spec --outdir ./
         sudo dnf builddep -y ismrmrd.spec

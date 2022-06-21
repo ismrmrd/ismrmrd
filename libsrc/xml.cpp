@@ -308,6 +308,11 @@ namespace ISMRMRD
 	    e.encodingLimits.repetition             = parse_encoding_limit(encodingLimits,"repetition");
 	    e.encodingLimits.set                    = parse_encoding_limit(encodingLimits,"set");
 	    e.encodingLimits.segment                = parse_encoding_limit(encodingLimits,"segment");
+      for (size_t k = 0; k < ISMRMRD_USER_INTS; k++){
+        auto name = std::string("user_") + std::to_string(k);
+        e.encodingLimits.user[k]              = parse_encoding_limit(encodingLimits,name.c_str()); 
+      }
+
 	  }
 	  
 	  pugi::xml_node trajectory = encoding.child("trajectory");
@@ -365,6 +370,7 @@ namespace ISMRMRD
 	SubjectInformation info;
 	info.patientName = parse_optional_string(subjectInformation, "patientName");
 	info.patientWeight_kg = parse_optional_float(subjectInformation, "patientWeight_kg");
+	info.patientHeight_m = parse_optional_float(subjectInformation, "patientHeight_m");
 	info.patientID = parse_optional_string(subjectInformation, "patientID");
 	info.patientBirthdate = parse_optional_string(subjectInformation, "patientBirthdate");
 	info.patientGender = parse_optional_string(subjectInformation, "patientGender");
@@ -380,6 +386,7 @@ namespace ISMRMRD
 	info.referringPhysicianName = parse_optional_string(studyInformation,"referringPhysicianName");
 	info.studyDescription = parse_optional_string(studyInformation,"studyDescription");
 	info.studyInstanceUID = parse_optional_string(studyInformation,"studyInstanceUID");
+	info.bodyPartExamined = parse_optional_string(studyInformation,"bodyPartExamined");
 	h.studyInformation = info;
       }
 
@@ -392,8 +399,8 @@ namespace ISMRMRD
 	info.relativeTablePosition = parse_optional_threeDimensionalFloat(measurementInformation, "relativeTablePosition");
 	info.initialSeriesNumber = parse_optional_long(measurementInformation, "initialSeriesNumber");
 	info.protocolName = parse_optional_string(measurementInformation, "protocolName");
+	info.protocolName = parse_optional_string(measurementInformation, "sequenceName");
 	info.seriesDescription = parse_optional_string(measurementInformation, "seriesDescription");
-	
 	pugi::xml_node measurementDependency = measurementInformation.child("measurementDependency");
 	while (measurementDependency) {
 	  try {
@@ -443,7 +450,8 @@ namespace ISMRMRD
 	}
 	info.institutionName = parse_optional_string(acquisitionSystemInformation, "institutionName");
 	info.stationName = parse_optional_string(acquisitionSystemInformation, "stationName");
-    info.deviceID = parse_optional_string(acquisitionSystemInformation,"deviceID");
+  info.deviceID = parse_optional_string(acquisitionSystemInformation,"deviceID");
+  info.deviceSerialNumber = parse_optional_string(acquisitionSystemInformation,"deviceSerialNumber");
 	h.acquisitionSystemInformation = info;
       }
 
@@ -697,6 +705,7 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       n1.set_name("subjectInformation");
       append_optional_node(n1,"patientName",h.subjectInformation->patientName);
       append_optional_node(n1,"patientWeight_kg",h.subjectInformation->patientWeight_kg);
+      append_optional_node(n1,"patientHeight_m",h.subjectInformation->patientHeight_m);
       append_optional_node(n1,"patientID",h.subjectInformation->patientID);
       append_optional_node(n1,"patientBirthdate",h.subjectInformation->patientBirthdate);
       append_optional_node(n1,"patientGender",h.subjectInformation->patientGender);
@@ -712,6 +721,7 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       append_optional_node(n1,"referringPhysicianName",h.studyInformation->referringPhysicianName);
       append_optional_node(n1,"studyDescription",h.studyInformation->studyDescription);
       append_optional_node(n1,"studyInstanceUID",h.studyInformation->studyInstanceUID);
+      append_optional_node(n1,"bodyPartExamined",h.studyInformation->bodyPartExamined);
     }
 
     if (h.measurementInformation) {
@@ -724,6 +734,7 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       append_optional_three_dimensional_float(n1,"relativeTablePosition",h.measurementInformation->relativeTablePosition);
       append_optional_node(n1,"initialSeriesNumber",h.measurementInformation->initialSeriesNumber);
       append_optional_node(n1,"protocolName",h.measurementInformation->protocolName);
+      append_optional_node(n1,"sequenceName",h.measurementInformation->sequenceName);
       append_optional_node(n1,"seriesDescription",h.measurementInformation->seriesDescription);
 
       for (size_t i = 0; i < h.measurementInformation->measurementDependency.size(); i++) {
@@ -764,6 +775,7 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       append_optional_node(n1,"institutionName",h.acquisitionSystemInformation->institutionName);
       append_optional_node(n1,"stationName",h.acquisitionSystemInformation->stationName);
       append_optional_node(n1,"deviceID",h.acquisitionSystemInformation->deviceID);
+      append_optional_node(n1,"deviceSerialNumber",h.acquisitionSystemInformation->deviceSerialNumber);
     }
 
     n1 = root.append_child();
@@ -789,6 +801,12 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       append_encoding_limit(n2,"repetition",h.encoding[i].encodingLimits.repetition);
       append_encoding_limit(n2,"set",h.encoding[i].encodingLimits.set);
       append_encoding_limit(n2,"segment",h.encoding[i].encodingLimits.segment);
+
+      for (size_t k = 0; k < ISMRMRD_USER_INTS; k++){
+        auto name = std::string("user_") + std::to_string(k);
+        append_encoding_limit(n2,name.c_str(),h.encoding[i].encodingLimits.user[k]);
+      }
+
       append_node(n1,"trajectory",h.encoding[i].trajectory);
       
       if (h.encoding[i].trajectoryDescription) {

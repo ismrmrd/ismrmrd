@@ -7,7 +7,7 @@
 #define ISMRMRDXML_H
 
 #include "ismrmrd/export.h"
-
+#include "ismrmrd.h"
 #include <cstddef>
 #include <new> //For std::badalloc
 #include <stdexcept> //For std::length_error
@@ -16,6 +16,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <array>
 
 /**
   TODO LIST
@@ -171,6 +172,7 @@ namespace ISMRMRD
   {
     Optional<std::string> patientName;
     Optional<float> patientWeight_kg;
+    Optional<float> patientHeight_m;
     Optional<std::string> patientID;
     Optional<std::string> patientBirthdate;
     Optional<std::string> patientGender;
@@ -185,6 +187,7 @@ namespace ISMRMRD
     Optional<std::string> referringPhysicianName;
     Optional<std::string> studyDescription;
     Optional<std::string> studyInstanceUID;
+    Optional<std::string> bodyPartExamined;
   };
 
   struct MeasurementDependency
@@ -207,6 +210,7 @@ namespace ISMRMRD
     Optional<threeDimensionalFloat> relativeTablePosition;
     Optional<long int> initialSeriesNumber;
     Optional<std::string> protocolName;
+    Optional<std::string> sequenceName;
     Optional<std::string> seriesDescription;
     std::vector<MeasurementDependency> measurementDependency;
     Optional<std::string> seriesInstanceUIDRoot;
@@ -231,6 +235,7 @@ namespace ISMRMRD
     Optional<std::string> institutionName;
     Optional<std::string> stationName;
     Optional<std::string> deviceID;
+    Optional<std::string> deviceSerialNumber;
   };
 
 
@@ -319,6 +324,7 @@ namespace ISMRMRD
     Optional<Limit> repetition;
     Optional<Limit> set;
     Optional<Limit> segment;
+    std::array<Optional<Limit>,ISMRMRD_USER_INTS> user;
   };
 
 
