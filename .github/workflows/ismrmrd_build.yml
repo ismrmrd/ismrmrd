@@ -38,8 +38,13 @@ jobs:
       run: |
         cmake --build . --config $BUILD_TYPE
         cmake --build . --target doc --config $BUILD_TYPE
-
+    - name: Test XML
+      working-directory: ${{github.workspace}}/schema
+      shell: bash
+      run: for xml_file in *.xml; do xmllint --schema ismrmrd.xsd "$xml_file"; done 
+   
     - name: Test
       working-directory: ${{github.workspace}}/build/tests
       shell: bash
       run: ./test_ismrmrd
+

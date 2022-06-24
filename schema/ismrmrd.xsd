@@ -137,8 +137,26 @@
   <xs:complexType name="multibandType">
     <xs:sequence>
       <xs:element maxOccurs="unbounded" minOccurs="1" name="spacing" type="xs:float"/>
-      <xs:element name="phaseShift" type="xs:float"/>
+      <xs:element name="phaseShift" minOccurs="1" maxOccurs="1" type="phaseShiftType"/>
+      <xs:element name="calibration" minOccurs="1" maxOccurs="1" type="multibandCalibrationType" />
+      <xs:element name="calibration_encoding" minOccurs="1" maxOccurs="1" type="xs:unsignedLong"/>
     </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="multibandCalibrationType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="2D" />
+      <xs:enumeration value="3D" />
+      <xs:enumeration value="other" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="phaseShiftType">
+    <xs:all>
+      <xs:element type="xs:float" name="AFy"/>
+      <xs:element type="xs:float" name="AFz"/>
+      <xs:element type="xs:float" name="deltaKz"/>
+    </xs:all>
   </xs:complexType>
 
   <xs:complexType name="matrixSizeType">
@@ -225,8 +243,23 @@
       <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="flipAngle_deg" />
       <xs:element minOccurs="0" maxOccurs="1" type="xs:string" name="sequence_type" />
       <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="echo_spacing" />
-
+      <xs:element minOccurs="0" maxOccurs="unbounded" type="diffusionType" name="diffusion"/>
     </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="diffusionType">
+    <xs:sequence>
+      <xs:element type="gradientDirectionType" name="gradientDirection" />
+      <xs:element type="xs:float" name="bvalue"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="gradientDirectionType">
+    <xs:all>
+      <xs:element type="xs:float" name="rl"/>
+      <xs:element type="xs:float" name="ap"/>
+      <xs:element type="xs:float" name="fh"/>
+    </xs:all>
   </xs:complexType>
 
   <xs:complexType name="userParameterLongType">
