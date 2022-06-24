@@ -92,6 +92,10 @@ namespace ISMRMRD
     return r;
   }
 
+  float parse_float(pugi::xml_node& n, const char* child){
+    return std::stof(n.child_value(child));
+  }
+
   std::vector<float> parse_vector_float(pugi::xml_node& n, const char* child) 
   {
     std::vector<float> r;
@@ -207,8 +211,19 @@ namespace ISMRMRD
    
     return r;
   }
+  MultibandCalibrationType parse_multiband_type(const std::string& multibandString) {
+      if (multibandString == "seperable2D")
+          return MultibandCalibrationType::SEPERABLE2D;
+      if (multibandString == "full3D")
+          return MultibandCalibrationType::FULL3D;
+      if (multibandString == "other")
+          return MultibandCalibrationType::other;
 
-  TrajectoryType parse_trajectory_type(const std::string trajectoryString) {
+      throw std::runtime_error("Invalid multiband calibration type in xml header");
+
+  }
+
+  TrajectoryType parse_trajectory_type(const std::string& trajectoryString) {
       if (trajectoryString == "cartesian")
           return TrajectoryType::CARTESIAN;
       if (trajectoryString == "epi")
@@ -225,7 +240,7 @@ namespace ISMRMRD
       throw std::runtime_error("Invalid trajectory type in xml header");
   }
 
-  WaveformType parse_waveform_type(const std::string waveformString) {
+  WaveformType parse_waveform_type(const std::string& waveformString) {
       if (waveformString == "ecg")
           return WaveformType::ECG;
       if ( waveformString == "pulse")
@@ -364,8 +379,11 @@ namespace ISMRMRD
     pugi::xml_node multiband = encoding.child("multiband");
     if (multiband){
       Multiband mb;
-      mb.phaseShift = std::strtof(multiband.child_value("phaseShift"), nullptr);
+      auto phaseShiftNode = multiband.child("phaseShift");
+      mb.phaseShift = {parse_float(phaseShiftNode,"AFx"),parse_float(phaseShiftNode,"AFy"), parse_float(phaseShiftNode,"deltaKz")};
       mb.spacing = parse_vector_float(multiband,"spacing");
+      mb.calibration = parse_multiband_type(multiband.child_value("calibration"));
+      mb.calibration_encoding = std::stoul(multiband.child_value("calibration_encoding"));
       e.multiband = mb;
     }
 
@@ -521,96 +539,61 @@ namespace ISMRMRD
 
   }
 
+    using std::to_string;
 
-  //Utility functions for serialization
-  void to_string_val(const std::string& v, std::string& o)
-  {
-    o = v;
-  }
-
-  void to_string_val(const float& v, std::string& o)
-  {
-    char buffer[256];
-    sprintf(buffer,"%f",v);
-    o = std::string(buffer);
-  }
-
-  void to_string_val(const double& v, std::string& o)
-  {
-    char buffer[256];
-    sprintf(buffer,"%f",v);
-    o = std::string(buffer);
-  }
-
-  void to_string_val(const unsigned short& v, std::string& o)
-  {
-    char buffer[256];
-    sprintf(buffer,"%d",v);
-    o = std::string(buffer);
-  }
-
-  void to_string_val(const long& v, std::string& o)
-  {
-    char buffer[256];
-    sprintf(buffer,"%ld",v);
-    o = std::string(buffer);
-  }
-
-  void to_string_val(const TrajectoryType& v, std::string& o)
+  std::string to_string(TrajectoryType v)
   {
       switch (v){
           case TrajectoryType::CARTESIAN:
-              o = "cartesian";
-              break;
+              return "cartesian";
           case TrajectoryType::EPI:
-              o = "epi";
-              break;
+              return "epi";
           case TrajectoryType::RADIAL:
-              o = "radial";
-              break;
+              return  "radial";
           case TrajectoryType::GOLDENANGLE:
-              o = "goldenangle";
-              break;
+              return "goldenangle";
           case TrajectoryType::SPIRAL:
-              o = "spiral";
-              break;
+              return  "spiral";
           case TrajectoryType::OTHER:
-              o = "other";
-              break;
+              return "other";
       }
   }
 
-  void to_string_val(const WaveformType& v, std::string& o)
+  std::string to_string(const WaveformType& v)
   {
       switch (v){
           case WaveformType::ECG:
-              o = "ecg";
-              break;
+              return "ecg";
           case WaveformType::PULSE:
-              o = "pulse";
-              break;
+              return "pulse";
           case WaveformType::RESPIRATORY:
-              o = "respiratory";
-              break;
+              return "respiratory";
           case WaveformType::TRIGGER:
-              o = "trigger";
-              break;
+              return "trigger";
           case WaveformType::GRADIENTWAVEFORM:
-              o = "gradientwaveform";
-              break;
+              return "gradientwaveform";
           case WaveformType::OTHER:
-              o = "other";
-              break;
-
+              return "other";
       }
   }
 
-  template <class T> void append_optional_node(pugi::xml_node& n, const char* child, const Optional<T>& v) 
+std::string to_string(const MultibandCalibrationType& v)
+{
+    switch (v){
+        MultibandCalibrationType::FULL3D:
+            return "full3D";
+        MultibandCalibrationType::SEPERABLE2D:
+            return "seperable2D";
+        MultibandCalibrationType::OTHER:
+            return "other";
+    }
+}
+
+template <class T> void append_optional_node(pugi::xml_node& n, const char* child, const Optional<T>& v)
   {
     if (v) {
       pugi::xml_node n2 = n.append_child(child);
-      std::string v_as_string;
-      to_string_val(*v, v_as_string);
+      std::string v_as_string = to_string(*v);
       n2.append_child(pugi::node_pcdata).set_value(v_as_string.c_str());
     }
   } 
@@ -618,8 +601,7 @@ namespace ISMRMRD
   template <class T> void append_node(pugi::xml_node& n, const char* child, const T& v) 
   {
     pugi::xml_node n2 = n.append_child(child);
-    std::string v_as_string;
-    to_string_val(v, v_as_string);
+    auto v_as_string = to_string(v);
     n2.append_child(pugi::node_pcdata).set_value(v_as_string.c_str());
   } 
 
@@ -837,14 +819,23 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       }
 
       if (h.encoding[i].multiband){
+          auto& multiband = *h.encoding[i].multiband;
         n2 = n1.append_child("multiband");
-        for (auto mb : h.encoding[i].multiband->spacing){
+        for (auto mb : multiband.spacing){
             append_node(n2,"spacing",mb);
         }
-        append_node(n2,"phaseShift",h.encoding[i].multiband->phaseShift);
+        {
+            auto n3 = n2.append_child("phaseShift");
+            append_node(n3, "AFx", multiband.phaseShift.AFx);
+            append_node(n3, "AFy", multiband.phaseShift.AFy);
+            append_node(n3, "deltaKz", multiband.phaseShift.deltaKz);
+        }
+
+        append_node(n2,"calibration",multiband.calibration);
+        append_node(n2,"calibration_encoding",multiband.calibration_encoding);
       }
 
-      append_optional_node(n1, "echoTrainLength", h.encoding[i].echoTrainLength);
+
 
     }
 

@@ -395,9 +395,24 @@ namespace ISMRMRD
       OTHER
   };
 
+  struct PhaseShiftType {
+    float AFx; 
+    float AFy; 
+    float deltaKz; 
+
+  };
+
+  enum class MultibandCalibrationType {
+    SEPERABLE2D,
+    FULL3D,
+    OTHER
+  };
+
   struct Multiband{
-      std::vector<float> spacing;
-    float phaseShift;
+    std::vector<float> spacing;
+    PhaseShiftType phaseShift;
+    MultibandCalibrationType calibration;
+    unsigned long calibration_encoding;
   };
 
   struct Encoding
@@ -458,7 +473,7 @@ namespace ISMRMRD
 
     EXPORTISMRMRD std::ostream& operator<<(std::ostream & os, const IsmrmrdHeader&);
 
-EXPORTISMRMRD bool operator==(const IsmrmrdHeader&, const IsmrmrdHeader&);
+ EXPORTISMRMRD bool operator==(const IsmrmrdHeader&, const IsmrmrdHeader&);
  EXPORTISMRMRD bool operator!=(const IsmrmrdHeader &lhs, const IsmrmrdHeader &rhs);
  EXPORTISMRMRD bool operator==(const SubjectInformation &lhs, const SubjectInformation &rhs);
  EXPORTISMRMRD bool operator!=(const SubjectInformation &lhs, const SubjectInformation &rhs);

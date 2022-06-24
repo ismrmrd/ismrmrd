@@ -41,7 +41,7 @@ jobs:
     - name: Test XML
       working-directory: ${{github.workspace}}/schema
       shell: bash
-      run: for xml_file in *.xml; do xmllint --schema ismrmrd.xsd "$xml_file"; done 
+      run: for xml_file in *.xml; do xmllint --schema ismrmrd.xsd "$xml_file" --noout; done 
    
     - name: Test
       working-directory: ${{github.workspace}}/build/tests
