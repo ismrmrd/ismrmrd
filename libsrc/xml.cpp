@@ -17,9 +17,9 @@ namespace ISMRMRD
     if (!matrixSize) {
       throw std::runtime_error("matrixSize not found in encodingSpace");
     } else {
-      e.matrixSize.x = std::atoi(matrixSize.child_value("x"));
-      e.matrixSize.y = std::atoi(matrixSize.child_value("y"));
-      e.matrixSize.z = std::atoi(matrixSize.child_value("z"));
+      e.matrixSize.x = std::stoi(matrixSize.child_value("x"));
+      e.matrixSize.y = std::stoi(matrixSize.child_value("y"));
+      e.matrixSize.z = std::stoi(matrixSize.child_value("z"));
     }
 
     if (!fieldOfView_mm) {
@@ -40,9 +40,9 @@ namespace ISMRMRD
     
     if (nc) {
       Limit l;
-      l.minimum = std::atoi(nc.child_value("minimum"));
-      l.maximum = std::atoi(nc.child_value("maximum"));
-      l.center = std::atoi(nc.child_value("center"));
+      l.minimum = std::stoi(nc.child_value("minimum"));
+      l.maximum = std::stoi(nc.child_value("maximum"));
+      l.center = std::stoi(nc.child_value("center"));
       o = l;
     }
 
@@ -78,7 +78,7 @@ namespace ISMRMRD
     Optional<long> r;
     pugi::xml_node nc = n.child(child);
     if (nc) {
-      r = std::atol(nc.child_value());
+      r = std::stol(nc.child_value());
     }
     return r;
   }
@@ -87,7 +87,7 @@ namespace ISMRMRD
     Optional<unsigned short> r;
     pugi::xml_node nc = n.child(child);
     if (nc) {
-      r = static_cast<unsigned short>(std::atoi(nc.child_value()));
+      r = static_cast<unsigned short>(std::stoi(nc.child_value()));
     }
     return r;
   }
@@ -149,7 +149,7 @@ namespace ISMRMRD
       }
 
       v.name = std::string(name.child_value());
-      v.value = std::atoi(value.child_value());
+      v.value = std::stoi(value.child_value());
 
       r.push_back(v);
 
@@ -350,8 +350,8 @@ namespace ISMRMRD
 	    if (!accelerationFactor) {
 	      throw std::runtime_error("Unable to accelerationFactor section in parallelImaging");
 	    } else {
-	      info.accelerationFactor.kspace_encoding_step_1 = static_cast<unsigned short>(std::atoi(accelerationFactor.child_value("kspace_encoding_step_1")));
-	      info.accelerationFactor.kspace_encoding_step_2 = static_cast<unsigned short>(std::atoi(accelerationFactor.child_value("kspace_encoding_step_2")));
+	      info.accelerationFactor.kspace_encoding_step_1 = static_cast<unsigned short>(std::stoi(accelerationFactor.child_value("kspace_encoding_step_1")));
+	      info.accelerationFactor.kspace_encoding_step_2 = static_cast<unsigned short>(std::stoi(accelerationFactor.child_value("kspace_encoding_step_2")));
 	    }
 	    
 	    info.calibrationMode = parse_optional_string(parallelImaging,"calibrationMode");
@@ -453,7 +453,7 @@ namespace ISMRMRD
 	pugi::xml_node coilLabel = acquisitionSystemInformation.child("coilLabel");
 	while (coilLabel) {
 	  CoilLabel l;
-	  l.coilNumber = std::atoi(coilLabel.child_value("coilNumber"));
+	  l.coilNumber = std::stoi(coilLabel.child_value("coilNumber"));
 	  l.coilName = parse_string(coilLabel, "coilName");
 	  info.coilLabel.push_back(l);
 	  coilLabel = coilLabel.next_sibling("coilLabel");
