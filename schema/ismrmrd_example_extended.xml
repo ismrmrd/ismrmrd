@@ -252,7 +252,7 @@
         <AFz>1</AFz>
         <deltaKz>0.2</deltaKz>
       </phaseShift>
-      <calibration>3D</calibration>
+      <calibration>full3D</calibration>
       <calibration_encoding>0</calibration_encoding>
     </multiband>
   </encoding>

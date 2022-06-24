@@ -10,6 +10,7 @@ if (NOT Boost_USE_STATIC_LIBS)
 endif()
 
 
+message("PIE")
 file(READ ${CMAKE_SOURCE_DIR}/schema/ismrmrd_example.xml ismrmrd_example)
 string(REPLACE "\"" "\\\"" ismrmrd_example ${ismrmrd_example})
 string(REPLACE "\n" "\\\n" ismrmrd_example ${ismrmrd_example})
@@ -34,4 +35,8 @@ add_executable(test_ismrmrd
 
 target_link_libraries(test_ismrmrd ismrmrd ${Boost_LIBRARIES})
 
-add_custom_target(check COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_ismrmrd DEPENDS test_ismrmrd)
+add_test(NAME check COMMAND test_ismrmrd )
+
+file(GLOB XML_FILES "${CMAKE_SOURCE_DIR}/schema/*.xml")
+
+add_test(NAME test_xml COMMAND xmllint --schema ${CMAKE_SOURCE_DIR}/schema/ismrmrd.xsd ${XML_FILES} --noout)

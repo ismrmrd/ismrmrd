@@ -18,6 +18,8 @@ BOOST_AUTO_TEST_CASE(test_basic_xml_header)
 
     IsmrmrdHeader header2;
     deserialize(stream.str().c_str(),header2);
+
+
     BOOST_CHECK_EQUAL(header,header2);
 }
 
@@ -31,6 +33,7 @@ BOOST_AUTO_TEST_CASE(test_extended_xml_header)
 
     IsmrmrdHeader header2;
     deserialize(stream.str().c_str(),header2);
+
     BOOST_CHECK_EQUAL(header,header2);
 
 

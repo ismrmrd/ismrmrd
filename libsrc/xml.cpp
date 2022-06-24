@@ -93,7 +93,14 @@ namespace ISMRMRD
   }
 
   float parse_float(pugi::xml_node& n, const char* child){
-    return std::stof(n.child_value(child));
+        try {
+            return std::stof(n.child_value(child), nullptr);
+        } catch (const std::invalid_argument& e){
+            throw std::runtime_error("Illegal value encountered in node " + std::string(n.name()) + ". Value is not a float:" + std::string(n.child_value(child)));
+
+        } catch (const std::out_of_range & e ){
+            throw std::runtime_error("Value out of float range in node " + std::string(n.name()) + ". Value:" + std::string(n.child_value(child)));
+        }
   }
 
   std::vector<float> parse_vector_float(pugi::xml_node& n, const char* child) 
@@ -212,14 +219,14 @@ namespace ISMRMRD
     return r;
   }
   MultibandCalibrationType parse_multiband_type(const std::string& multibandString) {
-      if (multibandString == "seperable2D")
-          return MultibandCalibrationType::SEPERABLE2D;
+      if (multibandString == "separable2D")
+          return MultibandCalibrationType::SEPARABLE2D;
       if (multibandString == "full3D")
           return MultibandCalibrationType::FULL3D;
       if (multibandString == "other")
-          return MultibandCalibrationType::other;
+          return MultibandCalibrationType::OTHER;
 
-      throw std::runtime_error("Invalid multiband calibration type in xml header");
+      throw std::runtime_error("Invalid multiband calibration type in xml header: " + multibandString);
 
   }
 
@@ -380,7 +387,7 @@ namespace ISMRMRD
     if (multiband){
       Multiband mb;
       auto phaseShiftNode = multiband.child("phaseShift");
-      mb.phaseShift = {parse_float(phaseShiftNode,"AFx"),parse_float(phaseShiftNode,"AFy"), parse_float(phaseShiftNode,"deltaKz")};
+      mb.phaseShift = {parse_float(phaseShiftNode,"AFy"),parse_float(phaseShiftNode,"AFz"), parse_float(phaseShiftNode,"deltaKz")};
       mb.spacing = parse_vector_float(multiband,"spacing");
       mb.calibration = parse_multiband_type(multiband.child_value("calibration"));
       mb.calibration_encoding = std::stoul(multiband.child_value("calibration_encoding"));
@@ -540,6 +547,7 @@ namespace ISMRMRD
   }
 
     using std::to_string;
+    std::string to_string(const std::string& s){return s;}
 
   std::string to_string(TrajectoryType v)
   {
@@ -557,6 +565,7 @@ namespace ISMRMRD
           case TrajectoryType::OTHER:
               return "other";
       }
+      throw std::runtime_error("Illegal enum class value");
   }
 
   std::string to_string(const WaveformType& v)
@@ -575,18 +584,22 @@ namespace ISMRMRD
           case WaveformType::OTHER:
               return "other";
       }
+
+      throw std::runtime_error("Illegal enum class value");
   }
 
 std::string to_string(const MultibandCalibrationType& v)
 {
     switch (v){
-        MultibandCalibrationType::FULL3D:
+        case MultibandCalibrationType::FULL3D:
             return "full3D";
-        MultibandCalibrationType::SEPERABLE2D:
-            return "seperable2D";
-        MultibandCalibrationType::OTHER:
+        case MultibandCalibrationType::SEPARABLE2D:
+            return "separable2D";
+        case MultibandCalibrationType::OTHER:
             return "other";
     }
+
+    throw std::runtime_error("Illegal enum class value");
 }
 
 template <class T> void append_optional_node(pugi::xml_node& n, const char* child, const Optional<T>& v)
@@ -818,6 +831,8 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
 	append_optional_node(n2, "interleavingDimension", h.encoding[i].parallelImaging->interleavingDimension);
       }
 
+      append_optional_node(n1,"echoTrainLength",h.encoding[i].echoTrainLength);
+
       if (h.encoding[i].multiband){
           auto& multiband = *h.encoding[i].multiband;
         n2 = n1.append_child("multiband");
@@ -825,9 +840,9 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
             append_node(n2,"spacing",mb);
         }
         {
-            auto n3 = n2.append_child("phaseShift");
-            append_node(n3, "AFx", multiband.phaseShift.AFx);
+            n3 = n2.append_child("phaseShift");
             append_node(n3, "AFy", multiband.phaseShift.AFy);
+            append_node(n3, "AFz", multiband.phaseShift.AFz);
             append_node(n3, "deltaKz", multiband.phaseShift.deltaKz);
         }
 
@@ -1035,7 +1050,7 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       return !(rhs == lhs);
   }
   bool operator==(const Multiband &lhs, const Multiband &rhs) {
-      return std::tie(lhs.spacing, lhs.phaseShift) == std::tie(rhs.spacing, rhs.phaseShift);
+      return std::tie(lhs.spacing, lhs.phaseShift,lhs.calibration,lhs.calibration_encoding) == std::tie(rhs.spacing, rhs.phaseShift,rhs.calibration,rhs.calibration_encoding);
   }
   bool operator!=(const Multiband &lhs, const Multiband &rhs) {
       return !(rhs == lhs);
@@ -1068,6 +1083,12 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       return std::tie(lhs.dependencyType, lhs.measurementID) == std::tie(rhs.dependencyType, rhs.measurementID);
   }
   bool operator!=(const MeasurementDependency &lhs, const MeasurementDependency &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const PhaseShiftType &lhs, const PhaseShiftType &rhs) {
+      return std::tie(lhs.AFy, lhs.AFz, lhs.deltaKz) == std::tie(rhs.AFy, rhs.AFz, rhs.deltaKz);
+  }
+  bool operator!=(const PhaseShiftType &lhs, const PhaseShiftType &rhs) {
       return !(rhs == lhs);
   }
   }

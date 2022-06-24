@@ -145,7 +145,7 @@
 
   <xs:simpleType name="multibandCalibrationType">
     <xs:restriction base="xs:string">
-      <xs:enumeration value="seperable2D" />
+      <xs:enumeration value="separable2D" />
       <xs:enumeration value="full3D" />
       <xs:enumeration value="other" />
     </xs:restriction>
