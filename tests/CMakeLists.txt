@@ -36,7 +36,3 @@ add_executable(test_ismrmrd
 target_link_libraries(test_ismrmrd ismrmrd ${Boost_LIBRARIES})
 
 add_test(NAME check COMMAND test_ismrmrd )
-
-file(GLOB XML_FILES "${CMAKE_SOURCE_DIR}/schema/*.xml")
-
-add_test(NAME test_xml COMMAND xmllint --schema ${CMAKE_SOURCE_DIR}/schema/ismrmrd.xsd ${XML_FILES} --noout)
