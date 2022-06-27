@@ -95,10 +95,10 @@ namespace ISMRMRD
   float parse_float(pugi::xml_node& n, const char* child){
         try {
             return std::stof(n.child_value(child), nullptr);
-        } catch (const std::invalid_argument& e){
+        } catch (const std::invalid_argument& ){
             throw std::runtime_error("Illegal value encountered in node " + std::string(n.name()) + ". Value is not a float:" + std::string(n.child_value(child)));
 
-        } catch (const std::out_of_range & e ){
+        } catch (const std::out_of_range &  ){
             throw std::runtime_error("Value out of float range in node " + std::string(n.name()) + ". Value:" + std::string(n.child_value(child)));
         }
   }
