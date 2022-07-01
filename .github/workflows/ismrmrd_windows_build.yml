@@ -41,7 +41,7 @@ jobs:
     - name: Install dependencies
       shell: pwsh
       run: |
-        vcpkg install fftw3 boost-test boost-program-options boost-random hdf5
+        vcpkg install fftw3 boost-test boost-program-options boost-random boost-uuid hdf5
         vcpkg list
         dir c:\
         dir d:\
