@@ -10,7 +10,6 @@ if (NOT Boost_USE_STATIC_LIBS)
 endif()
 
 
-message("PIE")
 file(READ ${CMAKE_SOURCE_DIR}/schema/ismrmrd_example.xml ismrmrd_example)
 string(REPLACE "\"" "\\\"" ismrmrd_example ${ismrmrd_example})
 string(REPLACE "\n" "\\\n" ismrmrd_example ${ismrmrd_example})

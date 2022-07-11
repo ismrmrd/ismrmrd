@@ -40,7 +40,7 @@ endif()
 
 # compiler flags
 if (WIN32)
-    add_definitions(-DWIN32 -D_WIN32 -D_WINDOWS)
+    add_definitions(-DWIN32 -D_WIN32 -D_WINDOWS -DBOOST_UUID_FORCE_AUTO_LINK)
     add_definitions(-DUNICODE -D_UNICODE)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
