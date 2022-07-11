@@ -193,7 +193,7 @@ namespace ISMRMRD
     Optional<std::string> studyDate;
     Optional<std::string> studyTime;
     Optional<std::string> studyID;
-    Optional<long> accessionNumber;
+    Optional<std::int64_t> accessionNumber;
     Optional<std::string> referringPhysicianName;
     Optional<std::string> studyDescription;
     Optional<std::string> studyInstanceUID;
@@ -219,7 +219,7 @@ namespace ISMRMRD
     Optional<std::string> seriesTime;
     std::string patientPosition;
     Optional<threeDimensionalFloat> relativeTablePosition;
-    Optional<long int> initialSeriesNumber;
+    Optional<std::int64_t> initialSeriesNumber;
     Optional<std::string> protocolName;
     Optional<std::string> sequenceName;
     Optional<std::string> seriesDescription;
@@ -231,7 +231,7 @@ namespace ISMRMRD
 
   struct CoilLabel
   {
-    unsigned short coilNumber;
+    std::uint16_t coilNumber;
     std::string coilName;
   };
   
@@ -241,7 +241,7 @@ namespace ISMRMRD
     Optional<std::string> systemModel;
     Optional<float> systemFieldStrength_T;
     Optional<float> relativeReceiverNoiseBandwidth;
-    Optional<unsigned short> receiverChannels;
+    Optional<std::uint16_t> receiverChannels;
     std::vector<CoilLabel> coilLabel;
     Optional<std::string> institutionName;
     Optional<std::string> stationName;
@@ -252,7 +252,7 @@ namespace ISMRMRD
 
   struct ExperimentalConditions
   {
-      long int H1resonanceFrequency_Hz;
+      std::int64_t H1resonanceFrequency_Hz;
   };
 
   struct MatrixSize
@@ -265,7 +265,7 @@ namespace ISMRMRD
 
     }
     
-    MatrixSize(unsigned short x, unsigned short y)
+    MatrixSize(std::uint16_t x, std::uint16_t y)
     : x(x)
     , y(y)
     , z(1)
@@ -273,7 +273,7 @@ namespace ISMRMRD
 
     }
     
-    MatrixSize(unsigned short x, unsigned short y, unsigned short z)
+    MatrixSize(std::uint16_t x, std::uint16_t y, std::uint16_t z)
     : x(x)
     , y(y)
     , z(z)
@@ -281,9 +281,9 @@ namespace ISMRMRD
 
     }
 
-    unsigned short x;
-    unsigned short y;
-    unsigned short z;
+    std::uint16_t x;
+    std::uint16_t y;
+    std::uint16_t z;
   };
 
   struct FieldOfView_mm
@@ -310,7 +310,7 @@ namespace ISMRMRD
 
     }
     
-    Limit(unsigned short minimum, unsigned short maximum, unsigned short center) 
+    Limit(std::uint16_t minimum, std::uint16_t maximum, std::uint16_t center) 
     : minimum(minimum)
     , maximum(maximum)
     , center(center)
@@ -318,9 +318,9 @@ namespace ISMRMRD
 
     }
 
-    unsigned short minimum;
-    unsigned short maximum;
-    unsigned short center;
+    std::uint16_t minimum;
+    std::uint16_t maximum;
+    std::uint16_t center;
   };
 
   struct EncodingLimits
@@ -375,8 +375,8 @@ namespace ISMRMRD
 
   struct AccelerationFactor
   {
-    unsigned short kspace_encoding_step_1;
-    unsigned short kspace_encoding_step_2;
+    std::uint16_t kspace_encoding_step_1;
+    std::uint16_t kspace_encoding_step_2;
   };
 
   struct ParallelImaging
@@ -412,7 +412,7 @@ namespace ISMRMRD
     std::vector<float> spacing;
     PhaseShiftType phaseShift;
     MultibandCalibrationType calibration;
-    unsigned long calibration_encoding;
+    std::uint64_t calibration_encoding;
   };
 
   struct Encoding
@@ -423,7 +423,7 @@ namespace ISMRMRD
     TrajectoryType trajectory;
     Optional<TrajectoryDescription> trajectoryDescription;
     Optional<ParallelImaging> parallelImaging;
-    Optional<long> echoTrainLength;
+    Optional<std::int64_t> echoTrainLength;
     Optional<Multiband> multiband;
   };
 
@@ -455,7 +455,7 @@ namespace ISMRMRD
 
   struct IsmrmrdHeader
   {
-    Optional<long> version;
+    Optional<std::int64_t> version;
     Optional<SubjectInformation> subjectInformation;
     Optional<StudyInformation> studyInformation;
     Optional<MeasurementInformation> measurementInformation;

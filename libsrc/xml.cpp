@@ -74,20 +74,20 @@ namespace ISMRMRD
     return r;
   }
 
-  Optional<long> parse_optional_long(pugi::xml_node& n, const char* child) {
-    Optional<long> r;
+  Optional<std::int64_t> parse_optional_long(pugi::xml_node& n, const char* child) {
+    Optional<std::int64_t> r;
     pugi::xml_node nc = n.child(child);
     if (nc) {
-      r = std::stol(nc.child_value());
+      r = std::stoll(nc.child_value());
     }
     return r;
   }
 
-  Optional<unsigned short> parse_optional_ushort(pugi::xml_node& n, const char* child) {
-    Optional<unsigned short> r;
+  Optional<std::uint16_t> parse_optional_ushort(pugi::xml_node& n, const char* child) {
+    Optional<std::uint16_t> r;
     pugi::xml_node nc = n.child(child);
     if (nc) {
-      r = static_cast<unsigned short>(std::stoi(nc.child_value()));
+      r = static_cast<std::uint16_t>(std::stoi(nc.child_value()));
     }
     return r;
   }
@@ -372,8 +372,8 @@ namespace ISMRMRD
 	    if (!accelerationFactor) {
 	      throw std::runtime_error("Unable to accelerationFactor section in parallelImaging");
 	    } else {
-	      info.accelerationFactor.kspace_encoding_step_1 = static_cast<unsigned short>(std::stoi(accelerationFactor.child_value("kspace_encoding_step_1")));
-	      info.accelerationFactor.kspace_encoding_step_2 = static_cast<unsigned short>(std::stoi(accelerationFactor.child_value("kspace_encoding_step_2")));
+	      info.accelerationFactor.kspace_encoding_step_1 = static_cast<std::uint16_t>(std::stoi(accelerationFactor.child_value("kspace_encoding_step_1")));
+	      info.accelerationFactor.kspace_encoding_step_2 = static_cast<std::uint16_t>(std::stoi(accelerationFactor.child_value("kspace_encoding_step_2")));
 	    }
 	    
 	    info.calibrationMode = parse_optional_string(parallelImaging,"calibrationMode");
