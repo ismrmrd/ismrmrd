@@ -395,7 +395,7 @@ namespace ISMRMRD
 	info.measurementID = parse_optional_string(measurementInformation,"measurementID");
 	info.seriesDate = parse_optional_string(measurementInformation, "seriesDate");
 	info.seriesTime = parse_optional_string(measurementInformation, "seriesTime");
-	info.patientPosition = parse_string(measurementInformation, "patientPosition");
+	info.patientPosition = parse_optional_string(measurementInformation, "patientPosition");
 	info.relativeTablePosition = parse_optional_threeDimensionalFloat(measurementInformation, "relativeTablePosition");
 	info.initialSeriesNumber = parse_optional_long(measurementInformation, "initialSeriesNumber");
 	info.protocolName = parse_optional_string(measurementInformation, "protocolName");
@@ -730,7 +730,7 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       append_optional_node(n1,"measurementID",h.measurementInformation->measurementID);
       append_optional_node(n1,"seriesDate",h.measurementInformation->seriesDate);
       append_optional_node(n1,"seriesTime",h.measurementInformation->seriesTime);
-      append_node(n1,"patientPosition",h.measurementInformation->patientPosition);
+      append_optional_node(n1,"patientPosition",h.measurementInformation->patientPosition);
       append_optional_three_dimensional_float(n1,"relativeTablePosition",h.measurementInformation->relativeTablePosition);
       append_optional_node(n1,"initialSeriesNumber",h.measurementInformation->initialSeriesNumber);
       append_optional_node(n1,"protocolName",h.measurementInformation->protocolName);
