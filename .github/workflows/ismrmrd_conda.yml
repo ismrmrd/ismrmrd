@@ -20,17 +20,17 @@ jobs:
       - name: Build conda package
         shell: bash -l {0}
         if: ${{ github.event_name == 'pull_request' }}
+        working-directory: conda
         run: |
-          cd conda
           ./package.sh
       - name: Push conda package
         shell: bash -l {0}
         if: ${{ github.event_name == 'push' }}
         env:
           ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
+        working-directory: conda
         run: |
-          cd conda
-          ./publish_package.sh -u ismrmrd -t "$ANACONDA_TOKEN" -p `find build_pkg -name ismrmrd*.tar.bz2`
+          ./publish_package.sh -u ismrmrd -t "$ANACONDA_TOKEN" -p `find conda/build_pkg -name ismrmrd*.tar.bz2`
 
   build-macos-conda-packages:
     runs-on: macos-latest
@@ -45,15 +45,15 @@ jobs:
       - name: Build conda package
         shell: bash -l {0}
         if: ${{ github.event_name == 'pull_request' }}
+        working-directory: conda
         run: |
-          cd conda
           ./package.sh
       - name: Push conda package
         shell: bash -l {0}
         if: ${{ github.event_name == 'push' }}
         env:
           ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
+        working-directory: conda
         run: |
-          cd conda
-          ./publish_package.sh -u ismrmrd -t "$ANACONDA_TOKEN" -p `find build_pkg -name ismrmrd*.tar.bz2`
+          ./publish_package.sh -u ismrmrd -t "$ANACONDA_TOKEN" -p `find conda/build_pkg -name ismrmrd*.tar.bz2`
 
