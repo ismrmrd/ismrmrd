@@ -206,7 +206,7 @@ namespace ISMRMRD
     Optional<std::string> measurementID;
     Optional<std::string> seriesDate;
     Optional<std::string> seriesTime;
-    Optional<std::string> patientPosition;
+    std::string patientPosition;
     Optional<threeDimensionalFloat> relativeTablePosition;
     Optional<long int> initialSeriesNumber;
     Optional<std::string> protocolName;

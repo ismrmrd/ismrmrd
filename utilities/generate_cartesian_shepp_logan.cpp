@@ -190,6 +190,7 @@ int main(int argc, char** argv)
 	MeasurementInformation meas;
 	boost::uuids::random_generator uuidGenerator;
 	meas.measurementID = boost::uuids::to_string(uuidGenerator());
+    meas.patientPosition = "HFS";
 	h.measurementInformation = meas;
     
 	//Create an encoding section
