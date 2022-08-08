@@ -7,8 +7,11 @@ on:
       - master
 
 jobs:
+  strategy:
+    matrix:
+      os: [ubuntu-latest, macos-latest]
   build-conda-packages:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
       - uses: conda-incubator/setup-miniconda@v2
@@ -31,29 +34,3 @@ jobs:
         working-directory: conda
         run: |
           ./publish_package.sh -u ismrmrd -t "$ANACONDA_TOKEN" -p `find conda/build_pkg -name ismrmrd*.tar.bz2`
-
-  build-macos-conda-packages:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: conda-incubator/setup-miniconda@v2
-        with:
-          activate-environment: ismrmrd-build
-          environment-file: conda/environment.yml
-          python-version: 3.9
-          auto-activate-base: false
-      - name: Build conda package
-        shell: bash -l {0}
-        if: ${{ github.event_name == 'pull_request' }}
-        working-directory: conda
-        run: |
-          ./package.sh
-      - name: Push conda package
-        shell: bash -l {0}
-        if: ${{ github.event_name == 'push' }}
-        env:
-          ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
-        working-directory: conda
-        run: |
-          ./publish_package.sh -u ismrmrd -t "$ANACONDA_TOKEN" -p `find conda/build_pkg -name ismrmrd*.tar.bz2`
-
