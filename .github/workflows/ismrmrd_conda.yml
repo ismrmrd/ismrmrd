@@ -22,7 +22,6 @@ jobs:
           auto-activate-base: false
       - name: Build conda package
         shell: bash -l {0}
-        if: ${{ github.event_name == 'pull_request' }}
         working-directory: conda
         run: |
           ./package.sh
