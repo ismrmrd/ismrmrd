@@ -5,24 +5,25 @@
         width:           100%;
         text-align:      center;
     }
-    .mrdMsgTable2 tr th:nth-child(1) { text-align: center; background: #dbe5f0;}
-    .mrdMsgTable2 tr td:nth-child(1) { text-align: center; background: #dbe5f0;}
-    .mrdMsgTable2 tr th:nth-child(2) { text-align: center; background: #ebf0de;}
-    .mrdMsgTable2 tr td:nth-child(2) { text-align: center; background: #ebf0de;}
+    .mrdMsgTable2 tr th:nth-child(1) { text-align: center; background-color: #dbe5f0 !important;}
+    .mrdMsgTable2 tr td:nth-child(1) { text-align: center; background-color: #dbe5f0 !important;}
+    .mrdMsgTable2 tr th:nth-child(2) { text-align: center; background-color: #ebf0de !important;}
+    .mrdMsgTable2 tr td:nth-child(2) { text-align: center; background-color: #ebf0de !important;}
 
 
     .mrdMsgTable3 {
         border-collapse: collapse;
+        border-color:    black !important;
         width:           100%;
         text-align:      center;
     }
     
-    .mrdMsgTable3 tr th:nth-child(1) { text-align: center; background: #dbe5f0;}
-    .mrdMsgTable3 tr td:nth-child(1) { text-align: center; background: #dbe5f0;}
-    .mrdMsgTable3 tr th:nth-child(2) { text-align: center; background: #f1dbdb;}
-    .mrdMsgTable3 tr td:nth-child(2) { text-align: center; background: #f1dbdb;}
-    .mrdMsgTable3 tr th:nth-child(3) { text-align: center; background: #ebf0de;}
-    .mrdMsgTable3 tr td:nth-child(3) { text-align: center; background: #ebf0de;}
+    .mrdMsgTable3 tr th:nth-child(1) { text-align: center; background-color: #dbe5f0 !important;}
+    .mrdMsgTable3 tr td:nth-child(1) { text-align: center; background-color: #dbe5f0 !important;}
+    .mrdMsgTable3 tr th:nth-child(2) { text-align: center; background-color: #f1dbdb !important;}
+    .mrdMsgTable3 tr td:nth-child(2) { text-align: center; background-color: #f1dbdb !important;}
+    .mrdMsgTable3 tr th:nth-child(3) { text-align: center; background-color: #ebf0de !important;}
+    .mrdMsgTable3 tr td:nth-child(3) { text-align: center; background-color: #ebf0de !important;}
 
 
     .mrdMsgTable4 {
@@ -31,14 +32,14 @@
         text-align:      center;
     }
 
-    .mrdMsgTable4 tr th:nth-child(1) { text-align: center; background: #dbe5f0;}
-    .mrdMsgTable4 tr td:nth-child(1) { text-align: center; background: #dbe5f0;}
-    .mrdMsgTable4 tr th:nth-child(2) { text-align: center; background: #f1dbdb;}
-    .mrdMsgTable4 tr td:nth-child(2) { text-align: center; background: #f1dbdb;}
-    .mrdMsgTable4 tr th:nth-child(3) { text-align: center; background: #ebf0de;}
-    .mrdMsgTable4 tr td:nth-child(3) { text-align: center; background: #ebf0de;}
-    .mrdMsgTable4 tr th:nth-child(4) { text-align: center; background: #e5e0eb;}
-    .mrdMsgTable4 tr td:nth-child(4) { text-align: center; background: #e5e0eb;}
+    .mrdMsgTable4 tr th:nth-child(1) { text-align: center; background-color: #dbe5f0 !important;}
+    .mrdMsgTable4 tr td:nth-child(1) { text-align: center; background-color: #dbe5f0 !important;}
+    .mrdMsgTable4 tr th:nth-child(2) { text-align: center; background-color: #f1dbdb !important;}
+    .mrdMsgTable4 tr td:nth-child(2) { text-align: center; background-color: #f1dbdb !important;}
+    .mrdMsgTable4 tr th:nth-child(3) { text-align: center; background-color: #ebf0de !important;}
+    .mrdMsgTable4 tr td:nth-child(3) { text-align: center; background-color: #ebf0de !important;}
+    .mrdMsgTable4 tr th:nth-child(4) { text-align: center; background-color: #e5e0eb !important;}
+    .mrdMsgTable4 tr td:nth-child(4) { text-align: center; background-color: #e5e0eb !important;}
 
     .mrdMsgTable5 {
         border-collapse: collapse;
@@ -46,16 +47,16 @@
         text-align:      center;
     }
 
-    .mrdMsgTable5 tr th:nth-child(1) { text-align: center; background: #dbe5f0; }
-    .mrdMsgTable5 tr td:nth-child(1) { text-align: center; background: #dbe5f0; }
-    .mrdMsgTable5 tr th:nth-child(2) { text-align: center; background: #f1dbdb; }
-    .mrdMsgTable5 tr td:nth-child(2) { text-align: center; background: #f1dbdb; }
-    .mrdMsgTable5 tr th:nth-child(3) { text-align: center; background: #ebf0de; }
-    .mrdMsgTable5 tr td:nth-child(3) { text-align: center; background: #ebf0de; }
-    .mrdMsgTable5 tr th:nth-child(4) { text-align: center; background: #c4d49f; }
-    .mrdMsgTable5 tr td:nth-child(4) { text-align: center; background: #c4d49f; }
-    .mrdMsgTable5 tr th:nth-child(5) { text-align: center; background: #e5e0eb; }
-    .mrdMsgTable5 tr td:nth-child(5) { text-align: center; background: #e5e0eb; }
+    .mrdMsgTable5 tr th:nth-child(1) { text-align: center; background-color: #dbe5f0 !important;}
+    .mrdMsgTable5 tr td:nth-child(1) { text-align: center; background-color: #dbe5f0 !important;}
+    .mrdMsgTable5 tr th:nth-child(2) { text-align: center; background-color: #f1dbdb !important;}
+    .mrdMsgTable5 tr td:nth-child(2) { text-align: center; background-color: #f1dbdb !important;}
+    .mrdMsgTable5 tr th:nth-child(3) { text-align: center; background-color: #ebf0de !important;}
+    .mrdMsgTable5 tr td:nth-child(3) { text-align: center; background-color: #ebf0de !important;}
+    .mrdMsgTable5 tr th:nth-child(4) { text-align: center; background-color: #c4d49f !important;}
+    .mrdMsgTable5 tr td:nth-child(4) { text-align: center; background-color: #c4d49f !important;}
+    .mrdMsgTable5 tr th:nth-child(5) { text-align: center; background-color: #e5e0eb !important;}
+    .mrdMsgTable5 tr td:nth-child(5) { text-align: center; background-color: #e5e0eb !important;}
 </style>
 
 
@@ -236,11 +237,12 @@ This message type is used to send raw (k-space) acquisition data. A separate mes
 
 <style>
  .smalltable td {
-   font-size: 80%;
+   font-size:       80%;
    border-collapse: collapse;
-   border-spacing:0;
-   border-width:0;
-   padding:0px;
+   border-spacing:  0;
+   border-width:    0;
+   padding:         3px;
+   border:          1px solid lightgray
  }
 </style>
 

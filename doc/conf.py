@@ -83,7 +83,7 @@ html_static_path = ['_static']
 #         ],
 #     }
 html_css_files = [
-    '_static/css/custom.css',
+    'css/custom.css',
 ]
 
 # -- Custom CSS --------------------------------------------------------------
