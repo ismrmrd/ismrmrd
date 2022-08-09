@@ -360,6 +360,7 @@ namespace ISMRMRD
     std::string identifier;
     std::vector<UserParameterLong> userParameterLong;
     std::vector<UserParameterDouble> userParameterDouble;
+    std::vector<UserParameterString> userParameterString;
     Optional<std::string> comment; 
   };
 

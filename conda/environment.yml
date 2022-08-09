@@ -1,0 +1,7 @@
+name: ismrmrd-build
+channels:
+  - conda-forge
+dependencies:
+  - conda-build
+  - anaconda-client
+
