@@ -355,6 +355,9 @@ namespace ISMRMRD
 		parse_user_parameter_long(trajectoryDescription, "userParameterLong");
 	      traj.userParameterDouble = 
 		parse_user_parameter_double(trajectoryDescription, "userParameterDouble");
+	      traj.userParameterString = 
+		parse_user_parameter_string(trajectoryDescription, "userParameterString");
+
 	      traj.comment = parse_optional_string(trajectoryDescription, "comment");
 	      e.trajectoryDescription = traj;
 	    } catch (std::runtime_error& e) {
@@ -818,6 +821,7 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
 	append_node(n2,"identifier",h.encoding[i].trajectoryDescription->identifier);
 	append_user_parameter(n2,"userParameterLong",h.encoding[i].trajectoryDescription->userParameterLong); 
 	append_user_parameter(n2,"userParameterDouble",h.encoding[i].trajectoryDescription->userParameterDouble); 
+	append_user_parameter(n2,"userParameterString",h.encoding[i].trajectoryDescription->userParameterString); 
 	append_optional_node(n2,"comment",h.encoding[i].trajectoryDescription->comment);
       }
 

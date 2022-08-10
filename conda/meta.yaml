@@ -1,0 +1,43 @@
+{% set major = load_file_regex(load_file='CMakeLists.txt', regex_pattern='(?<=set\(ISMRMRD_VERSION_MAJOR )([^\)]+)') %}
+{% set minor = load_file_regex(load_file='CMakeLists.txt', regex_pattern='(?<=set\(ISMRMRD_VERSION_MINOR )([^\)]+)') %}
+{% set patch = load_file_regex(load_file='CMakeLists.txt', regex_pattern='(?<=set\(ISMRMRD_VERSION_PATCH )([^\)]+)') %}
+
+package:
+  name: ismrmrd
+  version: {{ major.group(1) }}.{{ minor.group(1) }}.{{ patch.group(1) }}
+
+source:
+  path: ../
+
+requirements:
+  build:
+    - boost=1.76.0
+    - clang>=13.0.1        # [osx]
+    - clangxx>=13.0.1      # [osx]
+    - cmake>=3.20.0
+    - fftw=3.3.9
+    - gcc_linux-64>=9.0.0  # [linux64]
+    - gxx_linux-64>=9.0.0  # [linux64]
+    - git
+    - hdf5=1.10.6
+    - ninja=1.10.*
+  run:
+    - boost=1.76.0
+    - hdf5=1.10.6
+    - fftw=3.3.9
+
+test:
+  requires:
+    - numpy
+    - h5py
+    - pytest
+
+about:
+  home: https://github.com/ismrmrd/ismrmrd
+  license: MIT
+  summary: 'ISMRM Raw Data Format (ISMRMRD)'
+  description: |
+    Libraries and tools for working with data in the ISMRM Raw Data (ISMRMRD or MRD).
+  dev_url: https://github.com/ismrmrd/ismrmrd
+  doc_url: https://github.com/ismrmrd/ismrmrd
+  doc_source_url: https://github.com/ismrmrd/ismrmrd/blob/master/README.md

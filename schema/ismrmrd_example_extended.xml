@@ -351,6 +351,7 @@
         <name>coefficient_3</name>
         <value>112.86</value>
       </userParameterDouble>
+      <userParameterString><name>Trajectory monitoring system vendor</name><value>Purview</value></userParameterString>
       <comment>This is an example description of a custom trajectory</comment>
     </trajectoryDescription>
     <parallelImaging>

@@ -206,6 +206,7 @@
       <xs:element maxOccurs="1" minOccurs="1" name="identifier" type="xs:string" />
       <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterLong" type="userParameterLongType" />
       <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterDouble" type="userParameterDoubleType" />
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterString" type="userParameterStringType" />
       <xs:element maxOccurs="1" minOccurs="0" name="comment" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
