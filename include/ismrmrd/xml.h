@@ -379,12 +379,6 @@ namespace ISMRMRD
     std::uint16_t kspace_encoding_step_2;
   };
 
-  struct ParallelImaging
-  {
-    AccelerationFactor accelerationFactor;
-    Optional<std::string> calibrationMode;
-    Optional<std::string> interleavingDimension;
-  };
 
   enum class TrajectoryType {
       CARTESIAN,
@@ -395,12 +389,7 @@ namespace ISMRMRD
       OTHER
   };
 
-  struct PhaseShiftType {
-    float AFy;
-    float AFz;
-    float deltaKz; 
 
-  };
 
   enum class MultibandCalibrationType {
     SEPARABLE2D,
@@ -410,9 +399,17 @@ namespace ISMRMRD
 
   struct Multiband{
     std::vector<float> spacing;
-    PhaseShiftType phaseShift;
+    float deltaKz;
     MultibandCalibrationType calibration;
     std::uint64_t calibration_encoding;
+  };
+
+  struct ParallelImaging
+  {
+    AccelerationFactor accelerationFactor;
+    Optional<std::string> calibrationMode;
+    Optional<std::string> interleavingDimension;
+    Optional<Multiband> multiband;
   };
 
   struct Encoding
@@ -424,7 +421,6 @@ namespace ISMRMRD
     Optional<TrajectoryDescription> trajectoryDescription;
     Optional<ParallelImaging> parallelImaging;
     Optional<std::int64_t> echoTrainLength;
-    Optional<Multiband> multiband;
   };
 
   struct SequenceParameters

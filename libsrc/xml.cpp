@@ -378,22 +378,21 @@ namespace ISMRMRD
 	    
 	    info.calibrationMode = parse_optional_string(parallelImaging,"calibrationMode");
 	    info.interleavingDimension = parse_optional_string(parallelImaging,"interleavingDimension");
-	    e.parallelImaging = info;
-	  }
 
-	  e.echoTrainLength = parse_optional_long(encoding, "echoTrainLength");
-
-    pugi::xml_node multiband = encoding.child("multiband");
-    if (multiband){
+     pugi::xml_node multiband = parallelImaging.child("multiband");
+     if (multiband){
       Multiband mb;
-      auto phaseShiftNode = multiband.child("phaseShift");
-      mb.phaseShift = {parse_float(phaseShiftNode,"AFy"),parse_float(phaseShiftNode,"AFz"), parse_float(phaseShiftNode,"deltaKz")};
+      mb.deltaKz = parse_float(multiband,"deltaKz");
       mb.spacing = parse_vector_float(multiband,"spacing");
       mb.calibration = parse_multiband_type(multiband.child_value("calibration"));
       mb.calibration_encoding = std::stoul(multiband.child_value("calibration_encoding"));
-      e.multiband = mb;
-    }
+      info.multiband = mb;
+      }
+	    e.parallelImaging = info;
+	  }
 
+
+	  e.echoTrainLength = parse_optional_long(encoding, "echoTrainLength");
 
 	  h.encoding.push_back(e);
 	  encoding = encoding.next_sibling("encoding");
@@ -823,34 +822,29 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       }
 
       if (h.encoding[i].parallelImaging) {
+        const auto& parallelImaging = *h.encoding[i].parallelImaging;
 	n2 = n1.append_child("parallelImaging");
 	n3 = n2.append_child("accelerationFactor");
-	append_node(n3,"kspace_encoding_step_1",h.encoding[i].parallelImaging->accelerationFactor.kspace_encoding_step_1);
-	append_node(n3,"kspace_encoding_step_2",h.encoding[i].parallelImaging->accelerationFactor.kspace_encoding_step_2);
-	append_optional_node(n2, "calibrationMode", h.encoding[i].parallelImaging->calibrationMode);
-	append_optional_node(n2, "interleavingDimension", h.encoding[i].parallelImaging->interleavingDimension);
-      }
+	append_node(n3,"kspace_encoding_step_1",parallelImaging.accelerationFactor.kspace_encoding_step_1);
+	append_node(n3,"kspace_encoding_step_2",parallelImaging.accelerationFactor.kspace_encoding_step_2);
+	append_optional_node(n2, "calibrationMode", parallelImaging.calibrationMode);
+	append_optional_node(n2, "interleavingDimension",parallelImaging.interleavingDimension);
 
-      append_optional_node(n1,"echoTrainLength",h.encoding[i].echoTrainLength);
 
-      if (h.encoding[i].multiband){
-          auto& multiband = *h.encoding[i].multiband;
+      if (parallelImaging.multiband){
+          auto& multiband = *parallelImaging.multiband;
         n2 = n1.append_child("multiband");
         for (auto mb : multiband.spacing){
             append_node(n2,"spacing",mb);
         }
-        {
-            n3 = n2.append_child("phaseShift");
-            append_node(n3, "AFy", multiband.phaseShift.AFy);
-            append_node(n3, "AFz", multiband.phaseShift.AFz);
-            append_node(n3, "deltaKz", multiband.phaseShift.deltaKz);
-        }
-
+        append_node(n2, "deltaKz", multiband.deltaKz);
         append_node(n2,"calibration",multiband.calibration);
         append_node(n2,"calibration_encoding",multiband.calibration_encoding);
       }
 
+      }
 
+      append_optional_node(n1,"echoTrainLength",h.encoding[i].echoTrainLength);
 
     }
 
