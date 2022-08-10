@@ -1,0 +1,36 @@
+on:
+  pull_request:
+    branches:    
+      - master
+  push:
+    branches:
+      - master
+
+jobs:
+  build-conda-packages:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          activate-environment: ismrmrd-build
+          environment-file: conda/environment.yml
+          python-version: 3.9
+          auto-activate-base: false
+      - name: Build conda package
+        shell: bash -l {0}
+        working-directory: conda
+        run: |
+          ./package.sh
+          echo "Packages built: $(find build_pkg -name ismrmrd*.tar.bz2)"
+      - name: Push conda package
+        shell: bash -l {0}
+        if: ${{ github.event_name == 'push' }}
+        env:
+          ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
+        working-directory: conda
+        run: |
+          ./publish_package.sh -u ismrmrd -t "$ANACONDA_TOKEN" -p `find build_pkg -name ismrmrd*.tar.bz2`
