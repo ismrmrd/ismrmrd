@@ -31,6 +31,10 @@ BOOST_AUTO_TEST_CASE(test_extended_xml_header)
     std::stringstream stream;
     serialize(header,stream);
 
+    BOOST_CHECK(header.encoding.at(1).parallelImaging);
+    BOOST_CHECK(header.encoding.at(1).parallelImaging->multiband);
+    BOOST_CHECK_EQUAL(header.encoding.at(1).parallelImaging.get().multiband.get().deltaKz,1.0f);
+
     IsmrmrdHeader header2;
     deserialize(stream.str().c_str(),header2);
 

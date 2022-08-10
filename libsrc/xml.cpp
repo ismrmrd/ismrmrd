@@ -383,15 +383,15 @@ namespace ISMRMRD
 	    info.interleavingDimension = parse_optional_string(parallelImaging,"interleavingDimension");
 
      pugi::xml_node multiband = parallelImaging.child("multiband");
-     if (multiband){
-      Multiband mb;
-      mb.deltaKz = parse_float(multiband,"deltaKz");
-      mb.spacing = parse_vector_float(multiband,"spacing");
-      mb.calibration = parse_multiband_type(multiband.child_value("calibration"));
-      mb.calibration_encoding = std::stoul(multiband.child_value("calibration_encoding"));
-      info.multiband = mb;
-      }
-	    e.parallelImaging = info;
+        if (multiband) {
+            Multiband mb;
+            mb.deltaKz = parse_float(multiband, "deltaKz");
+            mb.spacing = parse_vector_float(multiband, "spacing");
+            mb.calibration = parse_multiband_type(multiband.child_value("calibration"));
+            mb.calibration_encoding = std::stoul(multiband.child_value("calibration_encoding"));
+            info.multiband = mb;
+        }
+        e.parallelImaging = info;
 	  }
 
 
@@ -837,13 +837,13 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
 
       if (parallelImaging.multiband){
           auto& multiband = *parallelImaging.multiband;
-        n2 = n1.append_child("multiband");
+        auto n4 = n2.append_child("multiband");
         for (auto mb : multiband.spacing){
-            append_node(n2,"spacing",mb);
+            append_node(n4,"spacing",mb);
         }
-        append_node(n2, "deltaKz", multiband.deltaKz);
-        append_node(n2,"calibration",multiband.calibration);
-        append_node(n2,"calibration_encoding",multiband.calibration_encoding);
+        append_node(n4, "deltaKz", multiband.deltaKz);
+        append_node(n4,"calibration",multiband.calibration);
+        append_node(n4,"calibration_encoding",multiband.calibration_encoding);
       }
 
       }
@@ -1042,19 +1042,19 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       return !(rhs == lhs);
   }
   bool operator==(const ParallelImaging &lhs, const ParallelImaging &rhs) {
-      return std::tie(lhs.accelerationFactor, lhs.calibrationMode, lhs.interleavingDimension) == std::tie(rhs.accelerationFactor, rhs.calibrationMode, rhs.interleavingDimension);
+      return std::tie(lhs.accelerationFactor, lhs.calibrationMode, lhs.interleavingDimension, lhs.multiband) == std::tie(rhs.accelerationFactor, rhs.calibrationMode, rhs.interleavingDimension,rhs.multiband);
   }
   bool operator!=(const ParallelImaging &lhs, const ParallelImaging &rhs) {
       return !(rhs == lhs);
   }
   bool operator==(const Multiband &lhs, const Multiband &rhs) {
-      return std::tie(lhs.spacing, lhs.phaseShift,lhs.calibration,lhs.calibration_encoding) == std::tie(rhs.spacing, rhs.phaseShift,rhs.calibration,rhs.calibration_encoding);
+      return std::tie(lhs.spacing, lhs.deltaKz,lhs.calibration,lhs.calibration_encoding) == std::tie(rhs.spacing, rhs.deltaKz,rhs.calibration,rhs.calibration_encoding);
   }
   bool operator!=(const Multiband &lhs, const Multiband &rhs) {
       return !(rhs == lhs);
   }
   bool operator==(const Encoding &lhs, const Encoding &rhs) {
-      return std::tie(lhs.encodedSpace, lhs.reconSpace, lhs.encodingLimits, lhs.trajectory, lhs.trajectoryDescription, lhs.parallelImaging, lhs.echoTrainLength, lhs.multiband) == std::tie(rhs.encodedSpace, rhs.reconSpace, rhs.encodingLimits, rhs.trajectory, rhs.trajectoryDescription, rhs.parallelImaging, rhs.echoTrainLength, rhs.multiband);
+      return std::tie(lhs.encodedSpace, lhs.reconSpace, lhs.encodingLimits, lhs.trajectory, lhs.trajectoryDescription, lhs.parallelImaging, lhs.echoTrainLength) == std::tie(rhs.encodedSpace, rhs.reconSpace, rhs.encodingLimits, rhs.trajectory, rhs.trajectoryDescription, rhs.parallelImaging, rhs.echoTrainLength);
   }
   bool operator!=(const Encoding &lhs, const Encoding &rhs) {
       return !(rhs == lhs);
@@ -1083,10 +1083,5 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
   bool operator!=(const MeasurementDependency &lhs, const MeasurementDependency &rhs) {
       return !(rhs == lhs);
   }
-  bool operator==(const PhaseShiftType &lhs, const PhaseShiftType &rhs) {
-      return std::tie(lhs.AFy, lhs.AFz, lhs.deltaKz) == std::tie(rhs.AFy, rhs.AFz, rhs.deltaKz);
-  }
-  bool operator!=(const PhaseShiftType &lhs, const PhaseShiftType &rhs) {
-      return !(rhs == lhs);
-  }
+ 
   }

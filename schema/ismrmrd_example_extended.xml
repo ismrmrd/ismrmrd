@@ -244,17 +244,7 @@
       </user_1>
     </encodingLimits>
     <trajectory>cartesian</trajectory>
-    <multiband>
-      <spacing>0</spacing>
-      <spacing>1.2</spacing>
-      <phaseShift>
-        <AFy>0</AFy>
-        <AFz>1</AFz>
-        <deltaKz>0.2</deltaKz>
-      </phaseShift>
-      <calibration>full3D</calibration>
-      <calibration_encoding>0</calibration_encoding>
-    </multiband>
+
   </encoding>
   <encoding>
     <encodedSpace>
@@ -360,6 +350,13 @@
         <kspace_encoding_step_2>2</kspace_encoding_step_2>
       </accelerationFactor>
       <calibrationMode>other</calibrationMode>
+      <multiband>
+        <spacing>0</spacing>
+        <spacing>1.2</spacing>
+        <deltaKz>1.0</deltaKz>
+        <calibration>full3D</calibration>
+        <calibration_encoding>0</calibration_encoding>
+      </multiband>
     </parallelImaging>
     <echoTrainLength>12</echoTrainLength>
   </encoding>

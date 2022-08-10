@@ -512,8 +512,6 @@ namespace ISMRMRD
  EXPORTISMRMRD bool operator!=(const ParallelImaging &lhs, const ParallelImaging &rhs);
  EXPORTISMRMRD bool operator==(const Multiband &lhs, const Multiband &rhs);
  EXPORTISMRMRD bool operator!=(const Multiband &lhs, const Multiband &rhs);
- EXPORTISMRMRD bool operator==(const PhaseShiftType &lhs, const PhaseShiftType &rhs);
- EXPORTISMRMRD bool operator!=(const PhaseShiftType &lhs, const PhaseShiftType &rhs);
  EXPORTISMRMRD bool operator==(const Encoding &lhs, const Encoding &rhs);
  EXPORTISMRMRD bool operator!=(const Encoding &lhs, const Encoding &rhs);
  EXPORTISMRMRD bool operator==(const SequenceParameters &lhs, const SequenceParameters &rhs);
