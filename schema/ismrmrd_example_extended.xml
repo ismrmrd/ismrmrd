@@ -354,6 +354,7 @@
         <spacing>0</spacing>
         <spacing>1.2</spacing>
         <deltaKz>1.0</deltaKz>
+        <multiband_factor>2</multiband_factor>
         <calibration>full3D</calibration>
         <calibration_encoding>0</calibration_encoding>
       </multiband>

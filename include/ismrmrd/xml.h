@@ -401,6 +401,7 @@ namespace ISMRMRD
   struct Multiband{
     std::vector<float> spacing;
     float deltaKz;
+    std::uint32_t multiband_factor;
     MultibandCalibrationType calibration;
     std::uint64_t calibration_encoding;
   };

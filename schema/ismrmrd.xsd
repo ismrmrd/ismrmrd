@@ -286,6 +286,7 @@
     <xs:sequence>
       <xs:element maxOccurs="unbounded" minOccurs="1" name="spacing" type="xs:float"/>
       <xs:element name="deltaKz" minOccurs="1" maxOccurs="1" type="xs:float"/>
+      <xs:element name="multiband_factor" minOccurs="1" maxOccurs="1" type="xs:unsignedInt"/>
       <xs:element name="calibration" minOccurs="1" maxOccurs="1" type="multibandCalibrationType" />
       <xs:element name="calibration_encoding" minOccurs="1" maxOccurs="1" type="xs:unsignedLong"/>
     </xs:sequence>

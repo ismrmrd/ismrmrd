@@ -386,6 +386,7 @@ namespace ISMRMRD
         if (multiband) {
             Multiband mb;
             mb.deltaKz = parse_float(multiband, "deltaKz");
+            mb.multiband_factor =  static_cast<std::uint32_t>(std::stoi(multiband.child_value("deltaKz")));
             mb.spacing = parse_vector_float(multiband, "spacing");
             mb.calibration = parse_multiband_type(multiband.child_value("calibration"));
             mb.calibration_encoding = std::stoul(multiband.child_value("calibration_encoding"));
@@ -842,6 +843,7 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
             append_node(n4,"spacing",mb);
         }
         append_node(n4, "deltaKz", multiband.deltaKz);
+        append_node(n4, "multiband_factor", multiband.multiband_factor);
         append_node(n4,"calibration",multiband.calibration);
         append_node(n4,"calibration_encoding",multiband.calibration_encoding);
       }
@@ -1048,7 +1050,7 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       return !(rhs == lhs);
   }
   bool operator==(const Multiband &lhs, const Multiband &rhs) {
-      return std::tie(lhs.spacing, lhs.deltaKz,lhs.calibration,lhs.calibration_encoding) == std::tie(rhs.spacing, rhs.deltaKz,rhs.calibration,rhs.calibration_encoding);
+      return std::tie(lhs.spacing, lhs.deltaKz,lhs.multiband_factor,lhs.calibration,lhs.calibration_encoding) == std::tie(rhs.spacing, rhs.deltaKz,rhs.multiband_factor,rhs.calibration,rhs.calibration_encoding);
   }
   bool operator!=(const Multiband &lhs, const Multiband &rhs) {
       return !(rhs == lhs);
