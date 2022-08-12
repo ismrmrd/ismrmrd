@@ -398,8 +398,12 @@ namespace ISMRMRD
     OTHER
   };
 
+  struct MultibandSpacing {
+      std::vector<float> dZ;
+  };
+
   struct Multiband{
-    std::vector<float> spacing;
+    std::vector<MultibandSpacing> spacing;
     float deltaKz;
     std::uint32_t multiband_factor;
     MultibandCalibrationType calibration;
@@ -513,6 +517,8 @@ namespace ISMRMRD
  EXPORTISMRMRD bool operator!=(const ParallelImaging &lhs, const ParallelImaging &rhs);
  EXPORTISMRMRD bool operator==(const Multiband &lhs, const Multiband &rhs);
  EXPORTISMRMRD bool operator!=(const Multiband &lhs, const Multiband &rhs);
+ EXPORTISMRMRD bool operator==(const MultibandSpacing &lhs, const MultibandSpacing &rhs);
+ EXPORTISMRMRD bool operator!=(const MultibandSpacing &lhs, const MultibandSpacing &rhs);
  EXPORTISMRMRD bool operator==(const Encoding &lhs, const Encoding &rhs);
  EXPORTISMRMRD bool operator!=(const Encoding &lhs, const Encoding &rhs);
  EXPORTISMRMRD bool operator==(const SequenceParameters &lhs, const SequenceParameters &rhs);

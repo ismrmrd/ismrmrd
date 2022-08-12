@@ -351,8 +351,14 @@
       </accelerationFactor>
       <calibrationMode>other</calibrationMode>
       <multiband>
-        <spacing>0</spacing>
-        <spacing>1.2</spacing>
+        <spacing>
+          <dZ>0.0</dZ>
+          <dZ>2.0</dZ>
+        </spacing>
+        <spacing>
+          <dZ>0.0</dZ>
+          <dZ>2.5</dZ>
+        </spacing>
         <deltaKz>1.0</deltaKz>
         <multiband_factor>2</multiband_factor>
         <calibration>full3D</calibration>

@@ -387,7 +387,13 @@ namespace ISMRMRD
             Multiband mb;
             mb.deltaKz = parse_float(multiband, "deltaKz");
             mb.multiband_factor =  static_cast<std::uint32_t>(std::stoi(multiband.child_value("deltaKz")));
-            mb.spacing = parse_vector_float(multiband, "spacing");
+
+            auto spacing_node = multiband.child("spacing");
+            do {
+                mb.spacing.push_back(MultibandSpacing{parse_vector_float(spacing_node, "dZ")});
+                spacing_node = spacing_node.next_sibling("spacing");
+            } while (spacing_node);
+
             mb.calibration = parse_multiband_type(multiband.child_value("calibration"));
             mb.calibration_encoding = std::stoul(multiband.child_value("calibration_encoding"));
             info.multiband = mb;
@@ -839,8 +845,11 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       if (parallelImaging.multiband){
           auto& multiband = *parallelImaging.multiband;
         auto n4 = n2.append_child("multiband");
-        for (auto mb : multiband.spacing){
-            append_node(n4,"spacing",mb);
+        for (const auto& mb : multiband.spacing){
+            auto n5 = n4.append_child("spacing");
+            for (const auto dZ : mb.dZ){
+              append_node(n5,"dZ",dZ);
+            }
         }
         append_node(n4, "deltaKz", multiband.deltaKz);
         append_node(n4, "multiband_factor", multiband.multiband_factor);
@@ -1085,5 +1094,11 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
   bool operator!=(const MeasurementDependency &lhs, const MeasurementDependency &rhs) {
       return !(rhs == lhs);
   }
- 
+
+  bool operator==(const MultibandSpacing &lhs, const MultibandSpacing &rhs) {
+      return lhs.dZ == rhs.dZ;
+  }
+  bool operator!=(const MultibandSpacing &lhs, const MultibandSpacing &rhs) {
+      return !(rhs == lhs);
+  }
   }
