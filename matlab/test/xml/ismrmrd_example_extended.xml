@@ -244,17 +244,7 @@
       </user_1>
     </encodingLimits>
     <trajectory>cartesian</trajectory>
-    <multiband>
-      <spacing>0</spacing>
-      <spacing>1.2</spacing>
-      <phaseShift>
-        <AFy>0</AFy>
-        <AFz>1</AFz>
-        <deltaKz>0.2</deltaKz>
-      </phaseShift>
-      <calibration>3D</calibration>
-      <calibration_encoding>0</calibration_encoding>
-    </multiband>
+
   </encoding>
   <encoding>
     <encodedSpace>
@@ -351,6 +341,7 @@
         <name>coefficient_3</name>
         <value>112.86</value>
       </userParameterDouble>
+      <userParameterString><name>Trajectory monitoring system vendor</name><value>Purview</value></userParameterString>
       <comment>This is an example description of a custom trajectory</comment>
     </trajectoryDescription>
     <parallelImaging>
@@ -359,6 +350,20 @@
         <kspace_encoding_step_2>2</kspace_encoding_step_2>
       </accelerationFactor>
       <calibrationMode>other</calibrationMode>
+      <multiband>
+        <spacing>
+          <dZ>0.0</dZ>
+          <dZ>2.0</dZ>
+        </spacing>
+        <spacing>
+          <dZ>0.0</dZ>
+          <dZ>2.5</dZ>
+        </spacing>
+        <deltaKz>1.0</deltaKz>
+        <multiband_factor>2</multiband_factor>
+        <calibration>full3D</calibration>
+        <calibration_encoding>0</calibration_encoding>
+      </multiband>
     </parallelImaging>
     <echoTrainLength>12</echoTrainLength>
   </encoding>
@@ -371,30 +376,6 @@
     <TI>300.08</TI>
     <flipAngle_deg>90.0</flipAngle_deg>
     <flipAngle_deg>120.0</flipAngle_deg>
-    <diffusion>
-      <gradientDirection>
-        <ap>1</ap>
-        <fh>0</fh>
-        <rl>0</rl>
-      </gradientDirection>
-      <bvalue>2.0</bvalue>
-    </diffusion>
-    <diffusion>
-      <gradientDirection>
-        <ap>0</ap>
-        <fh>1</fh>
-        <rl>0</rl>
-      </gradientDirection>
-      <bvalue>1.0</bvalue>
-    </diffusion>
-    <diffusion>
-      <gradientDirection>
-        <ap>0</ap>
-        <fh>0</fh>
-        <rl>1</rl>
-      </gradientDirection>
-      <bvalue>4.0</bvalue>
-    </diffusion>
   </sequenceParameters>
   <userParameters>
     <userParameterLong>
