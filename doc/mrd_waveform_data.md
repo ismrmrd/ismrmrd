@@ -46,6 +46,16 @@ Waveform ID numbers less than 1024 are reserved while numbers greater than or eq
 
 ## Waveform Data
 Waveform data is sent as an uint32_t array, ordered by looping through samples and then through channels:
+<style>
+ .smalltable td {
+   font-size:       80%;
+   border-collapse: collapse;
+   border-spacing:  0;
+   border-width:    0;
+   padding:         3px;
+   border:          1px solid lightgray
+ }
+</style>
 
 <table class="smalltable">
     <tr>

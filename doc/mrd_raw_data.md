@@ -95,11 +95,12 @@ The ``flags`` field in the AcquisitionHeader is a 64 bit mask that can be used t
 ## k-space Trajectory
 <style>
  .smalltable td {
-   font-size: 80%;
+   font-size:       80%;
    border-collapse: collapse;
-   border-spacing:0;
-   border-width:0;
-   padding:0px;
+   border-spacing:  0;
+   border-width:    0;
+   padding:         3px;
+   border:          1px solid lightgray
  }
 </style>
 

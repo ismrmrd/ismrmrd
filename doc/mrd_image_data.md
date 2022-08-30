@@ -107,6 +107,16 @@ A variable number of "meta" elements can be defined, each with a single name and
 
 ## Image Data
 Image data is organized by looping through ``matrix_size[0]``, ``matrix_size[1]``, ``matrix_size[2]``, then ``channels``. For example, 2D image data would be formatted as:
+<style>
+ .smalltable td {
+   font-size:       80%;
+   border-collapse: collapse;
+   border-spacing:  0;
+   border-width:    0;
+   padding:         3px;
+   border:          1px solid lightgray
+ }
+</style>
 
 <table class="smalltable">
   <tr>
