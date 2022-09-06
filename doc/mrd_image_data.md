@@ -1,11 +1,12 @@
 # Image Data
-MRD images are stored as a combination of image data, a fixed ImageHeader of common properties, and an extensible set of MetaAttributes.  Images can stores as individual 2D images or 3D volumes and may include multiple channels for individual receiver coils.
+MRD images are stored as a combination of [image data](ImageData), a fixed [ImageHeader](ImageHeader) of common properties, and an extensible set of [MetaAttributes](MetaAttributes).  Images can stores as individual 2D images or 3D volumes and may include multiple channels for individual receiver coils.
 
+(ImageHeader)=
 ## ImageHeader
 | Element Name           | Format              | Interpretation                                      |
 | --                     | --                  | --                                                  |
 | version                | uint16              | Major version number (currently 1)                  |
-| data_type              | uint16              | Data type of the image data, e.g. short, float, complex float, etc., as defined in [MRD Image Data Types](#MRD-Image-Data-Types) |
+| data_type              | uint16              | Data type of the image data, e.g. short, float, complex float, etc., as defined in [MRD Image Data Types](DataTypes) |
 | flags                  | uint64              | A bit mask of common attributes applicable to individual images |
 | measurement_uid        | uint32              | Unique ID corresponding to the image                |
 | matrix_size            | uint16 (x3)         | Number of pixels in each of the 3 dimensions in the image |
@@ -24,13 +25,14 @@ MRD images are stored as a combination of image data, a fixed ImageHeader of com
 | set                    | uint16              | Sets of different preparation, e.g. flow encoding, diffusion weighting |
 | acquisition_time_stamp | uint32              | Clock time stamp (e.g. milliseconds since midnight) |
 | physiology_time_stamp  | uint32 (x3)         | Time stamps relative to physiological triggering, e.g. ECG, pulse oximetry, respiratory. Multiplicity defined by ISMRMRD_PHYS_STAMPS (currently 3) |
-| image_type             | uint16              | Interpretation type of the image, e.g. magnitude, phase, as defined in [MRD Image Types](#MRD-Image-Types)   |
+| image_type             | uint16              | Interpretation type of the image, e.g. magnitude, phase, as defined in [MRD Image Types](ImageTypes)   |
 | image_index            | uint16              | Image index number within a series of images, corresponding to DICOM InstanceNumber (0020,0013)              |
 | image_series_index     | uint16              | Series index, used to separate images into different series, corresponding to DICOM SeriesNumber (0020,0011) |
 | user_int               |  int32 (x8)         | User-defined integer parameters, multiplicity defined by MRD_USER_INTS (currently 8) |
 | user_float             | float (32 bit) (x8) | User-defined float parameters, multiplicity defined by MRD_USER_FLOATS (currently 8) |
 | attribute_string_len   | uint32              | Length of serialized MetaAttributes text |
 
+(DataTypes)=
 ### Data Types
 The ``data_type`` field of the ImageHeader describes the data type and precision of the image data.  The following types are supported:
 | Value        | Name         | Type           | Size        |
@@ -44,6 +46,7 @@ The ``data_type`` field of the ImageHeader describes the data type and precision
 | 7            | MRD_CXFLOAT  | complex float  | 2 * 4 bytes |
 | 8            | MRD_CXDOUBLE | complex double | 2 * 8 bytes |
 
+(ImageTypes)=
 ### Image Types
 The ``image_type`` field of the ImageHeader is an enum describing the image type with the following values:
 | Value        | Name                 |
@@ -61,6 +64,7 @@ A value of ``6`` is used for 8-bit RGB color images, which have the following se
 - ``channels`` is set to 3, representing the red, green, and blue channels of the RGB image
 - image data values are in the range 0-255 (8-bit color depth)
 
+(MetaAttributes)=
 ## MetaAttributes
 Image metadata can be stored in the extensible MRD MetaContainer format.  This is serialized as XML text such as:
 ```xml
@@ -105,6 +109,7 @@ A variable number of "meta" elements can be defined, each with a single name and
 |                   |              |                                                                                           |   6. Visibility (0 = false, 1 = true)
 |                   |              |                                                                                           | The remaining values are (row,col) coordinates for each ROI point, with values between 0 and the number of rows/columns. Data is organized as (point 1<sub>row</sub>, point 1<sub>col</sub>, point2<sub>row</sub>, point 2<sub>col</sub>, etc). The last point should be a duplicate of the first point if a closed ROI is desired.
 
+(ImageData)=
 ## Image Data
 Image data is organized by looping through ``matrix_size[0]``, ``matrix_size[1]``, ``matrix_size[2]``, then ``channels``. For example, 2D image data would be formatted as:
 <style>

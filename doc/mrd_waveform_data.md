@@ -1,6 +1,7 @@
 # Physiological Waveforms
-Physiological monitoring data such as electrocardiograms, pulse oximetry, or external triggering may accompany MR acquisitions.  These physiological data are stored in MRD as a combination of a fixed WaveformHeader and the raw physiological waveforms.
+Physiological monitoring data such as electrocardiograms, pulse oximetry, or external triggering may accompany MR acquisitions.  These physiological data are stored in MRD as a combination of a fixed [WaveformHeader](WaveformHeader) and the [raw physiological waveforms](WaveformData).
 
+(WaveformHeader)=
 ## WaveformHeader
 The WaveformHeader contains metadata associated with a set of waveform data and has the following fields:
 | Field             | Description                                   | Type     | Size    |
@@ -13,8 +14,9 @@ The WaveformHeader contains metadata associated with a set of waveform data and 
 | number_of_samples | Number of samples acquired                    | uint16_t | 2 bytes |
 | channels          | Active channels                               | uint16_t | 2 bytes |
 | sample_time_us    | Time between samples in microseconds          | float    | 4 bytes |
-| waveform_id       | ID matching types specified in XML header     | uint16_t | 2 bytes |
+| waveform_id       | [ID matching types specified in XML header](WaveformIDs)     | uint16_t | 2 bytes |
 
+(WaveformIDs)=
 ### Waveform IDs
 The ``waveform_id`` field in the WaveformHeader describes the type of physiological data stored.  The following ID numbers are standardized:
 | Value | Name                                  |
@@ -44,6 +46,7 @@ Waveform ID numbers less than 1024 are reserved while numbers greater than or eq
 </waveformInformation>
 ```
 
+(WaveformData)=
 ## Waveform Data
 Waveform data is sent as an uint32_t array, ordered by looping through samples and then through channels:
 <style>

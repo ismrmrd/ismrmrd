@@ -1,23 +1,23 @@
 # MRD File Format
-MRD data can be stored in various formats, but the [HDF5](https://www.hdfgroup.org/solutions/hdf5) format is commonly used due to its good compatibility across programming languages and platforms.  HDF5 is a hierarchical data format (much like a file system), which can contain multiple variable organized in groups (like folders in a file system). The variables can contain arrays of data values, custom defined structs, or simple text fields.  Interface libraries are provided for C++, Python, and MATLAB to simplify usage.  MRD HDF5 files can also be opened using standard HDF tools such as [HDFView](https://www.hdfgroup.org/downloads/hdfview/) or HDF5 packages such as [h5py](https://www.h5py.org/) for Python or the built-in ``h5read`` and associated functions in MATLAB.  
+MRD data can be stored in various formats, but the [HDF5](https://www.hdfgroup.org/solutions/hdf5) format is commonly used due to its good compatibility across programming languages and platforms.  HDF5 is a hierarchical data format (much like a file system), which can contain multiple variable organized in groups (like folders in a file system). The variables can contain arrays of data values, custom defined structs, or simple text fields.  Interface libraries are provided for C++, Python, and MATLAB to simplify usage.  MRD HDF5 files can also be opened using standard HDF tools such as [HDFView](https://www.hdfgroup.org/downloads/hdfview/) or HDF5 packages such as [h5py](https://www.h5py.org/) for Python or the built-in [h5read](https://www.mathworks.com/help/matlab/ref/h5read.html) and associated functions in MATLAB.  
 
 The extension ``.mrd`` is used to indicate an HDF5 file containing MRD formatted data as follows:
 ```
-/dataset/config              text of configuration parameters for reconstruction or image analysis (optional)
-/dataset/config_file         file name of configuration parameters for reconstruction or image analysis (optional)
 /dataset/xml                 text of MRD header
 /dataset/data                array of raw data (data + AcquisitionHeader + optional trajectory)
 /dataset/waveforms           array of waveform (e.g. PMU) data
 /dataset/image_0/data        array of image data
 /dataset/image_0/header      array of ImageHeaders
 /dataset/image_0/attributes  array of image MetaAttributes (xml text)
+/dataset/config              text of configuration parameters for reconstruction or image analysis (optional)
+/dataset/config_file         file name of configuration parameters for reconstruction or image analysis (optional)
 ```
 
 All data from a complete acquisition are stored in a group (``dataset`` in the above example).  An MRD file may contain multiple acquisitions in separate groups, usually in the case of related or dependent acquisitions.
 
 ## Reading MRD data in Python
 The [ismrmrd-python](https://www.github.com/ismrmrd/ismrmrd-python) library provides a convenient interface for working with MRD files.  It can either be compiled from source or installed from a pip package using the command ``pip install ismrmrd``.  The following code shows an example of getting the number of readout lines from a dataset and reading the first line of k-space data:
-```
+```python
 >>> import ismrmrd
 >>> dset = ismrmrd.Dataset('data.mrd')
 >>> nacq = dset.number_of_acquisitions()
@@ -63,8 +63,8 @@ user_float: 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
 (2, 256)
 ```
 
-The basic <h5py>(https://www.h5py.org) package Python can also be used to read the files:
-```
+The basic [h5py](https://www.h5py.org) package Python can also be used to read the files:
+```python
   >>> import h5py
   >>> import numpy as np
   >>> f = h5py.File('data.mrd')
@@ -100,7 +100,7 @@ The basic <h5py>(https://www.h5py.org) package Python can also be used to read t
 
 ## Reading MRD data in MATLAB
 A MATLAB package is also provided in this repository to facilitate easy usage of MRD files.  To use it, add the ``matlab`` folder in this repository to the MATLAB path.  The following code shows an example of getting the number of readout lines from a dataset and reading the first line of k-space data:
-```
+```matlab
 >> dset = ismrmrd.Dataset('data.mrd');
 >> nacq = dset.getNumberOfAcquisitions()
 nacq =
@@ -144,8 +144,8 @@ ans =
                      FLAGS: [1×1 struct]
 ```
 
-MATLAB also provides native HDF5 support which can be used to read the data without an external library:
-```
+MATLAB also provides [native HDF5 support](https://www.mathworks.com/help/matlab/import_export/import-hdf5-files.html) which can be used to read the data without an external library:
+```matlab
 >> data = h5read('data.mrd', '/dataset/data')
 data = 
   struct with fields:

@@ -1,26 +1,27 @@
 # Raw Acquisition Data
-Raw k-space data is stored in MRD format as individual readout acquisitions.  Each readout contains the complex raw data for all channels, a fixed AcquisitionHeader, and optionally corresponding k-space trajectory information.  Most datasets will be comprised of many acquisitions, each stored indvidiually with its own AcquisitionHeader, optional trajectory, and raw data.
+Raw k-space data is stored in MRD format as individual readout acquisitions.  Each readout contains the complex raw data for all channels, a fixed AcquisitionHeader, and optionally corresponding k-space trajectory information.  Most datasets will be comprised of many acquisitions, each stored indvidiually with its own [AcquisitionHeader](AcquisitionHeader), optional [trajectory](Trajectory), and [raw data](RawData).
 
+(AcquisitionHeader)=
 ## AcquisitionHeader
 An MRD AcquisitionHeader accompanies each readout containing metadata common to most data.  It is of a fixed size and thus fields cannot be added, removed, or otherwise repurposed.  It contains the following information:
-| Element Name           | Format       | Interpretation                                      |
-| --                     | --           | --                                                  |
-| version                | uint16       | Major version number (currently 1)                  |
-| flags                  | uint64       | A bit mask of common attributes applicable to individual acquisition readouts |
-| measurement_uid        | uint32       | Unique ID corresponding to the readout              |
-| scan_counter           | uint32       | Zero-indexed incrementing counter for readouts      |
-| acquisition_time_stamp | uint32       | Clock time stamp (e.g. milliseconds since midnight) |
-| physiology_time_stamp  | uint32 (x3)  | Time stamps relative to physiological triggering, e.g. ECG, pulse oximetry, respiratory. Multiplicity defined by ISMRMRD_PHYS_STAMPS (currently 3) |
-| number_of_samples      | uint16       | Number of digitized readout samples                 |
-| available_channels     | uint16       | Number of possible receiver coils (channels)        |
-| active_channels        | uint16       | Number of active receiver coils                     |
-| channel_mask           | uint64 (x16) | Bit mask indicating active coils (64\*16 = 1024 bits) |
-| discard_pre            | uint16       | Number of readout samples to be discarded at the beginning (e.g. if the ADC is active during gradient events) |
-| discard_post           | uint16       | Number of readout samples to be discarded at the end (e.g. if the ADC is active during gradient events) |
-| center_sample          | uint16       | Index of the readout sample corresponing to k-space center (zero indexed) |
-| encoding_space_ref     | uint16       | Indexed reference to the encoding spaces enumerated in the MRD (xml) header |
-| trajectory_dimensions  | uint16       | Dimensionality of the k-space trajectory vector (e.g. 2 for 2D radial (k<sub>x</sub>, k<sub>y</sub>), 0 for no trajectory data) |
-| sample_time_us         | float (32 bit) | Readout bandwidth, as time between samples in microseconds |
+| Element Name           | Format              | Interpretation                                      |
+| --                     | --                  | --                                                  |
+| version                | uint16              | Major version number (currently 1)                  |
+| flags                  | uint64              | A bit mask of common attributes applicable to individual acquisition readouts |
+| measurement_uid        | uint32              | Unique ID corresponding to the readout              |
+| scan_counter           | uint32              | Zero-indexed incrementing counter for readouts      |
+| acquisition_time_stamp | uint32              | Clock time stamp (e.g. milliseconds since midnight) |
+| physiology_time_stamp  | uint32 (x3)         | Time stamps relative to physiological triggering, e.g. ECG, pulse oximetry, respiratory. Multiplicity defined by ISMRMRD_PHYS_STAMPS (currently 3) |
+| number_of_samples      | uint16              | Number of digitized readout samples                 |
+| available_channels     | uint16              | Number of possible receiver coils (channels)        |
+| active_channels        | uint16              | Number of active receiver coils                     |
+| channel_mask           | uint64 (x16)        | Bit mask indicating active coils (64\*16 = 1024 bits) |
+| discard_pre            | uint16              | Number of readout samples to be discarded at the beginning (e.g. if the ADC is active during gradient events) |
+| discard_post           | uint16              | Number of readout samples to be discarded at the end (e.g. if the ADC is active during gradient events) |
+| center_sample          | uint16              | Index of the readout sample corresponing to k-space center (zero indexed) |
+| encoding_space_ref     | uint16              | Indexed reference to the encoding spaces enumerated in the MRD (xml) header |
+| trajectory_dimensions  | uint16              | Dimensionality of the k-space trajectory vector (e.g. 2 for 2D radial (k<sub>x</sub>, k<sub>y</sub>), 0 for no trajectory data) |
+| sample_time_us         | float (32 bit)      | Readout bandwidth, as time between samples in microseconds |
 | position               | float (32 bit) (x3) | Center of the excited volume, in (left, posterior, superior) (LPS) coordinates relative to isocenter in millimeters |
 | read_dir               | float (32 bit) (x3) | Directional cosine of readout/frequency encoding |
 | phase_dir              | float (32 bit) (x3) | Directional cosine of phase encoding (2D) |
@@ -30,6 +31,7 @@ An MRD AcquisitionHeader accompanies each readout containing metadata common to 
 | user_int               |  int32 (x8)         | User-defined integer parameters, multiplicity defined by ISMRMRD_USER_INTS (currently 8) |
 | user_float             | float (32 bit) (x8) | User-defined float parameters, multiplicity defined by ISMRMRD_USER_FLOATS (currently 8) | 
 
+(EncodingCounters)=
 ### MRD EncodingCounters
 MR acquisitions often loop through a set of counters (e.g. phase encodes) in a complete experiment.  The following encoding counters are referred to by the ``idx`` field in the AcquisitionHeader.
 
@@ -91,7 +93,7 @@ The ``flags`` field in the AcquisitionHeader is a 64 bit mask that can be used t
     ISMRMRD_ACQ_USER7                               = 63,
     ISMRMRD_ACQ_USER8                               = 64
 ```
-
+(Trajectory)=
 ## k-space Trajectory
 <style>
  .smalltable td {
@@ -146,6 +148,7 @@ Trajectory data is organized by looping through the dimensions first then the sa
       </tr>
     </table>
 
+(RawData)=
 ## Raw Data
 MR acquisition raw data are stored as complex valued floats.  Data from all receiver channels are included in a single readout object.  Data is organized by looping through real/imaginary data, samples, then channels:
 
