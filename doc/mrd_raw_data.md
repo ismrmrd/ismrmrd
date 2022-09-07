@@ -27,7 +27,7 @@ An MRD AcquisitionHeader accompanies each readout containing metadata common to 
 | phase_dir              | float (32 bit) (x3) | Directional cosine of phase encoding (2D) |
 | slice_dir              | float (32 bit) (x3) | Directional cosine of slice normal, i.e. cross-product of read_dir and phase_dir |
 | patient_table_position | float (32 bit) (x3) | Offset position of the patient table, in LPS coordinates |
-| idx                    | uint16 (x17)        | Encoding loop counters, as defined [below](#mrd-encodingcounters)     |
+| idx                    | uint16 (x17)        | Encoding loop counters, as defined [below](EncodingCounters)     |
 | user_int               |  int32 (x8)         | User-defined integer parameters, multiplicity defined by ISMRMRD_USER_INTS (currently 8) |
 | user_float             | float (32 bit) (x8) | User-defined float parameters, multiplicity defined by ISMRMRD_USER_FLOATS (currently 8) | 
 

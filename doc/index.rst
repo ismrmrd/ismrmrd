@@ -34,5 +34,6 @@ Please cite this paper if you use the format.
   :maxdepth: 2
   :caption: API Libraries
 
+  building
   cpplibrary
   api
