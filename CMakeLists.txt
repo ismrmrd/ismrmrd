@@ -85,7 +85,8 @@ set(ISMRMRD_VERSION_PATCH 1)
 set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
 set(ISMRMRD_SOVERSION ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR})
 
-set(ISMRMRD_XML_SCHEMA_SHA1 "37a9f39f5d5e615ea67919064aef269938812519")
+
+set(ISMRMRD_XML_SCHEMA_SHA1  "725698104a8e8abbd34a419b9ac29184240a470b")
 
 #Remove line breaks and white space that does not change the meaning of the schema
 file(STRINGS ${CMAKE_SOURCE_DIR}/schema/ismrmrd.xsd SCHEMA_STRINGS) #Read all strings from file
@@ -265,6 +266,8 @@ endif ()
 # TODO: make this work on Windows
 if (BUILD_TESTS)
    if (NOT build4GE)
+
+       enable_testing()
       add_subdirectory(tests)
    endif ()
 endif ()

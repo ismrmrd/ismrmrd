@@ -123,6 +123,7 @@
       <xs:element maxOccurs="1" minOccurs="0" name="trajectoryDescription" type="trajectoryDescriptionType" />
       <xs:element maxOccurs="1" minOccurs="0" name="parallelImaging" type="parallelImagingType" />
       <xs:element maxOccurs="1" minOccurs="0" name="echoTrainLength" type="xs:long" />
+      <xs:element maxOccurs="1" minOccurs="0" name="multiband" type="multibandType"/>
     </xs:all>
   </xs:complexType>
 
@@ -218,7 +219,6 @@
       <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="flipAngle_deg" />
       <xs:element minOccurs="0" maxOccurs="1" type="xs:string" name="sequence_type" />
       <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="echo_spacing" />
-
     </xs:sequence>
   </xs:complexType>
 
@@ -265,6 +265,32 @@
     </xs:sequence>
   </xs:complexType>
 
+
+  <xs:complexType name="multibandType">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="1" name="spacing" type="multibandSpacingType"/>
+      <xs:element name="deltaKz" minOccurs="1" maxOccurs="1" type="xs:float"/>
+      <xs:element name="multiband_factor" minOccurs="1" maxOccurs="1" type="xs:unsignedInt"/>
+      <xs:element name="calibration" minOccurs="1" maxOccurs="1" type="multibandCalibrationType" />
+      <xs:element name="calibration_encoding" minOccurs="1" maxOccurs="1" type="xs:unsignedLong"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="multibandSpacingType">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="1" name="dZ" type="xs:float"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="multibandCalibrationType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="separable2D" />
+      <xs:enumeration value="full3D" />
+      <xs:enumeration value="other" />
+    </xs:restriction>
+  </xs:simpleType>
+
+
   <xs:complexType name="accelerationFactorType">
     <xs:all>
       <xs:element name="kspace_encoding_step_1" type="xs:unsignedShort" />
@@ -297,6 +323,7 @@
       <xs:element type="accelerationFactorType" name="accelerationFactor" />
       <xs:element maxOccurs="1" minOccurs="0" type="calibrationModeType" name="calibrationMode" />
       <xs:element maxOccurs="1" minOccurs="0" type="interleavingDimensionType" name="interleavingDimension" />
+      <xs:element maxOccurs="1" minOccurs="0" type="multibandType" name="multiband" />
     </xs:sequence>
   </xs:complexType>
 
