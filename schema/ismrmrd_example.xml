@@ -9,8 +9,8 @@
     <systemVendor>SIEMENS</systemVendor>
     <systemModel>Avanto</systemModel>
     <systemFieldStrength_T>1.494</systemFieldStrength_T>
-    <receiverChannels>32</receiverChannels>
     <relativeReceiverNoiseBandwidth>0.79</relativeReceiverNoiseBandwidth>
+    <receiverChannels>32</receiverChannels>
   </acquisitionSystemInformation>
   <experimentalConditions>
     <H1resonanceFrequency_Hz>63642459</H1resonanceFrequency_Hz>
@@ -63,18 +63,18 @@
         <center>0</center>
       </set>
     </encodingLimits>
+    <parallelImaging>
+      <accelerationFactor>
+        <kspace_encoding_step_1>1</kspace_encoding_step_1>
+        <kspace_encoding_step_2>1</kspace_encoding_step_2>
+      </accelerationFactor>
+      <calibrationMode>other</calibrationMode>
+    </parallelImaging>
+
   </encoding>
-  <parallelImaging>
-    <accelerationFactor>
-      <kspace_encoding_step_1>1</kspace_encoding_step_1>
-      <kspace_encoding_step_2>1</kspace_encoding_step_2>
-    </accelerationFactor>
-    <calibrationMode>other</calibrationMode>
-  </parallelImaging>
   <sequenceParameters>
     <TR>4.6</TR>
     <TE>2.35</TE>
     <TI>300</TI>
   </sequenceParameters>
 </ismrmrdHeader>
-
