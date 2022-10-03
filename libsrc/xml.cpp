@@ -386,7 +386,7 @@ namespace ISMRMRD
         if (multiband) {
             Multiband mb;
             mb.deltaKz = parse_float(multiband, "deltaKz");
-            mb.multiband_factor =  static_cast<std::uint32_t>(std::stoi(multiband.child_value("deltaKz")));
+            mb.multiband_factor =  static_cast<std::uint32_t>(std::stoi(multiband.child_value("multiband_factor")));
 
             auto spacing_node = multiband.child("spacing");
             do {
