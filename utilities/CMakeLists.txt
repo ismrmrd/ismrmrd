@@ -21,6 +21,14 @@ if (HDF5_FOUND)
     target_link_libraries(ismrmrd_read_timing_test ismrmrd)
     install(TARGETS ismrmrd_read_timing_test DESTINATION bin)
 
+    add_executable(ismrmrd_hdf5_to_stream ismrmrd_hdf5_to_stream.cpp)
+    target_link_libraries(ismrmrd_hdf5_to_stream ismrmrd)
+    install(TARGETS ismrmrd_hdf5_to_stream DESTINATION bin)
+
+    add_executable(ismrmrd_stream_to_hdf5 ismrmrd_stream_to_hdf5.cpp)
+    target_link_libraries(ismrmrd_stream_to_hdf5 ismrmrd)
+    install(TARGETS ismrmrd_stream_to_hdf5 DESTINATION bin)
+
     find_package(Boost 1.43 COMPONENTS program_options random)
     if (WIN32)
         add_definitions(-DBOOST_ALL_NO_LIB)
@@ -48,7 +56,7 @@ if (HDF5_FOUND)
             ismrmrd
             ${Boost_PROGRAM_OPTIONS_LIBRARY}
             ${FFTW3_LIBRARIES})
-        
+
         install(TARGETS ismrmrd_generate_cartesian_shepp_logan DESTINATION bin)
 
         # Shepp-Logan phantom

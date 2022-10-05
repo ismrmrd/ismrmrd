@@ -1,11 +1,22 @@
 #ifndef ISMRMRDSERIALIZATION_H
 #define ISMRMRDSERIALIZATION_H
 
+#include <exception>
+#include <iostream>
+
 #include "ismrmrd/ismrmrd.h"
 #include "ismrmrd/waveform.h"
 #include "ismrmrd/xml.h"
 
 namespace ISMRMRD {
+
+const uint16_t ISMRMRD_MESSAGE_UNPEEKED = 0;
+const uint16_t ISMRMRD_MESSAGE_HEADER = 3;
+const uint16_t ISMRMRD_MESSAGE_CLOSE = 4;
+const uint16_t ISMRMRD_MESSAGE_ACQUISITION = 1008;
+const uint16_t ISMRMRD_MESSAGE_IMAGE = 1022;
+const uint16_t ISMRMRD_MESSAGE_WAVEFORM = 1026;
+
 // serialize Acquisition to ostream
 void EXPORTISMRMRD serialize(const Acquisition &acq, std::ostream &os);
 
@@ -26,6 +37,8 @@ void EXPORTISMRMRD deserialize(Image<T> &img, std::istream &is);
 // deserialize Waveform from istream
 void EXPORTISMRMRD deserialize(Waveform &wfm, std::istream &is);
 
+class ProtocolStreamClosed : public std::exception {};
+
 class EXPORTISMRMRD ProtocolSerializer {
 public:
     ProtocolSerializer(std::ostream &os);
@@ -34,10 +47,11 @@ public:
     template <typename T>
     void serialize(const Image<T> &img);
     void serialize(const Waveform &wfm);
+    void close();
 
 protected:
     void write_msg_id(uint16_t id);
-    std::ostream &os;
+    std::ostream &_os;
 };
 
 class EXPORTISMRMRD ProtocolDeserializer {
@@ -51,10 +65,12 @@ public:
 
     // Peek at the next data type in the stream
     uint16_t peek();
+    int peek_image_data_type();
 
 protected:
-    std::istream &is;
-    uint16_t peeked;
+    std::istream &_is;
+    uint16_t _peeked;
+    ImageHeader _peeked_image_header;
 };
 
 } // namespace ISMRMRD
