@@ -21,14 +21,6 @@ if (HDF5_FOUND)
     target_link_libraries(ismrmrd_read_timing_test ismrmrd)
     install(TARGETS ismrmrd_read_timing_test DESTINATION bin)
 
-    add_executable(ismrmrd_hdf5_to_stream ismrmrd_hdf5_to_stream.cpp)
-    target_link_libraries(ismrmrd_hdf5_to_stream ismrmrd)
-    install(TARGETS ismrmrd_hdf5_to_stream DESTINATION bin)
-
-    add_executable(ismrmrd_stream_to_hdf5 ismrmrd_stream_to_hdf5.cpp)
-    target_link_libraries(ismrmrd_stream_to_hdf5 ismrmrd)
-    install(TARGETS ismrmrd_stream_to_hdf5 DESTINATION bin)
-
     find_package(Boost 1.43 COMPONENTS program_options random)
     if (WIN32)
         add_definitions(-DBOOST_ALL_NO_LIB)
@@ -69,9 +61,15 @@ if (HDF5_FOUND)
 
         install(TARGETS ismrmrd_recon_cartesian_2d DESTINATION bin)
 
-        add_executable(stream_recon_cartesian_2d
-            stream_recon_cartesian_2d.cpp)
+        add_executable(ismrmrd_hdf5_to_stream ismrmrd_hdf5_to_stream.cpp)
+        target_link_libraries(ismrmrd_hdf5_to_stream ismrmrd ${Boost_PROGRAM_OPTIONS_LIBRARY})
+        install(TARGETS ismrmrd_hdf5_to_stream DESTINATION bin)
 
+        add_executable(ismrmrd_stream_to_hdf5 ismrmrd_stream_to_hdf5.cpp)
+        target_link_libraries(ismrmrd_stream_to_hdf5 ismrmrd ${Boost_PROGRAM_OPTIONS_LIBRARY})
+        install(TARGETS ismrmrd_stream_to_hdf5 DESTINATION bin)
+
+        add_executable(stream_recon_cartesian_2d stream_recon_cartesian_2d.cpp)
         target_link_libraries(stream_recon_cartesian_2d ismrmrd ${FFTW3_LIBRARIES})
         install(TARGETS stream_recon_cartesian_2d DESTINATION bin)
 

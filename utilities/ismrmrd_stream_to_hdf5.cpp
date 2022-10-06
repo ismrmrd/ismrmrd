@@ -1,6 +1,9 @@
 #include "ismrmrd/dataset.h"
 #include "ismrmrd/serialization.h"
+#include <boost/program_options.hpp>
 #include <iostream>
+
+namespace po = boost::program_options;
 
 template <typename T>
 std::string create_image_series_name(const ISMRMRD::Image<T> &img) {
@@ -10,12 +13,36 @@ std::string create_image_series_name(const ISMRMRD::Image<T> &img) {
 }
 
 int main(int argc, char **argv) {
-    if (argc != 2) {
-        std::cerr << "Usage: " << argv[0] << " <filename>" << std::endl;
+    // Arguments
+    std::string output_file;
+    std::string groupname;
+
+    // Parse arguments using boost program options
+    po::options_description desc("Allowed options");
+
+    // clang-format off
+    desc.add_options()
+        ("help,h", "produce help message")
+        ("output,o", po::value<std::string>(&output_file)->required(),"input ISMRMRD HDF5 file")
+        ("group,g", po::value<std::string>(&groupname)->default_value("dataset"), "group name");
+    // clang-format on
+
+    po::variables_map vm;
+    try {
+        po::store(po::parse_command_line(argc, argv, desc), vm);
+        po::notify(vm);
+    } catch (boost::wrapexcept<po::required_option> &e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        std::cerr << desc << std::endl;
         return 1;
     }
 
-    ISMRMRD::Dataset d(argv[1], "dataset", true);
+    if (vm.count("help")) {
+        std::cerr << desc << "\n";
+        return 1;
+    }
+
+    ISMRMRD::Dataset d(output_file.c_str(), groupname.c_str(), true);
     ISMRMRD::ProtocolDeserializer deserializer(std::cin);
 
     ISMRMRD::IsmrmrdHeader hdr;
