@@ -4,6 +4,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - boost=1.76.0
   - cmake=3.21.3
   - fftw=3.3.9
   - fmt=8.1.1
