@@ -10,10 +10,8 @@ dependencies:
   - gcc_linux-64=11.2.0
   - gdb=11.1
   - gxx_linux-64=11.2.0
-  - h5py=3.2.1 
+  - h5py=3.2.1
   - hdf5=1.10.6
-  - ismrmrd::ismrmrd=1.11.1
-  - ismrmrd::ismrmrd-python>=1.9.8
   - jupyter=1.0.0
   - libblas=*=*mkl
   - libcurl=7.79.1

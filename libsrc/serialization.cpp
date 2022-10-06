@@ -40,14 +40,9 @@ void deserialize(Acquisition &acq, std::istream &is) {
     is.read(reinterpret_cast<char *>(acq.getDataPtr()), ahead.number_of_samples * ahead.active_channels * 2 * sizeof(float));
 }
 
+// Helper function that deserializes attributes and pixels
 template <typename T>
-void deserialize(Image<T> &img, std::istream &is) {
-    ImageHeader ihead;
-    is.read(reinterpret_cast<char *>(&ihead), sizeof(ImageHeader));
-    if (ismrmrd_sizeof_data_type(ihead.data_type) != sizeof(T)) {
-        throw std::runtime_error("Image data type does not match template type");
-    }
-    img.setHead(ihead);
+void deserialize_attr_and_pixels(Image<T> &img, std::istream &is) {
     uint64_t attr_length;
     is.read(reinterpret_cast<char *>(&attr_length), sizeof(uint64_t));
     if (attr_length) {
@@ -56,7 +51,18 @@ void deserialize(Image<T> &img, std::istream &is) {
         img.setAttributeString(attr);
         delete[] attr;
     }
-    is.read(reinterpret_cast<char *>(img.getDataPtr()), ihead.matrix_size[0] * ihead.matrix_size[1] * ihead.matrix_size[2] * ihead.channels * img.getDataSize());
+    is.read(reinterpret_cast<char *>(img.getDataPtr()), img.getDataSize());
+}
+
+template <typename T>
+void deserialize(Image<T> &img, std::istream &is) {
+    ImageHeader ihead;
+    is.read(reinterpret_cast<char *>(&ihead), sizeof(ImageHeader));
+    if (ismrmrd_sizeof_data_type(ihead.data_type) != sizeof(T)) {
+        throw std::runtime_error("Image data type does not match template type");
+    }
+    img.setHead(ihead);
+    deserialize_attr_and_pixels(img, is);
 }
 
 void deserialize(Waveform &wfm, std::istream &is) {
@@ -155,15 +161,7 @@ void ProtocolDeserializer::deserialize(Image<T> &img) {
         throw std::runtime_error("Expected ISMRMRD_MESSAGE_IMAGE");
     }
     img.setHead(_peeked_image_header);
-    uint64_t attr_length;
-    _is.read(reinterpret_cast<char *>(&attr_length), sizeof(uint64_t));
-    if (attr_length) {
-        char *attr = new char[attr_length];
-        _is.read(attr, attr_length);
-        img.setAttributeString(attr);
-        delete[] attr;
-    }
-    _is.read(reinterpret_cast<char *>(img.getDataPtr()), _peeked_image_header.matrix_size[0] * _peeked_image_header.matrix_size[1] * _peeked_image_header.matrix_size[2] * _peeked_image_header.channels * img.getDataSize());
+    deserialize_attr_and_pixels(img, _is);
     _peeked = ISMRMRD_MESSAGE_UNPEEKED;
 }
 
