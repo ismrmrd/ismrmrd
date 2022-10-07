@@ -24,7 +24,7 @@ void serialize(const Image<T> &img, std::ostream &os) {
     if (attr_length) {
         os.write(img.getAttributeString(), ihead.attribute_string_len);
     }
-    os.write(reinterpret_cast<const char *>(img.getDataPtr()), ihead.matrix_size[0] * ihead.matrix_size[1] * ihead.matrix_size[2] * ihead.channels * img.getDataSize());
+    os.write(reinterpret_cast<const char *>(img.getDataPtr()), img.getDataSize());
 }
 
 void serialize(const Waveform &wfm, std::ostream &os) {
@@ -67,6 +67,7 @@ void deserialize(Image<T> &img, std::istream &is) {
 
 void deserialize(Waveform &wfm, std::istream &is) {
     is.read(reinterpret_cast<char *>(&wfm.head), sizeof(ISMRMRD_WaveformHeader));
+    ismrmrd_make_consistent_waveform(&wfm);
     is.read(reinterpret_cast<char *>(wfm.begin_data()), wfm.head.number_of_samples * wfm.head.channels * sizeof(uint32_t));
 }
 
