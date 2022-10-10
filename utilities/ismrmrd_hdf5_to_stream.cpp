@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
     }
 
     ISMRMRD::Dataset d(input_file.c_str(), groupname.c_str(), false);
-    ISMRMRD::ProtocolSerializer serializer(std::cout);
+    ISMRMRD::ProtocolSerializer<std::ostream> serializer(std::cout);
 
     try {
         std::string xml;

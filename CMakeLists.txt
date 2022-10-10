@@ -183,7 +183,6 @@ set(ISMRMRD_TARGET_SOURCES
   libsrc/ismrmrd.cpp
   libsrc/xml.cpp
   libsrc/meta.cpp
-  libsrc/serialization.cpp
   libsrc/waveform.cpp
   libsrc/waveform.c
   ${ISMRMRD_DATASET_SOURCES}
