@@ -5,76 +5,76 @@
 
 namespace ISMRMRD {
 
-void serialize(const Acquisition &acq, std::ostream &os) {
+void serialize(const Acquisition &acq, WritableStream &ws) {
     AcquisitionHeader ahead = acq.getHead();
-    os.write(reinterpret_cast<const char *>(&ahead), sizeof(AcquisitionHeader));
-    os.write(reinterpret_cast<const char *>(acq.getTrajPtr()), ahead.trajectory_dimensions * ahead.number_of_samples * sizeof(float));
-    os.write(reinterpret_cast<const char *>(acq.getDataPtr()), ahead.number_of_samples * ahead.active_channels * 2 * sizeof(float));
+    ws.write(reinterpret_cast<const char *>(&ahead), sizeof(AcquisitionHeader));
+    ws.write(reinterpret_cast<const char *>(acq.getTrajPtr()), ahead.trajectory_dimensions * ahead.number_of_samples * sizeof(float));
+    ws.write(reinterpret_cast<const char *>(acq.getDataPtr()), ahead.number_of_samples * ahead.active_channels * 2 * sizeof(float));
 }
 
 template <typename T>
-void serialize(const Image<T> &img, std::ostream &os) {
+void serialize(const Image<T> &img, WritableStream &ws) {
     ImageHeader ihead = img.getHead();
     if (ismrmrd_sizeof_data_type(ihead.data_type) != sizeof(T)) {
         throw std::runtime_error("Image data type does not match template type");
     }
-    os.write(reinterpret_cast<const char *>(&ihead), sizeof(ImageHeader));
+    ws.write(reinterpret_cast<const char *>(&ihead), sizeof(ImageHeader));
     uint64_t attr_length = img.getAttributeStringLength();
-    os.write(reinterpret_cast<char *>(&attr_length), sizeof(uint64_t));
+    ws.write(reinterpret_cast<char *>(&attr_length), sizeof(uint64_t));
     if (attr_length) {
-        os.write(img.getAttributeString(), ihead.attribute_string_len);
+        ws.write(img.getAttributeString(), ihead.attribute_string_len);
     }
-    os.write(reinterpret_cast<const char *>(img.getDataPtr()), img.getDataSize());
+    ws.write(reinterpret_cast<const char *>(img.getDataPtr()), img.getDataSize());
 }
 
-void serialize(const Waveform &wfm, std::ostream &os) {
-    os.write(reinterpret_cast<const char *>(&wfm.head), sizeof(ISMRMRD_WaveformHeader));
-    os.write(reinterpret_cast<const char *>(wfm.begin_data()), wfm.head.number_of_samples * wfm.head.channels * sizeof(uint32_t));
+void serialize(const Waveform &wfm, WritableStream &ws) {
+    ws.write(reinterpret_cast<const char *>(&wfm.head), sizeof(ISMRMRD_WaveformHeader));
+    ws.write(reinterpret_cast<const char *>(wfm.begin_data()), wfm.head.number_of_samples * wfm.head.channels * sizeof(uint32_t));
 }
 
-void deserialize(Acquisition &acq, std::istream &is) {
+void deserialize(Acquisition &acq, ReadableStream &rs) {
     AcquisitionHeader ahead;
-    is.read(reinterpret_cast<char *>(&ahead), sizeof(AcquisitionHeader));
+    rs.read(reinterpret_cast<char *>(&ahead), sizeof(AcquisitionHeader));
     acq.setHead(ahead);
-    is.read(reinterpret_cast<char *>(acq.getTrajPtr()), ahead.trajectory_dimensions * ahead.number_of_samples * sizeof(float));
-    is.read(reinterpret_cast<char *>(acq.getDataPtr()), ahead.number_of_samples * ahead.active_channels * 2 * sizeof(float));
+    rs.read(reinterpret_cast<char *>(acq.getTrajPtr()), ahead.trajectory_dimensions * ahead.number_of_samples * sizeof(float));
+    rs.read(reinterpret_cast<char *>(acq.getDataPtr()), ahead.number_of_samples * ahead.active_channels * 2 * sizeof(float));
 }
 
 // Helper function that deserializes attributes and pixels
 template <typename T>
-void deserialize_attr_and_pixels(Image<T> &img, std::istream &is) {
+void deserialize_attr_and_pixels(Image<T> &img, ReadableStream &rs) {
     uint64_t attr_length;
-    is.read(reinterpret_cast<char *>(&attr_length), sizeof(uint64_t));
+    rs.read(reinterpret_cast<char *>(&attr_length), sizeof(uint64_t));
     if (attr_length) {
         char *attr = new char[attr_length];
-        is.read(attr, attr_length);
+        rs.read(attr, attr_length);
         img.setAttributeString(attr);
         delete[] attr;
     }
-    is.read(reinterpret_cast<char *>(img.getDataPtr()), img.getDataSize());
+    rs.read(reinterpret_cast<char *>(img.getDataPtr()), img.getDataSize());
 }
 
 template <typename T>
-void deserialize(Image<T> &img, std::istream &is) {
+void deserialize(Image<T> &img, ReadableStream &rs) {
     ImageHeader ihead;
-    is.read(reinterpret_cast<char *>(&ihead), sizeof(ImageHeader));
+    rs.read(reinterpret_cast<char *>(&ihead), sizeof(ImageHeader));
     if (ismrmrd_sizeof_data_type(ihead.data_type) != sizeof(T)) {
         throw std::runtime_error("Image data type does not match template type");
     }
     img.setHead(ihead);
-    deserialize_attr_and_pixels(img, is);
+    deserialize_attr_and_pixels(img, rs);
 }
 
-void deserialize(Waveform &wfm, std::istream &is) {
-    is.read(reinterpret_cast<char *>(&wfm.head), sizeof(ISMRMRD_WaveformHeader));
+void deserialize(Waveform &wfm, ReadableStream &rs) {
+    rs.read(reinterpret_cast<char *>(&wfm.head), sizeof(ISMRMRD_WaveformHeader));
     ismrmrd_make_consistent_waveform(&wfm);
-    is.read(reinterpret_cast<char *>(wfm.begin_data()), wfm.head.number_of_samples * wfm.head.channels * sizeof(uint32_t));
+    rs.read(reinterpret_cast<char *>(wfm.begin_data()), wfm.head.number_of_samples * wfm.head.channels * sizeof(uint32_t));
 }
 
-ProtocolSerializer::ProtocolSerializer(std::ostream &os) : _os(os) {}
+ProtocolSerializer::ProtocolSerializer(WritableStream &ws) : _ws(ws) {}
 
 void ProtocolSerializer::write_msg_id(uint16_t id) {
-    _os.write(reinterpret_cast<const char *>(&id), sizeof(uint16_t));
+    _ws.write(reinterpret_cast<const char *>(&id), sizeof(uint16_t));
 }
 
 void ProtocolSerializer::serialize(const IsmrmrdHeader &hdr) {
@@ -83,37 +83,37 @@ void ProtocolSerializer::serialize(const IsmrmrdHeader &hdr) {
     auto as_str = str.str();
     uint32_t size = as_str.size();
     write_msg_id(ISMRMRD_MESSAGE_HEADER);
-    _os.write(reinterpret_cast<const char *>(&size), sizeof(uint32_t));
-    _os.write(as_str.c_str(), as_str.size());
+    _ws.write(reinterpret_cast<const char *>(&size), sizeof(uint32_t));
+    _ws.write(as_str.c_str(), as_str.size());
 }
 
 void ProtocolSerializer::serialize(const Acquisition &acq) {
     write_msg_id(ISMRMRD_MESSAGE_ACQUISITION);
-    ISMRMRD::serialize(acq, _os);
+    ISMRMRD::serialize(acq, _ws);
 }
 
 template <typename T>
 void ProtocolSerializer::serialize(const Image<T> &img) {
     write_msg_id(ISMRMRD_MESSAGE_IMAGE);
-    ISMRMRD::serialize(img, _os);
+    ISMRMRD::serialize(img, _ws);
 }
 
 void ProtocolSerializer::serialize(const Waveform &wfm) {
     write_msg_id(ISMRMRD_MESSAGE_WAVEFORM);
-    ISMRMRD::serialize(wfm, _os);
+    ISMRMRD::serialize(wfm, _ws);
 }
 
 void ProtocolSerializer::close() {
     write_msg_id(ISMRMRD_MESSAGE_CLOSE);
 }
 
-ProtocolDeserializer::ProtocolDeserializer(std::istream &is) : _is(is), _peeked(ISMRMRD_MESSAGE_UNPEEKED) {}
+ProtocolDeserializer::ProtocolDeserializer(ReadableStream &rs) : _rs(rs), _peeked(ISMRMRD_MESSAGE_UNPEEKED) {}
 
 uint16_t ProtocolDeserializer::peek() {
     if (_peeked == ISMRMRD_MESSAGE_UNPEEKED) {
-        _is.read(reinterpret_cast<char *>(&_peeked), sizeof(uint16_t));
+        _rs.read(reinterpret_cast<char *>(&_peeked), sizeof(uint16_t));
         if (_peeked == ISMRMRD_MESSAGE_IMAGE) {
-            _is.read(reinterpret_cast<char *>(&_peeked_image_header), sizeof(ImageHeader));
+            _rs.read(reinterpret_cast<char *>(&_peeked_image_header), sizeof(ImageHeader));
         }
     }
     return _peeked;
@@ -135,9 +135,9 @@ void ProtocolDeserializer::deserialize(IsmrmrdHeader &hdr) {
         throw std::runtime_error("Expected ISMRMRD_MESSAGE_HEADER");
     }
     uint32_t size;
-    _is.read(reinterpret_cast<char *>(&size), sizeof(uint32_t));
+    _rs.read(reinterpret_cast<char *>(&size), sizeof(uint32_t));
     std::string str(size, '\0');
-    _is.read(&str[0], size);
+    _rs.read(&str[0], size);
     ISMRMRD::deserialize(str.c_str(), hdr);
     _peeked = ISMRMRD_MESSAGE_UNPEEKED;
 }
@@ -149,7 +149,7 @@ void ProtocolDeserializer::deserialize(Acquisition &acq) {
     if (peek() != ISMRMRD_MESSAGE_ACQUISITION) {
         throw std::runtime_error("Expected ISMRMRD_MESSAGE_ACQUISITION");
     }
-    ISMRMRD::deserialize(acq, _is);
+    ISMRMRD::deserialize(acq, _rs);
     _peeked = ISMRMRD_MESSAGE_UNPEEKED;
 }
 
@@ -162,7 +162,7 @@ void ProtocolDeserializer::deserialize(Image<T> &img) {
         throw std::runtime_error("Expected ISMRMRD_MESSAGE_IMAGE");
     }
     img.setHead(_peeked_image_header);
-    deserialize_attr_and_pixels(img, _is);
+    deserialize_attr_and_pixels(img, _rs);
     _peeked = ISMRMRD_MESSAGE_UNPEEKED;
 }
 
@@ -173,29 +173,29 @@ void ProtocolDeserializer::deserialize(Waveform &wfm) {
     if (peek() != ISMRMRD_MESSAGE_WAVEFORM) {
         throw std::runtime_error("Expected ISMRMRD_MESSAGE_WAVEFORM");
     }
-    ISMRMRD::deserialize(wfm, _is);
+    ISMRMRD::deserialize(wfm, _rs);
     _peeked = ISMRMRD_MESSAGE_UNPEEKED;
 }
 
 } // namespace ISMRMRD
 
 // template instanciations
-template void ISMRMRD::serialize(const Image<unsigned short> &img, std::ostream &os);
-template void ISMRMRD::serialize(const Image<unsigned int> &img, std::ostream &os);
-template void ISMRMRD::serialize(const Image<short> &img, std::ostream &os);
-template void ISMRMRD::serialize(const Image<int> &img, std::ostream &os);
-template void ISMRMRD::serialize(const Image<float> &img, std::ostream &os);
-template void ISMRMRD::serialize(const Image<double> &img, std::ostream &os);
-template void ISMRMRD::serialize(const Image<std::complex<float> > &img, std::ostream &os);
-template void ISMRMRD::serialize(const Image<std::complex<double> > &img, std::ostream &os);
-template void ISMRMRD::deserialize(Image<unsigned short> &img, std::istream &is);
-template void ISMRMRD::deserialize(Image<unsigned int> &img, std::istream &is);
-template void ISMRMRD::deserialize(Image<short> &img, std::istream &is);
-template void ISMRMRD::deserialize(Image<int> &img, std::istream &is);
-template void ISMRMRD::deserialize(Image<float> &img, std::istream &is);
-template void ISMRMRD::deserialize(Image<double> &img, std::istream &is);
-template void ISMRMRD::deserialize(Image<std::complex<float> > &img, std::istream &is);
-template void ISMRMRD::deserialize(Image<std::complex<double> > &img, std::istream &is);
+template void ISMRMRD::serialize(const Image<unsigned short> &img, WritableStream &ws);
+template void ISMRMRD::serialize(const Image<unsigned int> &img, WritableStream &ws);
+template void ISMRMRD::serialize(const Image<short> &img, WritableStream &ws);
+template void ISMRMRD::serialize(const Image<int> &img, WritableStream &ws);
+template void ISMRMRD::serialize(const Image<float> &img, WritableStream &ws);
+template void ISMRMRD::serialize(const Image<double> &img, WritableStream &ws);
+template void ISMRMRD::serialize(const Image<std::complex<float> > &img, WritableStream &ws);
+template void ISMRMRD::serialize(const Image<std::complex<double> > &img, WritableStream &ws);
+template void ISMRMRD::deserialize(Image<unsigned short> &img, ReadableStream &rs);
+template void ISMRMRD::deserialize(Image<unsigned int> &img, ReadableStream &rs);
+template void ISMRMRD::deserialize(Image<short> &img, ReadableStream &rs);
+template void ISMRMRD::deserialize(Image<int> &img, ReadableStream &rs);
+template void ISMRMRD::deserialize(Image<float> &img, ReadableStream &rs);
+template void ISMRMRD::deserialize(Image<double> &img, ReadableStream &rs);
+template void ISMRMRD::deserialize(Image<std::complex<float> > &img, ReadableStream &rs);
+template void ISMRMRD::deserialize(Image<std::complex<double> > &img, ReadableStream &rs);
 template void ISMRMRD::ProtocolSerializer::serialize(const Image<unsigned short> &img);
 template void ISMRMRD::ProtocolSerializer::serialize(const Image<unsigned int> &img);
 template void ISMRMRD::ProtocolSerializer::serialize(const Image<short> &img);

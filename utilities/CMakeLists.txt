@@ -69,9 +69,9 @@ if (HDF5_FOUND)
         target_link_libraries(ismrmrd_stream_to_hdf5 ismrmrd ${Boost_PROGRAM_OPTIONS_LIBRARY})
         install(TARGETS ismrmrd_stream_to_hdf5 DESTINATION bin)
 
-        add_executable(stream_recon_cartesian_2d stream_recon_cartesian_2d.cpp)
-        target_link_libraries(stream_recon_cartesian_2d ismrmrd ${FFTW3_LIBRARIES})
-        install(TARGETS stream_recon_cartesian_2d DESTINATION bin)
+        add_executable(ismrmrd_stream_recon_cartesian_2d stream_recon_cartesian_2d.cpp)
+        target_link_libraries(ismrmrd_stream_recon_cartesian_2d ismrmrd ${FFTW3_LIBRARIES})
+        install(TARGETS ismrmrd_stream_recon_cartesian_2d DESTINATION bin)
 
     else()
         message("FFTW3 or Boost NOT Found, cannot build utilities")

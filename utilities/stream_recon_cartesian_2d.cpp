@@ -16,8 +16,10 @@ void circshift(complex_float_t *out, const complex_float_t *in, int xdim, int yd
 #define fftshift(out, in, x, y) circshift(out, in, x, y, (x / 2), (y / 2))
 
 int main() {
-    ISMRMRD::ProtocolDeserializer deserializer(std::cin);
-    ISMRMRD::ProtocolSerializer serializer(std::cout);
+    ISMRMRD::ReadableStream rs(std::cin);
+    ISMRMRD::WritableStream ws(std::cout);
+    ISMRMRD::ProtocolDeserializer deserializer(rs);
+    ISMRMRD::ProtocolSerializer serializer(ws);
 
     ISMRMRD::IsmrmrdHeader hdr;
     deserializer.deserialize(hdr);

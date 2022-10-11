@@ -43,7 +43,8 @@ int main(int argc, char **argv) {
     }
 
     ISMRMRD::Dataset d(output_file.c_str(), groupname.c_str(), true);
-    ISMRMRD::ProtocolDeserializer deserializer(std::cin);
+    ISMRMRD::ReadableStream rs(std::cin);
+    ISMRMRD::ProtocolDeserializer deserializer(rs);
 
     ISMRMRD::IsmrmrdHeader hdr;
     deserializer.deserialize(hdr);
