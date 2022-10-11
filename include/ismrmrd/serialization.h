@@ -32,6 +32,7 @@ const uint16_t ISMRMRD_MESSAGE_ACQUISITION = 1008;
 const uint16_t ISMRMRD_MESSAGE_IMAGE = 1022;
 const uint16_t ISMRMRD_MESSAGE_WAVEFORM = 1026;
 
+// A wrapper, which we can use wrap any object that has a read(...) method
 class ReadableStream {
 public:
     void read(char *buffer, size_t count) {
@@ -60,6 +61,7 @@ private:
     std::unique_ptr<ReadableStreamImpl> reader_impl;
 };
 
+// A wrapper, which we can use wrap any object that has a write(...) method
 class WritableStream {
 public:
     void write(const char *buffer, size_t count) {

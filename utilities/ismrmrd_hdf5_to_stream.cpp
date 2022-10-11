@@ -90,14 +90,15 @@ int main(int argc, char **argv) {
                     ISMRMRD::Image<complex_float_t> *img_cxfloat = reinterpret_cast<ISMRMRD::Image<complex_float_t> *>(&img);
                     serializer.serialize(*img_cxfloat);
                 } else if (img.getHead().data_type == ISMRMRD::ISMRMRD_CXDOUBLE) {
-                    ISMRMRD::Image<complex_double_t> *img_cxdouble = reinterpret_cast<ISMRMRD::Image<complex_double_t> *>(&img);
-                    serializer.serialize(*img_cxdouble);
+                    serializer.serialize(img);
                 } else {
                     throw std::runtime_error("Unknown data type");
                 }
             }
         }
     } else {
+        // Here we implement the pattern of merge sorting acquisitions and waveforms based on timestamp.
+        // For each dataset of waveforms and acquisitions, we will assume that they are sorted by timestamp.
         unsigned int number_of_acquisitions = d.getNumberOfAcquisitions();
         unsigned int number_of_waveforms = d.getNumberOfWaveforms();
         unsigned int a = 0, a_fetched = number_of_acquisitions, w = 0, w_fetched = number_of_waveforms;

@@ -112,7 +112,6 @@ BOOST_AUTO_TEST_CASE(test_of_protocol_serialization) {
     h.encoding[0].trajectory = ISMRMRD::TrajectoryType::CARTESIAN;
 
     // A few Acquisitions
-
     Acquisition acq1, acq2;
     acq1.resize(256, 16, 3);
     acq2.resize(256, 16, 3);
