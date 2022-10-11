@@ -16,12 +16,12 @@ BOOST_AUTO_TEST_CASE(test_acquisition_serialization) {
 
     // Fill in some data
     for (size_t i = 0; i < acq.getNumberOfDataElements(); i++) {
-        acq.getDataPtr()[i] = i;
+        acq.getDataPtr()[i] = std::complex<float>(1.0f * i, -1.0f * i);
     }
 
     // Fill trajectory
     for (size_t i = 0; i < acq.getNumberOfTrajElements(); i++) {
-        acq.getTrajPtr()[i] = i;
+        acq.getTrajPtr()[i] = 1.0f * i;
     }
 
     // Test serialization and deserialization
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_image_serialization, T, image_types_w_tuples)
 
     // Fill in some data
     for (size_t i = 0; i < img.getNumberOfDataElements(); i++) {
-        img.getDataPtr()[i] = i;
+        img.getDataPtr()[i] = static_cast<T>(i);
     }
 
     // set some meta data

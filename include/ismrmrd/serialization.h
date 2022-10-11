@@ -53,6 +53,7 @@ private:
     template <class T>
     struct ReadableStreamT : public ReadableStreamImpl {
         ReadableStreamT(T &readable) : self{ readable } {}
+        ~ReadableStreamT() {}
         void read(char *buffer, size_t count) {
             self.read(buffer, count);
         }

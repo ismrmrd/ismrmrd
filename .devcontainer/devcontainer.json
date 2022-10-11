@@ -3,7 +3,7 @@
 {
   "name": "ismrmrd",
   "build": {
-    "dockerfile": "../Dockerfile",
+    "dockerfile": "./Dockerfile",
     "target": "devcontainer",
     "context": ".."
   },
@@ -18,9 +18,6 @@
         "files.trimFinalNewlines": true,
         "files.trimTrailingWhitespace": true,
         "files.insertFinalNewline": true,
-        "go.toolsManagement.checkForUpdates": "local",
-        "go.useLanguageServer": true,
-        "gopls": { "ui.semanticTokens": true },
 
         "[cpp]": {
           "editor.formatOnSave": true
