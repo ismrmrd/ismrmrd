@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_image_serialization, T, image_types_w_tuples)
 
     // Fill in some data
     for (size_t i = 0; i < img.getNumberOfDataElements(); i++) {
-        img.getDataPtr()[i] = static_cast<T>(i);
+        img.getDataPtr()[i] = T(static_cast<int>(i));
     }
 
     // set some meta data

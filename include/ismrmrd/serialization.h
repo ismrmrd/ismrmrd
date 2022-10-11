@@ -45,8 +45,11 @@ public:
         reader_impl = std::unique_ptr<ReadableStreamT<HAS_READ> >(new ReadableStreamT<HAS_READ>(has_read));
     }
 
+    virtual ~ReadableStream() {}
+
 private:
     struct ReadableStreamImpl {
+        ~ReadableStreamImpl() {}
         virtual void read(char *buffer, size_t count) = 0;
     };
 
@@ -75,16 +78,19 @@ public:
         writer_impl = std::unique_ptr<WritableStreamT<HAS_WRITE> >(new WritableStreamT<HAS_WRITE>(has_write));
     }
 
+    virtual ~WritableStream() {}
+
 private:
     struct WritableStreamImpl {
+        virtual ~WritableStreamImpl() {}
         virtual void write(const char *buffer, size_t count) = 0;
     };
+
     template <class T>
     struct WritableStreamT : public WritableStreamImpl {
         WritableStreamT(T &writable) : self{ writable } {}
 
-        // Destructor
-        ~WritableStreamT() {}
+        virtual ~WritableStreamT() {}
         void write(const char *buffer, size_t count) {
             self.write(buffer, count);
         }
