@@ -124,8 +124,8 @@ BOOST_AUTO_TEST_CASE(test_of_protocol_serialization) {
 
     // Fill trajectory
     for (size_t i = 0; i < acq1.getNumberOfTrajElements(); i++) {
-        acq1.getTrajPtr()[i] = i;
-        acq2.getTrajPtr()[i] = 2 * i;
+        acq1.getTrajPtr()[i] = 1.0f * i;
+        acq2.getTrajPtr()[i] = 2.0f * i;
     }
 
     // A waveform
