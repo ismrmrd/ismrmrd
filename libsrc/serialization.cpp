@@ -179,7 +179,7 @@ void ProtocolDeserializer::deserialize(Waveform &wfm) {
 
 } // namespace ISMRMRD
 
-// template instanciations
+// template instantiations
 template void ISMRMRD::serialize(const Image<unsigned short> &img, WritableStream &ws);
 template void ISMRMRD::serialize(const Image<unsigned int> &img, WritableStream &ws);
 template void ISMRMRD::serialize(const Image<short> &img, WritableStream &ws);
