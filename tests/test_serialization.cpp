@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE(test_end_to_end_streaming_reconstruction) {
     std::string tmp_stream_recon_data_copy = random_file_name("./stream_recon_copy") + ".h5";
 
     std::string simulator_path = util_path() + "utilities/ismrmrd_generate_cartesian_shepp_logan";
-    std::system((simulator_path + " -o " + tmp_raw_data).c_str());
+    BOOST_CHECK_EQUAL(std::system((simulator_path + " -o " + tmp_raw_data).c_str()), 0);
 
     std::string recon_path = util_path() + "utilities/ismrmrd_recon_cartesian_2d";
     std::string stream_recon_path = util_path() + "utilities/ismrmrd_stream_recon_cartesian_2d";
@@ -242,7 +242,7 @@ BOOST_AUTO_TEST_CASE(test_end_to_end_streaming_reconstruction) {
     {
         // Stream raw data to another raw data file
         std::string cmd = htos_path + " -i " + tmp_raw_data + " | " + stoh_path + " -o " + tmp_raw_data_copy;
-        std::system(cmd.c_str());
+        BOOST_CHECK_EQUAL(std::system(cmd.c_str()), 0);
 
         // Open dataset
         Dataset d(tmp_raw_data.c_str(), "dataset", false);
