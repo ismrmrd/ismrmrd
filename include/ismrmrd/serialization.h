@@ -81,6 +81,9 @@ private:
     template <class T>
     struct WritableStreamT : public WritableStreamImpl {
         WritableStreamT(T &writable) : self{ writable } {}
+
+        // Destructor
+        ~WritableStreamT() {}
         void write(const char *buffer, size_t count) {
             self.write(buffer, count);
         }
