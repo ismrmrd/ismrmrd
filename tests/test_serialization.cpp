@@ -122,6 +122,7 @@ BOOST_AUTO_TEST_CASE(test_of_protocol_serialization) {
 
     // A header
     ISMRMRD::IsmrmrdHeader h;
+    h.experimentalConditions.H1resonanceFrequency_Hz = 63500000;
     h.encoding.push_back(ISMRMRD::Encoding());
     h.encoding[0].encodedSpace.matrixSize.x = 256;
     h.encoding[0].encodedSpace.matrixSize.y = 256;
@@ -220,12 +221,19 @@ BOOST_AUTO_TEST_CASE(test_of_protocol_serialization) {
                                   img2.getDataPtr(), img2.getDataPtr() + img2.getNumberOfDataElements());
 }
 
+std::string executable_name(std::string exename) {
+#ifdef _MSC_VER /* MS compiler */
+    exename += ".exe";
+#endif
+    return exename;
+}
+
 std::string util_path() {
     // current directory
     std::string path = "./";
     int level = 0;
     while (level < 3) {
-        std::string testpath(path + "utilities/ismrmrd_generate_cartesian_shepp_logan");
+        std::string testpath(path + executable_name("utilities/ismrmrd_generate_cartesian_shepp_logan"));
         std::ifstream f(testpath.c_str());
         if (f.good()) {
             return path;
@@ -250,13 +258,13 @@ BOOST_AUTO_TEST_CASE(test_end_to_end_streaming_reconstruction) {
     std::string tmp_stream_recon_data = random_file_name("./stream_recon") + ".h5";
     std::string tmp_stream_recon_data_copy = random_file_name("./stream_recon_copy") + ".h5";
 
-    std::string simulator_path = util_path() + "utilities/ismrmrd_generate_cartesian_shepp_logan";
+    std::string simulator_path = util_path() + executable_name("utilities/ismrmrd_generate_cartesian_shepp_logan");
     BOOST_CHECK_EQUAL(std::system((simulator_path + " -o " + tmp_raw_data).c_str()), 0);
 
-    std::string recon_path = util_path() + "utilities/ismrmrd_recon_cartesian_2d";
-    std::string stream_recon_path = util_path() + "utilities/ismrmrd_stream_recon_cartesian_2d";
-    std::string stoh_path = util_path() + "utilities/ismrmrd_stream_to_hdf5";
-    std::string htos_path = util_path() + "utilities/ismrmrd_hdf5_to_stream";
+    std::string recon_path = util_path() + executable_name("utilities/ismrmrd_recon_cartesian_2d");
+    std::string stream_recon_path = util_path() + executable_name("utilities/ismrmrd_stream_recon_cartesian_2d");
+    std::string stoh_path = util_path() + executable_name("utilities/ismrmrd_stream_to_hdf5");
+    std::string htos_path = util_path() + executable_name("utilities/ismrmrd_hdf5_to_stream");
 
     // Use a scope here to make sure we close the files (which will be needed later)
     {
