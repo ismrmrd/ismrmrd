@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <exception>
 #include <iostream>
-#include <memory>
 
 #include "ismrmrd/export.h"
 #include "ismrmrd/ismrmrd.h"
@@ -46,8 +45,11 @@ public:
 
     template <class HAS_READ>
     ReadableStream(HAS_READ &has_read) {
-        // make_unique is C++14
-        reader_impl = std::unique_ptr<ReadableStreamT<HAS_READ> >(new ReadableStreamT<HAS_READ>(has_read));
+        reader_impl = new ReadableStreamT<HAS_READ>(has_read);
+    }
+
+    virtual ~ReadableStream() {
+        delete reader_impl;
     }
 
 private:
@@ -69,7 +71,7 @@ private:
         }
         T &self;
     };
-    std::unique_ptr<ReadableStreamImpl> reader_impl;
+    ReadableStreamImpl *reader_impl;
 };
 
 // A wrapper, which we can use wrap any object that has a write(...) method
@@ -85,8 +87,11 @@ public:
 
     template <class HAS_WRITE>
     WritableStream(HAS_WRITE &has_write) {
-        // make_unique is C++14
-        writer_impl = std::unique_ptr<WritableStreamT<HAS_WRITE> >(new WritableStreamT<HAS_WRITE>(has_write));
+        writer_impl = new WritableStreamT<HAS_WRITE>(has_write);
+    }
+
+    virtual ~WritableStream() {
+        delete writer_impl;
     }
 
 private:
@@ -110,7 +115,7 @@ private:
         T &self;
     };
 
-    std::unique_ptr<WritableStreamImpl> writer_impl;
+    WritableStreamImpl *writer_impl;
 };
 
 // serialize Acquisition to ostream

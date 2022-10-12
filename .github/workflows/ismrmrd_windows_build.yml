@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-  
+
   pull_request:
     branches:
       - master
@@ -37,7 +37,7 @@ jobs:
               -name "GitHub"
               -username "${GITHUB_REPOSITORY_OWNER}"
               -password "${{ secrets.GITHUB_TOKEN }}"
-  
+
     - name: Install dependencies
       shell: pwsh
       run: |
@@ -45,12 +45,12 @@ jobs:
         vcpkg list
         dir c:\
         dir d:\
-    
+
     - name: Configure CMake
       working-directory: ${{github.workspace}}/build
       shell: pwsh
       run: cmake $env:GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$env:BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
-    
+
     - name: Build
       working-directory: ${{github.workspace}}/build
       shell: pwsh
@@ -61,7 +61,6 @@ jobs:
       shell: pwsh
       run: |
         cp .\tests\Release\* .\Release\
+        cp .\utilities\Release\* .\utilities\
         cd .\Release\
         .\test_ismrmrd.exe
-
-
