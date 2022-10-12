@@ -228,17 +228,25 @@ std::string executable_name(std::string exename) {
     return exename;
 }
 
+std::string path_separator() {
+#ifdef _MSC_VER /* MS compiler */
+    return "\\";
+#else
+    return "/";
+#endif
+}
+
 std::string util_path() {
     // current directory
-    std::string path = "./";
+    std::string path = "." + path_separator();
     int level = 0;
     while (level < 3) {
-        std::string testpath(path + executable_name("utilities/ismrmrd_generate_cartesian_shepp_logan"));
+        std::string testpath(path + executable_name("utilities" + path_separator() + "ismrmrd_generate_cartesian_shepp_logan"));
         std::ifstream f(testpath.c_str());
         if (f.good()) {
             return path;
         } else {
-            path += "../";
+            path += ".." + path_separator();
             level++;
         }
     }
@@ -253,18 +261,18 @@ std::string random_file_name(std::string prefix) {
 }
 
 BOOST_AUTO_TEST_CASE(test_end_to_end_streaming_reconstruction) {
-    std::string tmp_raw_data = random_file_name("./testdata") + ".h5";
-    std::string tmp_raw_data_copy = random_file_name("./testdata_copy") + ".h5";
-    std::string tmp_stream_recon_data = random_file_name("./stream_recon") + ".h5";
-    std::string tmp_stream_recon_data_copy = random_file_name("./stream_recon_copy") + ".h5";
+    std::string tmp_raw_data = random_file_name("." + path_separator() + "testdata") + ".h5";
+    std::string tmp_raw_data_copy = random_file_name("." + path_separator() + "testdata_copy") + ".h5";
+    std::string tmp_stream_recon_data = random_file_name("." + path_separator() + "stream_recon") + ".h5";
+    std::string tmp_stream_recon_data_copy = random_file_name("." + path_separator() + "stream_recon_copy") + ".h5";
 
-    std::string simulator_path = util_path() + executable_name("utilities/ismrmrd_generate_cartesian_shepp_logan");
+    std::string simulator_path = util_path() + executable_name("utilities" + path_separator() + "ismrmrd_generate_cartesian_shepp_logan");
     BOOST_CHECK_EQUAL(std::system((simulator_path + " -o " + tmp_raw_data).c_str()), 0);
 
-    std::string recon_path = util_path() + executable_name("utilities/ismrmrd_recon_cartesian_2d");
-    std::string stream_recon_path = util_path() + executable_name("utilities/ismrmrd_stream_recon_cartesian_2d");
-    std::string stoh_path = util_path() + executable_name("utilities/ismrmrd_stream_to_hdf5");
-    std::string htos_path = util_path() + executable_name("utilities/ismrmrd_hdf5_to_stream");
+    std::string recon_path = util_path() + executable_name("utilities" + path_separator() + "ismrmrd_recon_cartesian_2d");
+    std::string stream_recon_path = util_path() + executable_name("utilities" + path_separator() + "ismrmrd_stream_recon_cartesian_2d");
+    std::string stoh_path = util_path() + executable_name("utilities" + path_separator() + "ismrmrd_stream_to_hdf5");
+    std::string htos_path = util_path() + executable_name("utilities" + path_separator() + "ismrmrd_hdf5_to_stream");
 
     // Use a scope here to make sure we close the files (which will be needed later)
     {
