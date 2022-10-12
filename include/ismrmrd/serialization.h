@@ -39,26 +39,32 @@ public:
         reader_impl->read(buffer, count);
     }
 
+    bool eof() {
+        return reader_impl->eof();
+    }
+
     template <class HAS_READ>
     ReadableStream(HAS_READ &has_read) {
         // make_unique is C++14
         reader_impl = std::unique_ptr<ReadableStreamT<HAS_READ> >(new ReadableStreamT<HAS_READ>(has_read));
     }
 
-    virtual ~ReadableStream() {}
-
 private:
     struct ReadableStreamImpl {
-        ~ReadableStreamImpl() {}
+        virtual ~ReadableStreamImpl() {}
         virtual void read(char *buffer, size_t count) = 0;
+        virtual bool eof() = 0;
     };
 
     template <class T>
     struct ReadableStreamT : public ReadableStreamImpl {
         ReadableStreamT(T &readable) : self{ readable } {}
-        ~ReadableStreamT() {}
+        virtual ~ReadableStreamT() {}
         void read(char *buffer, size_t count) {
             self.read(buffer, count);
+        }
+        bool eof() {
+            return self.eof();
         }
         T &self;
     };
@@ -72,18 +78,21 @@ public:
         writer_impl->write(buffer, count);
     }
 
+    bool bad() {
+        return writer_impl->bad();
+    }
+
     template <class HAS_WRITE>
     WritableStream(HAS_WRITE &has_write) {
         // make_unique is C++14
         writer_impl = std::unique_ptr<WritableStreamT<HAS_WRITE> >(new WritableStreamT<HAS_WRITE>(has_write));
     }
 
-    virtual ~WritableStream() {}
-
 private:
     struct WritableStreamImpl {
         virtual ~WritableStreamImpl() {}
         virtual void write(const char *buffer, size_t count) = 0;
+        virtual bool bad() = 0;
     };
 
     template <class T>
@@ -93,6 +102,9 @@ private:
         virtual ~WritableStreamT() {}
         void write(const char *buffer, size_t count) {
             self.write(buffer, count);
+        }
+        bool bad() {
+            return self.bad();
         }
         T &self;
     };

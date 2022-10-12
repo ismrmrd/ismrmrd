@@ -9,6 +9,26 @@ using namespace ISMRMRD;
 
 BOOST_AUTO_TEST_SUITE(SerialiationTest)
 
+// Some helpers
+template <typename T>
+T value_from_size_t(size_t i);
+template <>
+uint16_t value_from_size_t<uint16_t>(size_t i) { return (uint16_t)i; }
+template <>
+uint32_t value_from_size_t<uint32_t>(size_t i) { return (uint32_t)i; }
+template <>
+int16_t value_from_size_t<int16_t>(size_t i) { return (int16_t)i; }
+template <>
+int32_t value_from_size_t<int32_t>(size_t i) { return (int32_t)i; }
+template <>
+float value_from_size_t<float>(size_t i) { return (float)(i * 1.0f); }
+template <>
+double value_from_size_t<double>(size_t i) { return (double)(i * 1.0f); }
+template <>
+std::complex<float> value_from_size_t<std::complex<float> >(size_t i) { return std::complex<float>(1.0f * i, 1.0f * i); }
+template <>
+std::complex<double> value_from_size_t<std::complex<double> >(size_t i) { return std::complex<double>(1.0f * i, 1.0f * i); }
+
 // Test the serialization of a single acquisition
 BOOST_AUTO_TEST_CASE(test_acquisition_serialization) {
     Acquisition acq;
@@ -16,12 +36,12 @@ BOOST_AUTO_TEST_CASE(test_acquisition_serialization) {
 
     // Fill in some data
     for (size_t i = 0; i < acq.getNumberOfDataElements(); i++) {
-        acq.getDataPtr()[i] = std::complex<float>(1.0f * i, -1.0f * i);
+        acq.getDataPtr()[i] = value_from_size_t<std::complex<float> >(i);
     }
 
     // Fill trajectory
     for (size_t i = 0; i < acq.getNumberOfTrajElements(); i++) {
-        acq.getTrajPtr()[i] = 1.0f * i;
+        acq.getTrajPtr()[i] = value_from_size_t<float>(i);
     }
 
     // Test serialization and deserialization
@@ -54,7 +74,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_image_serialization, T, image_types_w_tuples)
 
     // Fill in some data
     for (size_t i = 0; i < img.getNumberOfDataElements(); i++) {
-        img.getDataPtr()[i] = T(static_cast<int>(i));
+        img.getDataPtr()[i] = value_from_size_t<T>(i);
     }
 
     // set some meta data
@@ -118,14 +138,14 @@ BOOST_AUTO_TEST_CASE(test_of_protocol_serialization) {
 
     // Fill in some data
     for (size_t i = 0; i < acq1.getNumberOfDataElements(); i++) {
-        acq1.getDataPtr()[i] = 1.0f * i;
-        acq2.getDataPtr()[i] = 2.0f * i;
+        acq1.getDataPtr()[i] = value_from_size_t<std::complex<float> >(i);
+        acq2.getDataPtr()[i] = value_from_size_t<std::complex<float> >(2 * i);
     }
 
     // Fill trajectory
     for (size_t i = 0; i < acq1.getNumberOfTrajElements(); i++) {
-        acq1.getTrajPtr()[i] = 1.0f * i;
-        acq2.getTrajPtr()[i] = 2.0f * i;
+        acq1.getTrajPtr()[i] = value_from_size_t<float>(i);
+        acq2.getTrajPtr()[i] = value_from_size_t<float>(2 * i);
     }
 
     // A waveform
@@ -143,7 +163,7 @@ BOOST_AUTO_TEST_CASE(test_of_protocol_serialization) {
 
     // Fill in some data
     for (size_t i = 0; i < img.getNumberOfDataElements(); i++) {
-        img.getDataPtr()[i] = i;
+        img.getDataPtr()[i] = value_from_size_t<float>(i);
     }
 
     // set some meta data
