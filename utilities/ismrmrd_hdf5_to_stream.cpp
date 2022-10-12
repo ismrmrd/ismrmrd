@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
         ISMRMRD::IsmrmrdHeader hdr;
         ISMRMRD::deserialize(xml.c_str(), hdr);
         serializer.serialize(hdr);
-    } catch (std::exception &e) {
+    } catch (std::exception &) {
         if (image_series.empty()) {
             // rethrow exception if image series not specified
             throw;
