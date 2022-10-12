@@ -6,6 +6,7 @@
 #include <iostream>
 #include <memory>
 
+#include "ismrmrd/export.h"
 #include "ismrmrd/ismrmrd.h"
 #include "ismrmrd/waveform.h"
 #include "ismrmrd/xml.h"
@@ -113,24 +114,24 @@ private:
 };
 
 // serialize Acquisition to ostream
-void EXPORTISMRMRD serialize(const Acquisition &acq, WritableStream &ws);
+EXPORTISMRMRD void serialize(const Acquisition &acq, WritableStream &ws);
 
 // serialize Image<T> to ostream
 template <typename T>
-void EXPORTISMRMRD serialize(const Image<T> &img, WritableStream &ws);
+EXPORTISMRMRD void serialize(const Image<T> &img, WritableStream &ws);
 
 // serialize Waveform to ostream
-void EXPORTISMRMRD serialize(const Waveform &wfm, WritableStream &ws);
+EXPORTISMRMRD void serialize(const Waveform &wfm, WritableStream &ws);
 
 // deserialize Acquisition from istream
-void EXPORTISMRMRD deserialize(Acquisition &acq, ReadableStream &rs);
+EXPORTISMRMRD void deserialize(Acquisition &acq, ReadableStream &rs);
 
 // deserialize Image<T> from istream
 template <typename T>
-void EXPORTISMRMRD deserialize(Image<T> &img, ReadableStream &rs);
+EXPORTISMRMRD void deserialize(Image<T> &img, ReadableStream &rs);
 
 // deserialize Waveform from istream
-void EXPORTISMRMRD deserialize(Waveform &wfm, ReadableStream &rs);
+EXPORTISMRMRD void deserialize(Waveform &wfm, ReadableStream &rs);
 
 class ProtocolStreamClosed : public std::exception {};
 
