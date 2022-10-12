@@ -58,7 +58,7 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      shell: pwsh
+      shell: bash
       run: |
         cp .\tests\Release\* .\Release\
         cp .\utilities\Release\* .\utilities\
