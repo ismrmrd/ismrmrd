@@ -62,4 +62,4 @@ jobs:
       run: |
         cp .\tests\Release\* .\Release\
         cd .\Release\
-        .\test_ismrmrd.exe
+        .\test_ismrmrd.exe --run_test='!SerialiationTest/*end_to_end_streaming*'

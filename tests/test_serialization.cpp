@@ -252,7 +252,6 @@ std::string random_file_name(std::string prefix) {
     return ss.str();
 }
 
-#ifndef _MSC_VER
 BOOST_AUTO_TEST_CASE(test_end_to_end_streaming_reconstruction) {
     std::string tmp_raw_data = random_file_name("./testdata") + ".h5";
     std::string tmp_raw_data_copy = random_file_name("./testdata_copy") + ".h5";
@@ -339,6 +338,5 @@ BOOST_AUTO_TEST_CASE(test_end_to_end_streaming_reconstruction) {
     BOOST_CHECK_EQUAL(std::remove(tmp_raw_data.c_str()), 0);
     BOOST_CHECK_EQUAL(std::remove(tmp_raw_data_copy.c_str()), 0);
 }
-#endif
 
 BOOST_AUTO_TEST_SUITE_END()
