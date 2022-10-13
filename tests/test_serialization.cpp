@@ -228,17 +228,25 @@ std::string executable_name(std::string exename) {
     return exename;
 }
 
+std::string path_separator() {
+#ifdef _MSC_VER /* MS compiler */
+    return "\\";
+#else
+    return "/";
+#endif
+}
+
 std::string util_path() {
     // current directory
-    std::string path = "./";
+    std::string path = "." + path_separator();
     int level = 0;
     while (level < 3) {
-        std::string testpath(path + executable_name("utilities/ismrmrd_generate_cartesian_shepp_logan"));
+        std::string testpath(path + executable_name("utilities" + path_separator() + "ismrmrd_generate_cartesian_shepp_logan"));
         std::ifstream f(testpath.c_str());
         if (f.good()) {
             return path;
         } else {
-            path += "../";
+            path += ".." + path_separator();
             level++;
         }
     }
@@ -253,19 +261,18 @@ std::string random_file_name(std::string prefix) {
 }
 
 BOOST_AUTO_TEST_CASE(test_end_to_end_streaming_reconstruction) {
-    std::string tmp_raw_data = random_file_name("./testdata") + ".h5";
-    std::string tmp_raw_data_copy = random_file_name("./testdata_copy") + ".h5";
-    std::string tmp_stream_recon_data = random_file_name("./stream_recon") + ".h5";
-    std::string tmp_stream_recon_data_copy = random_file_name("./stream_recon_copy") + ".h5";
+    std::string tmp_raw_data = random_file_name("." + path_separator() + "testdata") + ".h5";
+    std::string tmp_raw_data_copy = random_file_name("." + path_separator() + "testdata_copy") + ".h5";
+    std::string tmp_stream_recon_data = random_file_name("." + path_separator() + "stream_recon") + ".h5";
+    std::string tmp_stream_recon_data_copy = random_file_name("." + path_separator() + "stream_recon_copy") + ".h5";
 
-    std::string simulator_path = util_path() + executable_name("utilities/ismrmrd_generate_cartesian_shepp_logan");
-    std::string sim_command = simulator_path + " -o " + tmp_raw_data;
-    BOOST_CHECK_EQUAL(std::system(sim_command.c_str()), 0);
+    std::string simulator_path = util_path() + executable_name("utilities" + path_separator() + "ismrmrd_generate_cartesian_shepp_logan");
+    BOOST_CHECK_EQUAL(std::system((simulator_path + " -o " + tmp_raw_data).c_str()), 0);
 
-    std::string recon_path = util_path() + executable_name("utilities/ismrmrd_recon_cartesian_2d");
-    std::string stream_recon_path = util_path() + executable_name("utilities/ismrmrd_stream_recon_cartesian_2d");
-    std::string stoh_path = util_path() + executable_name("utilities/ismrmrd_stream_to_hdf5");
-    std::string htos_path = util_path() + executable_name("utilities/ismrmrd_hdf5_to_stream");
+    std::string recon_path = util_path() + executable_name("utilities" + path_separator() + "ismrmrd_recon_cartesian_2d");
+    std::string stream_recon_path = util_path() + executable_name("utilities" + path_separator() + "ismrmrd_stream_recon_cartesian_2d");
+    std::string stoh_path = util_path() + executable_name("utilities" + path_separator() + "ismrmrd_stream_to_hdf5");
+    std::string htos_path = util_path() + executable_name("utilities" + path_separator() + "ismrmrd_hdf5_to_stream");
 
     // Use a scope here to make sure we close the files (which will be needed later)
     {
@@ -304,35 +311,37 @@ BOOST_AUTO_TEST_CASE(test_end_to_end_streaming_reconstruction) {
         }
     }
 
-    std::string stream_recon_cmd = htos_path + " -i " + tmp_raw_data + " | " + stream_recon_path + " | " + stoh_path + " -o " + tmp_stream_recon_data;
-    BOOST_CHECK_EQUAL(std::system(stream_recon_cmd.c_str()), 0);
+    { // Scope to make sure files get closed.
+        std::string stream_recon_cmd = htos_path + " -i " + tmp_raw_data + " | " + stream_recon_path + " | " + stoh_path + " -o " + tmp_stream_recon_data;
+        BOOST_CHECK_EQUAL(std::system(stream_recon_cmd.c_str()), 0);
 
-    std::string recon_cmd = recon_path + " " + tmp_raw_data;
-    BOOST_CHECK_EQUAL(std::system(recon_cmd.c_str()), 0);
+        std::string recon_cmd = recon_path + " " + tmp_raw_data;
+        BOOST_CHECK_EQUAL(std::system(recon_cmd.c_str()), 0);
 
-    std::string recon_copy_cmd = htos_path + " -i " + tmp_stream_recon_data + " --image-series image_0 | " + stoh_path + " -o " + tmp_stream_recon_data_copy;
-    BOOST_CHECK_EQUAL(std::system(recon_copy_cmd.c_str()), 0);
+        std::string recon_copy_cmd = htos_path + " -i " + tmp_stream_recon_data + " --image-series image_0 | " + stoh_path + " -o " + tmp_stream_recon_data_copy;
+        BOOST_CHECK_EQUAL(std::system(recon_copy_cmd.c_str()), 0);
 
-    Dataset d(tmp_raw_data.c_str(), "dataset", false);
-    Dataset d_recon(tmp_stream_recon_data.c_str(), "dataset", false);
-    Dataset d_recon_copy(tmp_stream_recon_data_copy.c_str(), "dataset", false);
+        Dataset d(tmp_raw_data.c_str(), "dataset", false);
+        Dataset d_recon(tmp_stream_recon_data.c_str(), "dataset", false);
+        Dataset d_recon_copy(tmp_stream_recon_data_copy.c_str(), "dataset", false);
 
-    Image<float> cpp_recon;
-    d.readImage("cpp", 0, cpp_recon);
+        Image<float> cpp_recon;
+        d.readImage("cpp", 0, cpp_recon);
 
-    Image<float> cpp_stream_recon;
-    d_recon.readImage("image_0", 0, cpp_stream_recon);
+        Image<float> cpp_stream_recon;
+        d_recon.readImage("image_0", 0, cpp_stream_recon);
 
-    Image<float> cpp_stream_recon_copy;
-    d_recon_copy.readImage("image_0", 0, cpp_stream_recon_copy);
+        Image<float> cpp_stream_recon_copy;
+        d_recon_copy.readImage("image_0", 0, cpp_stream_recon_copy);
 
-    // The 3 images should be the same
-    BOOST_CHECK_EQUAL_COLLECTIONS(cpp_recon.getDataPtr(), cpp_recon.getDataPtr() + cpp_recon.getNumberOfDataElements(),
-                                  cpp_stream_recon.getDataPtr(), cpp_stream_recon.getDataPtr() + cpp_stream_recon.getNumberOfDataElements());
-    BOOST_CHECK_EQUAL_COLLECTIONS(cpp_recon.getDataPtr(), cpp_recon.getDataPtr() + cpp_recon.getNumberOfDataElements(),
-                                  cpp_stream_recon_copy.getDataPtr(), cpp_stream_recon_copy.getDataPtr() + cpp_stream_recon_copy.getNumberOfDataElements());
+        // The 3 images should be the same
+        BOOST_CHECK_EQUAL_COLLECTIONS(cpp_recon.getDataPtr(), cpp_recon.getDataPtr() + cpp_recon.getNumberOfDataElements(),
+                                    cpp_stream_recon.getDataPtr(), cpp_stream_recon.getDataPtr() + cpp_stream_recon.getNumberOfDataElements());
+        BOOST_CHECK_EQUAL_COLLECTIONS(cpp_recon.getDataPtr(), cpp_recon.getDataPtr() + cpp_recon.getNumberOfDataElements(),
+                                    cpp_stream_recon_copy.getDataPtr(), cpp_stream_recon_copy.getDataPtr() + cpp_stream_recon_copy.getNumberOfDataElements());
+    }
 
-    // delete raw data file
+    // delete temporary files
     BOOST_CHECK_EQUAL(std::remove(tmp_stream_recon_data.c_str()), 0);
     BOOST_CHECK_EQUAL(std::remove(tmp_stream_recon_data_copy.c_str()), 0);
     BOOST_CHECK_EQUAL(std::remove(tmp_raw_data.c_str()), 0);

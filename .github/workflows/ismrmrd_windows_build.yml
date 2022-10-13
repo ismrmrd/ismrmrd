@@ -58,8 +58,9 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      shell: pwsh
+      shell: cmd
       run: |
-        cp .\tests\Release\* .\Release\
+        xcopy /Y .\tests\Release\* .\Release\
+        xcopy /Y .\utilities\Release\* .\utilities\
         cd .\Release\
-        .\test_ismrmrd.exe --run_test='!SerialiationTest/*end_to_end_streaming*'
+        .\test_ismrmrd.exe
