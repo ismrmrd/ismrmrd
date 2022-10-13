@@ -3,6 +3,11 @@
 #include <boost/program_options.hpp>
 #include <iostream>
 
+#ifdef _MSC_VER
+    #include <io.h>
+    #include <fcntl.h>
+#endif
+
 namespace po = boost::program_options;
 
 template <typename T>
@@ -43,6 +48,11 @@ int main(int argc, char **argv) {
     }
 
     ISMRMRD::Dataset d(output_file.c_str(), groupname.c_str(), true);
+
+#ifdef _MSC_VER
+    _setmode( _fileno( stdin ),  _O_BINARY );
+#endif
+
     ISMRMRD::ReadableStream rs(std::cin);
     ISMRMRD::ProtocolDeserializer deserializer(rs);
 

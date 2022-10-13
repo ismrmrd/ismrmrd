@@ -2,6 +2,11 @@
 #include "ismrmrd/serialization.h"
 #include <iostream>
 
+#ifdef _MSC_VER
+    #include <io.h>
+    #include <fcntl.h>
+#endif
+
 // Helper function for the FFTW library
 void circshift(complex_float_t *out, const complex_float_t *in, int xdim, int ydim, int xshift, int yshift) {
     for (int i = 0; i < ydim; i++) {
@@ -16,6 +21,12 @@ void circshift(complex_float_t *out, const complex_float_t *in, int xdim, int yd
 #define fftshift(out, in, x, y) circshift(out, in, x, y, (x / 2), (y / 2))
 
 int main() {
+
+#ifdef _MSC_VER
+    _setmode( _fileno( stdout ),  _O_BINARY );
+    _setmode( _fileno( stdin ),  _O_BINARY );
+#endif
+
     ISMRMRD::ReadableStream rs(std::cin);
     ISMRMRD::WritableStream ws(std::cout);
     ISMRMRD::ProtocolDeserializer deserializer(rs);

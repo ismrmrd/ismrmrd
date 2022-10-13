@@ -58,9 +58,8 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      shell: bash
+      shell: pwsh
       run: |
-        cp ./tests/Release/* ./Release/
-        cp ./utilities/Release/* ./utilities/
-        cd ./Release/
-        ./test_ismrmrd.exe
+        cp .\tests\Release\* .\Release\
+        cd .\Release\
+        .\test_ismrmrd.exe

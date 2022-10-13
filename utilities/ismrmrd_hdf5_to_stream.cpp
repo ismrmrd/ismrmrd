@@ -4,6 +4,11 @@
 #include <iostream>
 #include <string>
 
+#ifdef _MSC_VER
+    #include <io.h>
+    #include <fcntl.h>
+#endif
+
 namespace po = boost::program_options;
 
 int main(int argc, char **argv) {
@@ -40,6 +45,11 @@ int main(int argc, char **argv) {
     }
 
     ISMRMRD::Dataset d(input_file.c_str(), groupname.c_str(), false);
+
+#ifdef _MSC_VER
+    _setmode( _fileno( stdout ),  _O_BINARY );
+#endif
+
     ISMRMRD::WritableStream ws(std::cout);
     ISMRMRD::ProtocolSerializer serializer(ws);
 
