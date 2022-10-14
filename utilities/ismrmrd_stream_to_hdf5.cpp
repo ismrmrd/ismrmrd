@@ -2,6 +2,7 @@
 #include "ismrmrd/serialization.h"
 #include "ismrmrd_io_utils.h"
 #include <boost/program_options.hpp>
+#include <fstream>
 #include <iostream>
 
 namespace po = boost::program_options;
@@ -13,48 +14,10 @@ std::string create_image_series_name(const ISMRMRD::Image<T> &img) {
     return ss.str();
 }
 
-int main(int argc, char **argv) {
-    // Arguments
-    std::string input_file = "";
-    std::string output_file;
-    std::string groupname;
-    bool use_stdin = false;
-
-    // Parse arguments using boost program options
-    po::options_description desc("Allowed options");
-
-    // clang-format off
-    desc.add_options()
-        ("help,h", "produce help message")
-        ("input,i", po::value<std::string>(&input_file),"Binary input file")
-        ("output,o", po::value<std::string>(&output_file)->required(),"ISMRMRD HDF5 output file")
-        ("use-stdin", po::bool_switch(&use_stdin), "Use stdout for output")
-        ("group,g", po::value<std::string>(&groupname)->default_value("dataset"), "group name");
-    // clang-format on
-
-    po::variables_map vm;
-    try {
-        po::store(po::parse_command_line(argc, argv, desc), vm);
-        po::notify(vm);
-    } catch (boost::wrapexcept<po::required_option> &e) {
-        std::cerr << "Error: " << e.what() << std::endl;
-        std::cerr << desc << std::endl;
-        return 1;
-    }
-
-    if (vm.count("input") && use_stdin) {
-        std::cerr << "Error: Cannot specify both output file and use-stdout" << std::endl;
-        return 1;
-    }
-
-    if (vm.count("help")) {
-        std::cerr << desc << "\n";
-        return 1;
-    }
-
+void convert_stream_to_hdf5(std::string output_file, std::string groupname, std::istream &is) {
     ISMRMRD::Dataset d(output_file.c_str(), groupname.c_str(), true);
-    ISMRMRD::set_binary_io();
-    ISMRMRD::ReadableStream rs(std::cin);
+
+    ISMRMRD::ReadableStream rs(is);
     ISMRMRD::ProtocolDeserializer deserializer(rs);
 
     ISMRMRD::IsmrmrdHeader hdr;
@@ -120,9 +83,64 @@ int main(int argc, char **argv) {
             deserializer.deserialize(wfm);
             d.appendWaveform(wfm);
         } else {
-            std::cerr << "Unknown message type: " << deserializer.peek() << std::endl;
-            return 1;
+            throw std::runtime_error("Unknown message type: " + deserializer.peek());
         }
     }
+}
+
+int main(int argc, char **argv) {
+    // Arguments
+    std::string input_file = "";
+    std::string output_file;
+    std::string groupname;
+    bool use_stdin = false;
+
+    // Parse arguments using boost program options
+    po::options_description desc("Allowed options");
+
+    // clang-format off
+    desc.add_options()
+        ("help,h", "produce help message")
+        ("input,i", po::value<std::string>(&input_file),"Binary input file")
+        ("output,o", po::value<std::string>(&output_file)->required(),"ISMRMRD HDF5 output file")
+        ("use-stdin", po::bool_switch(&use_stdin), "Use stdout for output")
+        ("group,g", po::value<std::string>(&groupname)->default_value("dataset"), "group name");
+    // clang-format on
+
+    po::variables_map vm;
+    try {
+        po::store(po::parse_command_line(argc, argv, desc), vm);
+        po::notify(vm);
+    } catch (boost::wrapexcept<po::required_option> &e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        std::cerr << desc << std::endl;
+        return 1;
+    }
+
+    if (vm.count("input") && use_stdin) {
+        std::cerr << "Error: Cannot specify both output file and use-stdout" << std::endl;
+        return 1;
+    }
+
+    if (vm.count("help")) {
+        std::cerr << desc << "\n";
+        return 1;
+    }
+
+    if (vm.count("input")) {
+        std::ifstream is(input_file.c_str(), std::ios::binary);
+        if (!is) {
+            std::cerr << "Error: Could not open input file " << input_file << std::endl;
+            return 1;
+        }
+        convert_stream_to_hdf5(output_file, groupname, is);
+    } else if (use_stdin) {
+        ISMRMRD::set_binary_io();
+        convert_stream_to_hdf5(output_file, groupname, std::cin);
+    } else {
+        std::cerr << "Error: Must specify either input file or use-stdin" << std::endl;
+        return 1;
+    }
+
     return 0;
 }
