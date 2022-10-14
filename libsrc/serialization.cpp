@@ -11,6 +11,9 @@ void serialize(const Acquisition &acq, WritableStream &ws) {
     ws.write(reinterpret_cast<const char *>(&ahead), sizeof(AcquisitionHeader));
     ws.write(reinterpret_cast<const char *>(acq.getTrajPtr()), ahead.trajectory_dimensions * ahead.number_of_samples * sizeof(float));
     ws.write(reinterpret_cast<const char *>(acq.getDataPtr()), ahead.number_of_samples * ahead.active_channels * 2 * sizeof(float));
+    if (ws.bad()) {
+        throw std::runtime_error("Error writing acquisition to stream");
+    }
 }
 
 template <typename T>
@@ -26,11 +29,17 @@ void serialize(const Image<T> &img, WritableStream &ws) {
         ws.write(img.getAttributeString(), ihead.attribute_string_len);
     }
     ws.write(reinterpret_cast<const char *>(img.getDataPtr()), img.getDataSize());
+    if (ws.bad()) {
+        throw std::runtime_error("Error writing image to stream");
+    }
 }
 
 void serialize(const Waveform &wfm, WritableStream &ws) {
     ws.write(reinterpret_cast<const char *>(&wfm.head), sizeof(ISMRMRD_WaveformHeader));
     ws.write(reinterpret_cast<const char *>(wfm.begin_data()), wfm.head.number_of_samples * wfm.head.channels * sizeof(uint32_t));
+    if (ws.bad()) {
+        throw std::runtime_error("Error writing waveform to stream");
+    }
 }
 
 void deserialize(Acquisition &acq, ReadableStream &rs) {
@@ -39,6 +48,9 @@ void deserialize(Acquisition &acq, ReadableStream &rs) {
     acq.setHead(ahead);
     rs.read(reinterpret_cast<char *>(acq.getTrajPtr()), ahead.trajectory_dimensions * ahead.number_of_samples * sizeof(float));
     rs.read(reinterpret_cast<char *>(acq.getDataPtr()), ahead.number_of_samples * ahead.active_channels * 2 * sizeof(float));
+    if (rs.eof()) {
+        throw std::runtime_error("Error reading acquisition");
+    }
 }
 
 // Helper function that deserializes attributes and pixels
@@ -47,19 +59,24 @@ void deserialize_attr_and_pixels(Image<T> &img, ReadableStream &rs) {
     uint64_t attr_length;
     rs.read(reinterpret_cast<char *>(&attr_length), sizeof(uint64_t));
     if (attr_length) {
-        char *attr = new char[attr_length + 1];
-        rs.read(attr, attr_length);
+        std::vector<char> attr(attr_length + 1);
+        rs.read(&attr[0], attr_length);
         attr[attr_length] = '\0';
-        img.setAttributeString(attr);
-        delete[] attr;
+        img.setAttributeString(&attr[0]);
     }
     rs.read(reinterpret_cast<char *>(img.getDataPtr()), img.getDataSize());
+    if (rs.eof()) {
+        throw std::runtime_error("Error reading image");
+    }
 }
 
 template <typename T>
 void deserialize(Image<T> &img, ReadableStream &rs) {
     ImageHeader ihead;
     rs.read(reinterpret_cast<char *>(&ihead), sizeof(ImageHeader));
+    if (rs.eof()) {
+        throw std::runtime_error("Error reading image header");
+    }
     if (ismrmrd_sizeof_data_type(ihead.data_type) != sizeof(T)) {
         throw std::runtime_error("Image data type does not match template type");
     }
@@ -74,6 +91,9 @@ void deserialize(Waveform &wfm, ReadableStream &rs) {
     rs.read(reinterpret_cast<char *>(&wfm.head), sizeof(ISMRMRD_WaveformHeader));
     ismrmrd_make_consistent_waveform(&wfm);
     rs.read(reinterpret_cast<char *>(wfm.begin_data()), wfm.head.number_of_samples * wfm.head.channels * sizeof(uint32_t));
+    if (rs.eof()) {
+        throw std::runtime_error("Error reading waveform");
+    }
 }
 
 ProtocolSerializer::ProtocolSerializer(WritableStream &ws) : _ws(ws) {}

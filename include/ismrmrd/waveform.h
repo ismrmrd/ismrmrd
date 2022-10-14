@@ -21,6 +21,7 @@ extern "C" {
 #include <stdint.h>
 #endif
 
+// Note: This header does not use 2-byte packing like the rest of the ISMRMRD
 typedef struct ISMRMRD_WaveformHeader
 {
     uint16_t version;
