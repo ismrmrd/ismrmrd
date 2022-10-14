@@ -261,8 +261,12 @@ std::string random_file_name(std::string prefix) {
     return ss.str();
 }
 
-BOOST_AUTO_TEST_CASE(test_end_to_end_streaming_reconstruction) {
+void test_end_to_end_streaming_reconstruction(bool use_binary_files) {
     std::string tmp_raw_data = random_file_name("." + path_separator() + "testdata") + ".h5";
+    std::string tmp_raw_data_stream1 = random_file_name("." + path_separator() + "stream_testdata1") + ".bin";
+    std::string tmp_raw_data_stream2 = random_file_name("." + path_separator() + "stream_testdata2") + ".bin";
+    std::string tmp_recon_data_stream1 = random_file_name("." + path_separator() + "stream_recon1") + ".bin";
+    std::string tmp_recon_data_stream2 = random_file_name("." + path_separator() + "stream_recon2") + ".bin";
     std::string tmp_raw_data_copy = random_file_name("." + path_separator() + "testdata_copy") + ".h5";
     std::string tmp_stream_recon_data = random_file_name("." + path_separator() + "stream_recon") + ".h5";
     std::string tmp_stream_recon_data_copy = random_file_name("." + path_separator() + "stream_recon_copy") + ".h5";
@@ -278,9 +282,15 @@ BOOST_AUTO_TEST_CASE(test_end_to_end_streaming_reconstruction) {
     // Use a scope here to make sure we close the files (which will be needed later)
     {
         // Stream raw data to another raw data file
-        std::string cmd = htos_path + " -i " + tmp_raw_data + " --use-stdout | " + stoh_path + " --use-stdin -o " + tmp_raw_data_copy;
-        BOOST_CHECK_EQUAL(std::system(cmd.c_str()), 0);
-
+        if (use_binary_files) {
+            std::string cmd = htos_path + " -i " + tmp_raw_data + " -o " + tmp_raw_data_stream1;
+            BOOST_CHECK_EQUAL(std::system(cmd.c_str()), 0);
+            cmd = stoh_path + " -i " + tmp_raw_data_stream1 + " -o " + tmp_raw_data_copy;
+            BOOST_CHECK_EQUAL(std::system(cmd.c_str()), 0);
+        } else {
+            std::string cmd = htos_path + " -i " + tmp_raw_data + " --use-stdout | " + stoh_path + " --use-stdin -o " + tmp_raw_data_copy;
+            BOOST_CHECK_EQUAL(std::system(cmd.c_str()), 0);
+        }
         // Open dataset
         Dataset d(tmp_raw_data.c_str(), "dataset", false);
         Dataset d_copy(tmp_raw_data_copy.c_str(), "dataset", false);
@@ -313,14 +323,31 @@ BOOST_AUTO_TEST_CASE(test_end_to_end_streaming_reconstruction) {
     }
 
     { // Scope to make sure files get closed.
-        std::string stream_recon_cmd = htos_path + " -i " + tmp_raw_data + " --use-stdout | " + stream_recon_path + " | " + stoh_path + " --use-stdin -o " + tmp_stream_recon_data;
-        BOOST_CHECK_EQUAL(std::system(stream_recon_cmd.c_str()), 0);
+        if (use_binary_files) {
+            std::string cmd = htos_path + " -i " + tmp_raw_data + " -o " + tmp_raw_data_stream2;
+            BOOST_CHECK_EQUAL(std::system(cmd.c_str()), 0);
+            cmd = stream_recon_path + " -i " + tmp_raw_data_stream2 + " -o " + tmp_recon_data_stream1;
+            BOOST_CHECK_EQUAL(std::system(cmd.c_str()), 0);
+            cmd = stoh_path + " -i " + tmp_recon_data_stream1 + " -o " + tmp_stream_recon_data;
+            BOOST_CHECK_EQUAL(std::system(cmd.c_str()), 0);
+        } else {
+            std::string stream_recon_cmd = htos_path + " -i " + tmp_raw_data + " --use-stdout | " + stream_recon_path + " --use-stdin --use-stdout | " + stoh_path + " --use-stdin -o " + tmp_stream_recon_data;
+            BOOST_CHECK_EQUAL(std::system(stream_recon_cmd.c_str()), 0);
+        }
 
         std::string recon_cmd = recon_path + " " + tmp_raw_data;
         BOOST_CHECK_EQUAL(std::system(recon_cmd.c_str()), 0);
 
-        std::string recon_copy_cmd = htos_path + " -i " + tmp_stream_recon_data + " --image-series image_0 --use-stdout | " + stoh_path + " --use-stdin -o " + tmp_stream_recon_data_copy;
-        BOOST_CHECK_EQUAL(std::system(recon_copy_cmd.c_str()), 0);
+        if (use_binary_files) {
+            std::string cmd = htos_path + " --image-series image_0  -i " + tmp_stream_recon_data + " -o " + tmp_recon_data_stream2;
+            BOOST_CHECK_EQUAL(std::system(cmd.c_str()), 0);
+            cmd = stoh_path + " -i " + tmp_recon_data_stream2 + " -o " + tmp_stream_recon_data_copy;
+            BOOST_CHECK_EQUAL(std::system(cmd.c_str()), 0);
+
+        } else {
+            std::string recon_copy_cmd = htos_path + " -i " + tmp_stream_recon_data + " --image-series image_0 --use-stdout | " + stoh_path + " --use-stdin -o " + tmp_stream_recon_data_copy;
+            BOOST_CHECK_EQUAL(std::system(recon_copy_cmd.c_str()), 0);
+        }
 
         Dataset d(tmp_raw_data.c_str(), "dataset", false);
         Dataset d_recon(tmp_stream_recon_data.c_str(), "dataset", false);
@@ -343,10 +370,21 @@ BOOST_AUTO_TEST_CASE(test_end_to_end_streaming_reconstruction) {
     }
 
     // delete temporary files
+    if (use_binary_files) {
+        BOOST_CHECK_EQUAL(std::remove(tmp_raw_data_stream1.c_str()), 0);
+    }
     BOOST_CHECK_EQUAL(std::remove(tmp_stream_recon_data.c_str()), 0);
     BOOST_CHECK_EQUAL(std::remove(tmp_stream_recon_data_copy.c_str()), 0);
     BOOST_CHECK_EQUAL(std::remove(tmp_raw_data.c_str()), 0);
     BOOST_CHECK_EQUAL(std::remove(tmp_raw_data_copy.c_str()), 0);
+}
+
+BOOST_AUTO_TEST_CASE(test_end_to_end_streaming_reconstruction_pipes) {
+    test_end_to_end_streaming_reconstruction(false);
+}
+
+BOOST_AUTO_TEST_CASE(test_end_to_end_streaming_reconstruction_files) {
+    test_end_to_end_streaming_reconstruction(true);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -1,11 +1,11 @@
 #include "fftw3.h"
 #include "ismrmrd/serialization.h"
+#include "ismrmrd_io_utils.h"
+#include <boost/program_options.hpp>
+#include <fstream>
 #include <iostream>
 
-#ifdef _MSC_VER
-#include <fcntl.h>
-#include <io.h>
-#endif
+namespace po = boost::program_options;
 
 // Helper function for the FFTW library
 void circshift(complex_float_t *out, const complex_float_t *in, int xdim, int ydim, int xshift, int yshift) {
@@ -20,15 +20,10 @@ void circshift(complex_float_t *out, const complex_float_t *in, int xdim, int yd
 
 #define fftshift(out, in, x, y) circshift(out, in, x, y, (x / 2), (y / 2))
 
-int main() {
+void reconstruct(std::istream &in, std::ostream &out) {
+    ISMRMRD::ReadableStreamView rs(in);
+    ISMRMRD::WritableStreamView ws(out);
 
-#ifdef _MSC_VER
-    _setmode(_fileno(stdout), _O_BINARY);
-    _setmode(_fileno(stdin), _O_BINARY);
-#endif
-
-    ISMRMRD::ReadableStreamView rs(std::cin);
-    ISMRMRD::WritableStreamView ws(std::cout);
     ISMRMRD::ProtocolDeserializer deserializer(rs);
     ISMRMRD::ProtocolSerializer serializer(ws);
 
@@ -78,8 +73,7 @@ int main() {
     for (uint16_t c = 0; c < nCoils; c++) {
         fftwf_complex *tmp = (fftwf_complex *)fftwf_malloc(sizeof(fftwf_complex) * (nX * nY));
         if (!tmp) {
-            std::cerr << "Error allocating temporary storage for FFTW" << std::endl;
-            return -1;
+            throw std::runtime_error("Error allocating temporary storage for FFTW");
         }
         fftwf_plan p = fftwf_plan_dft_2d(nY, nX, tmp, tmp, FFTW_BACKWARD, FFTW_ESTIMATE);
         fftshift(reinterpret_cast<complex_float_t *>(tmp), &buffer(0, 0, c), nX, nY);
@@ -113,5 +107,64 @@ int main() {
     serializer.serialize(hdr);
     serializer.serialize(img_out);
     serializer.close();
+}
+
+int main(int argc, char **argv) {
+    // Parse arguments using boost program options
+    po::options_description desc("Allowed options");
+
+    // Arguments
+    std::string input_file = "";
+    std::string output_file = "";
+    bool use_stdin = false;
+    bool use_stdout = false;
+    // clang-format off
+    desc.add_options()
+        ("help,h", "produce help message")
+        ("input,i", po::value<std::string>(&input_file),"input ISMRMRD HDF5 file")
+        ("output,o", po::value<std::string>(&output_file),"Binary output file")
+        ("use-stdout", po::bool_switch(&use_stdout), "Use stdout for output")
+        ("use-stdin", po::bool_switch(&use_stdin), "Use stdout for output");
+    // clang-format on
+
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
+
+    if (vm.count("help")) {
+        std::cerr << desc << "\n";
+        return 1;
+    }
+
+    if (vm.count("input") && use_stdin) {
+        std::cerr << "Error: Cannot specify both input file and use-stdin" << std::endl;
+        return 1;
+    }
+
+    if (vm.count("output") && use_stdout) {
+        std::cerr << "Error: Cannot specify both output file and use-stdout" << std::endl;
+        return 1;
+    }
+
+    if (use_stdin && use_stdout) {
+        ISMRMRD::set_binary_io();
+        reconstruct(std::cin, std::cout);
+    } else if (input_file.size() && output_file.size()) {
+        std::ifstream input(input_file.c_str(), std::ios::in | std::ios::binary);
+        std::ofstream output(output_file.c_str(), std::ios::out | std::ios::binary);
+        reconstruct(input, output);
+    } else if (input_file.size() && use_stdout) {
+        ISMRMRD::set_binary_io();
+        std::ifstream input(input_file.c_str(), std::ios::in | std::ios::binary);
+        reconstruct(input, std::cout);
+    } else if (output_file.size() && use_stdin) {
+        ISMRMRD::set_binary_io();
+        std::ofstream output(output_file.c_str(), std::ios::out | std::ios::binary);
+        reconstruct(std::cin, output);
+    } else {
+        std::cerr << "Error: Must specify either input file and output file or use-stdin and use-stdout" << std::endl;
+        return 1;
+    }
+
     return 0;
 }

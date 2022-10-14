@@ -70,7 +70,7 @@ if (HDF5_FOUND)
         install(TARGETS ismrmrd_stream_to_hdf5 DESTINATION bin)
 
         add_executable(ismrmrd_stream_recon_cartesian_2d stream_recon_cartesian_2d.cpp)
-        target_link_libraries(ismrmrd_stream_recon_cartesian_2d ismrmrd ${FFTW3_LIBRARIES})
+        target_link_libraries(ismrmrd_stream_recon_cartesian_2d ismrmrd ${FFTW3_LIBRARIES} ${Boost_PROGRAM_OPTIONS_LIBRARY})
         install(TARGETS ismrmrd_stream_recon_cartesian_2d DESTINATION bin)
 
     else()
