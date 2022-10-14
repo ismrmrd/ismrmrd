@@ -25,12 +25,14 @@
 
 namespace ISMRMRD {
 
-const uint16_t ISMRMRD_MESSAGE_UNPEEKED = 0;
-const uint16_t ISMRMRD_MESSAGE_HEADER = 3;
-const uint16_t ISMRMRD_MESSAGE_CLOSE = 4;
-const uint16_t ISMRMRD_MESSAGE_ACQUISITION = 1008;
-const uint16_t ISMRMRD_MESSAGE_IMAGE = 1022;
-const uint16_t ISMRMRD_MESSAGE_WAVEFORM = 1026;
+enum ISMRMRD_MESSAGE_ID {
+    ISMRMRD_MESSAGE_UNPEEKED = 0,
+    ISMRMRD_MESSAGE_HEADER = 3,
+    ISMRMRD_MESSAGE_CLOSE = 4,
+    ISMRMRD_MESSAGE_ACQUISITION = 1008,
+    ISMRMRD_MESSAGE_IMAGE = 1022,
+    ISMRMRD_MESSAGE_WAVEFORM = 1026
+};
 
 // A wrapper, which we can use wrap any object that has a read(...) method
 class ReadableStreamView {
