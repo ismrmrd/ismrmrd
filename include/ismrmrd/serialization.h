@@ -33,7 +33,7 @@ const uint16_t ISMRMRD_MESSAGE_IMAGE = 1022;
 const uint16_t ISMRMRD_MESSAGE_WAVEFORM = 1026;
 
 // A wrapper, which we can use wrap any object that has a read(...) method
-class ReadableStream {
+class ReadableStreamView {
 public:
     void read(char *buffer, size_t count) {
         reader_impl->read(buffer, count);
@@ -44,25 +44,25 @@ public:
     }
 
     template <class HAS_READ>
-    ReadableStream(HAS_READ &has_read) {
-        reader_impl = new ReadableStreamT<HAS_READ>(has_read);
+    ReadableStreamView(HAS_READ &has_read) {
+        reader_impl = new ReadableStreamViewT<HAS_READ>(has_read);
     }
 
-    virtual ~ReadableStream() {
+    virtual ~ReadableStreamView() {
         delete reader_impl;
     }
 
 private:
-    struct ReadableStreamImpl {
-        virtual ~ReadableStreamImpl() {}
+    struct ReadableStreamViewImpl {
+        virtual ~ReadableStreamViewImpl() {}
         virtual void read(char *buffer, size_t count) = 0;
         virtual bool eof() = 0;
     };
 
     template <class T>
-    struct ReadableStreamT : public ReadableStreamImpl {
-        ReadableStreamT(T &readable) : self{ readable } {}
-        virtual ~ReadableStreamT() {}
+    struct ReadableStreamViewT : public ReadableStreamViewImpl {
+        ReadableStreamViewT(T &readable) : self{ readable } {}
+        virtual ~ReadableStreamViewT() {}
         void read(char *buffer, size_t count) {
             self.read(buffer, count);
         }
@@ -71,11 +71,11 @@ private:
         }
         T &self;
     };
-    ReadableStreamImpl *reader_impl;
+    ReadableStreamViewImpl *reader_impl;
 };
 
 // A wrapper, which we can use wrap any object that has a write(...) method
-class WritableStream {
+class WritableStreamView {
 public:
     void write(const char *buffer, size_t count) {
         writer_impl->write(buffer, count);
@@ -86,26 +86,26 @@ public:
     }
 
     template <class HAS_WRITE>
-    WritableStream(HAS_WRITE &has_write) {
-        writer_impl = new WritableStreamT<HAS_WRITE>(has_write);
+    WritableStreamView(HAS_WRITE &has_write) {
+        writer_impl = new WritableStreamViewT<HAS_WRITE>(has_write);
     }
 
-    virtual ~WritableStream() {
+    virtual ~WritableStreamView() {
         delete writer_impl;
     }
 
 private:
-    struct WritableStreamImpl {
-        virtual ~WritableStreamImpl() {}
+    struct WritableStreamViewImpl {
+        virtual ~WritableStreamViewImpl() {}
         virtual void write(const char *buffer, size_t count) = 0;
         virtual bool bad() = 0;
     };
 
     template <class T>
-    struct WritableStreamT : public WritableStreamImpl {
-        WritableStreamT(T &writable) : self{ writable } {}
+    struct WritableStreamViewT : public WritableStreamViewImpl {
+        WritableStreamViewT(T &writable) : self{ writable } {}
 
-        virtual ~WritableStreamT() {}
+        virtual ~WritableStreamViewT() {}
         void write(const char *buffer, size_t count) {
             self.write(buffer, count);
         }
@@ -115,34 +115,34 @@ private:
         T &self;
     };
 
-    WritableStreamImpl *writer_impl;
+    WritableStreamViewImpl *writer_impl;
 };
 
 // serialize Acquisition to ostream
-EXPORTISMRMRD void serialize(const Acquisition &acq, WritableStream &ws);
+EXPORTISMRMRD void serialize(const Acquisition &acq, WritableStreamView &ws);
 
 // serialize Image<T> to ostream
 template <typename T>
-EXPORTISMRMRD void serialize(const Image<T> &img, WritableStream &ws);
+EXPORTISMRMRD void serialize(const Image<T> &img, WritableStreamView &ws);
 
 // serialize Waveform to ostream
-EXPORTISMRMRD void serialize(const Waveform &wfm, WritableStream &ws);
+EXPORTISMRMRD void serialize(const Waveform &wfm, WritableStreamView &ws);
 
 // deserialize Acquisition from istream
-EXPORTISMRMRD void deserialize(Acquisition &acq, ReadableStream &rs);
+EXPORTISMRMRD void deserialize(Acquisition &acq, ReadableStreamView &rs);
 
 // deserialize Image<T> from istream
 template <typename T>
-EXPORTISMRMRD void deserialize(Image<T> &img, ReadableStream &rs);
+EXPORTISMRMRD void deserialize(Image<T> &img, ReadableStreamView &rs);
 
 // deserialize Waveform from istream
-EXPORTISMRMRD void deserialize(Waveform &wfm, ReadableStream &rs);
+EXPORTISMRMRD void deserialize(Waveform &wfm, ReadableStreamView &rs);
 
 class ProtocolStreamClosed : public std::exception {};
 
 class EXPORTISMRMRD ProtocolSerializer {
 public:
-    ProtocolSerializer(WritableStream &ws);
+    ProtocolSerializer(WritableStreamView &ws);
     void serialize(const IsmrmrdHeader &hdr);
     void serialize(const Acquisition &acq);
     template <typename T>
@@ -152,12 +152,12 @@ public:
 
 protected:
     void write_msg_id(uint16_t id);
-    WritableStream &_ws;
+    WritableStreamView &_ws;
 };
 
 class EXPORTISMRMRD ProtocolDeserializer {
 public:
-    ProtocolDeserializer(ReadableStream &rs);
+    ProtocolDeserializer(ReadableStreamView &rs);
     void deserialize(IsmrmrdHeader &hdr);
     void deserialize(Acquisition &acq);
     template <typename T>
@@ -169,7 +169,7 @@ public:
     int peek_image_data_type();
 
 protected:
-    ReadableStream &_rs;
+    ReadableStreamView &_rs;
     uint16_t _peeked;
     ImageHeader _peeked_image_header;
 };

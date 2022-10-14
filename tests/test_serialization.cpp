@@ -46,8 +46,8 @@ BOOST_AUTO_TEST_CASE(test_acquisition_serialization) {
 
     // Test serialization and deserialization
     std::stringstream ss(std::ios::in | std::ios::out | std::ios::binary);
-    WritableStream ws(ss);
-    ReadableStream rs(ss);
+    WritableStreamView ws(ss);
+    ReadableStreamView rs(ss);
     ISMRMRD::serialize(acq, ws);
     Acquisition acq2;
     ISMRMRD::deserialize(acq2, rs);
@@ -82,8 +82,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_image_serialization, T, image_types_w_tuples)
 
     // Test serialization and deserialization
     std::stringstream ss(std::ios::in | std::ios::out | std::ios::binary);
-    WritableStream ws(ss);
-    ReadableStream rs(ss);
+    WritableStreamView ws(ss);
+    ReadableStreamView rs(ss);
     ISMRMRD::serialize(img, ws);
 
     Image<T> img2;
@@ -106,8 +106,8 @@ BOOST_AUTO_TEST_CASE(test_waveform_serialization) {
 
     // Test serialization and deserialization
     std::stringstream ss(std::ios::in | std::ios::out | std::ios::binary);
-    WritableStream ws(ss);
-    ReadableStream rs(ss);
+    WritableStreamView ws(ss);
+    ReadableStreamView rs(ss);
     ISMRMRD::serialize(wf, ws);
     Waveform wf2;
     ISMRMRD::deserialize(wf2, rs);
@@ -172,8 +172,8 @@ BOOST_AUTO_TEST_CASE(test_of_protocol_serialization) {
 
     std::stringstream ss(std::ios::in | std::ios::out | std::ios::binary);
     ;
-    WritableStream ws(ss);
-    ReadableStream rs(ss);
+    WritableStreamView ws(ss);
+    ReadableStreamView rs(ss);
 
     ProtocolSerializer serializer(ws);
     ProtocolDeserializer deserializer(rs);

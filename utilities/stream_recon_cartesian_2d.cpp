@@ -3,8 +3,8 @@
 #include <iostream>
 
 #ifdef _MSC_VER
-    #include <io.h>
-    #include <fcntl.h>
+#include <fcntl.h>
+#include <io.h>
 #endif
 
 // Helper function for the FFTW library
@@ -23,12 +23,12 @@ void circshift(complex_float_t *out, const complex_float_t *in, int xdim, int yd
 int main() {
 
 #ifdef _MSC_VER
-    _setmode( _fileno( stdout ),  _O_BINARY );
-    _setmode( _fileno( stdin ),  _O_BINARY );
+    _setmode(_fileno(stdout), _O_BINARY);
+    _setmode(_fileno(stdin), _O_BINARY);
 #endif
 
-    ISMRMRD::ReadableStream rs(std::cin);
-    ISMRMRD::WritableStream ws(std::cout);
+    ISMRMRD::ReadableStreamView rs(std::cin);
+    ISMRMRD::WritableStreamView ws(std::cout);
     ISMRMRD::ProtocolDeserializer deserializer(rs);
     ISMRMRD::ProtocolSerializer serializer(ws);
 
