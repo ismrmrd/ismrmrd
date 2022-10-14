@@ -1,56 +1,17 @@
 #include "ismrmrd/dataset.h"
 #include "ismrmrd/serialization.h"
+#include "ismrmrd_io_utils.h"
+
 #include <boost/program_options.hpp>
+#include <fstream>
 #include <iostream>
 #include <string>
 
-#ifdef _MSC_VER
-    #include <io.h>
-    #include <fcntl.h>
-#endif
-
 namespace po = boost::program_options;
 
-int main(int argc, char **argv) {
-
-    // Parse arguments using boost program options
-    po::options_description desc("Allowed options");
-
-    // Arguments
-    std::string input_file;
-    std::vector<std::string> image_series;
-    std::string groupname;
-
-    // clang-format off
-    desc.add_options()
-        ("help,h", "produce help message")
-        ("input,i", po::value<std::string>(&input_file)->required(),"input ISMRMRD HDF5 file")
-        ("group,g", po::value<std::string>(&groupname)->default_value("dataset"), "group name")
-        ("image-series,s", po::value<std::vector<std::string>>(&image_series)->multitoken(), "image series to extract");
-    // clang-format on
-
-    po::variables_map vm;
-    try {
-        po::store(po::parse_command_line(argc, argv, desc), vm);
-        po::notify(vm);
-    } catch (boost::wrapexcept<po::required_option> &e) {
-        std::cerr << "Error: " << e.what() << std::endl;
-        std::cerr << desc << std::endl;
-        return 1;
-    }
-
-    if (vm.count("help")) {
-        std::cerr << desc << "\n";
-        return 1;
-    }
-
+void serialize_to_stream(const std::string &input_file, const std::string &groupname, const std::vector<std::string> &image_series, std::ostream &os) {
     ISMRMRD::Dataset d(input_file.c_str(), groupname.c_str(), false);
-
-#ifdef _MSC_VER
-    _setmode( _fileno( stdout ),  _O_BINARY );
-#endif
-
-    ISMRMRD::WritableStream ws(std::cout);
+    ISMRMRD::WritableStream ws(os);
     ISMRMRD::ProtocolSerializer serializer(ws);
 
     try {
@@ -144,5 +105,60 @@ int main(int argc, char **argv) {
         }
     }
     serializer.close();
+}
+
+int main(int argc, char **argv) {
+
+    // Parse arguments using boost program options
+    po::options_description desc("Allowed options");
+
+    // Arguments
+    std::string input_file;
+    std::string output_file = "";
+    bool use_stdout = false;
+    std::vector<std::string> image_series;
+    std::string groupname;
+
+    // clang-format off
+    desc.add_options()
+        ("help,h", "produce help message")
+        ("input,i", po::value<std::string>(&input_file)->required(),"input ISMRMRD HDF5 file")
+        ("output,o", po::value<std::string>(&output_file),"Binary output file")
+        ("use-stdout", po::bool_switch(&use_stdout), "Use stdout for output")
+        ("group,g", po::value<std::string>(&groupname)->default_value("dataset"), "group name")
+        ("image-series,s", po::value<std::vector<std::string>>(&image_series)->multitoken(), "image series to extract");
+    // clang-format on
+
+    po::variables_map vm;
+    try {
+        po::store(po::parse_command_line(argc, argv, desc), vm);
+        po::notify(vm);
+    } catch (boost::wrapexcept<po::required_option> &e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        std::cerr << desc << std::endl;
+        return 1;
+    }
+
+    if (vm.count("help")) {
+        std::cerr << desc << "\n";
+        return 1;
+    }
+
+    if (vm.count("output") && use_stdout) {
+        std::cerr << "Error: Cannot specify both output file and use-stdout" << std::endl;
+        return 1;
+    }
+
+    if (use_stdout) {
+        ISMRMRD::set_binary_io();
+        serialize_to_stream(input_file, groupname, image_series, std::cout);
+    } else if (output_file != "") {
+        std::ofstream out(output_file, std::ios::out | std::ios::binary);
+        serialize_to_stream(input_file, groupname, image_series, out);
+    } else {
+        std::cerr << "Error: Must specify either output file or use-stdout" << std::endl;
+        return 1;
+    }
+
     return 0;
 }

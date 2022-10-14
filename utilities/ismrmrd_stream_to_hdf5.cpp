@@ -1,12 +1,8 @@
 #include "ismrmrd/dataset.h"
 #include "ismrmrd/serialization.h"
+#include "ismrmrd_io_utils.h"
 #include <boost/program_options.hpp>
 #include <iostream>
-
-#ifdef _MSC_VER
-    #include <io.h>
-    #include <fcntl.h>
-#endif
 
 namespace po = boost::program_options;
 
@@ -19,8 +15,10 @@ std::string create_image_series_name(const ISMRMRD::Image<T> &img) {
 
 int main(int argc, char **argv) {
     // Arguments
+    std::string input_file = "";
     std::string output_file;
     std::string groupname;
+    bool use_stdin = false;
 
     // Parse arguments using boost program options
     po::options_description desc("Allowed options");
@@ -28,7 +26,9 @@ int main(int argc, char **argv) {
     // clang-format off
     desc.add_options()
         ("help,h", "produce help message")
-        ("output,o", po::value<std::string>(&output_file)->required(),"input ISMRMRD HDF5 file")
+        ("input,i", po::value<std::string>(&input_file),"Binary input file")
+        ("output,o", po::value<std::string>(&output_file)->required(),"ISMRMRD HDF5 output file")
+        ("use-stdin", po::bool_switch(&use_stdin), "Use stdout for output")
         ("group,g", po::value<std::string>(&groupname)->default_value("dataset"), "group name");
     // clang-format on
 
@@ -42,17 +42,18 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    if (vm.count("input") && use_stdin) {
+        std::cerr << "Error: Cannot specify both output file and use-stdout" << std::endl;
+        return 1;
+    }
+
     if (vm.count("help")) {
         std::cerr << desc << "\n";
         return 1;
     }
 
     ISMRMRD::Dataset d(output_file.c_str(), groupname.c_str(), true);
-
-#ifdef _MSC_VER
-    _setmode( _fileno( stdin ),  _O_BINARY );
-#endif
-
+    ISMRMRD::set_binary_io();
     ISMRMRD::ReadableStream rs(std::cin);
     ISMRMRD::ProtocolDeserializer deserializer(rs);
 

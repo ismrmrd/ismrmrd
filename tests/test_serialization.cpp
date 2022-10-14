@@ -170,7 +170,8 @@ BOOST_AUTO_TEST_CASE(test_of_protocol_serialization) {
     // set some meta data
     img.setAttributeString("This is my attribute string");
 
-    std::stringstream ss(std::ios::in | std::ios::out | std::ios::binary);;
+    std::stringstream ss(std::ios::in | std::ios::out | std::ios::binary);
+    ;
     WritableStream ws(ss);
     ReadableStream rs(ss);
 
@@ -277,7 +278,7 @@ BOOST_AUTO_TEST_CASE(test_end_to_end_streaming_reconstruction) {
     // Use a scope here to make sure we close the files (which will be needed later)
     {
         // Stream raw data to another raw data file
-        std::string cmd = htos_path + " -i " + tmp_raw_data + " | " + stoh_path + " -o " + tmp_raw_data_copy;
+        std::string cmd = htos_path + " -i " + tmp_raw_data + " --use-stdout | " + stoh_path + " -o " + tmp_raw_data_copy;
         BOOST_CHECK_EQUAL(std::system(cmd.c_str()), 0);
 
         // Open dataset
@@ -312,13 +313,13 @@ BOOST_AUTO_TEST_CASE(test_end_to_end_streaming_reconstruction) {
     }
 
     { // Scope to make sure files get closed.
-        std::string stream_recon_cmd = htos_path + " -i " + tmp_raw_data + " | " + stream_recon_path + " | " + stoh_path + " -o " + tmp_stream_recon_data;
+        std::string stream_recon_cmd = htos_path + " -i " + tmp_raw_data + " --use-stdout | " + stream_recon_path + " | " + stoh_path + " -o " + tmp_stream_recon_data;
         BOOST_CHECK_EQUAL(std::system(stream_recon_cmd.c_str()), 0);
 
         std::string recon_cmd = recon_path + " " + tmp_raw_data;
         BOOST_CHECK_EQUAL(std::system(recon_cmd.c_str()), 0);
 
-        std::string recon_copy_cmd = htos_path + " -i " + tmp_stream_recon_data + " --image-series image_0 | " + stoh_path + " -o " + tmp_stream_recon_data_copy;
+        std::string recon_copy_cmd = htos_path + " -i " + tmp_stream_recon_data + " --image-series image_0 --use-stdout | " + stoh_path + " -o " + tmp_stream_recon_data_copy;
         BOOST_CHECK_EQUAL(std::system(recon_copy_cmd.c_str()), 0);
 
         Dataset d(tmp_raw_data.c_str(), "dataset", false);
@@ -336,9 +337,9 @@ BOOST_AUTO_TEST_CASE(test_end_to_end_streaming_reconstruction) {
 
         // The 3 images should be the same
         BOOST_CHECK_EQUAL_COLLECTIONS(cpp_recon.getDataPtr(), cpp_recon.getDataPtr() + cpp_recon.getNumberOfDataElements(),
-                                    cpp_stream_recon.getDataPtr(), cpp_stream_recon.getDataPtr() + cpp_stream_recon.getNumberOfDataElements());
+                                      cpp_stream_recon.getDataPtr(), cpp_stream_recon.getDataPtr() + cpp_stream_recon.getNumberOfDataElements());
         BOOST_CHECK_EQUAL_COLLECTIONS(cpp_recon.getDataPtr(), cpp_recon.getDataPtr() + cpp_recon.getNumberOfDataElements(),
-                                    cpp_stream_recon_copy.getDataPtr(), cpp_stream_recon_copy.getDataPtr() + cpp_stream_recon_copy.getNumberOfDataElements());
+                                      cpp_stream_recon_copy.getDataPtr(), cpp_stream_recon_copy.getDataPtr() + cpp_stream_recon_copy.getNumberOfDataElements());
     }
 
     // delete temporary files
