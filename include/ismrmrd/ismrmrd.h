@@ -30,9 +30,9 @@ typedef unsigned __int32 uint32_t;
 typedef __int64 int64_t;
 typedef unsigned __int64 uint64_t;
 #endif
-#else /* non MS C or C++ compiler */
+#else               /* non MS C or C++ compiler */
+#include <stddef.h> /* for size_t */
 #include <stdint.h>
-#include <stddef.h>     /* for size_t */
 #endif /* _MSC_VER */
 
 /* Complex numbers */
@@ -42,15 +42,15 @@ typedef std::complex<float> complex_float_t;
 typedef std::complex<double> complex_double_t;
 #else
 #ifdef _MSC_VER /* MS C compiler */
-typedef struct complex_float_t{
+typedef struct complex_float_t {
     float real;
     float imag;
-}complex_float_t;
-typedef struct complex_double_t{
+} complex_float_t;
+typedef struct complex_double_t {
     double real;
     double imag;
-}complex_double_t;
-#else /* C99 compiler */
+} complex_double_t;
+#else           /* C99 compiler */
 #include <complex.h>
 typedef float complex complex_float_t;
 typedef double complex complex_double_t;
@@ -59,7 +59,7 @@ typedef double complex complex_double_t;
 
 /* Booleans - part of C++ */
 #ifndef __cplusplus
-#if defined (_MSC_VER) && (_MSC_VER < 1800) /* old MS C compiler */
+#if defined(_MSC_VER) && (_MSC_VER < 1800) /* old MS C compiler */
 typedef int bool;
 #define false 0
 #define true 1
@@ -96,12 +96,11 @@ enum ISMRMRD_Constants {
     ISMRMRD_DIRECTION_LENGTH = 3
 };
 
-
 /**
  * Constants
  */
 enum ISMRMRD_ErrorCodes {
-    ISMRMRD_BEGINERROR=-1,
+    ISMRMRD_BEGINERROR = -1,
     ISMRMRD_NOERROR,
     ISMRMRD_MEMORYERROR,
     ISMRMRD_FILEERROR,
@@ -115,14 +114,14 @@ enum ISMRMRD_ErrorCodes {
  * Data Types
  */
 enum ISMRMRD_DataTypes {
-    ISMRMRD_USHORT   = 1, /**< corresponds to uint16_t */
-    ISMRMRD_SHORT    = 2, /**< corresponds to int16_t */
-    ISMRMRD_UINT     = 3, /**< corresponds to uint32_t */
-    ISMRMRD_INT      = 4, /**< corresponds to int32_t */
-    ISMRMRD_FLOAT    = 5, /**< corresponds to float */
-    ISMRMRD_DOUBLE   = 6, /**< corresponds to double */
-    ISMRMRD_CXFLOAT  = 7, /**< corresponds to complex float */
-    ISMRMRD_CXDOUBLE = 8  /**< corresponds to complex double */
+    ISMRMRD_USHORT = 1,  /**< corresponds to uint16_t */
+    ISMRMRD_SHORT = 2,   /**< corresponds to int16_t */
+    ISMRMRD_UINT = 3,    /**< corresponds to uint32_t */
+    ISMRMRD_INT = 4,     /**< corresponds to int32_t */
+    ISMRMRD_FLOAT = 5,   /**< corresponds to float */
+    ISMRMRD_DOUBLE = 6,  /**< corresponds to double */
+    ISMRMRD_CXFLOAT = 7, /**< corresponds to complex float */
+    ISMRMRD_CXDOUBLE = 8 /**< corresponds to complex double */
 };
 
 /** Returns the size in bytes of an ISMRMRD_DataType */
@@ -132,51 +131,50 @@ EXPORTISMRMRD size_t ismrmrd_sizeof_data_type(int data_type);
  * Acquisition Flags
  */
 enum ISMRMRD_AcquisitionFlags {
-    ISMRMRD_ACQ_FIRST_IN_ENCODE_STEP1               =  1,
-    ISMRMRD_ACQ_LAST_IN_ENCODE_STEP1                =  2,
-    ISMRMRD_ACQ_FIRST_IN_ENCODE_STEP2               =  3,
-    ISMRMRD_ACQ_LAST_IN_ENCODE_STEP2                =  4,
-    ISMRMRD_ACQ_FIRST_IN_AVERAGE                    =  5,
-    ISMRMRD_ACQ_LAST_IN_AVERAGE                     =  6,
-    ISMRMRD_ACQ_FIRST_IN_SLICE                      =  7,
-    ISMRMRD_ACQ_LAST_IN_SLICE                       =  8,
-    ISMRMRD_ACQ_FIRST_IN_CONTRAST                   =  9,
-    ISMRMRD_ACQ_LAST_IN_CONTRAST                    = 10,
-    ISMRMRD_ACQ_FIRST_IN_PHASE                      = 11,
-    ISMRMRD_ACQ_LAST_IN_PHASE                       = 12,
-    ISMRMRD_ACQ_FIRST_IN_REPETITION                 = 13,
-    ISMRMRD_ACQ_LAST_IN_REPETITION                  = 14,
-    ISMRMRD_ACQ_FIRST_IN_SET                        = 15,
-    ISMRMRD_ACQ_LAST_IN_SET                         = 16,
-    ISMRMRD_ACQ_FIRST_IN_SEGMENT                    = 17,
-    ISMRMRD_ACQ_LAST_IN_SEGMENT                     = 18,
-    ISMRMRD_ACQ_IS_NOISE_MEASUREMENT                = 19,
-    ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION             = 20,
+    ISMRMRD_ACQ_FIRST_IN_ENCODE_STEP1 = 1,
+    ISMRMRD_ACQ_LAST_IN_ENCODE_STEP1 = 2,
+    ISMRMRD_ACQ_FIRST_IN_ENCODE_STEP2 = 3,
+    ISMRMRD_ACQ_LAST_IN_ENCODE_STEP2 = 4,
+    ISMRMRD_ACQ_FIRST_IN_AVERAGE = 5,
+    ISMRMRD_ACQ_LAST_IN_AVERAGE = 6,
+    ISMRMRD_ACQ_FIRST_IN_SLICE = 7,
+    ISMRMRD_ACQ_LAST_IN_SLICE = 8,
+    ISMRMRD_ACQ_FIRST_IN_CONTRAST = 9,
+    ISMRMRD_ACQ_LAST_IN_CONTRAST = 10,
+    ISMRMRD_ACQ_FIRST_IN_PHASE = 11,
+    ISMRMRD_ACQ_LAST_IN_PHASE = 12,
+    ISMRMRD_ACQ_FIRST_IN_REPETITION = 13,
+    ISMRMRD_ACQ_LAST_IN_REPETITION = 14,
+    ISMRMRD_ACQ_FIRST_IN_SET = 15,
+    ISMRMRD_ACQ_LAST_IN_SET = 16,
+    ISMRMRD_ACQ_FIRST_IN_SEGMENT = 17,
+    ISMRMRD_ACQ_LAST_IN_SEGMENT = 18,
+    ISMRMRD_ACQ_IS_NOISE_MEASUREMENT = 19,
+    ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION = 20,
     ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING = 21,
-    ISMRMRD_ACQ_IS_REVERSE                          = 22,
-    ISMRMRD_ACQ_IS_NAVIGATION_DATA                  = 23,
-    ISMRMRD_ACQ_IS_PHASECORR_DATA                   = 24,
-    ISMRMRD_ACQ_LAST_IN_MEASUREMENT                 = 25,
-    ISMRMRD_ACQ_IS_HPFEEDBACK_DATA                  = 26,
-    ISMRMRD_ACQ_IS_DUMMYSCAN_DATA                   = 27,
-    ISMRMRD_ACQ_IS_RTFEEDBACK_DATA                  = 28,
-    ISMRMRD_ACQ_IS_SURFACECOILCORRECTIONSCAN_DATA   = 29,
-    ISMRMRD_ACQ_IS_PHASE_STABILIZATION_REFERENCE    = 30,
-    ISMRMRD_ACQ_IS_PHASE_STABILIZATION              = 31,
+    ISMRMRD_ACQ_IS_REVERSE = 22,
+    ISMRMRD_ACQ_IS_NAVIGATION_DATA = 23,
+    ISMRMRD_ACQ_IS_PHASECORR_DATA = 24,
+    ISMRMRD_ACQ_LAST_IN_MEASUREMENT = 25,
+    ISMRMRD_ACQ_IS_HPFEEDBACK_DATA = 26,
+    ISMRMRD_ACQ_IS_DUMMYSCAN_DATA = 27,
+    ISMRMRD_ACQ_IS_RTFEEDBACK_DATA = 28,
+    ISMRMRD_ACQ_IS_SURFACECOILCORRECTIONSCAN_DATA = 29,
+    ISMRMRD_ACQ_IS_PHASE_STABILIZATION_REFERENCE = 30,
+    ISMRMRD_ACQ_IS_PHASE_STABILIZATION = 31,
 
-
-    ISMRMRD_ACQ_COMPRESSION1                        = 53,
-    ISMRMRD_ACQ_COMPRESSION2                        = 54,
-    ISMRMRD_ACQ_COMPRESSION3                        = 55,
-    ISMRMRD_ACQ_COMPRESSION4                        = 56,
-    ISMRMRD_ACQ_USER1                               = 57,
-    ISMRMRD_ACQ_USER2                               = 58,
-    ISMRMRD_ACQ_USER3                               = 59,
-    ISMRMRD_ACQ_USER4                               = 60,
-    ISMRMRD_ACQ_USER5                               = 61,
-    ISMRMRD_ACQ_USER6                               = 62,
-    ISMRMRD_ACQ_USER7                               = 63,
-    ISMRMRD_ACQ_USER8                               = 64
+    ISMRMRD_ACQ_COMPRESSION1 = 53,
+    ISMRMRD_ACQ_COMPRESSION2 = 54,
+    ISMRMRD_ACQ_COMPRESSION3 = 55,
+    ISMRMRD_ACQ_COMPRESSION4 = 56,
+    ISMRMRD_ACQ_USER1 = 57,
+    ISMRMRD_ACQ_USER2 = 58,
+    ISMRMRD_ACQ_USER3 = 59,
+    ISMRMRD_ACQ_USER4 = 60,
+    ISMRMRD_ACQ_USER5 = 61,
+    ISMRMRD_ACQ_USER6 = 62,
+    ISMRMRD_ACQ_USER7 = 63,
+    ISMRMRD_ACQ_USER8 = 64
 };
 
 /**
@@ -184,37 +182,37 @@ enum ISMRMRD_AcquisitionFlags {
  */
 enum ISMRMRD_ImageTypes {
     ISMRMRD_IMTYPE_MAGNITUDE = 1,
-    ISMRMRD_IMTYPE_PHASE     = 2,
-    ISMRMRD_IMTYPE_REAL      = 3,
-    ISMRMRD_IMTYPE_IMAG      = 4,
-    ISMRMRD_IMTYPE_COMPLEX   = 5
+    ISMRMRD_IMTYPE_PHASE = 2,
+    ISMRMRD_IMTYPE_REAL = 3,
+    ISMRMRD_IMTYPE_IMAG = 4,
+    ISMRMRD_IMTYPE_COMPLEX = 5
 };
 
 /**
  * Image Flags
  */
 enum ISMRMRD_ImageFlags {
-    ISMRMRD_IMAGE_IS_NAVIGATION_DATA  =  1,
-    ISMRMRD_IMAGE_FIRST_IN_AVERAGE    =  5,
-    ISMRMRD_IMAGE_LAST_IN_AVERAGE     =  6,
-    ISMRMRD_IMAGE_FIRST_IN_SLICE      =  7,
-    ISMRMRD_IMAGE_LAST_IN_SLICE       =  8,
-    ISMRMRD_IMAGE_FIRST_IN_CONTRAST   =  9,
-    ISMRMRD_IMAGE_LAST_IN_CONTRAST    = 10,
-    ISMRMRD_IMAGE_FIRST_IN_PHASE      = 11,
-    ISMRMRD_IMAGE_LAST_IN_PHASE       = 12,
+    ISMRMRD_IMAGE_IS_NAVIGATION_DATA = 1,
+    ISMRMRD_IMAGE_FIRST_IN_AVERAGE = 5,
+    ISMRMRD_IMAGE_LAST_IN_AVERAGE = 6,
+    ISMRMRD_IMAGE_FIRST_IN_SLICE = 7,
+    ISMRMRD_IMAGE_LAST_IN_SLICE = 8,
+    ISMRMRD_IMAGE_FIRST_IN_CONTRAST = 9,
+    ISMRMRD_IMAGE_LAST_IN_CONTRAST = 10,
+    ISMRMRD_IMAGE_FIRST_IN_PHASE = 11,
+    ISMRMRD_IMAGE_LAST_IN_PHASE = 12,
     ISMRMRD_IMAGE_FIRST_IN_REPETITION = 13,
-    ISMRMRD_IMAGE_LAST_IN_REPETITION  = 14,
-    ISMRMRD_IMAGE_FIRST_IN_SET        = 15,
-    ISMRMRD_IMAGE_LAST_IN_SET         = 16,
-    ISMRMRD_IMAGE_USER1               = 57,
-    ISMRMRD_IMAGE_USER2               = 58,
-    ISMRMRD_IMAGE_USER3               = 59,
-    ISMRMRD_IMAGE_USER4               = 60,
-    ISMRMRD_IMAGE_USER5               = 61,
-    ISMRMRD_IMAGE_USER6               = 62,
-    ISMRMRD_IMAGE_USER7               = 63,
-    ISMRMRD_IMAGE_USER8               = 64
+    ISMRMRD_IMAGE_LAST_IN_REPETITION = 14,
+    ISMRMRD_IMAGE_FIRST_IN_SET = 15,
+    ISMRMRD_IMAGE_LAST_IN_SET = 16,
+    ISMRMRD_IMAGE_USER1 = 57,
+    ISMRMRD_IMAGE_USER2 = 58,
+    ISMRMRD_IMAGE_USER3 = 59,
+    ISMRMRD_IMAGE_USER4 = 60,
+    ISMRMRD_IMAGE_USER5 = 61,
+    ISMRMRD_IMAGE_USER6 = 62,
+    ISMRMRD_IMAGE_USER7 = 63,
+    ISMRMRD_IMAGE_USER8 = 64
 };
 
 /**
@@ -232,6 +230,21 @@ typedef struct ISMRMRD_EncodingCounters {
     uint16_t segment;                 /**< e.g. segment number for segmented acquisition */
     uint16_t user[ISMRMRD_USER_INTS]; /**< Free user parameters */
 } ISMRMRD_EncodingCounters;
+
+#ifdef __cplusplus
+// Check for size and offset of EncodingCounters struct members
+static_assert(sizeof(ISMRMRD_EncodingCounters) == 34, "ISMRMRD_EncodingCounters is not the expected size");
+static_assert(offsetof(ISMRMRD_EncodingCounters, kspace_encode_step_1) == 0, "kspace_encode_step_1 is not at the expected offset");
+static_assert(offsetof(ISMRMRD_EncodingCounters, kspace_encode_step_2) == 2, "kspace_encode_step_2 is not at the expected offset");
+static_assert(offsetof(ISMRMRD_EncodingCounters, average) == 4, "average is not at the expected offset");
+static_assert(offsetof(ISMRMRD_EncodingCounters, slice) == 6, "slice is not at the expected offset");
+static_assert(offsetof(ISMRMRD_EncodingCounters, contrast) == 8, "contrast is not at the expected offset");
+static_assert(offsetof(ISMRMRD_EncodingCounters, phase) == 10, "phase is not at the expected offset");
+static_assert(offsetof(ISMRMRD_EncodingCounters, repetition) == 12, "repetition is not at the expected offset");
+static_assert(offsetof(ISMRMRD_EncodingCounters, set) == 14, "set is not at the expected offset");
+static_assert(offsetof(ISMRMRD_EncodingCounters, segment) == 16, "segment is not at the expected offset");
+static_assert(offsetof(ISMRMRD_EncodingCounters, user) == 18, "user is not at the expected offset");
+#endif
 
 /**
  * Header for each MR acquisition.
@@ -263,6 +276,35 @@ typedef struct ISMRMRD_AcquisitionHeader {
     float user_float[ISMRMRD_USER_FLOATS];               /**< Free user parameters */
 } ISMRMRD_AcquisitionHeader;
 
+#ifdef __cplusplus
+// Check for size and offset of AcquisitionHeader struct members
+static_assert(sizeof(ISMRMRD_AcquisitionHeader) == 340, "ISMRMRD_AcquisitionHeader is not the expected size");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, version) == 0, "version is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, flags) == 2, "flags is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, measurement_uid) == 10, "measurement_uid is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, scan_counter) == 14, "scan_counter is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, acquisition_time_stamp) == 18, "acquisition_time_stamp is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, physiology_time_stamp) == 22, "physiology_time_stamp is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, number_of_samples) == 34, "number_of_samples is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, available_channels) == 36, "available_channels is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, active_channels) == 38, "active_channels is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, channel_mask) == 40, "channel_mask is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, discard_pre) == 168, "discard_pre is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, discard_post) == 170, "discard_post is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, center_sample) == 172, "center_sample is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, encoding_space_ref) == 174, "encoding_space_ref is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, trajectory_dimensions) == 176, "trajectory_dimensions is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, sample_time_us) == 178, "sample_time_us is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, position) == 182, "position is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, read_dir) == 194, "read_dir is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, phase_dir) == 206, "phase_dir is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, slice_dir) == 218, "slice_dir is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, patient_table_position) == 230, "patient_table_position is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, idx) == 242, "idx is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, user_int) == 276, "user_int is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, user_float) == 308, "user_float is not at the expected offset");
+#endif
+
 /**
  * Initialize an Acquisition Header
  * @ingroup capi
@@ -280,7 +322,7 @@ typedef struct ISMRMRD_Acquisition {
 /** @addtogroup capi
  *  @{
  */
-EXPORTISMRMRD ISMRMRD_Acquisition * ismrmrd_create_acquisition();
+EXPORTISMRMRD ISMRMRD_Acquisition *ismrmrd_create_acquisition();
 EXPORTISMRMRD int ismrmrd_free_acquisition(ISMRMRD_Acquisition *acq);
 EXPORTISMRMRD int ismrmrd_init_acquisition(ISMRMRD_Acquisition *acq);
 EXPORTISMRMRD int ismrmrd_cleanup_acquisition(ISMRMRD_Acquisition *acq);
@@ -326,6 +368,37 @@ typedef struct ISMRMRD_ImageHeader {
     uint32_t attribute_string_len;                       /**< Length of attributes string */
 } ISMRMRD_ImageHeader;
 
+#ifdef __cplusplus
+// Check size and offsets of ISMRMRD_ImageHeader
+static_assert(sizeof(ISMRMRD_ImageHeader) == 198, "ISMRMRD_ImageHeader is not the expected size");
+static_assert(offsetof(ISMRMRD_ImageHeader, version) == 0, "version is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, data_type) == 2, "data_type is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, flags) == 4, "flags is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, measurement_uid) == 12, "measurement_uid is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, matrix_size) == 16, "matrix_size is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, field_of_view) == 22, "field_of_view is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, channels) == 34, "channels is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, position) == 36, "position is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, read_dir) == 48, "read_dir is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, phase_dir) == 60, "phase_dir is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, slice_dir) == 72, "slice_dir is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, patient_table_position) == 84, "patient_table_position is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, average) == 96, "average is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, slice) == 98, "slice is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, contrast) == 100, "contrast is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, phase) == 102, "phase is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, repetition) == 104, "repetition is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, set) == 106, "set is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, acquisition_time_stamp) == 108, "acquisition_time_stamp is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, physiology_time_stamp) == 112, "physiology_time_stamp is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, image_type) == 124, "image_type is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, image_index) == 126, "image_index is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, image_series_index) == 128, "image_series_index is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, user_int) == 130, "user_int is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, user_float) == 162, "user_float is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, attribute_string_len) == 194, "attribute_string_len is not at the expected offset");
+#endif
+
 /** @ingroup capi */
 EXPORTISMRMRD int ismrmrd_init_image_header(ISMRMRD_ImageHeader *hdr);
 
@@ -339,11 +412,10 @@ typedef struct ISMRMRD_Image {
     void *data;
 } ISMRMRD_Image;
 
-
 /** @addtogroup capi
  *  @{
  */
-EXPORTISMRMRD ISMRMRD_Image * ismrmrd_create_image();
+EXPORTISMRMRD ISMRMRD_Image *ismrmrd_create_image();
 EXPORTISMRMRD int ismrmrd_free_image(ISMRMRD_Image *im);
 EXPORTISMRMRD int ismrmrd_init_image(ISMRMRD_Image *im);
 EXPORTISMRMRD int ismrmrd_cleanup_image(ISMRMRD_Image *im);
@@ -361,17 +433,17 @@ EXPORTISMRMRD size_t ismrmrd_size_of_image_data(const ISMRMRD_Image *im);
  *  A simple N dimensional array
  */
 typedef struct ISMRMRD_NDArray {
-    uint16_t version;                      /**< First unsigned int indicates the version */
-    uint16_t data_type;                    /**< e.g. unsigned short, float, complex float, etc. */
-    uint16_t ndim;                         /**< Number of dimensions */
-    size_t   dims[ISMRMRD_NDARRAY_MAXDIM]; /**< Dimensions */
-    void     *data;                        /**< Pointer to data */
+    uint16_t version;                    /**< First unsigned int indicates the version */
+    uint16_t data_type;                  /**< e.g. unsigned short, float, complex float, etc. */
+    uint16_t ndim;                       /**< Number of dimensions */
+    size_t dims[ISMRMRD_NDARRAY_MAXDIM]; /**< Dimensions */
+    void *data;                          /**< Pointer to data */
 } ISMRMRD_NDArray;
 
 /** @addtogroup capi
  *  @{
  */
-EXPORTISMRMRD ISMRMRD_NDArray * ismrmrd_create_ndarray();
+EXPORTISMRMRD ISMRMRD_NDArray *ismrmrd_create_ndarray();
 EXPORTISMRMRD int ismrmrd_free_ndarray(ISMRMRD_NDArray *arr);
 EXPORTISMRMRD int ismrmrd_init_ndarray(ISMRMRD_NDArray *arr);
 EXPORTISMRMRD int ismrmrd_cleanup_ndarray(ISMRMRD_NDArray *arr);
@@ -412,11 +484,11 @@ EXPORTISMRMRD int ismrmrd_set_all_channels_off(uint64_t channel_mask[ISMRMRD_CHA
  *  @{
  */
 typedef void (*ismrmrd_error_handler_t)(const char *file, int line,
-        const char *function, int code, const char *msg);
+                                        const char *function, int code, const char *msg);
 #define ISMRMRD_PUSH_ERR(code, msg) ismrmrd_push_error(__FILE__, __LINE__, \
-        __func__, (code), (msg))
+                                                       __func__, (code), (msg))
 int ismrmrd_push_error(const char *file, const int line, const char *func,
-        const int code, const char *msg);
+                       const int code, const char *msg);
 /** Sets a custom error handler */
 EXPORTISMRMRD void ismrmrd_set_error_handler(ismrmrd_error_handler_t);
 /** Returns message for corresponding error code */
@@ -426,7 +498,7 @@ EXPORTISMRMRD char *ismrmrd_strerror(int code);
 /** Populates parameters (if non-NULL) with error information
  * @returns true if there was error information to return, false otherwise */
 bool ismrmrd_pop_error(char **file, int *line, char **func,
-        int *code, char **msg);
+                       int *code, char **msg);
 
 /*****************************/
 /* Rotations and Quaternions */
@@ -455,48 +527,43 @@ EXPORTISMRMRD void ismrmrd_quaternion_to_directions(float const quat[4], float r
 std::string build_exception_string(void);
 
 /// Some typedefs to beautify the namespace
-typedef  ISMRMRD_EncodingCounters EncodingCounters;
-
+typedef ISMRMRD_EncodingCounters EncodingCounters;
 
 /** @addtogroup cxxapi
  *  @{
  */
 
-
-bool operator==(const EncodingCounters& ec1, const EncodingCounters& ec2);
+bool operator==(const EncodingCounters &ec1, const EncodingCounters &ec2);
 
 /// Allowed data types for Images and NDArrays
-template <typename T> EXPORTISMRMRD ISMRMRD_DataTypes get_data_type();
+template <typename T>
+EXPORTISMRMRD ISMRMRD_DataTypes get_data_type();
 
 /// Convenience class for flags
-class EXPORTISMRMRD FlagBit
-{
+class EXPORTISMRMRD FlagBit {
 public:
- FlagBit(unsigned short b)
-   : bitmask_(0)
-    {
-      if (b > 0) {
-    bitmask_ = 1;
-    bitmask_ = (bitmask_ << (b-1));
-      }
+    FlagBit(unsigned short b)
+        : bitmask_(0) {
+        if (b > 0) {
+            bitmask_ = 1;
+            bitmask_ = (bitmask_ << (b - 1));
+        }
     }
 
-  bool isSet(const uint64_t& m) const {
-    return ((m & bitmask_)>0);
-  }
+    bool isSet(const uint64_t &m) const {
+        return ((m & bitmask_) > 0);
+    }
 
-  uint64_t bitmask_;
-
+    uint64_t bitmask_;
 };
 
 /// Header for MR Acquisition type
-class EXPORTISMRMRD AcquisitionHeader: public ISMRMRD_AcquisitionHeader {
+class EXPORTISMRMRD AcquisitionHeader : public ISMRMRD_AcquisitionHeader {
 public:
     // Constructors
     AcquisitionHeader();
 
-
-    bool operator==(const AcquisitionHeader& acq) const;
+    bool operator==(const AcquisitionHeader &acq) const;
 
     // Flag methods
     bool isFlagSet(const ISMRMRD_AcquisitionFlags val) const;
@@ -509,18 +576,18 @@ public:
     void setChannelActive(uint16_t channel_id);
     void setChannelNotActive(uint16_t channel_id);
     void setAllChannelsNotActive();
-
 };
 
 /// MR Acquisition type
 class EXPORTISMRMRD Acquisition {
     friend class Dataset;
+
 public:
     // Constructors, assignment, destructor
     Acquisition();
-    Acquisition(uint16_t num_samples, uint16_t active_channels=1, uint16_t trajectory_dimensions=0);
+    Acquisition(uint16_t num_samples, uint16_t active_channels = 1, uint16_t trajectory_dimensions = 0);
     Acquisition(const Acquisition &other);
-    Acquisition & operator= (const Acquisition &other);
+    Acquisition &operator=(const Acquisition &other);
     ~Acquisition();
 
     // Accessors and mutators
@@ -550,7 +617,7 @@ public:
     float (&user_float())[ISMRMRD_USER_FLOATS];
 
     // Sizes
-    void resize(uint16_t num_samples, uint16_t active_channels=1, uint16_t trajectory_dimensions=0);
+    void resize(uint16_t num_samples, uint16_t active_channels = 1, uint16_t trajectory_dimensions = 0);
     size_t getNumberOfDataElements() const;
     size_t getNumberOfTrajElements() const;
     size_t getDataSize() const;
@@ -559,58 +626,58 @@ public:
     // Header, data and trajectory accessors
     const AcquisitionHeader &getHead() const;
     void setHead(const AcquisitionHeader &other);
-    
+
     /**
      * Returns a pointer to the data
      */
-    const complex_float_t * getDataPtr() const;
-    complex_float_t * getDataPtr();
+    const complex_float_t *getDataPtr() const;
+    complex_float_t *getDataPtr();
 
     /**
      * Returns a reference to the data
-     */    
-    complex_float_t & data(uint16_t sample, uint16_t channel);
+     */
+    complex_float_t &data(uint16_t sample, uint16_t channel);
 
     /**
      * Sets the datay.  Must set sizes properly first
-     */    
-    void setData(complex_float_t * data);
+     */
+    void setData(complex_float_t *data);
 
     /**
      * Returns an iterator to the beginning of the data
      */
-    complex_float_t * data_begin() const;
-    
+    complex_float_t *data_begin() const;
+
     /**
      * Returns an iterator of the end of the data
      */
-    complex_float_t * data_end() const;
-    
+    complex_float_t *data_end() const;
+
     /**
      * Returns a pointer to the trajectory
      */
-    const float * getTrajPtr() const;
-    float * getTrajPtr();
-    
+    const float *getTrajPtr() const;
+    float *getTrajPtr();
+
     /**
      * Returns a reference to the trajectory
      */
-    float & traj(uint16_t dimension, uint16_t sample);
-    
+    float &traj(uint16_t dimension, uint16_t sample);
+
     /**
      * Sets the trajectory.  Must set sizes properly first
      */
-    void setTraj(float * traj);
-    
+    void setTraj(float *traj);
+
     /**
      * Returns an iterator to the beginning of the trajectories
      */
-    float * traj_begin() const;
-    
+    float *traj_begin() const;
+
     /**
      * Returns an iterator to the end of the trajectories
      */
-    float * traj_end() const;
+    float *traj_end() const;
 
     // Flag methods
     bool isFlagSet(const uint64_t val);
@@ -618,9 +685,9 @@ public:
     void clearFlag(const uint64_t val);
     void clearAllFlags();
 
-    bool isFlagSet(const FlagBit &val)  { return isFlagSet(val.bitmask_); }
-    void setFlag(const FlagBit &val)    { setFlag(val.bitmask_); }
-    void clearFlag(const FlagBit &val)  { clearFlag(val.bitmask_); }
+    bool isFlagSet(const FlagBit &val) { return isFlagSet(val.bitmask_); }
+    void setFlag(const FlagBit &val) { setFlag(val.bitmask_); }
+    void clearFlag(const FlagBit &val) { clearFlag(val.bitmask_); }
 
     // Channel mask methods
     bool isChannelActive(uint16_t channel_id);
@@ -633,7 +700,7 @@ protected:
 };
 
 /// Header for MR Image type
-class EXPORTISMRMRD ImageHeader: public ISMRMRD_ImageHeader {
+class EXPORTISMRMRD ImageHeader : public ISMRMRD_ImageHeader {
 public:
     // Constructor
     ImageHeader();
@@ -643,18 +710,19 @@ public:
     void setFlag(const uint64_t val);
     void clearFlag(const uint64_t val);
     void clearAllFlags();
-
 };
 
 /// MR Image type
-template <typename T> class EXPORTISMRMRD Image {
+template <typename T>
+class EXPORTISMRMRD Image {
     friend class Dataset;
+
 public:
     // Constructors
     Image(uint16_t matrix_size_x = 0, uint16_t matrix_size_y = 1,
           uint16_t matrix_size_z = 1, uint16_t channels = 1);
     Image(const Image &other);
-    Image & operator= (const Image &other);
+    Image &operator=(const Image &other);
     ~Image();
 
     // Image dimensions
@@ -678,7 +746,7 @@ public:
     void setFieldOfViewZ(float f);
 
     // Positions and orientations
-    void setPosition(float x, float y, float z);    
+    void setPosition(float x, float y, float z);
     float getPositionX() const;
     void setPositionX(float x);
     float getPositionY() const;
@@ -693,7 +761,7 @@ public:
     void setReadDirectionY(float y);
     float getReadDirectionZ() const;
     void setReadDirectionZ(float z);
-    
+
     void setPhaseDirection(float x, float y, float z);
     float getPhaseDirectionX() const;
     void setPhaseDirectionX(float x);
@@ -709,7 +777,7 @@ public:
     void setSliceDirectionY(float y);
     float getSliceDirectionZ() const;
     void setSliceDirectionZ(float z);
-    
+
     void setPatientTablePosition(float x, float y, float z);
     float getPatientTablePositionX() const;
     void setPatientTablePositionX(float x);
@@ -718,7 +786,6 @@ public:
     float getPatientTablePositionZ() const;
     void setPatientTablePositionZ(float z);
 
-    
     // Attributes
     uint16_t getVersion() const;
     ISMRMRD_DataTypes getDataType() const;
@@ -732,13 +799,13 @@ public:
 
     uint16_t getSlice() const;
     void setSlice(uint16_t slice);
-    
+
     uint16_t getContrast() const;
     void setContrast(uint16_t contrast);
 
     uint16_t getPhase() const;
     void setPhase(uint16_t phase);
-    
+
     uint16_t getRepetition() const;
     void setRepetition(uint16_t repetition);
 
@@ -750,7 +817,7 @@ public:
 
     uint32_t getPhysiologyTimeStamp(unsigned int stamp_id) const;
     void setPhysiologyTimeStamp(unsigned int stamp_id, uint32_t value);
-    
+
     uint16_t getImageType() const;
     void setImageType(uint16_t image_type);
 
@@ -759,7 +826,7 @@ public:
 
     uint16_t getImageSeriesIndex() const;
     void setImageSeriesIndex(uint16_t image_series_index);
-    
+
     // User parameters
     float getUserFloat(unsigned int index) const;
     void setUserFloat(unsigned int index, float value);
@@ -776,48 +843,50 @@ public:
     void clearAllFlags();
 
     // Header
-    ImageHeader & getHead();
-    const ImageHeader & getHead() const;
-    void setHead(const ImageHeader& head);
-    
+    ImageHeader &getHead();
+    const ImageHeader &getHead() const;
+    void setHead(const ImageHeader &head);
+
     // Attribute string
     void getAttributeString(std::string &attr) const;
     const char *getAttributeString() const;
     void setAttributeString(const std::string &attr);
     void setAttributeString(const char *attr);
     size_t getAttributeStringLength() const;
-    
+
     // Data
-    T * getDataPtr();
-    const T * getDataPtr() const;
+    T *getDataPtr();
+    const T *getDataPtr() const;
     /** Returns the number of elements in the image data **/
     size_t getNumberOfDataElements() const;
     /** Returns the size of the image data in bytes **/
     size_t getDataSize() const;
 
     /** Returns iterator to the beginning of the image data **/
-    T* begin();
+    T *begin();
 
     /** Returns iterator to the end of the image data **/
-    T* end();
+    T *end();
 
     /** Returns a reference to the image data **/
-    T & operator () (uint16_t x, uint16_t y=0, uint16_t z=0 , uint16_t channel =0);
+    T &operator()(uint16_t x, uint16_t y = 0, uint16_t z = 0, uint16_t channel = 0);
 
 protected:
     ISMRMRD_Image im;
 };
 
 /// N-Dimensional array type
-template <typename T> class EXPORTISMRMRD NDArray {
+template <typename T>
+class EXPORTISMRMRD NDArray {
     friend class Dataset;
+
 public:
     // Constructors, destructor and copy
     NDArray();
     NDArray(const std::vector<size_t> dimvec);
     NDArray(const NDArray<T> &other);
     ~NDArray();
-    NDArray<T> & operator= (const NDArray<T> &other);
+    NDArray<T> &operator=(const NDArray<T> &other);
 
     // Accessors and mutators
     uint16_t getVersion() const;
@@ -827,22 +896,21 @@ public:
     size_t getDataSize() const;
     void resize(const std::vector<size_t> dimvec);
     size_t getNumberOfElements() const;
-    T * getDataPtr();
-    const T * getDataPtr() const;
-    
+    T *getDataPtr();
+    const T *getDataPtr() const;
+
     /** Returns iterator to the beginning of the array **/
-    T * begin();
+    T *begin();
 
     /** Returns iterator to the end of the array **/
-    T* end();
+    T *end();
 
     /** Returns a reference to the image data **/
-    T & operator () (uint16_t x, uint16_t y=0, uint16_t z=0, uint16_t w=0, uint16_t n=0, uint16_t m=0, uint16_t l=0);
+    T &operator()(uint16_t x, uint16_t y = 0, uint16_t z = 0, uint16_t w = 0, uint16_t n = 0, uint16_t m = 0, uint16_t l = 0);
 
 protected:
     ISMRMRD_NDArray arr;
 };
-
 
 /** @} */
 

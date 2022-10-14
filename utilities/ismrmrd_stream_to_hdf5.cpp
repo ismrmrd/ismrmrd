@@ -83,7 +83,9 @@ void convert_stream_to_hdf5(std::string output_file, std::string groupname, std:
             deserializer.deserialize(wfm);
             d.appendWaveform(wfm);
         } else {
-            throw std::runtime_error("Unknown message type: " + deserializer.peek());
+            std::stringstream ss;
+            ss << "Unknown message type " << deserializer.peek();
+            throw std::runtime_error(ss.str());
         }
     }
 }
