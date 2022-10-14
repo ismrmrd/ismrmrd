@@ -37,6 +37,10 @@ typedef unsigned __int64 uint64_t;
 #include <stddef.h>     /* for size_t */
 #endif /* _MSC_VER */
 
+#if __cplusplus > 199711L
+#include <type_traits>
+#endif
+
 /* Complex numbers */
 #ifdef __cplusplus
 #include <complex>
@@ -235,7 +239,9 @@ typedef struct ISMRMRD_EncodingCounters {
     uint16_t user[ISMRMRD_USER_INTS]; /**< Free user parameters */
 } ISMRMRD_EncodingCounters;
 
-#ifdef __cplusplus
+#if __cplusplus > 199711L // Static assert requires C++11
+// Check standard layout
+static_assert(std::is_standard_layout<ISMRMRD_EncodingCounters>::value, "ISMRMRD_EncodingCounters is not a standard layout type");
 // Check for size and offset of EncodingCounters struct members
 static_assert(sizeof(ISMRMRD_EncodingCounters) == 34, "ISMRMRD_EncodingCounters is not the expected size");
 static_assert(offsetof(ISMRMRD_EncodingCounters, kspace_encode_step_1) == 0, "kspace_encode_step_1 is not at the expected offset");
@@ -280,7 +286,9 @@ typedef struct ISMRMRD_AcquisitionHeader {
     float user_float[ISMRMRD_USER_FLOATS];               /**< Free user parameters */
 } ISMRMRD_AcquisitionHeader;
 
-#ifdef __cplusplus
+#if __cplusplus > 199711L // Static assert requires C++11
+// Check standard layout
+static_assert(std::is_standard_layout<ISMRMRD_AcquisitionHeader>::value, "ISMRMRD_AcquisitionHeader is not a standard layout type");
 // Check for size and offset of AcquisitionHeader struct members
 static_assert(sizeof(ISMRMRD_AcquisitionHeader) == 340, "ISMRMRD_AcquisitionHeader is not the expected size");
 static_assert(offsetof(ISMRMRD_AcquisitionHeader, version) == 0, "version is not at the expected offset");
@@ -372,7 +380,9 @@ typedef struct ISMRMRD_ImageHeader {
     uint32_t attribute_string_len;                       /**< Length of attributes string */
 } ISMRMRD_ImageHeader;
 
-#ifdef __cplusplus
+#if __cplusplus > 199711L // Static assert requires C++11
+// Check standard layout
+static_assert(std::is_standard_layout<ISMRMRD_ImageHeader>::value, "ISMRMRD_ImageHeader is not a standard layout type");
 // Check size and offsets of ISMRMRD_ImageHeader
 static_assert(sizeof(ISMRMRD_ImageHeader) == 198, "ISMRMRD_ImageHeader is not the expected size");
 static_assert(offsetof(ISMRMRD_ImageHeader, version) == 0, "version is not at the expected offset");
@@ -589,6 +599,11 @@ public:
 
 };
 
+#if __cplusplus > 199711L // Static assert and is_standard_layout requires C++11
+static_assert(sizeof(AcquisitionHeader) == sizeof(ISMRMRD_AcquisitionHeader), "AcquisitionHeader size mismatch");
+static_assert(std::is_standard_layout<AcquisitionHeader>::value, "AcquisitionHeader is not a standard layout type");
+#endif
+
 /// MR Acquisition type
 class EXPORTISMRMRD Acquisition {
     friend class Dataset;
@@ -722,6 +737,11 @@ public:
     void clearAllFlags();
 
 };
+
+#if __cplusplus > 199711L // Static assert and is_standard_layout requires C++11
+static_assert(sizeof(ImageHeader) == sizeof(ISMRMRD_ImageHeader), "ImageHeader size mismatch");
+static_assert(std::is_standard_layout<ImageHeader>::value, "ImageHeader is not a standard layout type");
+#endif
 
 /// MR Image type
 template <typename T> class EXPORTISMRMRD Image {

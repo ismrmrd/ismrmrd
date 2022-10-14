@@ -68,6 +68,9 @@ void deserialize(Image<T> &img, ReadableStream &rs) {
 }
 
 void deserialize(Waveform &wfm, ReadableStream &rs) {
+#if __cplusplus > 199711L
+    static_assert(std::is_same<decltype(wfm.head), ISMRMRD_WaveformHeader>::value, "Waveform header type mismatch");
+#endif
     rs.read(reinterpret_cast<char *>(&wfm.head), sizeof(ISMRMRD_WaveformHeader));
     ismrmrd_make_consistent_waveform(&wfm);
     rs.read(reinterpret_cast<char *>(wfm.begin_data()), wfm.head.number_of_samples * wfm.head.channels * sizeof(uint32_t));

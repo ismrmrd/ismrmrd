@@ -7,6 +7,10 @@
 #ifndef ISMRMRD_WAVEFORM_H
 #define ISMRMRD_WAVEFORM_H
 
+#if __cplusplus > 199711L
+#include <type_traits>
+#endif
+
 #include "export.h"
 #ifdef __cplusplus
 #include <cstdint>
@@ -39,7 +43,8 @@ typedef struct ISMRMRD_WaveformHeader
 	/**< Id matching the types specified in the xml header */
 } ISMRMRD_WaveformHeader;
 
-#ifdef __cplusplus
+
+#if __cplusplus > 199711L // Static assert requires C++11
 // Check size and offsets of WaveformHeader
 static_assert(sizeof(ISMRMRD_WaveformHeader) == 40, "ISMRMRD_WaveformHeader is not 40 bytes");
 static_assert(offsetof(ISMRMRD_WaveformHeader, version) == 0, "ISMRMRD WaveformHeader version offset is not correct");
@@ -79,6 +84,13 @@ EXPORTISMRMRD int ismrmrd_copy_waveform(ISMRMRD_Waveform* dest, const ISMRMRD_Wa
         void clearAllFlags();
 
     };
+
+    #if __cplusplus > 199711L // Static assert and is_standard_layout requires C++11
+    // check size of WaveformHeader
+    static_assert(sizeof(WaveformHeader) == sizeof(ISMRMRD_WaveformHeader), "WaveformHeader is not the same size as ISMRMRD_WaveformHeader");
+    static_assert(std::is_standard_layout<WaveformHeader>::value, "WaveformHeader is not a standard layout type");
+    #endif
+
     struct EXPORTISMRMRD Waveform : public ISMRMRD_Waveform {
         Waveform();
         Waveform(const Waveform &other);
