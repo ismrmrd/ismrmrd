@@ -38,45 +38,36 @@ void convert_stream_to_hdf5(std::string output_file, std::string groupname, std:
                 ISMRMRD::Image<unsigned short> img;
                 deserializer.deserialize(img);
                 d.appendImage(create_image_series_name(img), img);
-                break;
             } else if (deserializer.peek_image_data_type() == ISMRMRD::ISMRMRD_SHORT) {
                 ISMRMRD::Image<short> img;
                 deserializer.deserialize(img);
                 d.appendImage(create_image_series_name(img), img);
-                break;
             } else if (deserializer.peek_image_data_type() == ISMRMRD::ISMRMRD_UINT) {
                 ISMRMRD::Image<unsigned int> img;
                 deserializer.deserialize(img);
                 d.appendImage(create_image_series_name(img), img);
-                break;
             } else if (deserializer.peek_image_data_type() == ISMRMRD::ISMRMRD_INT) {
                 ISMRMRD::Image<int> img;
                 deserializer.deserialize(img);
                 d.appendImage(create_image_series_name(img), img);
-                break;
             } else if (deserializer.peek_image_data_type() == ISMRMRD::ISMRMRD_FLOAT) {
                 ISMRMRD::Image<float> img;
                 deserializer.deserialize(img);
                 d.appendImage(create_image_series_name(img), img);
-                break;
             } else if (deserializer.peek_image_data_type() == ISMRMRD::ISMRMRD_DOUBLE) {
                 ISMRMRD::Image<double> img;
                 deserializer.deserialize(img);
                 d.appendImage(create_image_series_name(img), img);
-                break;
             } else if (deserializer.peek_image_data_type() == ISMRMRD::ISMRMRD_CXFLOAT) {
                 ISMRMRD::Image<std::complex<float> > img;
                 deserializer.deserialize(img);
                 d.appendImage(create_image_series_name(img), img);
-                break;
             } else if (deserializer.peek_image_data_type() == ISMRMRD::ISMRMRD_CXDOUBLE) {
                 ISMRMRD::Image<std::complex<double> > img;
                 deserializer.deserialize(img);
                 d.appendImage(create_image_series_name(img), img);
-                break;
             } else {
                 throw std::runtime_error("Unknown image type");
-                break;
             }
         } else if (deserializer.peek() == ISMRMRD::ISMRMRD_MESSAGE_WAVEFORM) {
             ISMRMRD::Waveform wfm;
@@ -87,6 +78,11 @@ void convert_stream_to_hdf5(std::string output_file, std::string groupname, std:
             ss << "Unknown message type " << deserializer.peek();
             throw std::runtime_error(ss.str());
         }
+    }
+
+    // If we can read any more at this point, it is an error
+    if (is.rdbuf()->in_avail() > 0) {
+        throw std::runtime_error("Unexpected data after ISMRMRD_CLOSE: " + std::to_string(is.rdbuf()->in_avail()));
     }
 }
 

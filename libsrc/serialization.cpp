@@ -110,6 +110,9 @@ void ProtocolSerializer::serialize(const IsmrmrdHeader &hdr) {
     write_msg_id(ISMRMRD_MESSAGE_HEADER);
     _ws.write(reinterpret_cast<const char *>(&size), sizeof(uint32_t));
     _ws.write(as_str.c_str(), as_str.size());
+    if (_ws.bad()) {
+        throw std::runtime_error("Error writing header to stream");
+    }
 }
 
 void ProtocolSerializer::serialize(const Acquisition &acq) {
@@ -139,6 +142,9 @@ uint16_t ProtocolDeserializer::peek() {
         _rs.read(reinterpret_cast<char *>(&_peeked), sizeof(uint16_t));
         if (_peeked == ISMRMRD_MESSAGE_IMAGE) {
             _rs.read(reinterpret_cast<char *>(&_peeked_image_header), sizeof(ImageHeader));
+        }
+        if (_rs.eof()) {
+            throw std::runtime_error("Error reading message ID");
         }
     }
     return _peeked;
