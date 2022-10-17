@@ -81,8 +81,8 @@ void convert_stream_to_hdf5(std::string output_file, std::string groupname, std:
     }
 
     // If we can read any more at this point, it is an error
-    if (is.rdbuf()->in_avail() > 0) {
-        throw std::runtime_error("Unexpected data after ISMRMRD_CLOSE: " + std::to_string(is.rdbuf()->in_avail()));
+    if (is.get() != EOF) {
+        throw std::runtime_error("Extra data after ISMRMRD_CLOSE");
     }
 }
 
