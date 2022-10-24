@@ -50,7 +50,7 @@ void serialize(const char (&str)[1024], WritableStreamView &ws) {
 }
 
 void serialize(const std::string &str, WritableStreamView &ws) {
-    uint32_t len = str.length();
+    uint32_t len = static_cast<uint32_t>(str.length());
     ws.write(reinterpret_cast<char *>(&len), sizeof(uint32_t));
     ws.write(str.c_str(), len);
     if (ws.bad()) {
