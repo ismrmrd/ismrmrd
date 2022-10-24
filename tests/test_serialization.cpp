@@ -119,6 +119,74 @@ BOOST_AUTO_TEST_CASE(test_waveform_serialization) {
                                   wf2.begin_data(), wf2.end_data());
 }
 
+// Test serrialization of const length arrays
+BOOST_AUTO_TEST_CASE(test_fixed_length_string_serialization) {
+    char buffer[1024];
+
+    strcpy(buffer, "default.xml");
+
+    std::stringstream ss(std::ios::in | std::ios::out | std::ios::binary);
+    OStreamView ws(ss);
+    IStreamView rs(ss);
+
+    ISMRMRD::serialize(buffer, ws);
+
+    char buffer2[1024];
+    ISMRMRD::deserialize(buffer2, rs);
+    std::string str2(buffer2);
+    BOOST_CHECK_EQUAL("default.xml", str2);
+}
+
+// Test string serialization
+BOOST_AUTO_TEST_CASE(test_string_serialization) {
+    std::string str("This can really be any string, including <XML> configuration and unicode characters: 你好");
+
+    std::stringstream ss(std::ios::in | std::ios::out | std::ios::binary);
+    OStreamView ws(ss);
+    IStreamView rs(ss);
+
+    ISMRMRD::serialize(str, ws);
+
+    std::string str2;
+    ISMRMRD::deserialize(str2, rs);
+    BOOST_CHECK_EQUAL(str, str2);
+}
+
+BOOST_AUTO_TEST_CASE(test_of_control_plane_protocol_serialization) {
+    ConfigFile cfg;
+    std::string config_name("test_config.xml");
+    strcpy(cfg.config, config_name.c_str());
+
+    ConfigText cfg_txt;
+    cfg_txt.config_text = "{{ \"test\": \"test\" }}";
+
+    TextMessage txt_msg;
+    txt_msg.message = "This is a test";
+
+    std::stringstream ss(std::ios::in | std::ios::out | std::ios::binary);
+    OStreamView ws(ss);
+    IStreamView rs(ss);
+
+    ProtocolSerializer serializer(ws);
+    ProtocolDeserializer deserializer(rs);
+
+    serializer.serialize(cfg);
+    serializer.serialize(cfg_txt);
+    serializer.serialize(txt_msg);
+
+    ConfigFile cfg2;
+    deserializer.deserialize(cfg2);
+    BOOST_CHECK_EQUAL(cfg2.config, config_name.c_str());
+
+    ConfigText cfg_txt2;
+    deserializer.deserialize(cfg_txt2);
+    BOOST_CHECK_EQUAL(cfg_txt2.config_text, cfg_txt.config_text);
+
+    TextMessage txt_msg2;
+    deserializer.deserialize(txt_msg2);
+    BOOST_CHECK_EQUAL(txt_msg2.message, txt_msg.message);
+}
+
 BOOST_AUTO_TEST_CASE(test_of_protocol_serialization) {
 
     // A header

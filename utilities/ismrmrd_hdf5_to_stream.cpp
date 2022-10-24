@@ -10,10 +10,22 @@
 
 namespace po = boost::program_options;
 
-void serialize_to_stream(const std::string &input_file, const std::string &groupname, const std::vector<std::string> &image_series, std::ostream &os) {
+void serialize_to_stream(const std::string &input_file, const std::string &groupname, const std::vector<std::string> &image_series, std::ostream &os, std::string config_file, std::string config_text) {
     ISMRMRD::Dataset d(input_file.c_str(), groupname.c_str(), false);
     ISMRMRD::OStreamView ws(os);
     ISMRMRD::ProtocolSerializer serializer(ws);
+
+    if (config_file.size()) {
+        ISMRMRD::ConfigFile cfg;
+        strcpy(cfg.config, config_file.c_str());
+        serializer.serialize(cfg);
+    }
+
+    if (config_text.size()) {
+        ISMRMRD::ConfigText cfg;
+        cfg.config_text = config_text;
+        serializer.serialize(cfg);
+    }
 
     try {
         std::string xml;
@@ -114,6 +126,9 @@ int main(int argc, char **argv) {
     po::options_description desc("Allowed options");
 
     // Arguments
+    std::string config_file = "";
+    std::string local_config_file = "";
+    std::string config_text = "";
     std::string input_file;
     std::string output_file = "";
     bool use_stdout = false;
@@ -127,7 +142,9 @@ int main(int argc, char **argv) {
         ("output,o", po::value<std::string>(&output_file),"Binary output file")
         ("use-stdout", po::bool_switch(&use_stdout), "Use stdout for output")
         ("group,g", po::value<std::string>(&groupname)->default_value("dataset"), "group name")
-        ("image-series,s", po::value<std::vector<std::string>>(&image_series)->multitoken(), "image series to extract");
+        ("image-series,s", po::value<std::vector<std::string>>(&image_series)->multitoken(), "image series to extract")
+        ("config-file,c", po::value<std::string>(&config_file), "Configuration name (aka config file)")
+        ("local-config-file,C", po::value<std::string>(&local_config_file), "Configuration text file");
     // clang-format on
 
     po::variables_map vm;
@@ -150,12 +167,25 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    if (vm.count("config-file") && vm.count("local-config-file")) {
+        std::cerr << "Error: Cannot specify both config-name and config-text-file" << std::endl;
+        return 1;
+    }
+
+    // Read config text file into string
+    if (vm.count("local-config-file")) {
+        std::ifstream f(local_config_file);
+        std::stringstream buffer;
+        buffer << f.rdbuf();
+        config_text = buffer.str();
+    }
+
     if (use_stdout) {
         ISMRMRD::set_binary_io();
-        serialize_to_stream(input_file, groupname, image_series, std::cout);
+        serialize_to_stream(input_file, groupname, image_series, std::cout, config_file, config_text);
     } else if (output_file != "") {
         std::ofstream out(output_file, std::ios::out | std::ios::binary);
-        serialize_to_stream(input_file, groupname, image_series, out);
+        serialize_to_stream(input_file, groupname, image_series, out, config_file, config_text);
     } else {
         std::cerr << "Error: Must specify either output file or use-stdout" << std::endl;
         return 1;

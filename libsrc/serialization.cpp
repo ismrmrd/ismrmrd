@@ -42,6 +42,22 @@ void serialize(const Waveform &wfm, WritableStreamView &ws) {
     }
 }
 
+void serialize(const char (&str)[1024], WritableStreamView &ws) {
+    ws.write(str, 1024);
+    if (ws.bad()) {
+        throw std::runtime_error("Error writing fixed length char array to stream");
+    }
+}
+
+void serialize(const std::string &str, WritableStreamView &ws) {
+    uint32_t len = str.length();
+    ws.write(reinterpret_cast<char *>(&len), sizeof(uint32_t));
+    ws.write(str.c_str(), len);
+    if (ws.bad()) {
+        throw std::runtime_error("Error writing string to stream");
+    }
+}
+
 void deserialize(Acquisition &acq, ReadableStreamView &rs) {
     AcquisitionHeader ahead;
     rs.read(reinterpret_cast<char *>(&ahead), sizeof(AcquisitionHeader));
@@ -96,10 +112,43 @@ void deserialize(Waveform &wfm, ReadableStreamView &rs) {
     }
 }
 
+void deserialize(char (&str)[1024], ReadableStreamView &rs) {
+    rs.read(str, 1024);
+    if (rs.eof()) {
+        throw std::runtime_error("Error reading fixed length char array");
+    }
+}
+
+void deserialize(std::string &str, ReadableStreamView &rs) {
+    uint32_t len;
+    rs.read(reinterpret_cast<char *>(&len), sizeof(uint32_t));
+    std::vector<char> buf(len);
+    rs.read(&buf[0], len);
+    if (rs.eof()) {
+        throw std::runtime_error("Error reading string");
+    }
+    str.assign(&buf[0], len);
+}
+
 ProtocolSerializer::ProtocolSerializer(WritableStreamView &ws) : _ws(ws) {}
 
 void ProtocolSerializer::write_msg_id(uint16_t id) {
     _ws.write(reinterpret_cast<const char *>(&id), sizeof(uint16_t));
+}
+
+void ProtocolSerializer::serialize(const ConfigFile &cf) {
+    write_msg_id(ISMRMRD_MESSAGE_CONFIG_FILE);
+    ISMRMRD::serialize(cf.config, _ws);
+}
+
+void ProtocolSerializer::serialize(const ConfigText &ct) {
+    write_msg_id(ISMRMRD_MESSAGE_CONFIG_TEXT);
+    ISMRMRD::serialize(ct.config_text, _ws);
+}
+
+void ProtocolSerializer::serialize(const TextMessage &tm) {
+    write_msg_id(ISMRMRD_MESSAGE_TEXT);
+    ISMRMRD::serialize(tm.message, _ws);
 }
 
 void ProtocolSerializer::serialize(const IsmrmrdHeader &hdr) {
@@ -156,6 +205,30 @@ int ProtocolDeserializer::peek_image_data_type() {
     } else {
         throw std::runtime_error("Cannot peak image data type if not peeking an image");
     }
+}
+
+void ProtocolDeserializer::deserialize(ConfigFile &cf) {
+    if (peek() != ISMRMRD_MESSAGE_CONFIG_FILE) {
+        throw std::runtime_error("Expected config file message");
+    }
+    ISMRMRD::deserialize(cf.config, _rs);
+    _peeked = ISMRMRD_MESSAGE_UNPEEKED;
+}
+
+void ProtocolDeserializer::deserialize(ConfigText &ct) {
+    if (peek() != ISMRMRD_MESSAGE_CONFIG_TEXT) {
+        throw std::runtime_error("Expected config text message");
+    }
+    ISMRMRD::deserialize(ct.config_text, _rs);
+    _peeked = ISMRMRD_MESSAGE_UNPEEKED;
+}
+
+void ProtocolDeserializer::deserialize(TextMessage &tm) {
+    if (peek() != ISMRMRD_MESSAGE_TEXT) {
+        throw std::runtime_error("Expected text message");
+    }
+    ISMRMRD::deserialize(tm.message, _rs);
+    _peeked = ISMRMRD_MESSAGE_UNPEEKED;
 }
 
 void ProtocolDeserializer::deserialize(IsmrmrdHeader &hdr) {

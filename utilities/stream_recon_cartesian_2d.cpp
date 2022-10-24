@@ -27,6 +27,14 @@ void reconstruct(std::istream &in, std::ostream &out) {
     ISMRMRD::ProtocolDeserializer deserializer(rs);
     ISMRMRD::ProtocolSerializer serializer(ws);
 
+    if (deserializer.peek() == ISMRMRD::ISMRMRD_MESSAGE_CONFIG_FILE) {
+        ISMRMRD::ConfigFile cfg;
+        deserializer.deserialize(cfg);
+        std::string config_name(cfg.config);
+        std::cerr << "Reconstruction received config file: " << config_name << std::endl;
+        std::cerr << "Configuration file is ignore in this sample reconstruction" << std::endl;
+    }
+
     ISMRMRD::IsmrmrdHeader hdr;
     deserializer.deserialize(hdr);
 

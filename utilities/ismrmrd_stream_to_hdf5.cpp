@@ -20,13 +20,16 @@ void convert_stream_to_hdf5(std::string output_file, std::string groupname, std:
     ISMRMRD::IStreamView rs(is);
     ISMRMRD::ProtocolDeserializer deserializer(rs);
 
-    ISMRMRD::IsmrmrdHeader hdr;
-    deserializer.deserialize(hdr);
+    // Some reconstructions return the header but it is not required.
+    if (deserializer.peek() == ISMRMRD::ISMRMRD_MESSAGE_HEADER) {
+        ISMRMRD::IsmrmrdHeader hdr;
+        deserializer.deserialize(hdr);
 
-    // We will convert the XML header to a string and write it to the HDF5 file
-    std::stringstream xmlstream;
-    ISMRMRD::serialize(hdr, xmlstream);
-    d.writeHeader(xmlstream.str());
+        // We will convert the XML header to a string and write it to the HDF5 file
+        std::stringstream xmlstream;
+        ISMRMRD::serialize(hdr, xmlstream);
+        d.writeHeader(xmlstream.str());
+    }
 
     while (deserializer.peek() != ISMRMRD::ISMRMRD_MESSAGE_CLOSE) {
         if (deserializer.peek() == ISMRMRD::ISMRMRD_MESSAGE_ACQUISITION) {
@@ -73,6 +76,10 @@ void convert_stream_to_hdf5(std::string output_file, std::string groupname, std:
             ISMRMRD::Waveform wfm;
             deserializer.deserialize(wfm);
             d.appendWaveform(wfm);
+        } else if (deserializer.peek() == ISMRMRD::ISMRMRD_MESSAGE_TEXT) {
+            ISMRMRD::TextMessage txt;
+            deserializer.deserialize(txt);
+            std::cerr << "TEXT MESSAGE: " << txt.message << std::endl;
         } else {
             std::stringstream ss;
             ss << "Unknown message type " << deserializer.peek();
