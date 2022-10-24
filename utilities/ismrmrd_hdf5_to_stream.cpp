@@ -1,5 +1,6 @@
 #include "ismrmrd/dataset.h"
 #include "ismrmrd/serialization.h"
+#include "ismrmrd/serialization_iostream.h"
 #include "ismrmrd_io_utils.h"
 
 #include <boost/program_options.hpp>
@@ -11,7 +12,7 @@ namespace po = boost::program_options;
 
 void serialize_to_stream(const std::string &input_file, const std::string &groupname, const std::vector<std::string> &image_series, std::ostream &os) {
     ISMRMRD::Dataset d(input_file.c_str(), groupname.c_str(), false);
-    ISMRMRD::WritableStreamView ws(os);
+    ISMRMRD::OStreamView ws(os);
     ISMRMRD::ProtocolSerializer serializer(ws);
 
     try {

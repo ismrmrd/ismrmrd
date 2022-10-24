@@ -1,5 +1,5 @@
 #include "fftw3.h"
-#include "ismrmrd/serialization.h"
+#include "ismrmrd/serialization_iostream.h"
 #include "ismrmrd_io_utils.h"
 #include <boost/program_options.hpp>
 #include <fstream>
@@ -21,8 +21,8 @@ void circshift(complex_float_t *out, const complex_float_t *in, int xdim, int yd
 #define fftshift(out, in, x, y) circshift(out, in, x, y, (x / 2), (y / 2))
 
 void reconstruct(std::istream &in, std::ostream &out) {
-    ISMRMRD::ReadableStreamView rs(in);
-    ISMRMRD::WritableStreamView ws(out);
+    ISMRMRD::IStreamView rs(in);
+    ISMRMRD::OStreamView ws(out);
 
     ISMRMRD::ProtocolDeserializer deserializer(rs);
     ISMRMRD::ProtocolSerializer serializer(ws);

@@ -1,5 +1,5 @@
 #include "ismrmrd/dataset.h"
-#include "ismrmrd/serialization.h"
+#include "ismrmrd/serialization_iostream.h"
 #include "ismrmrd_io_utils.h"
 #include <boost/program_options.hpp>
 #include <fstream>
@@ -17,7 +17,7 @@ std::string create_image_series_name(const ISMRMRD::Image<T> &img) {
 void convert_stream_to_hdf5(std::string output_file, std::string groupname, std::istream &is) {
     ISMRMRD::Dataset d(output_file.c_str(), groupname.c_str(), true);
 
-    ISMRMRD::ReadableStreamView rs(is);
+    ISMRMRD::IStreamView rs(is);
     ISMRMRD::ProtocolDeserializer deserializer(rs);
 
     ISMRMRD::IsmrmrdHeader hdr;

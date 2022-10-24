@@ -34,90 +34,20 @@ enum ISMRMRD_MESSAGE_ID {
     ISMRMRD_MESSAGE_WAVEFORM = 1026
 };
 
-// A wrapper, which we can use wrap any object that has a read(...) method
+// A wrapper interface, which we can implement, e.g., for std::istream
 class ReadableStreamView {
 public:
-    void read(char *buffer, size_t count) {
-        reader_impl->read(buffer, count);
-    }
+    virtual void read(char *buffer, size_t count) = 0;
 
-    bool eof() {
-        return reader_impl->eof();
-    }
-
-    template <class HAS_READ>
-    ReadableStreamView(HAS_READ &has_read) {
-        reader_impl = new ReadableStreamViewT<HAS_READ>(has_read);
-    }
-
-    virtual ~ReadableStreamView() {
-        delete reader_impl;
-    }
-
-private:
-    struct ReadableStreamViewImpl {
-        virtual ~ReadableStreamViewImpl() {}
-        virtual void read(char *buffer, size_t count) = 0;
-        virtual bool eof() = 0;
-    };
-
-    template <class T>
-    struct ReadableStreamViewT : public ReadableStreamViewImpl {
-        ReadableStreamViewT(T &readable) : self{ readable } {}
-        virtual ~ReadableStreamViewT() {}
-        void read(char *buffer, size_t count) {
-            self.read(buffer, count);
-        }
-        bool eof() {
-            return self.eof();
-        }
-        T &self;
-    };
-    ReadableStreamViewImpl *reader_impl;
+    virtual bool eof() = 0;
 };
 
-// A wrapper, which we can use wrap any object that has a write(...) method
+// A wrapper interface, which we can implement, e.g., for std::ostream
 class WritableStreamView {
 public:
-    void write(const char *buffer, size_t count) {
-        writer_impl->write(buffer, count);
-    }
+    virtual void write(const char *buffer, size_t count) = 0;
 
-    bool bad() {
-        return writer_impl->bad();
-    }
-
-    template <class HAS_WRITE>
-    WritableStreamView(HAS_WRITE &has_write) {
-        writer_impl = new WritableStreamViewT<HAS_WRITE>(has_write);
-    }
-
-    virtual ~WritableStreamView() {
-        delete writer_impl;
-    }
-
-private:
-    struct WritableStreamViewImpl {
-        virtual ~WritableStreamViewImpl() {}
-        virtual void write(const char *buffer, size_t count) = 0;
-        virtual bool bad() = 0;
-    };
-
-    template <class T>
-    struct WritableStreamViewT : public WritableStreamViewImpl {
-        WritableStreamViewT(T &writable) : self{ writable } {}
-
-        virtual ~WritableStreamViewT() {}
-        void write(const char *buffer, size_t count) {
-            self.write(buffer, count);
-        }
-        bool bad() {
-            return self.bad();
-        }
-        T &self;
-    };
-
-    WritableStreamViewImpl *writer_impl;
+    virtual bool bad() = 0;
 };
 
 // serialize Acquisition to ostream
