@@ -120,20 +120,20 @@ BOOST_AUTO_TEST_CASE(test_waveform_serialization) {
 }
 
 // Test serrialization of const length arrays
-BOOST_AUTO_TEST_CASE(test_fixed_length_string_serialization) {
-    char buffer[1024];
+BOOST_AUTO_TEST_CASE(test_config_serialization) {
+    ConfigFile cfg;
 
-    strcpy(buffer, "default.xml");
+    strcpy(cfg.config, "default.xml");
 
     std::stringstream ss(std::ios::in | std::ios::out | std::ios::binary);
     OStreamView ws(ss);
     IStreamView rs(ss);
 
-    ISMRMRD::serialize(buffer, ws);
+    ISMRMRD::serialize(cfg, ws);
 
-    char buffer2[1024];
-    ISMRMRD::deserialize(buffer2, rs);
-    std::string str2(buffer2);
+    ConfigFile cfg2;
+    ISMRMRD::deserialize(cfg2, rs);
+    std::string str2(cfg2.config);
     BOOST_CHECK_EQUAL("default.xml", str2);
 }
 

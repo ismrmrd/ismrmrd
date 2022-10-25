@@ -42,8 +42,8 @@ void serialize(const Waveform &wfm, WritableStreamView &ws) {
     }
 }
 
-void serialize(const char (&str)[1024], WritableStreamView &ws) {
-    ws.write(str, 1024);
+void serialize(const ConfigFile &cfg, WritableStreamView &ws) {
+    ws.write(cfg.config, sizeof(cfg.config));
     if (ws.bad()) {
         throw std::runtime_error("Error writing fixed length char array to stream");
     }
@@ -112,8 +112,8 @@ void deserialize(Waveform &wfm, ReadableStreamView &rs) {
     }
 }
 
-void deserialize(char (&str)[1024], ReadableStreamView &rs) {
-    rs.read(str, 1024);
+void deserialize(ConfigFile &cfg, ReadableStreamView &rs) {
+    rs.read(cfg.config, sizeof(cfg.config));
     if (rs.eof()) {
         throw std::runtime_error("Error reading fixed length char array");
     }
@@ -138,7 +138,7 @@ void ProtocolSerializer::write_msg_id(uint16_t id) {
 
 void ProtocolSerializer::serialize(const ConfigFile &cf) {
     write_msg_id(ISMRMRD_MESSAGE_CONFIG_FILE);
-    ISMRMRD::serialize(cf.config, _ws);
+    ISMRMRD::serialize(cf, _ws);
 }
 
 void ProtocolSerializer::serialize(const ConfigText &ct) {
@@ -211,7 +211,7 @@ void ProtocolDeserializer::deserialize(ConfigFile &cf) {
     if (peek() != ISMRMRD_MESSAGE_CONFIG_FILE) {
         throw std::runtime_error("Expected config file message");
     }
-    ISMRMRD::deserialize(cf.config, _rs);
+    ISMRMRD::deserialize(cf, _rs);
     _peeked = ISMRMRD_MESSAGE_UNPEEKED;
 }
 
