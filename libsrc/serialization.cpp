@@ -127,6 +127,11 @@ void deserialize(std::string &str, ReadableStreamView &rs) {
     if (rs.eof()) {
         throw std::runtime_error("Error reading string");
     }
+    // Past implementations would serialize strings with the null terminator added at the end.
+    // We remove that here.
+    if (buf[len - 1] == '\0') {
+        len--;
+    }
     str.assign(&buf[0], len);
 }
 

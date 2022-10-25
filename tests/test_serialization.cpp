@@ -152,6 +152,28 @@ BOOST_AUTO_TEST_CASE(test_string_serialization) {
     BOOST_CHECK_EQUAL(str, str2);
 }
 
+// Some early iterations used explicit null terminations in strings,
+// We are testing here that it doesn't trip us up
+BOOST_AUTO_TEST_CASE(test_string_desiralization_with_null_terminators) {
+    std::stringstream ss(std::ios::in | std::ios::out | std::ios::binary);
+
+    std::vector<char> buffer = { 'h', 'e', 'l', 'l', 'o', '\0' };
+
+    // Write a config text manually
+    uint32_t len = static_cast<uint32_t>(buffer.size());
+    BOOST_CHECK_EQUAL(len, 6); // 6 characters with the null terminator
+    ss.write(reinterpret_cast<char *>(&len), sizeof(uint32_t));
+    ss.write(&buffer[0], len);
+
+    IStreamView rs(ss);
+
+    ConfigText cf;
+    ISMRMRD::deserialize(cf.config_text, rs);
+
+    BOOST_CHECK_EQUAL(cf.config_text.size(), 5); // String is 1 shorter
+    BOOST_CHECK_EQUAL(cf.config_text, "hello");
+}
+
 BOOST_AUTO_TEST_CASE(test_of_control_plane_protocol_serialization) {
     ConfigFile cfg;
     std::string config_name("test_config.xml");
