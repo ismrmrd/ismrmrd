@@ -30,7 +30,8 @@ add_executable(test_ismrmrd
     test_flags.cpp
     test_channels.cpp
     test_xml_header.cpp
-    test_quaternions.cpp)
+    test_quaternions.cpp
+    test_serialization.cpp)
 
 target_link_libraries(test_ismrmrd ismrmrd ${Boost_LIBRARIES})
 

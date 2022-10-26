@@ -48,7 +48,7 @@ if (HDF5_FOUND)
             ismrmrd
             ${Boost_PROGRAM_OPTIONS_LIBRARY}
             ${FFTW3_LIBRARIES})
-        
+
         install(TARGETS ismrmrd_generate_cartesian_shepp_logan DESTINATION bin)
 
         # Shepp-Logan phantom
@@ -60,6 +60,18 @@ if (HDF5_FOUND)
             ${FFTW3_LIBRARIES})
 
         install(TARGETS ismrmrd_recon_cartesian_2d DESTINATION bin)
+
+        add_executable(ismrmrd_hdf5_to_stream ismrmrd_hdf5_to_stream.cpp)
+        target_link_libraries(ismrmrd_hdf5_to_stream ismrmrd ${Boost_PROGRAM_OPTIONS_LIBRARY})
+        install(TARGETS ismrmrd_hdf5_to_stream DESTINATION bin)
+
+        add_executable(ismrmrd_stream_to_hdf5 ismrmrd_stream_to_hdf5.cpp)
+        target_link_libraries(ismrmrd_stream_to_hdf5 ismrmrd ${Boost_PROGRAM_OPTIONS_LIBRARY})
+        install(TARGETS ismrmrd_stream_to_hdf5 DESTINATION bin)
+
+        add_executable(ismrmrd_stream_recon_cartesian_2d stream_recon_cartesian_2d.cpp)
+        target_link_libraries(ismrmrd_stream_recon_cartesian_2d ismrmrd ${FFTW3_LIBRARIES} ${Boost_PROGRAM_OPTIONS_LIBRARY})
+        install(TARGETS ismrmrd_stream_recon_cartesian_2d DESTINATION bin)
 
     else()
         message("FFTW3 or Boost NOT Found, cannot build utilities")

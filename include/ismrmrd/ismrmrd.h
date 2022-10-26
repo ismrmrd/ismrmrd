@@ -9,6 +9,8 @@
 /*    Souheil Inati     (souheil.inati@nih.gov)            */
 /*    Joseph Naegele    (joseph.naegele@nih.gov)           */
 
+// clang-format off
+
 /**
  * @file ismrmrd.h
  * @defgroup capi C API
@@ -34,6 +36,10 @@ typedef unsigned __int64 uint64_t;
 #include <stdint.h>
 #include <stddef.h>     /* for size_t */
 #endif /* _MSC_VER */
+
+#if __cplusplus > 199711L
+#include <type_traits>
+#endif
 
 /* Complex numbers */
 #ifdef __cplusplus
@@ -233,6 +239,23 @@ typedef struct ISMRMRD_EncodingCounters {
     uint16_t user[ISMRMRD_USER_INTS]; /**< Free user parameters */
 } ISMRMRD_EncodingCounters;
 
+#if __cplusplus > 199711L // Static assert requires C++11
+// Check standard layout
+static_assert(std::is_standard_layout<ISMRMRD_EncodingCounters>::value, "ISMRMRD_EncodingCounters is not a standard layout type");
+// Check for size and offset of EncodingCounters struct members
+static_assert(sizeof(ISMRMRD_EncodingCounters) == 34, "ISMRMRD_EncodingCounters is not the expected size");
+static_assert(offsetof(ISMRMRD_EncodingCounters, kspace_encode_step_1) == 0, "kspace_encode_step_1 is not at the expected offset");
+static_assert(offsetof(ISMRMRD_EncodingCounters, kspace_encode_step_2) == 2, "kspace_encode_step_2 is not at the expected offset");
+static_assert(offsetof(ISMRMRD_EncodingCounters, average) == 4, "average is not at the expected offset");
+static_assert(offsetof(ISMRMRD_EncodingCounters, slice) == 6, "slice is not at the expected offset");
+static_assert(offsetof(ISMRMRD_EncodingCounters, contrast) == 8, "contrast is not at the expected offset");
+static_assert(offsetof(ISMRMRD_EncodingCounters, phase) == 10, "phase is not at the expected offset");
+static_assert(offsetof(ISMRMRD_EncodingCounters, repetition) == 12, "repetition is not at the expected offset");
+static_assert(offsetof(ISMRMRD_EncodingCounters, set) == 14, "set is not at the expected offset");
+static_assert(offsetof(ISMRMRD_EncodingCounters, segment) == 16, "segment is not at the expected offset");
+static_assert(offsetof(ISMRMRD_EncodingCounters, user) == 18, "user is not at the expected offset");
+#endif
+
 /**
  * Header for each MR acquisition.
  */
@@ -262,6 +285,37 @@ typedef struct ISMRMRD_AcquisitionHeader {
     int32_t user_int[ISMRMRD_USER_INTS];                 /**< Free user parameters */
     float user_float[ISMRMRD_USER_FLOATS];               /**< Free user parameters */
 } ISMRMRD_AcquisitionHeader;
+
+#if __cplusplus > 199711L // Static assert requires C++11
+// Check standard layout
+static_assert(std::is_standard_layout<ISMRMRD_AcquisitionHeader>::value, "ISMRMRD_AcquisitionHeader is not a standard layout type");
+// Check for size and offset of AcquisitionHeader struct members
+static_assert(sizeof(ISMRMRD_AcquisitionHeader) == 340, "ISMRMRD_AcquisitionHeader is not the expected size");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, version) == 0, "version is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, flags) == 2, "flags is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, measurement_uid) == 10, "measurement_uid is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, scan_counter) == 14, "scan_counter is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, acquisition_time_stamp) == 18, "acquisition_time_stamp is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, physiology_time_stamp) == 22, "physiology_time_stamp is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, number_of_samples) == 34, "number_of_samples is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, available_channels) == 36, "available_channels is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, active_channels) == 38, "active_channels is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, channel_mask) == 40, "channel_mask is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, discard_pre) == 168, "discard_pre is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, discard_post) == 170, "discard_post is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, center_sample) == 172, "center_sample is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, encoding_space_ref) == 174, "encoding_space_ref is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, trajectory_dimensions) == 176, "trajectory_dimensions is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, sample_time_us) == 178, "sample_time_us is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, position) == 182, "position is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, read_dir) == 194, "read_dir is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, phase_dir) == 206, "phase_dir is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, slice_dir) == 218, "slice_dir is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, patient_table_position) == 230, "patient_table_position is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, idx) == 242, "idx is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, user_int) == 276, "user_int is not at the expected offset");
+static_assert(offsetof(ISMRMRD_AcquisitionHeader, user_float) == 308, "user_float is not at the expected offset");
+#endif
 
 /**
  * Initialize an Acquisition Header
@@ -325,6 +379,39 @@ typedef struct ISMRMRD_ImageHeader {
     float user_float[ISMRMRD_USER_FLOATS];               /**< Free user parameters */
     uint32_t attribute_string_len;                       /**< Length of attributes string */
 } ISMRMRD_ImageHeader;
+
+#if __cplusplus > 199711L // Static assert requires C++11
+// Check standard layout
+static_assert(std::is_standard_layout<ISMRMRD_ImageHeader>::value, "ISMRMRD_ImageHeader is not a standard layout type");
+// Check size and offsets of ISMRMRD_ImageHeader
+static_assert(sizeof(ISMRMRD_ImageHeader) == 198, "ISMRMRD_ImageHeader is not the expected size");
+static_assert(offsetof(ISMRMRD_ImageHeader, version) == 0, "version is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, data_type) == 2, "data_type is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, flags) == 4, "flags is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, measurement_uid) == 12, "measurement_uid is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, matrix_size) == 16, "matrix_size is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, field_of_view) == 22, "field_of_view is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, channels) == 34, "channels is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, position) == 36, "position is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, read_dir) == 48, "read_dir is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, phase_dir) == 60, "phase_dir is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, slice_dir) == 72, "slice_dir is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, patient_table_position) == 84, "patient_table_position is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, average) == 96, "average is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, slice) == 98, "slice is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, contrast) == 100, "contrast is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, phase) == 102, "phase is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, repetition) == 104, "repetition is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, set) == 106, "set is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, acquisition_time_stamp) == 108, "acquisition_time_stamp is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, physiology_time_stamp) == 112, "physiology_time_stamp is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, image_type) == 124, "image_type is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, image_index) == 126, "image_index is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, image_series_index) == 128, "image_series_index is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, user_int) == 130, "user_int is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, user_float) == 162, "user_float is not at the expected offset");
+static_assert(offsetof(ISMRMRD_ImageHeader, attribute_string_len) == 194, "attribute_string_len is not at the expected offset");
+#endif
 
 /** @ingroup capi */
 EXPORTISMRMRD int ismrmrd_init_image_header(ISMRMRD_ImageHeader *hdr);
@@ -512,6 +599,11 @@ public:
 
 };
 
+#if __cplusplus > 199711L // Static assert and is_standard_layout requires C++11
+static_assert(sizeof(AcquisitionHeader) == sizeof(ISMRMRD_AcquisitionHeader), "AcquisitionHeader size mismatch");
+static_assert(std::is_standard_layout<AcquisitionHeader>::value, "AcquisitionHeader is not a standard layout type");
+#endif
+
 /// MR Acquisition type
 class EXPORTISMRMRD Acquisition {
     friend class Dataset;
@@ -559,7 +651,7 @@ public:
     // Header, data and trajectory accessors
     const AcquisitionHeader &getHead() const;
     void setHead(const AcquisitionHeader &other);
-    
+
     /**
      * Returns a pointer to the data
      */
@@ -568,45 +660,45 @@ public:
 
     /**
      * Returns a reference to the data
-     */    
+     */
     complex_float_t & data(uint16_t sample, uint16_t channel);
 
     /**
      * Sets the datay.  Must set sizes properly first
-     */    
+     */
     void setData(complex_float_t * data);
 
     /**
      * Returns an iterator to the beginning of the data
      */
     complex_float_t * data_begin() const;
-    
+
     /**
      * Returns an iterator of the end of the data
      */
     complex_float_t * data_end() const;
-    
+
     /**
      * Returns a pointer to the trajectory
      */
     const float * getTrajPtr() const;
     float * getTrajPtr();
-    
+
     /**
      * Returns a reference to the trajectory
      */
     float & traj(uint16_t dimension, uint16_t sample);
-    
+
     /**
      * Sets the trajectory.  Must set sizes properly first
      */
     void setTraj(float * traj);
-    
+
     /**
      * Returns an iterator to the beginning of the trajectories
      */
     float * traj_begin() const;
-    
+
     /**
      * Returns an iterator to the end of the trajectories
      */
@@ -646,6 +738,11 @@ public:
 
 };
 
+#if __cplusplus > 199711L // Static assert and is_standard_layout requires C++11
+static_assert(sizeof(ImageHeader) == sizeof(ISMRMRD_ImageHeader), "ImageHeader size mismatch");
+static_assert(std::is_standard_layout<ImageHeader>::value, "ImageHeader is not a standard layout type");
+#endif
+
 /// MR Image type
 template <typename T> class EXPORTISMRMRD Image {
     friend class Dataset;
@@ -678,7 +775,7 @@ public:
     void setFieldOfViewZ(float f);
 
     // Positions and orientations
-    void setPosition(float x, float y, float z);    
+    void setPosition(float x, float y, float z);
     float getPositionX() const;
     void setPositionX(float x);
     float getPositionY() const;
@@ -693,7 +790,7 @@ public:
     void setReadDirectionY(float y);
     float getReadDirectionZ() const;
     void setReadDirectionZ(float z);
-    
+
     void setPhaseDirection(float x, float y, float z);
     float getPhaseDirectionX() const;
     void setPhaseDirectionX(float x);
@@ -709,7 +806,7 @@ public:
     void setSliceDirectionY(float y);
     float getSliceDirectionZ() const;
     void setSliceDirectionZ(float z);
-    
+
     void setPatientTablePosition(float x, float y, float z);
     float getPatientTablePositionX() const;
     void setPatientTablePositionX(float x);
@@ -718,7 +815,7 @@ public:
     float getPatientTablePositionZ() const;
     void setPatientTablePositionZ(float z);
 
-    
+
     // Attributes
     uint16_t getVersion() const;
     ISMRMRD_DataTypes getDataType() const;
@@ -732,13 +829,13 @@ public:
 
     uint16_t getSlice() const;
     void setSlice(uint16_t slice);
-    
+
     uint16_t getContrast() const;
     void setContrast(uint16_t contrast);
 
     uint16_t getPhase() const;
     void setPhase(uint16_t phase);
-    
+
     uint16_t getRepetition() const;
     void setRepetition(uint16_t repetition);
 
@@ -750,7 +847,7 @@ public:
 
     uint32_t getPhysiologyTimeStamp(unsigned int stamp_id) const;
     void setPhysiologyTimeStamp(unsigned int stamp_id, uint32_t value);
-    
+
     uint16_t getImageType() const;
     void setImageType(uint16_t image_type);
 
@@ -759,7 +856,7 @@ public:
 
     uint16_t getImageSeriesIndex() const;
     void setImageSeriesIndex(uint16_t image_series_index);
-    
+
     // User parameters
     float getUserFloat(unsigned int index) const;
     void setUserFloat(unsigned int index, float value);
@@ -779,14 +876,14 @@ public:
     ImageHeader & getHead();
     const ImageHeader & getHead() const;
     void setHead(const ImageHeader& head);
-    
+
     // Attribute string
     void getAttributeString(std::string &attr) const;
     const char *getAttributeString() const;
     void setAttributeString(const std::string &attr);
     void setAttributeString(const char *attr);
     size_t getAttributeStringLength() const;
-    
+
     // Data
     T * getDataPtr();
     const T * getDataPtr() const;
@@ -829,7 +926,7 @@ public:
     size_t getNumberOfElements() const;
     T * getDataPtr();
     const T * getDataPtr() const;
-    
+
     /** Returns iterator to the beginning of the array **/
     T * begin();
 

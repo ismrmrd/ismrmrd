@@ -1,0 +1,85 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containerdevcotns/tree/v0.238.0/containers/go
+{
+  "name": "ismrmrd",
+  "build": {
+    "dockerfile": "./Dockerfile",
+    "target": "devcontainer",
+    "context": ".."
+  },
+  "runArgs": [
+    "--cap-add=SYS_PTRACE",
+    "--security-opt",
+    "seccomp=unconfined",
+    "--net=host"
+  ],
+
+  // Configure tool-specific properties.
+  "customizations": {
+    // Configure properties specific to VS Code.
+    "vscode": {
+      // Set *default* container specific settings.json values on container create.
+      "settings": {
+        "files.trimFinalNewlines": true,
+        "files.trimTrailingWhitespace": true,
+        "files.insertFinalNewline": true,
+
+        "[cpp]": {
+          "editor.formatOnSave": true
+        },
+
+        "[json]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true
+        },
+
+        "[jsonc]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true
+        },
+
+        "cmake.sourceDirectory": "${workspaceFolder}",
+        "cmake.buildDirectory": "${workspaceFolder}/build",
+        "cmake.installPrefix": "/opt/conda/envs/ismrmrd",
+
+        // Python linting.
+        "python.analysis.typeCheckingMode": "basic",
+        "python.linting.ignorePatterns": ["**/conftest.py", "**/test_*.py"],
+        "python.defaultInterpreterPath": "/opt/conda/envs/ismrmrd/bin/python",
+        "python.formatting.autopep8Path": "/opt/conda/envs/ismrmrd/bin/autopep8",
+        "python.terminal.activateEnvironment": false // Disable the extension calling activate when the integrated terminal launches. We take care of this in ~/.bashrc.
+      },
+
+      // Add the IDs of extensions you want installed when the container is created.
+      "extensions": [
+        "eamodio.gitlens",
+        "esbenp.prettier-vscode",
+        "mhutchie.git-graph",
+        "ms-python.python",
+        "ms-vscode.cmake-tools",
+        "ms-vscode.cpptools",
+        "timonwong.shellcheck",
+        "twxs.cmake"
+      ]
+    }
+  },
+
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  // "forwardPorts": [],
+
+  // Use 'postCreateCommand' to run commands after the container is created.
+  // "postCreateCommand": "go version",
+
+  // Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+  "remoteUser": "vscode",
+  "features": {
+    "common": {
+      "username": "automatic"
+    },
+    "docker-from-docker": {
+      "version": "latest",
+      "moby": "false"
+    },
+    "git": "os-provided"
+  }
+}
