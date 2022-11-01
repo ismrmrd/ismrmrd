@@ -80,8 +80,8 @@ endif ()
 #in the utility libraries, that don't affect the data format itself.
 # For more information see http://semver.org/
 set(ISMRMRD_VERSION_MAJOR 1)
-set(ISMRMRD_VERSION_MINOR 11)
-set(ISMRMRD_VERSION_PATCH 2)
+set(ISMRMRD_VERSION_MINOR 12)
+set(ISMRMRD_VERSION_PATCH 0)
 set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
 set(ISMRMRD_SOVERSION ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR})
 
@@ -183,6 +183,7 @@ set(ISMRMRD_TARGET_SOURCES
   libsrc/ismrmrd.cpp
   libsrc/xml.cpp
   libsrc/meta.cpp
+  libsrc/serialization.cpp
   libsrc/waveform.cpp
   libsrc/waveform.c
   ${ISMRMRD_DATASET_SOURCES}
@@ -239,7 +240,7 @@ include(GNUInstallDirs)
 install(TARGETS ismrmrd EXPORT ISMRMRDTargets
    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} 
+   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
    COMPONENT Devel
 )
 
