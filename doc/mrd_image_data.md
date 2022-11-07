@@ -3,34 +3,37 @@ MRD images are stored as a combination of [image data](ImageData), a fixed [Imag
 
 (ImageHeader)=
 ## ImageHeader
-| Element Name           | Format              | Interpretation                                      |
-| --                     | --                  | --                                                  |
-| version                | uint16              | Major version number (currently 1)                  |
-| data_type              | uint16              | Data type of the image data, e.g. short, float, complex float, etc., as defined in [MRD Image Data Types](DataTypes) |
-| flags                  | uint64              | A bit mask of common attributes applicable to individual images |
-| measurement_uid        | uint32              | Unique ID corresponding to the image                |
-| matrix_size            | uint16 (x3)         | Number of pixels in each of the 3 dimensions in the image |
-| field_of_view          | float (32 bit) (x3) | Physical size (in mm) in each of the 3 dimensions in the image |
-| channels               | uint16              | Number of receiver channels in image data (stored in the 4th dimension) |
-| position               | float (32 bit) (x3) | Center of the excited volume, in (left, posterior, superior) (LPS) coordinates relative to isocenter in millimeters.  NB this is different than DICOM's ImageOrientationPatient, which defines the center of the first (typically top-left) voxel. |
-| read_dir               | float (32 bit) (x3) | Directional cosine of readout/frequency encoding.  If the image is [flipped or rotated to bring them into standard DICOM orientation](http://gdcm.sourceforge.net/wiki/index.php/Orientation), ***this field still corresponds to the acquisition readout/frequency direction***, but the ``ImageRowDir`` must be set in the MetaAttributes. |
-| phase_dir              | float (32 bit) (x3) | Directional cosine of phase encoding (2D).  If the image is [flipped or rotated to bring them into standard DICOM orientation](http://gdcm.sourceforge.net/wiki/index.php/Orientation), ***this field still corresponds to the 2D phase encoding direction***, but the ``ImageColumnDir`` must be set in the MetaAttributes. |
-| slice_dir              | float (32 bit) (x3) | For 3D data, the directional cosine of 3D phase encoding direction.  For 3D data, the slice normal, i.e. cross-product of ``read_dir`` and ``phase_dir``.  If the image is [flipped or rotated to bring them into standard DICOM orientation](http://gdcm.sourceforge.net/wiki/index.php/Orientation), ***this field still corresponds to the 3D phase encoding direction***, but the ``ImageSliceDir`` must be set in the MetaAttributes. |
-| patient_table_position | float (32 bit) (x3) | Offset position of the patient table, in LPS coordinates |
-| average                | uint16              | Signal average                                      |
-| slice                  | uint16              | Slice number (multi-slice 2D)                       |
-| contrast               | uint16              | Echo number in multi-echo                           |
-| phase                  | uint16              | Cardiac phase                                       |
-| repetition             | uint16              | Counter in repeated/dynamic acquisitions            |
-| set                    | uint16              | Sets of different preparation, e.g. flow encoding, diffusion weighting |
-| acquisition_time_stamp | uint32              | Clock time stamp (e.g. milliseconds since midnight) |
-| physiology_time_stamp  | uint32 (x3)         | Time stamps relative to physiological triggering, e.g. ECG, pulse oximetry, respiratory. Multiplicity defined by ISMRMRD_PHYS_STAMPS (currently 3) |
-| image_type             | uint16              | Interpretation type of the image, e.g. magnitude, phase, as defined in [MRD Image Types](ImageTypes)   |
-| image_index            | uint16              | Image index number within a series of images, corresponding to DICOM InstanceNumber (0020,0013)              |
-| image_series_index     | uint16              | Series index, used to separate images into different series, corresponding to DICOM SeriesNumber (0020,0011) |
-| user_int               |  int32 (x8)         | User-defined integer parameters, multiplicity defined by MRD_USER_INTS (currently 8) |
-| user_float             | float (32 bit) (x8) | User-defined float parameters, multiplicity defined by MRD_USER_FLOATS (currently 8) |
-| attribute_string_len   | uint32              | Length of serialized MetaAttributes text |
+| Field                  | Description                                                                                                                                        | Type                | Offset    |
+| --                     | --                                                                                                                                                 | --                  | --        |
+| version                | Major version number (currently 1)                                                                                                                 | uint16              |   0 bytes |
+| data_type              | Data type of the image data, e.g. short, float, complex float, etc., as defined in [MRD Image Data Types](DataTypes)                               | uint16              |   2 bytes |
+| flags                  | A bit mask of common attributes applicable to individual images                                                                                    | uint64              |   4 bytes |
+| measurement_uid        | Unique ID corresponding to the image                                                                                                               | uint32              |  12 bytes |
+| matrix_size            | Number of pixels in each of the 3 dimensions in the image                                                                                          | uint16 (x3)         |  16 bytes |
+| field_of_view          | Physical size (in mm) in each of the 3 dimensions in the image                                                                                     | float (32 bit) (x3) |  22 bytes |
+| channels               | Number of receiver channels in image data (stored in the 4th dimension)                                                                            | uint16              |  34 bytes |
+| position               | Center of the excited volume, in (left, posterior, superior) (LPS) coordinates relative to isocenter in millimeters.  NB this is different than DICOM's ImageOrientationPatient, which defines the center of the first (typically top-left) voxel.                                                                                                                                                                                         | float (32 bit) (x3) |  36 bytes |
+| read_dir               | Directional cosine of readout/frequency encoding.  If the image is [flipped or rotated to bring them into standard DICOM orientation](http://gdcm.sourceforge.net/wiki/index.php/Orientation), ***this field still corresponds to the acquisition readout/frequency direction***, but the ``ImageRowDir`` must be set in the MetaAttributes.                                                                                               | float (32 bit) (x3) |  48 bytes |
+| phase_dir              | Directional cosine of phase encoding (2D).  If the image is [flipped or rotated to bring them into standard DICOM orientation](http://gdcm.sourceforge.net/wiki/index.php/Orientation), ***this field still corresponds to the 2D phase encoding direction***, but the ``ImageColumnDir`` must be set in the MetaAttributes.                                                                                                               | float (32 bit) (x3) |  60 bytes |
+| slice_dir              | For 3D data, the directional cosine of 3D phase encoding direction.  For 3D data, the slice normal, i.e. cross-product of ``read_dir`` and ``phase_dir``.  If the image is [flipped or rotated to bring them into standard DICOM orientation](http://gdcm.sourceforge.net/wiki/index.php/Orientation), ***this field still corresponds to the 3D phase encoding direction***, but the ``ImageSliceDir`` must be set in the MetaAttributes. | float (32 bit) (x3) |  72 bytes |
+| patient_table_position | Offset position of the patient table, in LPS coordinates                                                                                           | float (32 bit) (x3) |  84 bytes |
+| average                | Signal average                                                                                                                                     | uint16              |  96 bytes |
+| slice                  | Slice number (multi-slice 2D)                                                                                                                      | uint16              |  98 bytes |
+| contrast               | Echo number in multi-echo                                                                                                                          | uint16              | 100 bytes |
+| phase                  | Cardiac phase                                                                                                                                      | uint16              | 102 bytes |
+| repetition             | Counter in repeated/dynamic acquisitions                                                                                                           | uint16              | 104 bytes |
+| set                    | Sets of different preparation, e.g. flow encoding, diffusion weighting                                                                             | uint16              | 106 bytes |
+| acquisition_time_stamp | Clock time stamp (e.g. milliseconds since midnight)                                                                                                | uint32              | 108 bytes |
+| physiology_time_stamp  | Time stamps relative to physiological triggering, e.g. ECG, pulse oximetry, respiratory. Multiplicity defined by ISMRMRD_PHYS_STAMPS (currently 3) | uint32 (x3)         | 112 bytes |
+| image_type             | Interpretation type of the image, e.g. magnitude, phase, as defined in [MRD Image Types](ImageTypes)                                               | uint16              | 124 bytes |
+| image_index            | Image index number within a series of images, corresponding to DICOM InstanceNumber (0020,0013)                                                    | uint16              | 126 bytes |
+| image_series_index     | Series index, used to separate images into different series, corresponding to DICOM SeriesNumber (0020,0011)                                       | uint16              | 128 bytes |
+| user_int               | User-defined integer parameters, multiplicity defined by MRD_USER_INTS (currently 8)                                                               |  int32 (x8)         | 130 bytes |
+| user_float             | User-defined float parameters, multiplicity defined by MRD_USER_FLOATS (currently 8)                                                               | float (32 bit) (x8) | 162 bytes |
+| attribute_string_len   | Length of serialized MetaAttributes text                                                                                                           | uint32              | 194 bytes |
+|                        |                                                                                                                                         **Total**  | **198 bytes**       |           |
+
+A reference implementation for serialization/deserialization of the ImageHeader can be found in [serialization.cpp](../libsrc/serialization.cpp).
 
 (DataTypes)=
 ### Data Types

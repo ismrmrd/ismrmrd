@@ -4,17 +4,20 @@ Physiological monitoring data such as electrocardiograms, pulse oximetry, or ext
 (WaveformHeader)=
 ## WaveformHeader
 The WaveformHeader contains metadata associated with a set of waveform data and has the following fields:
-| Field             | Description                                   | Type     | Size    |
-| --                | --                                            | --       | --      |
-| version           | Version number                                | uint16_t | 2 bytes |
-| flags             | Bit field with flags                          | uint64_t | 8 bytes |
-| measurement_uid   | Unique ID for this measurement                | uint32_t | 4 bytes |
-| scan_counter      | Number of the acquisition after this waveform | uint32_t | 4 bytes |
-| time_stamp        | Starting timestamp of this waveform           | uint32_t | 4 bytes |
-| number_of_samples | Number of samples acquired                    | uint16_t | 2 bytes |
-| channels          | Active channels                               | uint16_t | 2 bytes |
-| sample_time_us    | Time between samples in microseconds          | float    | 4 bytes |
-| waveform_id       | [ID matching types specified in XML header](WaveformIDs)     | uint16_t | 2 bytes |
+| Field             | Description                                              | Type      | Offset            |
+| --                | --                                                       | --        | --                |
+| version           | Version number                                           | uint16_t  |  0 bytes          |
+| flags             | Bit field with flags                                     | uint64_t  |  8 bytes (not 2!) |
+| measurement_uid   | Unique ID for this measurement                           | uint32_t  | 16 bytes          |
+| scan_counter      | Number of the acquisition after this waveform            | uint32_t  | 20 bytes          |
+| time_stamp        | Starting timestamp of this waveform                      | uint32_t  | 24 bytes          |
+| number_of_samples | Number of samples acquired                               | uint16_t  | 28 bytes          |
+| channels          | Active channels                                          | uint16_t  | 30 bytes          |
+| sample_time_us    | Time between samples in microseconds                     | float     | 32 bytes          |
+| waveform_id       | [ID matching types specified in XML header](WaveformIDs) | uint16_t  | 36 bytes          |
+|                   |                                                **Total** | **40 bytes (2 bytes padding at the end!)** |                 |
+
+A reference implementation for serialization/deserialization of the WaveformHeader can be found in [serialization.cpp](../libsrc/serialization.cpp).
 
 (WaveformIDs)=
 ### Waveform IDs
