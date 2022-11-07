@@ -70,7 +70,7 @@
 | unsigned short | char             |
 </div>
 
-This message type is used to send the file name of a configuration file (local on the server file system) to be used during reconstruction. The file name must not exceed 1023 characters and is formatted as a null terminated, UTF-8 encoded char string.
+This message type is used to send the file name of a configuration file (local on the server file system) to be used during reconstruction. The file name must not exceed 1023 characters and is formatted as a null-terminated, UTF-8 encoded char string.
 
 (MRD_MESSAGE_CONFIG_TEXT)=
 ## ID 2: MRD_MESSAGE_CONFIG_TEXT
@@ -82,7 +82,7 @@ This message type is used to send the file name of a configuration file (local o
 | unsigned short | uint32_t | char            |
 </div>
 
-Alternatively, the text contents of a configuration file can be sent directly via the data stream. The length is sent as an uint32_t. Configuration text is sent as a null terminated char string.
+Alternatively, the text contents of a configuration file can be sent directly via the data stream. The length is sent as an uint32_t. Configuration text is sent as a UTF-8 encoded char string.
 
 In addition to specifying a configuration "preset" to be executed on the server, it is often desirable to modify specific parameters of the configuration, such as filter strength or the toggling of intermediate outputs for debugging purposes.  While individual parameters are specific to a given pipeline and server, the format of this configuration is standardized to enable interoperable communications between various clients and servers.
 
@@ -96,7 +96,7 @@ In addition to specifying a configuration "preset" to be executed on the server,
 | unsigned short | uint32_t | char            |
 </div>
 
-Metadata for MRD datasets are stored in a flexible XML formatted [MRD header](mrd_header.md). The header length is sent as an uint32_t and the text is sent as a null terminated char string.
+Metadata for MRD datasets are stored in a flexible XML formatted [MRD header](mrd_header.md). The header length is sent as an uint32_t and the text is sent as a UTF-8 encoded char string.
 
 (MRD_MESSAGE_CLOSE)=
 ## ID 4: MRD_MESSAGE_CLOSE
@@ -120,7 +120,7 @@ This message type consists only of an ID with no following data. It is used to i
 | unsigned short | uint32_t | char            |
 </div>
 
-Informational (logging) text can be sent using this message type, typically from the reconstruction side to the acquisition/client side. The length of message text is sent as an uint32_t while the text is sent as a null terminated char string. These messages are optional and their timing is not guaranteed.
+Informational (logging) text can be sent using this message type, typically from the reconstruction side to the acquisition/client side. The length of message text is sent as an uint32_t while the text is sent as a UTF-8 encoded char string. These messages are optional and their timing is not guaranteed.
 
 (MRD_MESSAGE_ACQUISITION)=
 ## ID 1008: MRD_MESSAGE_ACQUISITION
@@ -246,7 +246,7 @@ Image data is sent using this message type. The fixed image header contains meta
     | 7            | MRD_CXFLOAT  | complex float  | 2 * 4 bytes |
     | 8            | MRD_CXDOUBLE | complex double | 2 * 8 bytes |
 
-Attributes are used to declare additional image metadata that is not present in the fixed image header. In general, this data is sent as a char string (not null-terminated), with the length sent first as an uint_64 (not uint_32!). These are interpreted as an XML formatted set of image [MetaAttributes](MetaAttributes).
+Attributes are used to declare additional image metadata that is not present in the fixed image header. In general, this data is sent as a UTF-8 encoded char string (not null-terminated), with the length sent first as an uint_64 (not uint_32!). These are interpreted as an XML formatted set of image [MetaAttributes](MetaAttributes).
 
 Image data is organized by looping through ``matrix_size[0]``, ``matrix_size[1]``, ``matrix_size[2]``, then ``channels``. For example, 2D image data would be formatted as:
 
