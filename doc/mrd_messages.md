@@ -292,23 +292,11 @@ Image data is organized by looping through ``matrix_size[0]``, ``matrix_size[1]`
 
 | ID             | Fixed Waveform Header | Waveform Data                        |
 | --             | --                    | --                                   |
-| 2 bytes        | 240 bytes             | channels * number of samples * bytes |
+| 2 bytes        | 40 bytes              | channels * number of samples * bytes |
 | unsigned short | mixed                 | uint32_t                             |
 </div>
 
 This message type is used to send arbitrary waveform data (e.g. physio signals, gradient waveforms, etc.). The fixed waveform data header is defined by the [WaveformHeader](WaveformHeader) and contains the following members:
-
-| Member Name       | Description                                   | Type     | Size    |
-| --                | --                                            | --       | --      |
-| version           | Version number                                | uint16_t | 2 bytes |
-| flags             | Bit field with flags                          | uint64_t | 8 bytes |
-| measurement_uid   | Unique ID for this measurement                | uint32_t | 4 bytes |
-| scan_counter      | Number of the acquisition after this waveform | uint32_t | 4 bytes |
-| time_stamp        | Starting imestamp of this waveform            | uint32_t | 4 bytes |
-| number_of_samples | Number of samples acquired                    | uint16_t | 2 bytes |
-| channels          | Active channels                               | uint16_t | 2 bytes |
-| sample_time_us    | Time between samples in microseconds          | float    | 4 bytes |
-| waveform_id       | ID matching types specified in XML header     | uint16_t | 2 bytes |
 
 The ``channels`` and ``number_of_samples`` members fields must be parsed in order to read the rest of the message. Waveform data is sent as an uint32_t array, ordered by looping through samples and then through channels:
 
