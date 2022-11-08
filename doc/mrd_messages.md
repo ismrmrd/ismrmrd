@@ -296,7 +296,7 @@ Image data is organized by looping through ``matrix_size[0]``, ``matrix_size[1]`
 | unsigned short | mixed                 | uint32_t                             |
 </div>
 
-This message type is used to send arbitrary waveform data (e.g. physio signals, gradient waveforms, etc.). The fixed waveform data header is defined by the [WaveformHeader](WaveformHeader) and contains the following members:
+This message type is used to send arbitrary waveform data (e.g. physio signals, gradient waveforms, etc.). The fixed waveform data header contains metadata as defined by the [WaveformHeader](WaveformHeader).
 
 The ``channels`` and ``number_of_samples`` members fields must be parsed in order to read the rest of the message. Waveform data is sent as an uint32_t array, ordered by looping through samples and then through channels:
 
