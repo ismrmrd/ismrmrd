@@ -12,6 +12,7 @@
     "boost-test",
     "boost-random",
     "boost-program-options",
-    "boost-uuid"
+    "boost-uuid",
+    "boost-filesystem"
   ]
 }

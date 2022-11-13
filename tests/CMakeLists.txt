@@ -1,4 +1,4 @@
-find_package(Boost 1.43 COMPONENTS unit_test_framework)
+find_package(Boost 1.43 COMPONENTS unit_test_framework filesystem)
 
 if (NOT Boost_UNIT_TEST_FRAMEWORK_FOUND)
     message("Boost Unit Test Framework not found. Not compiling tests")
@@ -30,7 +30,8 @@ add_executable(test_ismrmrd
     test_channels.cpp
     test_xml_header.cpp
     test_quaternions.cpp
-    test_serialization.cpp)
+    test_serialization.cpp 
+    test_dataset.cpp)
 
 target_link_libraries(test_ismrmrd ismrmrd ${Boost_LIBRARIES})
 
