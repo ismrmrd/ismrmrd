@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(test_acquisition_header) {
 
 
 	std::vector<Acquisition> acqs(10, acq);
-    for (int i = 0; i < acqs.size(); i++) {
+    for (size_t i = 0; i < acqs.size(); i++) {
         std::generate((float *)acqs[i].data_begin(), (float *)acqs[i].data_end(), create_random_float);
         std::generate((float *)acqs[i].traj_begin(), (float *)acqs[i].traj_end(), create_random_float);
 	}
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(test_acquisition_header) {
 
     {
         Dataset dataset = Dataset(temp.string().c_str(), "/test", false);
-        for (int i = 0; i < acqs.size(); i++) {
+        for (size_t i = 0; i < acqs.size(); i++) {
             Acquisition acq;
             dataset.readAcquisition(i,acq);
 
