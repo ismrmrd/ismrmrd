@@ -31,6 +31,9 @@ typedef struct ISMRMRD_Dataset {
     char *filename;
     char *groupname;
     hid_t fileid;
+    hid_t read_properties;
+    char *conversion_buffer;
+    char *background_buffer;
 } ISMRMRD_Dataset;
 
 /**

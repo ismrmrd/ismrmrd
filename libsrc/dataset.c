@@ -152,6 +152,8 @@ static int delete_var(const ISMRMRD_Dataset *dset, const char *var) {
     return status;
 }
 
+#define ISMRMRD_READ_BUFFER_SIZE 1024
+
 /*********************************************/
 /* Private (Static) Functions for HDF5 Types */
 /*********************************************/
@@ -830,16 +832,15 @@ static int get_array_properties(const ISMRMRD_Dataset *dset, const char *path,
 
 }
 
+
 int read_element(const ISMRMRD_Dataset *dset, const char *path, void *elem,
-        const hid_t datatype, const uint32_t index)
-{
+                 const hid_t datatype, const uint32_t index) {
     hid_t dataset, filespace, memspace;
     hsize_t *hdfdims = NULL, *offset = NULL, *count = NULL;
     herr_t h5status = 0;
     int rank = 0;
     int n;
     int ret_code = ISMRMRD_NOERROR;
-
 
     if (NULL == dset) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Dataset pointer should not be NULL.");
@@ -871,17 +872,23 @@ int read_element(const ISMRMRD_Dataset *dset, const char *path, void *elem,
 
     offset[0] = index;
     count[0] = 1;
-    for (n=1; n< rank; n++) {
+    for (n = 1; n < rank; n++) {
         offset[n] = 0;
         count[n] = hdfdims[n];
     }
 
-    h5status = H5Sselect_hyperslab(filespace, H5S_SELECT_SET, offset, NULL, count, NULL);
+    if (rank > 1) {
+        h5status = H5Sselect_hyperslab(filespace, H5S_SELECT_SET, offset, NULL, count, NULL);
+    } else {
+        hsize_t coord = index;
+        h5status = H5Sselect_elements(filespace, H5S_SELECT_SET, 1, &coord);
+    }
+
 
     /* create space for one */
     memspace = H5Screate_simple(rank, count, NULL);
 
-    h5status = H5Dread(dataset, datatype, memspace, filespace, H5P_DEFAULT, elem);
+    h5status = H5Dread(dataset, datatype, memspace, filespace, dset->read_properties, elem);
     if (h5status < 0) {
         H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
         ret_code = ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to read from dataset.");
@@ -940,6 +947,17 @@ int ismrmrd_init_dataset(ISMRMRD_Dataset *dset, const char *filename,
     strcpy(dset->groupname, groupname);
 
     dset->fileid = 0;
+
+    dset->conversion_buffer = (char*) malloc(ISMRMRD_READ_BUFFER_SIZE);
+    dset->background_buffer = (char *)malloc(ISMRMRD_READ_BUFFER_SIZE);
+    
+    dset->read_properties = H5Pcreate(H5P_DATASET_XFER);
+
+    H5Pset_buffer(dset->read_properties,
+                  ISMRMRD_READ_BUFFER_SIZE,
+                  dset->conversion_buffer,
+                  dset->background_buffer); 
+                
     return ISMRMRD_NOERROR;
 }
 
@@ -954,7 +972,10 @@ int ismrmrd_open_dataset(ISMRMRD_Dataset *dset, const bool create_if_needed) {
 
     /* Try opening the file */
     /* Note the is_hdf5 function doesn't work well when trying to open multiple files */
-    fileid = H5Fopen(dset->filename, H5F_ACC_RDWR, H5P_DEFAULT);
+    hid_t file_access = H5Pcreate(H5P_FILE_ACCESS);
+    H5Pset_fapl_stdio(file_access);
+
+    fileid = H5Fopen(dset->filename, H5F_ACC_RDWR, file_access);
 
     if (fileid > 0) {
         dset->fileid = fileid;
@@ -1007,6 +1028,16 @@ int ismrmrd_close_dataset(ISMRMRD_Dataset *dset) {
     if (dset->groupname != NULL) {
         free(dset->groupname);
         dset->groupname = NULL;
+    }
+
+    if (dset->background_buffer != NULL) {
+        free(dset->background_buffer);
+        dset->background_buffer = NULL;
+    }
+
+    if (dset->conversion_buffer != NULL) {
+        free(dset->conversion_buffer);
+        dset->conversion_buffer = NULL;
     }
 
     /* Check for a valid fileid before trying to close the file */
@@ -1212,6 +1243,8 @@ int ismrmrd_read_acquisition(const ISMRMRD_Dataset *dset, uint32_t index, ISMRMR
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Acquisition pointer should not be NULL.");
     }
 
+    ismrmrd_cleanup_acquisition(acq);
+
     /* The path to the acquisition data */
     path = make_path(dset, "data");
 
@@ -1220,15 +1253,11 @@ int ismrmrd_read_acquisition(const ISMRMRD_Dataset *dset, uint32_t index, ISMRMR
 
     status = read_element(dset, path, &hdf5acq, datatype, index);
     memcpy(&acq->head, &hdf5acq.head, sizeof(ISMRMRD_AcquisitionHeader));
-    ismrmrd_make_consistent_acquisition(acq);
-    memcpy(acq->traj, hdf5acq.traj.p, ismrmrd_size_of_acquisition_traj(acq));
-    memcpy(acq->data, hdf5acq.data.p, ismrmrd_size_of_acquisition_data(acq));
+    acq->traj = hdf5acq.traj.p;
+    acq->data = hdf5acq.data.p;
 
     /* clean up */
     free(path);
-    free(hdf5acq.traj.p);
-    free(hdf5acq.data.p);
-
     status = H5Tclose(datatype);
     if (status < 0) {
         H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
