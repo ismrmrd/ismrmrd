@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(test_acquisition_header) {
 
     {
         Dataset dataset = Dataset(temp.string().c_str(), "/test", true);
-        for (int i = 0; i < acqs.size(); i++)
+        for (size_t i = 0; i < acqs.size(); i++)
         dataset.appendAcquisition(acqs[i]);
     }
 
