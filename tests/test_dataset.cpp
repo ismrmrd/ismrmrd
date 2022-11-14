@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(test_acquisition_header) {
         Dataset dataset = Dataset(temp.string().c_str(), "/test", false);
         for (size_t i = 0; i < acqs.size(); i++) {
             Acquisition acq;
-            dataset.readAcquisition(i,acq);
+            dataset.readAcquisition(uint32_t(i),acq);
 
             const Acquisition &acq_ref = acqs[i];
 
