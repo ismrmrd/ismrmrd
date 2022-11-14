@@ -737,7 +737,7 @@ static int append_element(const ISMRMRD_Dataset * dset, const char * path,
 
     /* Write it */
     /* since this is a 1 element array we can just pass the pointer to the header */
-    h5status = H5Dwrite(dataset, datatype, memspace, filespace, H5P_DEFAULT, elem);
+    h5status = H5Dwrite(dataset, datatype, memspace, filespace, dset->transfer_properties, elem);
     if (h5status < 0) {
         H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
         return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to write dataset");
@@ -888,7 +888,7 @@ int read_element(const ISMRMRD_Dataset *dset, const char *path, void *elem,
     /* create space for one */
     memspace = H5Screate_simple(rank, count, NULL);
 
-    h5status = H5Dread(dataset, datatype, memspace, filespace, dset->read_properties, elem);
+    h5status = H5Dread(dataset, datatype, memspace, filespace, dset->transfer_properties, elem);
     if (h5status < 0) {
         H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
         ret_code = ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to read from dataset.");
@@ -951,9 +951,9 @@ int ismrmrd_init_dataset(ISMRMRD_Dataset *dset, const char *filename,
     dset->conversion_buffer = (char*) malloc(ISMRMRD_READ_BUFFER_SIZE);
     dset->background_buffer = (char *)malloc(ISMRMRD_READ_BUFFER_SIZE);
     
-    dset->read_properties = H5Pcreate(H5P_DATASET_XFER);
+    dset->transfer_properties = H5Pcreate(H5P_DATASET_XFER);
 
-    H5Pset_buffer(dset->read_properties,
+    H5Pset_buffer(dset->transfer_properties,
                   ISMRMRD_READ_BUFFER_SIZE,
                   dset->conversion_buffer,
                   dset->background_buffer); 

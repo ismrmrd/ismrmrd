@@ -36,3 +36,8 @@ add_executable(test_ismrmrd
 target_link_libraries(test_ismrmrd ismrmrd ${Boost_LIBRARIES})
 
 add_test(NAME check COMMAND test_ismrmrd )
+
+
+add_executable(benchmark_dataset
+    benchmark_dataset.cpp)
+    target_link_libraries(benchmark_dataset ismrmrd ${Boost_LIBRARIES})
