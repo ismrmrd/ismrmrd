@@ -1,0 +1,9 @@
+.wy-table-responsive table td, .wy-table-responsive table th {
+    white-space: inherit;
+}
+
+.wy-table-backed, .wy-table-odd td, .wy-table-striped tr:nth-child(2n-1) td {
+    background-color: #ef0606 !important;
+}
+
+/* .wy-table-striped tr:nth-child(2n-1) td{background-color:inherit} */
