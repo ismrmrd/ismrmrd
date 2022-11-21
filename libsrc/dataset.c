@@ -152,8 +152,11 @@ static int delete_var(const ISMRMRD_Dataset *dset, const char *var) {
     return status;
 }
 
-#define ISMRMRD_READ_BUFFER_SIZE 1024
+#define ISMRMRD_READ_BUFFER_SIZE 1024*1024
 
+
+static char ismrmrd_conversion_buffer[ISMRMRD_READ_BUFFER_SIZE];
+static char ismrmrd_transfer_buffer[ISMRMRD_READ_BUFFER_SIZE];
 /*********************************************/
 /* Private (Static) Functions for HDF5 Types */
 /*********************************************/
@@ -948,15 +951,13 @@ int ismrmrd_init_dataset(ISMRMRD_Dataset *dset, const char *filename,
 
     dset->fileid = 0;
 
-    dset->conversion_buffer = (char*) malloc(ISMRMRD_READ_BUFFER_SIZE);
-    dset->background_buffer = (char *)malloc(ISMRMRD_READ_BUFFER_SIZE);
-    
+  
     dset->transfer_properties = H5Pcreate(H5P_DATASET_XFER);
 
     H5Pset_buffer(dset->transfer_properties,
                   ISMRMRD_READ_BUFFER_SIZE,
-                  dset->conversion_buffer,
-                  dset->background_buffer); 
+                  ismrmrd_conversion_buffer,
+                  ismrmrd_transfer_buffer); 
                 
     return ISMRMRD_NOERROR;
 }
@@ -1030,15 +1031,6 @@ int ismrmrd_close_dataset(ISMRMRD_Dataset *dset) {
         dset->groupname = NULL;
     }
 
-    if (dset->background_buffer != NULL) {
-        free(dset->background_buffer);
-        dset->background_buffer = NULL;
-    }
-
-    if (dset->conversion_buffer != NULL) {
-        free(dset->conversion_buffer);
-        dset->conversion_buffer = NULL;
-    }
 
     /* Check for a valid fileid before trying to close the file */
     if (dset->fileid > 0) {

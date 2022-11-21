@@ -16,8 +16,6 @@ float create_random_float() {
 
 int main(int argc, char** argv) {
 
-
-
 	boost::filesystem::path temp = boost::filesystem::unique_path();
 
     Acquisition acq = Acquisition(256, 32, 2);
@@ -27,9 +25,6 @@ int main(int argc, char** argv) {
         std::generate((float *)acqs[i].data_begin(), (float *)acqs[i].data_end(), create_random_float);
         std::generate((float *)acqs[i].traj_begin(), (float *)acqs[i].traj_end(), create_random_float);
     }
-
-
-    
 
     {
 
