@@ -80,13 +80,13 @@ endif ()
 #in the utility libraries, that don't affect the data format itself.
 # For more information see http://semver.org/
 set(ISMRMRD_VERSION_MAJOR 1)
-set(ISMRMRD_VERSION_MINOR 12)
+set(ISMRMRD_VERSION_MINOR 13)
 set(ISMRMRD_VERSION_PATCH 0)
 set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
 set(ISMRMRD_SOVERSION ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR})
 
 
-set(ISMRMRD_XML_SCHEMA_SHA1  "c4c63eb885005f98ee5872ce0971f5c01f80315e")
+set(ISMRMRD_XML_SCHEMA_SHA1  "967476dff4b356113bdf998d00e9099801c375ec")
 
 #Remove line breaks and white space that does not change the meaning of the schema
 file(STRINGS ${CMAKE_SOURCE_DIR}/schema/ismrmrd.xsd SCHEMA_STRINGS) #Read all strings from file

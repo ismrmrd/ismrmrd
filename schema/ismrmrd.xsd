@@ -221,6 +221,7 @@
       <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="echo_spacing" />
       <xs:element minOccurs="0" maxOccurs="1" type="diffusionDimensionType" name="diffusionDimension"/>
       <xs:element minOccurs="0" maxOccurs="unbounded" type="diffusionType" name="diffusion"/>
+	  <xs:element minOccurs="0" maxOccurs="1" type="xs:string" name="diffusionScheme"/>
     </xs:sequence>
   </xs:complexType>
 

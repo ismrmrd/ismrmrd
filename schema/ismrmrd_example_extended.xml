@@ -401,6 +401,7 @@
       </gradientDirection>
       <bvalue>4.0</bvalue>
     </diffusion>
+	  <diffusionScheme>bipolar</diffusionScheme>
   </sequenceParameters>
   <userParameters>
     <userParameterLong>

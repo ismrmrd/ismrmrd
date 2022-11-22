@@ -567,6 +567,8 @@ namespace ISMRMRD
     auto diffusion = sequenceParameters.child("diffusion");
     p.diffusion = parse_diffusion_vector(diffusion);
 
+    p.diffusionScheme = parse_optional_string(sequenceParameters, "diffusionScheme");
+
 
 
     p.sequence_type = parse_optional_string(sequenceParameters, "sequence_type");
@@ -1002,6 +1004,7 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
               append_node(grad_node,"fh",diff.gradientDirection.fh);
           }
       }
+      append_optional_node(n1, "diffusionScheme", h.sequenceParameters->diffusionScheme);
     }
 
     if (h.userParameters) {

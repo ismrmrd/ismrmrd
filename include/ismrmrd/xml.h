@@ -468,6 +468,7 @@ namespace ISMRMRD
     Optional<std::vector<float> > echo_spacing;
     Optional<DiffusionDimension> diffusionDimension;
     Optional<std::vector<Diffusion>> diffusion;
+    Optional<std::string> diffusionScheme;
   };
 
   enum class WaveformType {
