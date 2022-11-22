@@ -103,7 +103,7 @@ namespace ISMRMRD
         }
   }
 
-  std::vector<float> parse_vector_float(pugi::xml_node& n, const char* child) 
+  std::vector<float> parse_vector_float(pugi::xml_node& n, const char* child)
   {
     std::vector<float> r;
     
@@ -264,6 +264,51 @@ namespace ISMRMRD
       throw std::runtime_error("Invalid waveform type in xml header");
   }
 
+
+    DiffusionDimension parse_diffusiondimension(const std::string& diffusiondimension) {
+        if (diffusiondimension == "average") return DiffusionDimension::AVERAGE;
+        if (diffusiondimension == "contrast") return DiffusionDimension::CONTRAST;
+        if (diffusiondimension == "phase") return DiffusionDimension::PHASE;
+        if (diffusiondimension == "repetition") return DiffusionDimension::REPETITION;
+        if (diffusiondimension == "set") return DiffusionDimension::SET;
+        if (diffusiondimension == "segment") return DiffusionDimension::SEGMENT;
+        if (diffusiondimension == "user_0") return DiffusionDimension::USER_0;
+        if (diffusiondimension == "user_1") return DiffusionDimension::USER_1;
+        if (diffusiondimension == "user_2") return DiffusionDimension::USER_2;
+        if (diffusiondimension == "user_3") return DiffusionDimension::USER_3;
+        if (diffusiondimension == "user_4") return DiffusionDimension::USER_4;
+        if (diffusiondimension == "user_5") return DiffusionDimension::USER_5;
+        if (diffusiondimension == "user_6") return DiffusionDimension::USER_6;
+        if (diffusiondimension == "user_7") return DiffusionDimension::USER_7;
+        throw std::runtime_error("Invalid diffusion dimension in xml header");
+    }
+
+  static Diffusion parse_diffusion(pugi::xml_node& node) {
+      Diffusion diff{};
+      diff.bvalue = std::stof(node.child_value("bvalue"));
+
+      auto grad_node = node.child("gradientDirection");
+
+      diff.gradientDirection.rl = std::stof(grad_node.child_value("rl"));
+      diff.gradientDirection.ap = std::stof(grad_node.child_value("ap"));
+      diff.gradientDirection.fh = std::stof(grad_node.child_value("fh"));
+      return diff;
+  }
+
+  static Optional<std::vector<Diffusion>> parse_diffusion_vector(pugi::xml_node& node){
+
+      auto diffusion_node = node.child("diffusion");
+      if (diffusion_node) return {};
+
+      std::vector<Diffusion> diffusions;
+      while(diffusion_node){
+          diffusions.push_back(parse_diffusion(diffusion_node));
+          diffusion_node = diffusion_node.next_sibling("diffusion");
+      }
+      return diffusions;
+
+
+  }
 
   //End of utility functions for deserializing header
 
@@ -515,6 +560,15 @@ namespace ISMRMRD
     r = parse_vector_float(sequenceParameters, "flipAngle_deg");
     if (!r.empty()) p.flipAngle_deg = r;
 
+
+    auto diffusiondimension = std::string(sequenceParameters.child_value("diffusionDimension"));
+    if (!diffusiondimension.empty()) p.diffusionDimension = parse_diffusiondimension(diffusiondimension);
+
+    auto diffusion = sequenceParameters.child("diffusion");
+    p.diffusion = parse_diffusion_vector(diffusion);
+
+
+
     p.sequence_type = parse_optional_string(sequenceParameters, "sequence_type");
 
     r = parse_vector_float(sequenceParameters, "echo_spacing");
@@ -594,6 +648,40 @@ namespace ISMRMRD
               return "other";
       }
 
+      throw std::runtime_error("Illegal enum class value");
+  }
+
+  std::string to_string(const  DiffusionDimension& d){
+      switch (d){
+      case DiffusionDimension::AVERAGE:
+          return "average";
+      case DiffusionDimension::CONTRAST:
+          return "contrast";
+      case DiffusionDimension::PHASE:
+          return "phase";
+      case DiffusionDimension::REPETITION:
+          return "repetition";
+      case DiffusionDimension::SET:
+          return "set";
+      case DiffusionDimension::SEGMENT:
+          return "segment";
+      case DiffusionDimension::USER_0:
+          return "user_0";
+      case DiffusionDimension::USER_1:
+          return "user_1";
+      case DiffusionDimension::USER_2:
+          return "user_2";
+      case DiffusionDimension::USER_3:
+          return "user_3";
+      case DiffusionDimension::USER_4:
+          return "user_4";
+      case DiffusionDimension::USER_5:
+          return "user_5";
+      case DiffusionDimension::USER_6:
+          return "user_6";
+      case DiffusionDimension::USER_7:
+          return "user_7";
+      }
       throw std::runtime_error("Illegal enum class value");
   }
 
@@ -902,6 +990,18 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
               append_node(n1, "echo_spacing", h.sequenceParameters->echo_spacing->operator[](i));
           }
       }
+
+      append_optional_node(n1,"diffusionDimension", h.sequenceParameters->diffusionDimension);
+      if (h.sequenceParameters->diffusion){
+          for (const auto& diff : h.sequenceParameters->diffusion.get()){
+              auto diff_node = n1.append_child("diffusion");
+              append_node(diff_node,"bvalue",diff.bvalue);
+              auto grad_node = diff_node.append_child("gradientDirection");
+              append_node(grad_node,"rl",diff.gradientDirection.rl);
+              append_node(grad_node,"ap",diff.gradientDirection.ap);
+              append_node(grad_node,"fh",diff.gradientDirection.fh);
+          }
+      }
     }
 
     if (h.userParameters) {
@@ -1071,7 +1171,7 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       return !(rhs == lhs);
   }
   bool operator==(const SequenceParameters &lhs, const SequenceParameters &rhs) {
-      return std::tie(lhs.TR, lhs.TE, lhs.TI, lhs.flipAngle_deg, lhs.sequence_type, lhs.echo_spacing) == std::tie(rhs.TR, rhs.TE, rhs.TI, rhs.flipAngle_deg, rhs.sequence_type, rhs.echo_spacing);
+      return std::tie(lhs.TR, lhs.TE, lhs.TI, lhs.flipAngle_deg, lhs.sequence_type, lhs.echo_spacing,lhs.diffusion) == std::tie(rhs.TR, rhs.TE, rhs.TI, rhs.flipAngle_deg, rhs.sequence_type, rhs.echo_spacing,lhs.diffusion);
   }
   bool operator!=(const SequenceParameters &lhs, const SequenceParameters &rhs) {
       return !(rhs == lhs);
@@ -1094,11 +1194,23 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
   bool operator!=(const MeasurementDependency &lhs, const MeasurementDependency &rhs) {
       return !(rhs == lhs);
   }
-
-  bool operator==(const MultibandSpacing &lhs, const MultibandSpacing &rhs) {
+   bool operator==(const MultibandSpacing &lhs, const MultibandSpacing &rhs) {
       return lhs.dZ == rhs.dZ;
   }
   bool operator!=(const MultibandSpacing &lhs, const MultibandSpacing &rhs) {
+      return !(rhs == lhs);
+  }
+
+ bool operator==(const Diffusion &lhs, const Diffusion &rhs) {
+      return std::tie(lhs.bvalue, lhs.gradientDirection) == std::tie(rhs.bvalue, rhs.gradientDirection);
+  }
+  bool operator!=(const Diffusion &lhs, const Diffusion &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const GradientDirection &lhs, const GradientDirection &rhs) {
+      return std::tie(lhs.rl, lhs.ap, lhs.fh) == std::tie(rhs.rl, rhs.ap, rhs.fh);
+  }
+  bool operator!=(const GradientDirection &lhs, const GradientDirection &rhs) {
       return !(rhs == lhs);
   }
   }

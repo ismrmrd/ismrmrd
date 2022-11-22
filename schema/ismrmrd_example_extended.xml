@@ -376,6 +376,31 @@
     <TI>300.08</TI>
     <flipAngle_deg>90.0</flipAngle_deg>
     <flipAngle_deg>120.0</flipAngle_deg>
+    <diffusionDimension>segment</diffusionDimension>
+    <diffusion>
+      <gradientDirection>
+        <ap>1</ap>
+        <fh>0</fh>
+        <rl>0</rl>
+      </gradientDirection>
+      <bvalue>2.0</bvalue>
+    </diffusion>
+    <diffusion>
+      <gradientDirection>
+        <ap>0</ap>
+        <fh>1</fh>
+        <rl>0</rl>
+      </gradientDirection>
+      <bvalue>1.0</bvalue>
+    </diffusion>
+    <diffusion>
+      <gradientDirection>
+        <ap>0</ap>
+        <fh>0</fh>
+        <rl>1</rl>
+      </gradientDirection>
+      <bvalue>4.0</bvalue>
+    </diffusion>
   </sequenceParameters>
   <userParameters>
     <userParameterLong>
