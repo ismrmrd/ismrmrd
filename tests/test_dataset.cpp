@@ -13,7 +13,7 @@ static boost::random::uniform_real_distribution<float> dist = boost::random::uni
 float create_random_float() {
     return dist(rng);
 }
-}
+
 
 BOOST_AUTO_TEST_SUITE(DatasetTest)
 
