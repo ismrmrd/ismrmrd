@@ -1,9 +1,9 @@
-#include <chrono>
-#include <ismrmrd/ismrmrd.h>
-#include <ismrmrd/dataset.h>
-#include <iostream>
 #include <boost/filesystem.hpp>
 #include <boost/random.hpp>
+#include <chrono>
+#include <iostream>
+#include <ismrmrd/dataset.h>
+#include <ismrmrd/ismrmrd.h>
 
 using namespace ISMRMRD;
 
@@ -14,9 +14,9 @@ float create_random_float() {
     return dist(rng);
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
 
-	boost::filesystem::path temp = boost::filesystem::unique_path();
+    boost::filesystem::path temp = boost::filesystem::unique_path();
 
     Acquisition acq = Acquisition(256, 32, 2);
 
@@ -42,15 +42,11 @@ int main(int argc, char** argv) {
         Dataset dataset = Dataset(temp.string().c_str(), "/test", false);
         for (size_t i = 0; i < acqs.size(); i++) {
             Acquisition acq;
-            dataset.readAcquisition(uint32_t(i), acq);           
+            dataset.readAcquisition(uint32_t(i), acq);
         }
         auto duration = std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - start);
         std::cout << "Read duration: " << duration.count() << "s" << std::endl;
     }
 
     boost::filesystem::remove(temp);
-
-
-
-
 }
