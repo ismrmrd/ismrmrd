@@ -152,9 +152,9 @@ static int delete_var(const ISMRMRD_Dataset *dset, const char *var) {
     return status;
 }
 
-#define ISMRMRD_READ_BUFFER_SIZE 1024*1024
+#define ISMRMRD_READ_BUFFER_SIZE 1024*1024 //HDF5 default buffer size
 
-
+//Static buffers here means ISMRMRD is not threadsafe. Howevever, neither is HDF5, so we don't loose anything here. 
 static char ismrmrd_conversion_buffer[ISMRMRD_READ_BUFFER_SIZE];
 static char ismrmrd_transfer_buffer[ISMRMRD_READ_BUFFER_SIZE];
 /*********************************************/

@@ -17,7 +17,7 @@ float create_random_float() {
 
 BOOST_AUTO_TEST_SUITE(DatasetTest)
 
-BOOST_AUTO_TEST_CASE(test_acquisition_header) {
+BOOST_AUTO_TEST_CASE(test_read_write) {
 
     boost::filesystem::path temp = boost::filesystem::unique_path();
 
