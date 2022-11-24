@@ -22,7 +22,7 @@
     <xs:all>
       <xs:element minOccurs="0" name="patientName" type="xs:string" />
       <xs:element minOccurs="0" name="patientWeight_kg" type="xs:float" />
-      <xs:element minOccurs="0" name="patientHeight_m" type="xs:float"/>
+      <xs:element minOccurs="0" name="patientHeight_m" type="xs:float" />
       <xs:element minOccurs="0" name="patientID" type="xs:string" />
       <xs:element minOccurs="0" name="patientBirthdate" type="xs:date" />
       <xs:element minOccurs="0" name="patientGender">
@@ -123,7 +123,7 @@
       <xs:element maxOccurs="1" minOccurs="0" name="trajectoryDescription" type="trajectoryDescriptionType" />
       <xs:element maxOccurs="1" minOccurs="0" name="parallelImaging" type="parallelImagingType" />
       <xs:element maxOccurs="1" minOccurs="0" name="echoTrainLength" type="xs:long" />
-      <xs:element maxOccurs="1" minOccurs="0" name="multiband" type="multibandType"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="multiband" type="multibandType" />
     </xs:all>
   </xs:complexType>
 
@@ -219,16 +219,16 @@
       <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="flipAngle_deg" />
       <xs:element minOccurs="0" maxOccurs="1" type="xs:string" name="sequence_type" />
       <xs:element minOccurs="0" maxOccurs="unbounded" type="xs:float" name="echo_spacing" />
-      <xs:element minOccurs="0" maxOccurs="1" type="diffusionDimensionType" name="diffusionDimension"/>
-      <xs:element minOccurs="0" maxOccurs="unbounded" type="diffusionType" name="diffusion"/>
-	  <xs:element minOccurs="0" maxOccurs="1" type="xs:string" name="diffusionScheme"/>
+      <xs:element minOccurs="0" maxOccurs="1" type="diffusionDimensionType" name="diffusionDimension" />
+      <xs:element minOccurs="0" maxOccurs="unbounded" type="diffusionType" name="diffusion" />
+      <xs:element minOccurs="0" maxOccurs="1" type="xs:string" name="diffusionScheme" />
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="diffusionType">
     <xs:sequence>
       <xs:element type="gradientDirectionType" name="gradientDirection" />
-      <xs:element type="xs:float" name="bvalue"/>
+      <xs:element type="xs:float" name="bvalue" />
     </xs:sequence>
   </xs:complexType>
 
@@ -254,9 +254,9 @@
 
   <xs:complexType name="gradientDirectionType">
     <xs:all>
-      <xs:element type="xs:float" name="rl"/>
-      <xs:element type="xs:float" name="ap"/>
-      <xs:element type="xs:float" name="fh"/>
+      <xs:element type="xs:float" name="rl" />
+      <xs:element type="xs:float" name="ap" />
+      <xs:element type="xs:float" name="fh" />
     </xs:all>
   </xs:complexType>
 
@@ -306,17 +306,17 @@
 
   <xs:complexType name="multibandType">
     <xs:sequence>
-      <xs:element maxOccurs="unbounded" minOccurs="1" name="spacing" type="multibandSpacingType"/>
-      <xs:element name="deltaKz" minOccurs="1" maxOccurs="1" type="xs:float"/>
-      <xs:element name="multiband_factor" minOccurs="1" maxOccurs="1" type="xs:unsignedInt"/>
+      <xs:element maxOccurs="unbounded" minOccurs="1" name="spacing" type="multibandSpacingType" />
+      <xs:element name="deltaKz" minOccurs="1" maxOccurs="1" type="xs:float" />
+      <xs:element name="multiband_factor" minOccurs="1" maxOccurs="1" type="xs:unsignedInt" />
       <xs:element name="calibration" minOccurs="1" maxOccurs="1" type="multibandCalibrationType" />
-      <xs:element name="calibration_encoding" minOccurs="1" maxOccurs="1" type="xs:unsignedLong"/>
+      <xs:element name="calibration_encoding" minOccurs="1" maxOccurs="1" type="xs:unsignedLong" />
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="multibandSpacingType">
     <xs:sequence>
-      <xs:element maxOccurs="unbounded" minOccurs="1" name="dZ" type="xs:float"/>
+      <xs:element maxOccurs="unbounded" minOccurs="1" name="dZ" type="xs:float" />
     </xs:sequence>
   </xs:complexType>
 
