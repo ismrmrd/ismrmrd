@@ -18,8 +18,19 @@ endif()
 
 if (HDF5_FOUND)
     add_executable(ismrmrd_read_timing_test read_timing_test.cpp)
-    target_link_libraries(ismrmrd_read_timing_test ismrmrd)
-    install(TARGETS ismrmrd_read_timing_test DESTINATION bin)
+    target_link_libraries(ismrmrd_read_timing_test ismrmrd ${HDF5_C_LIBRARIES})
+
+
+    if (WIN32 AND (CMAKE_VERSION VERSION_GREATER_EQUAL 3.21))
+     install(TARGETS ismrmrd_read_timing_test DESTINATION bin 
+            RUNTIME_DEPENDENCIES
+            PRE_EXCLUDE_REGEXES "api-ms-" "ex-ms"
+            POST_EXCLUDE_REGEXES ".*system32/.*\\.dll"
+            DIRECTORIES "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/.."
+            )
+    else ()
+        install(TARGETS ismrmrd_read_timing_test DESTINATION bin)
+        endif()
 
     find_package(Boost 1.43 COMPONENTS program_options random)
     if (WIN32)
@@ -71,7 +82,19 @@ if (HDF5_FOUND)
 
         add_executable(ismrmrd_stream_recon_cartesian_2d stream_recon_cartesian_2d.cpp)
         target_link_libraries(ismrmrd_stream_recon_cartesian_2d ismrmrd ${FFTW3_LIBRARIES} ${Boost_PROGRAM_OPTIONS_LIBRARY})
-        install(TARGETS ismrmrd_stream_recon_cartesian_2d DESTINATION bin)
+        
+
+        if (WIN32)       
+            install(TARGETS ismrmrd_stream_recon_cartesian_2d DESTINATION bin 
+            RUNTIME_DEPENDENCIES
+            PRE_EXCLUDE_REGEXES "api-ms-" "ex-ms"
+            POST_EXCLUDE_REGEXES ".*system32/.*\\.dll"
+            DIRECTORIES "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/.."
+            )
+            else()
+            install(TARGETS ismrmrd_stream_recon_cartesian_2d DESTINATION bin)
+        endif()
+
 
     else()
         message("FFTW3 or Boost NOT Found, cannot build utilities")
