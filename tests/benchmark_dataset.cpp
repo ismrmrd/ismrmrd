@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
         auto start = std::chrono::high_resolution_clock::now();
         Dataset dataset = Dataset(temp.string().c_str(), "/test", true);
 
-        std::for_each(acqs.begin(),acqs.end(),[&dataset](auto& acq){ dataset.appendAcquisition(acq);});
+        std::for_each(acqs.begin(),acqs.end(),[&dataset](Acquisition& acq){ dataset.appendAcquisition(acq);});
 
         auto duration = std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - start);
         std::cout << "Write duration: " << duration.count() << "s" << std::endl;
