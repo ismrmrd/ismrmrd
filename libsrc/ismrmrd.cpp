@@ -1216,24 +1216,24 @@ template <> EXPORTISMRMRD inline ISMRMRD_DataTypes get_data_type<complex_double_
 }
 
 // Images
-template EXPORTISMRMRD class Image<uint16_t>;
-template EXPORTISMRMRD class Image<int16_t>;
-template EXPORTISMRMRD class Image<uint32_t>;
-template EXPORTISMRMRD class Image<int32_t>;
-template EXPORTISMRMRD class Image<float>;
-template EXPORTISMRMRD class Image<double>;
-template EXPORTISMRMRD class Image<complex_float_t>;
-template EXPORTISMRMRD class Image<complex_double_t>;
+template class EXPORTISMRMRD Image<uint16_t>;
+template class EXPORTISMRMRD Image<int16_t>;
+template class EXPORTISMRMRD Image<uint32_t>;
+template class EXPORTISMRMRD Image<int32_t>;
+template class EXPORTISMRMRD Image<float>;
+template class EXPORTISMRMRD Image<double>;
+template class EXPORTISMRMRD Image<complex_float_t>;
+template class EXPORTISMRMRD Image<complex_double_t>;
 
 // NDArrays
-template EXPORTISMRMRD class NDArray<uint16_t>;
-template EXPORTISMRMRD class NDArray<int16_t>;
-template EXPORTISMRMRD class NDArray<uint32_t>;
-template EXPORTISMRMRD class NDArray<int32_t>;
-template EXPORTISMRMRD class NDArray<float>;
-template EXPORTISMRMRD class NDArray<double>;
-template EXPORTISMRMRD class NDArray<complex_float_t>;
-template EXPORTISMRMRD class NDArray<complex_double_t>;
+template class EXPORTISMRMRD NDArray<uint16_t>;
+template class EXPORTISMRMRD NDArray<int16_t>;
+template class EXPORTISMRMRD NDArray<uint32_t>;
+template class EXPORTISMRMRD NDArray<int32_t>;
+template class EXPORTISMRMRD NDArray<float>;
+template class EXPORTISMRMRD NDArray<double>;
+template class EXPORTISMRMRD NDArray<complex_float_t>;
+template class EXPORTISMRMRD NDArray<complex_double_t>;
 
 
 // Helper function for generating exception message from ISMRMRD error stack

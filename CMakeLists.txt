@@ -81,9 +81,26 @@ endif ()
 # For more information see http://semver.org/
 set(ISMRMRD_VERSION_MAJOR 1)
 set(ISMRMRD_VERSION_MINOR 12)
-set(ISMRMRD_VERSION_PATCH 0)
+set(ISMRMRD_VERSION_PATCH 1)
 set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
 set(ISMRMRD_SOVERSION ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR})
+
+if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.19)
+file(READ ${CMAKE_CURRENT_SOURCE_DIR}/vcpkg.json VCPKG_JSON)
+string(JSON VCPKG_VERSION_STRING GET ${VCPKG_JSON} version)
+
+if (NOT VCPKG_VERSION_STRING STREQUAL ISMRMRD_VERSION_STRING)
+    message("")
+    message("-----------------------------------------------")
+    message("            !! VCPKG VERSION ERROR!!           ")
+    message(" Vcpkg version in vcpkg.json must match ISMRMRD")
+    message("           version in CMakeLists.txt           ")
+    message("-----------------------------------------------")
+    message("")
+    message(FATAL_ERROR "     FATAL VCPKG VERSION ERROR")
+endif ()
+
+endif()
 
 
 set(ISMRMRD_XML_SCHEMA_SHA1  "725698104a8e8abbd34a419b9ac29184240a470b")
