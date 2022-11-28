@@ -342,7 +342,7 @@ namespace ISMRMRD
   struct UserParameterLong
   {
     std::string name;
-    long value;
+    std::int64_t value;
   };
 
   struct UserParameterDouble
@@ -429,6 +429,35 @@ namespace ISMRMRD
     Optional<std::int64_t> echoTrainLength;
   };
 
+   struct GradientDirection {
+      //In patient coordinate system. Unit vector
+      float rl;
+      float ap;
+      float fh;
+  };
+
+  enum class DiffusionDimension {
+      AVERAGE,
+      CONTRAST,
+      PHASE,
+      REPETITION,
+      SET,
+      SEGMENT,
+      USER_0,
+      USER_1,
+      USER_2,
+      USER_3,
+      USER_4,
+      USER_5,
+      USER_6,
+      USER_7
+  };
+
+  struct Diffusion {
+      float bvalue;
+      GradientDirection gradientDirection;
+  };
+
   struct SequenceParameters
   {
     Optional<std::vector<float> > TR;
@@ -437,6 +466,9 @@ namespace ISMRMRD
     Optional<std::vector<float> > flipAngle_deg;
     Optional<std::string> sequence_type;
     Optional<std::vector<float> > echo_spacing;
+    Optional<DiffusionDimension> diffusionDimension;
+    Optional<std::vector<Diffusion>> diffusion;
+    Optional<std::string> diffusionScheme;
   };
 
   enum class WaveformType {
@@ -529,7 +561,10 @@ namespace ISMRMRD
  EXPORTISMRMRD bool operator!=(const threeDimensionalFloat &lhs, const threeDimensionalFloat &rhs);
  EXPORTISMRMRD bool operator==(const MeasurementDependency &lhs, const MeasurementDependency &rhs);
  EXPORTISMRMRD bool operator!=(const MeasurementDependency &lhs, const MeasurementDependency &rhs);
-
+ EXPORTISMRMRD bool operator==(const GradientDirection &lhs, const GradientDirection &rhs);
+ EXPORTISMRMRD bool operator!=(const GradientDirection &lhs, const GradientDirection &rhs);
+ EXPORTISMRMRD bool operator==(const Diffusion &lhs, const Diffusion &rhs);
+ EXPORTISMRMRD bool operator!=(const Diffusion &lhs, const Diffusion &rhs);
 
 
 /** @} */
