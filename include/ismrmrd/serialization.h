@@ -16,13 +16,41 @@
  *
  * This file contains functions for serializing and deserializing ISMRMRD data
  * The standalone function that serialize to and deserialize from a stream will
- * serrialize the data structures without adding "message id" identifiers.
+ * serialize the data structures without adding "message id" identifiers.
  * The ProtocolSerializer and ProtocolDeserializer classes are used to to create streams
  * that include the message id in front of each message.
  *
  */
 
+#if __cplusplus >= 202002L
+#include <bit>
+static_assert(std::endian::native == std::endian::little, "Serialization only supported on little endian platforms");
+#else
+#ifdef _WIN32
+#pragma message("Serialization endian compatibility checks require c++20 or later. Serialization only works on little endian platforms.")
+#else
+static_assert(__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__, "Serialization only supported on little endian platforms");
+#endif // !_WIN32
+#endif
+
+#if __cplusplus > 199711L
+#include <limits>
+static_assert(std::numeric_limits<double>::is_iec559 && std::numeric_limits<float>::is_iec559, "Serialization only supports IEEE 754 standardized floating point");
+#else
+#ifdef _WIN32
+#pragma message("Serialization floating point compatibility checks require c++11 or later")
+#else
+#warning Serialization floating point compatibility checks require c++11 or later
+#endif // !_WIN32
+#endif
+
 namespace ISMRMRD {
+
+#if __cplusplus > 199711L
+static_assert(std::is_trivially_copyable<AcquisitionHeader>::value, "AcquisitionHeader is not trivially copyable");
+static_assert(std::is_trivially_copyable<ImageHeader>::value, "AcquisitionHeader is not trivially copyable");
+static_assert(std::is_trivially_copyable<ISMRMRD_WaveformHeader>::value, "AcquisitionHeader is not trivially copyable");
+#endif
 
 enum ISMRMRD_MESSAGE_ID {
     ISMRMRD_MESSAGE_UNPEEKED = 0,
