@@ -724,19 +724,19 @@ static int append_element(const ISMRMRD_Dataset * dset, const char * path,
     offset[0] = hdfdims[0]-1;
     filespace = H5Dget_space(dataset);
     h5status  = H5Sselect_hyperslab (filespace, H5S_SELECT_SET, offset, NULL, ext_dims, NULL);
-	
-	if (h5status < 0) {
-	
-		H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
-		return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to select hyperslab");
-	}
-    memspace = H5Screate_simple(rank, ext_dims, NULL);
 
     free(hdfdims);
-    free(ext_dims);
     free(offset);
     free(maxdims);
     free(chunk_dims);
+	if (h5status < 0) {
+        free(ext_dims);
+		H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
+		return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to select hyperslab");
+    }
+    memspace = H5Screate_simple(rank, ext_dims, NULL);
+
+    free(ext_dims);
 
     /* Write it */
     /* since this is a 1 element array we can just pass the pointer to the header */
@@ -1286,6 +1286,7 @@ int ismrmrd_append_image(const ISMRMRD_Dataset *dset, const char *varname, const
     datatype = get_hdf5type_imageheader();
     status = append_element(dset, headerpath, (void *) &im->head, datatype, 0, NULL);
     if (status != ISMRMRD_NOERROR) {
+        free(path);
         return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to append image header.");
     }
     status = H5Tclose(datatype);
@@ -1295,11 +1296,13 @@ int ismrmrd_append_image(const ISMRMRD_Dataset *dset, const char *varname, const
     attrpath = append_to_path(dset, path, "attributes");
     datatype = get_hdf5type_image_attribute_string();
     status = append_element(dset, attrpath, (void *) &im->attribute_string, datatype, 0, NULL);
+    free(attrpath);
     if (status != ISMRMRD_NOERROR) {
+        free(path);
         return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to append image attribute string.");
     }
     status = H5Tclose(datatype);
-    free(attrpath);
+    
 
     /* Handle the data */
     datapath = append_to_path(dset, path, "data");
@@ -1310,18 +1313,18 @@ int ismrmrd_append_image(const ISMRMRD_Dataset *dset, const char *varname, const
     dims[1] = im->head.matrix_size[2];
     dims[0] = im->head.channels;
     status = append_element(dset, datapath, im->data, datatype, 4, dims);
+    status = H5Tclose(datatype);
+    free(datapath);
+    free(path);
     if (status != ISMRMRD_NOERROR) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to append image data.");
     }
-    status = H5Tclose(datatype);
-    free(datapath);
 
     /* Final cleanup */
     if (status < 0) {
         H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
         return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to close datatype.");
     }
-    free(path);
 
     return ISMRMRD_NOERROR;
 }
@@ -1384,6 +1387,7 @@ int ismrmrd_read_image(const ISMRMRD_Dataset *dset, const char *varname,
     datatype = get_hdf5type_imageheader();
     status = read_element(dset, headerpath, (void *) &im->head, datatype, index);
     if (status != ISMRMRD_NOERROR) {
+        free(path);
         return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to read image header.");
     }
     free(headerpath);
@@ -1397,6 +1401,7 @@ int ismrmrd_read_image(const ISMRMRD_Dataset *dset, const char *varname,
     datatype = get_hdf5type_image_attribute_string();
     status = read_element(dset, attrpath, (void *) &attr_string, datatype, index);
     if (status != ISMRMRD_NOERROR) {
+        free(path);
         return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to read image attribute string.");
     }
     free(attrpath);
@@ -1410,10 +1415,11 @@ int ismrmrd_read_image(const ISMRMRD_Dataset *dset, const char *varname,
     datapath = append_to_path(dset, path, "data");
     datatype = get_hdf5type_ndarray(im->head.data_type);
     status = read_element(dset, datapath, im->data, datatype, index);
+    free(datapath);
+    free(path);
     if (status != ISMRMRD_NOERROR) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to read image data.");
     }
-    free(datapath);
 
     /* Final cleanup */
     status = H5Tclose(datatype);
@@ -1421,8 +1427,7 @@ int ismrmrd_read_image(const ISMRMRD_Dataset *dset, const char *varname,
         H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
         return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to close datatype.");
     }
-    free(path);
-
+    
     return ISMRMRD_NOERROR;
 }
 
@@ -1553,19 +1558,18 @@ int ismrmrd_append_array(const ISMRMRD_Dataset *dset, const char *varname, const
         dims[ndim-n-1] = arr->dims[n];
     }
     status = append_element(dset, path, arr->data, datatype, ndim, dims);
+    free(path);
+    free(dims);
     if (status != ISMRMRD_NOERROR) {
-        free(dims);
         return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to append array.");
     }
 
     /* Final cleanup */
-    free(dims);
     status = H5Tclose(datatype);
     if (status < 0) {
         H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
         return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to close datatype.");
     }
-    free(path);
 
     return ISMRMRD_NOERROR;
 }
@@ -1620,6 +1624,7 @@ int ismrmrd_read_array(const ISMRMRD_Dataset *dset, const char *varname,
 
     /* read the data */
     status = read_element(dset, path, arr->data, datatype, index);
+    free(path);
     if (status != ISMRMRD_NOERROR) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_FILEERROR, "Failed to append array.");
     }
@@ -1630,7 +1635,7 @@ int ismrmrd_read_array(const ISMRMRD_Dataset *dset, const char *varname,
         H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, walk_hdf5_errors, NULL);
         return ISMRMRD_PUSH_ERR(ISMRMRD_HDF5ERROR, "Failed to close datatype.");
     }
-    free(path);
+    
 
     return ISMRMRD_NOERROR;
 }
