@@ -1,10 +1,10 @@
 on:
   pull_request:
-    branches:    
-      - master
-  push:
     branches:
       - master
+  release:
+    types:
+      - created
 
 jobs:
   build-conda-packages:
@@ -28,9 +28,12 @@ jobs:
           echo "Packages built: $(find build_pkg -name ismrmrd*.tar.bz2)"
       - name: Push conda package
         shell: bash -l {0}
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'release' }}
         env:
           ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
         working-directory: conda
         run: |
-          ./publish_package.sh -u ismrmrd -t "$ANACONDA_TOKEN" -p `find build_pkg -name ismrmrd*.tar.bz2`
+          for p in $(find build_pkg -name ismrmrd*.tar.bz2)
+          do
+            ./publish_package.sh -u ismrmrd -t "$ANACONDA_TOKEN" -p "$p"
+          done

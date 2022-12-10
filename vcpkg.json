@@ -1,11 +1,11 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
   "name": "ismrmrd",
-  "version": "1.13.0",
+  "version": "1.13.1",
   "dependencies": [
     {
       "name": "hdf5",
-      "features": [ "threadsafe" ]
+      "features": ["threadsafe"]
     },
     "fftw3",
     "pugixml",
