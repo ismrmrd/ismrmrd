@@ -67,9 +67,14 @@ int ismrmrd_cleanup_acquisition(ISMRMRD_Acquisition *acq) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
     }
     
-    free(acq->data);
+    if (acq->data != NULL)
+        free(acq->data);
+
     acq->data = NULL;
-    free(acq->traj);
+
+    if (acq->traj != NULL)
+        free(acq->traj);
+
     acq->traj = NULL;
     return ISMRMRD_NOERROR;
 }

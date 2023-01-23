@@ -11,7 +11,7 @@ source:
 
 requirements:
   build:
-    - boost=1.76.0
+    - boost {{ boost }}
     - clang>=13.0.1        # [osx]
     - clangxx>=13.0.1      # [osx]
     - cmake>=3.20.0
@@ -22,7 +22,7 @@ requirements:
     - hdf5=1.10.6
     - ninja=1.10.*
   run:
-    - boost=1.76.0
+    - boost
     - hdf5=1.10.6
     - fftw=3.3.9
 

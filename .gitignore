@@ -1,6 +1,7 @@
 *~
 *swp
 *.so
+*.asv
 build/
 .DS_Store
 .idea/
