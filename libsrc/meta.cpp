@@ -5,7 +5,7 @@
 namespace ISMRMRD {
     void deserialize(const char *xml, MetaContainer &h) {
         pugi::xml_document doc;
-        pugi::xml_parse_result result = doc.load(xml);
+        pugi::xml_parse_result result = doc.load_string(xml);
 
         if (!result) {
             throw std::runtime_error("Unable to load ISMRMRD Meta XML document");
