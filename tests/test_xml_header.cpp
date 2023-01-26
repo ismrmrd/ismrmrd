@@ -35,6 +35,8 @@ BOOST_AUTO_TEST_CASE(test_extended_xml_header)
     BOOST_CHECK(header.encoding.at(1).parallelImaging->multiband);
     BOOST_CHECK_EQUAL(header.encoding.at(1).parallelImaging.get().multiband.get().deltaKz,1.0f);
     BOOST_CHECK_EQUAL(header.encoding.at(1).parallelImaging.get().multiband.get().multiband_factor,2);
+    BOOST_CHECK(header.sequenceParameters.get().diffusion);
+    BOOST_CHECK_EQUAL(header.sequenceParameters.get().diffusion.get().size(),3 );
 
     IsmrmrdHeader header2;
     deserialize(stream.str().c_str(),header2);
