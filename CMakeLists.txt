@@ -103,7 +103,7 @@ endif ()
 endif()
 
 
-set(ISMRMRD_XML_SCHEMA_SHA1  "3b8bf2af7dc9a2b34bb64e3f6e5db4afeb8f3174")
+set(ISMRMRD_XML_SCHEMA_SHA1  "40036f175a77542b50acbcfb0f019094c90b5e18")
 
 #Remove line breaks and white space that does not change the meaning of the schema
 file(STRINGS ${CMAKE_SOURCE_DIR}/schema/ismrmrd.xsd SCHEMA_STRINGS) #Read all strings from file
