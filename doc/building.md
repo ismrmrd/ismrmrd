@@ -4,6 +4,7 @@ The ISMRM Raw Data format is described by an XML schema and some C-style structs
 
 * [HDF5](http://www.hdfgroup.org/downloads/index.html) (version 1.8 or higher) libraries.
 * [Boost](http://www.boost.org/)
+* [Pugixml](https://pugixml.org)
 * [Cmake build tool](http://www.cmake.org/)
 * [Git](http://git-scm.com/) if you would like to use the source code archive
 * [FFTW](http://www.fftw.org) if you would like to compile some of the example applications
