@@ -1,6 +1,7 @@
 #include "fftw3.h"
 #include "ismrmrd/serialization_iostream.h"
 #include "ismrmrd_io_utils.h"
+#include "ismrmrd/meta.h"
 #include <boost/program_options.hpp>
 #include <fstream>
 #include <iostream>
@@ -32,7 +33,13 @@ void reconstruct(std::istream &in, std::ostream &out) {
         deserializer.deserialize(cfg);
         std::string config_name(cfg.config);
         std::cerr << "Reconstruction received config file: " << config_name << std::endl;
-        std::cerr << "Configuration file is ignore in this sample reconstruction" << std::endl;
+        std::cerr << "Configuration file is ignored in this sample reconstruction" << std::endl;
+    }
+
+    if (deserializer.peek() == ISMRMRD::ISMRMRD_MESSAGE_TEXT) {
+        ISMRMRD::TextMessage msg;
+        deserializer.deserialize(msg);
+        std::cerr << "Reconstruction received text message prior to config: " << std::endl << msg.message << std::endl;
     }
 
     ISMRMRD::IsmrmrdHeader hdr;
@@ -53,6 +60,7 @@ void reconstruct(std::istream &in, std::ostream &out) {
     uint16_t nY = e_space.matrixSize.y;
     uint16_t nCoils = 0;
     ISMRMRD::NDArray<complex_float_t> buffer;
+    ISMRMRD::AcquisitionHeader acqhdr;
     while (std::cin) {
         ISMRMRD::Acquisition acq;
         try {
@@ -63,6 +71,7 @@ void reconstruct(std::istream &in, std::ostream &out) {
 
         if (!nCoils) {
             nCoils = acq.active_channels();
+            acqhdr = acq.getHead();
 
             // Allocate a buffer for the data
             std::vector<size_t> dims;
@@ -111,8 +120,25 @@ void reconstruct(std::istream &in, std::ostream &out) {
     img_out.setImageType(ISMRMRD::ISMRMRD_IMTYPE_MAGNITUDE);
     img_out.setSlice(0);
     img_out.setFieldOfView(r_space.fieldOfView_mm.x, r_space.fieldOfView_mm.y, r_space.fieldOfView_mm.z);
+    img_out.setReadDirection(acqhdr.read_dir[0], acqhdr.read_dir[1], acqhdr.read_dir[2]);
+    img_out.setPhaseDirection(acqhdr.phase_dir[0], acqhdr.phase_dir[1], acqhdr.phase_dir[2]);
+    img_out.setSliceDirection(acqhdr.slice_dir[0], acqhdr.slice_dir[1], acqhdr.slice_dir[2]);
 
-    serializer.serialize(hdr);
+    ISMRMRD::MetaContainer meta;
+    meta.append("ImageRowDir", acqhdr.read_dir[0]);
+    meta.append("ImageRowDir", acqhdr.read_dir[1]);
+    meta.append("ImageRowDir", acqhdr.read_dir[2]);
+
+    meta.append("ImageColumnDir", acqhdr.phase_dir[0]);
+    meta.append("ImageColumnDir", acqhdr.phase_dir[1]);
+    meta.append("ImageColumnDir", acqhdr.phase_dir[2]);
+
+    std::stringstream meta_string_stream;
+    ISMRMRD::serialize(meta, meta_string_stream);
+    img_out.setAttributeString(meta_string_stream.str().c_str());
+    
+    // We will disable sending the header back. OR does not accept it.
+    // serializer.serialize(hdr);
     serializer.serialize(img_out);
     serializer.close();
 }
