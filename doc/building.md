@@ -16,7 +16,7 @@ It is only necessary to install the dependencies if you wish to develop compiled
 The dependencies mentioned above should be included in most linux distributions. On Ubuntu you can install all required dependencies with::
 
 ```bash
-sudo apt-get -y install doxygen git-core graphviz libboost-all-dev libfftw3-dev libhdf5-serial-dev
+sudo apt-get -y install doxygen git-core graphviz libboost-all-dev libfftw3-dev libhdf5-serial-dev libxml2-utils libpugixml-dev
 ```
 
 After installation of dependencies, the library can be installed with:
