@@ -18,7 +18,6 @@ set (ISMRMRD_CMAKE_DIR ${PROJECT_SOURCE_DIR}/cmake CACHE PATH
   "Location of CMake scripts")
 
 # command line options
-option(USE_SYSTEM_PUGIXML "Use pugixml installed on the system" OFF)
 option(USE_HDF5_DATASET_SUPPORT "Compile with support for reading and writing datasets to HDF5 files" ON)
 option(BUILD_TESTS "Build unit tests " ON)
 option(BUILD_UTILITIES "Build utilities tests " ON)
@@ -81,7 +80,7 @@ endif ()
 # For more information see http://semver.org/
 set(ISMRMRD_VERSION_MAJOR 1)
 set(ISMRMRD_VERSION_MINOR 13)
-set(ISMRMRD_VERSION_PATCH 1)
+set(ISMRMRD_VERSION_PATCH 3)
 
 set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
 set(ISMRMRD_SOVERSION ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR})
@@ -104,7 +103,7 @@ endif ()
 endif()
 
 
-set(ISMRMRD_XML_SCHEMA_SHA1  "3b8bf2af7dc9a2b34bb64e3f6e5db4afeb8f3174")
+set(ISMRMRD_XML_SCHEMA_SHA1  "40036f175a77542b50acbcfb0f019094c90b5e18")
 
 #Remove line breaks and white space that does not change the meaning of the schema
 file(STRINGS ${CMAKE_SOURCE_DIR}/schema/ismrmrd.xsd SCHEMA_STRINGS) #Read all strings from file
@@ -209,23 +208,17 @@ set(ISMRMRD_TARGET_SOURCES
 
 set(ISMRMRD_TARGET_LINK_LIBS ${ISMRMRD_DATASET_LIBRARIES})
 
-# optional handling of system-installed pugixml
-if (USE_SYSTEM_PUGIXML)
-
-    if (VCPKG_TARGET_TRIPLET) #VCPKG .
-        find_package(PugiXML CONFIG REQUIRED)
-        list(APPEND ISMRMRD_TARGET_LINK_LIBS pugixml)
-    else ()
-        find_package(PugiXML REQUIRED)
-
-        message("Found system pugixml: ${PugiXML_INCLUDE_DIR} ${PugiXML_LIBRARY}")
-        list(APPEND ISMRMRD_TARGET_INCLUDE_DIRS ${PugiXML_INCLUDE_DIR})
-        list(APPEND ISMRMRD_TARGET_LINK_LIBS ${PugiXML_LIBRARY})
-        list(APPEND ISMRMRD_TARGET_INCLUDE_DIRS ${PugiXML_INCLUDE_DIR})
-        list(APPEND ISMRMRD_TARGET_LINK_LIBS ${PugiXML_LIBRARY})
-    endif ()
+if (VCPKG_TARGET_TRIPLET) #VCPKG .
+    find_package(PugiXML CONFIG REQUIRED)
+    list(APPEND ISMRMRD_TARGET_LINK_LIBS pugixml)
 else ()
-    list(APPEND ISMRMRD_TARGET_SOURCES libsrc/pugixml.cpp)
+    find_package(PugiXML REQUIRED)
+
+    message("Found system pugixml: ${PugiXML_INCLUDE_DIR} ${PugiXML_LIBRARY}")
+    list(APPEND ISMRMRD_TARGET_INCLUDE_DIRS ${PugiXML_INCLUDE_DIR})
+    list(APPEND ISMRMRD_TARGET_LINK_LIBS ${PugiXML_LIBRARY})
+    list(APPEND ISMRMRD_TARGET_INCLUDE_DIRS ${PugiXML_INCLUDE_DIR})
+    list(APPEND ISMRMRD_TARGET_LINK_LIBS ${PugiXML_LIBRARY})
 endif ()
 
 if (build4GE)

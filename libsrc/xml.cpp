@@ -298,7 +298,7 @@ namespace ISMRMRD
   static Optional<std::vector<Diffusion>> parse_diffusion_vector(pugi::xml_node& node){
 
       auto diffusion_node = node.child("diffusion");
-      if (diffusion_node) return {};
+      if (!diffusion_node) return {};
 
       std::vector<Diffusion> diffusions;
       while(diffusion_node){
@@ -315,7 +315,7 @@ namespace ISMRMRD
   void deserialize(const char* xml, IsmrmrdHeader& h) 
   {
     pugi::xml_document doc;
-    pugi::xml_parse_result result = doc.load(xml);
+    pugi::xml_parse_result result = doc.load_string(xml);
     
     if (!result) {
       throw std::runtime_error("Unable to load ISMRMRD XML header");
@@ -564,8 +564,8 @@ namespace ISMRMRD
     auto diffusiondimension = std::string(sequenceParameters.child_value("diffusionDimension"));
     if (!diffusiondimension.empty()) p.diffusionDimension = parse_diffusiondimension(diffusiondimension);
 
-    auto diffusion = sequenceParameters.child("diffusion");
-    p.diffusion = parse_diffusion_vector(diffusion);
+    
+    p.diffusion = parse_diffusion_vector(sequenceParameters);
 
     p.diffusionScheme = parse_optional_string(sequenceParameters, "diffusionScheme");
 
@@ -1174,7 +1174,7 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       return !(rhs == lhs);
   }
   bool operator==(const SequenceParameters &lhs, const SequenceParameters &rhs) {
-      return std::tie(lhs.TR, lhs.TE, lhs.TI, lhs.flipAngle_deg, lhs.sequence_type, lhs.echo_spacing,lhs.diffusion) == std::tie(rhs.TR, rhs.TE, rhs.TI, rhs.flipAngle_deg, rhs.sequence_type, rhs.echo_spacing,lhs.diffusion);
+      return std::tie(lhs.TR, lhs.TE, lhs.TI, lhs.flipAngle_deg, lhs.sequence_type, lhs.echo_spacing, lhs.diffusion, lhs.diffusionDimension, lhs.diffusionScheme) == std::tie(rhs.TR, rhs.TE, rhs.TI, rhs.flipAngle_deg, rhs.sequence_type, rhs.echo_spacing, lhs.diffusion, lhs.diffusionDimension, lhs.diffusionScheme);
   }
   bool operator!=(const SequenceParameters &lhs, const SequenceParameters &rhs) {
       return !(rhs == lhs);

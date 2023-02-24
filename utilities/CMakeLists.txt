@@ -10,8 +10,7 @@ install(TARGETS ismrmrd_info DESTINATION bin)
 
 if (NOT WIN32)
   add_executable(ismrmrd_test_xml
-    ismrmrd_test_xml.cpp
-    ${CMAKE_SOURCE_DIR}/libsrc/pugixml.cpp )
+    ismrmrd_test_xml.cpp)
   target_link_libraries(ismrmrd_test_xml ismrmrd)
   install(TARGETS ismrmrd_test_xml DESTINATION bin)
 endif()

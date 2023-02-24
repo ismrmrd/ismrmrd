@@ -25,7 +25,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get -y install doxygen git-core graphviz libboost-all-dev libfftw3-dev libhdf5-serial-dev libxml2-utils
+        sudo apt-get -y install doxygen git-core graphviz libboost-all-dev libfftw3-dev libhdf5-serial-dev libxml2-utils libpugixml-dev
 
     - name: Configure CMake
       working-directory: ${{github.workspace}}/build
