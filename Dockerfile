@@ -44,7 +44,7 @@ RUN apt-get update && apt-get install -y \
 ENTRYPOINT [ "/usr/local/share/docker-init.sh" ]
 CMD [ "sleep", "infinity" ]
 
-ARG MAMBA_VERSION=0.22.1
+ARG MAMBA_VERSION=1.3.1
 
 # Based on https://github.com/ContinuumIO/docker-images/blob/master/miniconda3/debian/Dockerfile.
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh \
@@ -84,3 +84,23 @@ ENV CMAKE_GENERATOR=Ninja
 RUN mkdir -p /home/vscode/.local/share/CMakeTools \
     && echo '[{"name":"GCC-11","compilers":{"C":"/opt/conda/envs/ismrmrd/bin/x86_64-conda_cos6-linux-gnu-gcc","CXX":"/opt/conda/envs/ismrmrd/bin/x86_64-conda_cos6-linux-gnu-g++"}}]' > /home/vscode/.local/share/CMakeTools/cmake-tools-kits.json \
     && chown vscode:conda /home/vscode/.local/share/CMakeTools/cmake-tools-kits.json
+
+FROM devcontainer AS stream-reconstruction
+
+ARG USER_UID
+ARG USER_GID
+
+COPY --chown=$USER_UID:$USER_GID . /opt/code/ismrmrd/
+
+RUN . /opt/conda/etc/profile.d/conda.sh && umask 0002 && conda activate ismrmrd && sh -x && \
+    cd /opt/code/ismrmrd && \
+    mkdir build && \
+    cd build && \
+    cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} ../ && \
+    ninja && \
+    ninja install
+
+RUN apt-get update && apt-get install -y socat \
+    && rm -rf /var/lib/apt/lists/*
+
+ENTRYPOINT [ "/opt/code/ismrmrd/entrypoint.sh" ]

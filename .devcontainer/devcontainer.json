@@ -3,7 +3,7 @@
 {
   "name": "ismrmrd",
   "build": {
-    "dockerfile": "./Dockerfile",
+    "dockerfile": "../Dockerfile",
     "target": "devcontainer",
     "context": ".."
   },

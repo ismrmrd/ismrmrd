@@ -1,7 +1,7 @@
 #include "fftw3.h"
+#include "ismrmrd/meta.h"
 #include "ismrmrd/serialization_iostream.h"
 #include "ismrmrd_io_utils.h"
-#include "ismrmrd/meta.h"
 #include <boost/program_options.hpp>
 #include <fstream>
 #include <iostream>
@@ -39,7 +39,8 @@ void reconstruct(std::istream &in, std::ostream &out) {
     if (deserializer.peek() == ISMRMRD::ISMRMRD_MESSAGE_TEXT) {
         ISMRMRD::TextMessage msg;
         deserializer.deserialize(msg);
-        std::cerr << "Reconstruction received text message prior to config: " << std::endl << msg.message << std::endl;
+        std::cerr << "Reconstruction received text message prior to config: " << std::endl
+                  << msg.message << std::endl;
     }
 
     ISMRMRD::IsmrmrdHeader hdr;
@@ -136,9 +137,7 @@ void reconstruct(std::istream &in, std::ostream &out) {
     std::stringstream meta_string_stream;
     ISMRMRD::serialize(meta, meta_string_stream);
     img_out.setAttributeString(meta_string_stream.str().c_str());
-    
-    // We will disable sending the header back. OR does not accept it.
-    // serializer.serialize(hdr);
+
     serializer.serialize(img_out);
     serializer.close();
 }
