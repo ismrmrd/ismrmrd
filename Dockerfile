@@ -94,7 +94,7 @@ RUN . /opt/conda/etc/profile.d/conda.sh && umask 0002 && conda activate ismrmrd 
     ninja && \
     ninja install
 
-FROM basecontainer AS runtimecontainer
+FROM basecontainer AS ismrmrd
 
 ARG USER_UID
 
@@ -110,6 +110,12 @@ RUN grep -v "#.*\<dev\>" /tmp/build/environment.yml > /tmp/build/filtered_enviro
     && sudo chown -R :conda /opt/conda/envs
 
 COPY --from=stream-reconstruction-build --chown=$USER_UID:conda /opt/package /opt/conda/envs/ismrmrd/
-COPY --from=stream-reconstruction-build --chown=$USER_UID:conda /opt/code/ismrmrd/entrypoint.sh /opt/
+COPY --from=stream-reconstruction-build --chown=$USER_UID:conda /opt/code/ismrmrd/docker/entrypoint.sh /opt/
+COPY --from=stream-reconstruction-build --chown=$USER_UID:conda /opt/code/ismrmrd/docker/entrypoint-stream.sh /opt/
 
 ENTRYPOINT [ "/opt/entrypoint.sh" ]
+
+
+FROM ismrmrd AS ismrmrd-stream-recon
+
+ENTRYPOINT [ "/opt/entrypoint-stream.sh" ]
