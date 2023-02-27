@@ -64,6 +64,10 @@
     }
   },
 
+  "containerEnv": {
+    "DOCKER_BUIKDKIT": "1"
+  },
+
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // "forwardPorts": [],
 
@@ -77,8 +81,8 @@
       "username": "automatic"
     },
     "docker-from-docker": {
-      "version": "latest",
-      "moby": "false"
+      "version": "20.10",
+      "moby": false
     },
     "git": "os-provided"
   }
