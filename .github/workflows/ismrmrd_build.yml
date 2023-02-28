@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-  
+
   pull_request:
     branches:
       - master
@@ -25,7 +25,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get -y install doxygen git-core graphviz libboost-all-dev libfftw3-dev libhdf5-serial-dev libxml2-utils libpugixml-dev
+        sudo apt-get -y install doxygen git-core graphviz libboost-all-dev libfftw3-dev libhdf5-serial-dev libxml2-utils libpugixml-dev socat
 
     - name: Configure CMake
       working-directory: ${{github.workspace}}/build
@@ -41,10 +41,16 @@ jobs:
     - name: Test XML
       working-directory: ${{github.workspace}}/schema
       shell: bash
-      run: for xml_file in *.xml; do xmllint --schema ismrmrd.xsd "$xml_file" --noout; done 
-   
+      run: for xml_file in *.xml; do xmllint --schema ismrmrd.xsd "$xml_file" --noout; done
+
     - name: Test
       working-directory: ${{github.workspace}}/build/tests
       shell: bash
       run: ./test_ismrmrd
 
+    - name: Build and test docker images
+      working-directory: ${{github.workspace}}
+      shell: bash
+      run: |
+        ./docker/build-images.sh
+        ./docker/test-docker-images.sh

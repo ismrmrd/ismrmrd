@@ -79,7 +79,7 @@ RUN mkdir -p /home/vscode/.local/share/CMakeTools \
     && echo '[{"name":"GCC-11","compilers":{"C":"/opt/conda/envs/ismrmrd/bin/x86_64-conda_cos6-linux-gnu-gcc","CXX":"/opt/conda/envs/ismrmrd/bin/x86_64-conda_cos6-linux-gnu-g++"}}]' > /home/vscode/.local/share/CMakeTools/cmake-tools-kits.json \
     && chown vscode:conda /home/vscode/.local/share/CMakeTools/cmake-tools-kits.json
 
-FROM devcontainer AS stream-reconstruction-build
+FROM devcontainer AS ismrmrd-build
 
 ARG USER_UID
 ARG USER_GID
@@ -93,6 +93,10 @@ RUN . /opt/conda/etc/profile.d/conda.sh && umask 0002 && conda activate ismrmrd 
     cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/package ../ && \
     ninja && \
     ninja install
+
+FROM ismrmrd-build AS ismrmrd-test
+
+ENTRYPOINT [ "/opt/code/ismrmrd/docker/entrypoint.sh", "python", "/opt/code/ismrmrd/docker/validate_results.py" ]
 
 FROM basecontainer AS ismrmrd
 
@@ -109,9 +113,9 @@ RUN grep -v "#.*\<dev\>" /tmp/build/environment.yml > /tmp/build/filtered_enviro
     && /opt/conda/bin/mamba clean -fy \
     && sudo chown -R :conda /opt/conda/envs
 
-COPY --from=stream-reconstruction-build --chown=$USER_UID:conda /opt/package /opt/conda/envs/ismrmrd/
-COPY --from=stream-reconstruction-build --chown=$USER_UID:conda /opt/code/ismrmrd/docker/entrypoint.sh /opt/
-COPY --from=stream-reconstruction-build --chown=$USER_UID:conda /opt/code/ismrmrd/docker/entrypoint-stream.sh /opt/
+COPY --from=ismrmrd-build --chown=$USER_UID:conda /opt/package /opt/conda/envs/ismrmrd/
+COPY --from=ismrmrd-build --chown=$USER_UID:conda /opt/code/ismrmrd/docker/entrypoint.sh /opt/
+COPY --from=ismrmrd-build --chown=$USER_UID:conda /opt/code/ismrmrd/docker/entrypoint-stream.sh /opt/
 
 ENTRYPOINT [ "/opt/entrypoint.sh" ]
 
@@ -119,3 +123,7 @@ ENTRYPOINT [ "/opt/entrypoint.sh" ]
 FROM ismrmrd AS ismrmrd-stream-recon
 
 ENTRYPOINT [ "/opt/entrypoint-stream.sh" ]
+
+FROM ismrmrd AS ismrmrd-stream-recon-server
+
+ENTRYPOINT [ "/opt/entrypoint-stream.sh", "--socket-port", "9002" ]

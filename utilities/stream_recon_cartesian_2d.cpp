@@ -21,7 +21,7 @@ void circshift(complex_float_t *out, const complex_float_t *in, int xdim, int yd
 
 #define fftshift(out, in, x, y) circshift(out, in, x, y, (x / 2), (y / 2))
 
-void reconstruct(std::istream &in, std::ostream &out) {
+void reconstruct(std::istream &in, std::ostream &out, bool magnitude = false) {
     ISMRMRD::IStreamView rs(in);
     ISMRMRD::OStreamView ws(out);
 
@@ -102,8 +102,8 @@ void reconstruct(std::istream &in, std::ostream &out) {
     }
 
     // Allocate an image
-    ISMRMRD::Image<float> img_out(r_space.matrixSize.x, r_space.matrixSize.y, 1, 1);
-    std::fill(img_out.begin(), img_out.end(), 0.0f);
+    ISMRMRD::Image<std::complex<float> > img_out(r_space.matrixSize.x, r_space.matrixSize.y, 1, 1);
+    std::fill(img_out.begin(), img_out.end(), std::complex<float>(0.0f, 0.0f));
 
     // if there is oversampling in the readout direction remove it
     uint16_t offset = ((e_space.matrixSize.x - r_space.matrixSize.x) >> 1);
@@ -111,14 +111,19 @@ void reconstruct(std::istream &in, std::ostream &out) {
     // Take the sqrt of the sum of squares
     for (uint16_t y = 0; y < r_space.matrixSize.y; y++) {
         for (uint16_t x = 0; x < r_space.matrixSize.x; x++) {
+            float mag = 0;
+            float phase = 0;
             for (uint16_t c = 0; c < nCoils; c++) {
-                img_out(x, y) += (std::abs(buffer(x + offset, y, c))) * (std::abs(buffer(x + offset, y, c)));
+                std::complex<float> val = buffer(x + offset, y, c);
+                float w = std::abs(val) * std::abs(val);
+                mag += w;
+                phase += std::arg(val) * w;
             }
-            img_out(x, y) = std::sqrt(img_out(x, y));
+            img_out(x, y) = std::polar<float>(std::sqrt(mag), phase / mag);
         }
     }
 
-    img_out.setImageType(ISMRMRD::ISMRMRD_IMTYPE_MAGNITUDE);
+    img_out.setImageType(ISMRMRD::ISMRMRD_IMTYPE_COMPLEX);
     img_out.setSlice(0);
     img_out.setFieldOfView(r_space.fieldOfView_mm.x, r_space.fieldOfView_mm.y, r_space.fieldOfView_mm.z);
     img_out.setReadDirection(acqhdr.read_dir[0], acqhdr.read_dir[1], acqhdr.read_dir[2]);
@@ -138,7 +143,20 @@ void reconstruct(std::istream &in, std::ostream &out) {
     ISMRMRD::serialize(meta, meta_string_stream);
     img_out.setAttributeString(meta_string_stream.str().c_str());
 
-    serializer.serialize(img_out);
+    // If this we want magnitude:
+    if (magnitude) {
+        ISMRMRD::Image<float> float_img_out(img_out.getMatrixSizeX(), img_out.getMatrixSizeY(), 1, 1);
+        auto head = img_out.getHead();
+        head.image_type = ISMRMRD::ISMRMRD_IMTYPE_MAGNITUDE;
+        head.data_type = ISMRMRD::ISMRMRD_FLOAT;
+        float_img_out.setHead(head);
+        float_img_out.setAttributeString(meta_string_stream.str().c_str());
+        std::transform(img_out.begin(), img_out.end(), float_img_out.begin(), [](std::complex<float> val) { return std::abs(val); });
+        serializer.serialize(float_img_out);
+    } else {
+        serializer.serialize(img_out);
+    }
+
     serializer.close();
 }
 
@@ -151,13 +169,15 @@ int main(int argc, char **argv) {
     std::string output_file = "";
     bool use_stdin = false;
     bool use_stdout = false;
+    bool output_magnitude = false; // Default output images is complex float
     // clang-format off
     desc.add_options()
         ("help,h", "produce help message")
         ("input,i", po::value<std::string>(&input_file),"input ISMRMRD HDF5 file")
         ("output,o", po::value<std::string>(&output_file),"Binary output file")
         ("use-stdout", po::bool_switch(&use_stdout), "Use stdout for output")
-        ("use-stdin", po::bool_switch(&use_stdin), "Use stdout for output");
+        ("use-stdin", po::bool_switch(&use_stdin), "Use stdout for output")
+        ("output-magnitude", po::bool_switch(&output_magnitude), "Output magnitude images");
     // clang-format on
 
     po::variables_map vm;
@@ -181,7 +201,7 @@ int main(int argc, char **argv) {
 
     if (use_stdin && use_stdout) {
         ISMRMRD::set_binary_io();
-        reconstruct(std::cin, std::cout);
+        reconstruct(std::cin, std::cout, output_magnitude);
     } else if (input_file.size() && output_file.size()) {
         std::ifstream input(input_file.c_str(), std::ios::in | std::ios::binary);
         std::ofstream output(output_file.c_str(), std::ios::out | std::ios::binary);
@@ -189,11 +209,11 @@ int main(int argc, char **argv) {
     } else if (input_file.size() && use_stdout) {
         ISMRMRD::set_binary_io();
         std::ifstream input(input_file.c_str(), std::ios::in | std::ios::binary);
-        reconstruct(input, std::cout);
+        reconstruct(input, std::cout, output_magnitude);
     } else if (output_file.size() && use_stdin) {
         ISMRMRD::set_binary_io();
         std::ofstream output(output_file.c_str(), std::ios::out | std::ios::binary);
-        reconstruct(std::cin, output);
+        reconstruct(std::cin, output, output_magnitude);
     } else {
         std::cerr << "Error: Must specify either input file and output file or use-stdin and use-stdout" << std::endl;
         return 1;
