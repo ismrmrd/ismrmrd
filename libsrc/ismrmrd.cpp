@@ -146,13 +146,90 @@ Acquisition::~Acquisition() {
 }
 
 // Accessors and mutators
-const uint16_t &Acquisition::version() {
+uint16_t Acquisition::version() const {
     return acq.head.version;
 }
 
-const uint64_t &Acquisition::flags() {
+uint64_t Acquisition::flags() const {
     return acq.head.flags;
 }
+
+const uint32_t (&Acquisition::physiology_time_stamp() const) [ISMRMRD_PHYS_STAMPS] {
+    return acq.head.physiology_time_stamp;
+}
+
+uint16_t Acquisition::number_of_samples() const  {
+    return acq.head.number_of_samples;
+}
+
+uint16_t Acquisition::available_channels() const {
+    return acq.head.available_channels;
+}
+
+uint16_t Acquisition::active_channels() const {
+    return acq.head.active_channels;
+}
+
+const uint64_t (&Acquisition::channel_mask() const) [ISMRMRD_CHANNEL_MASKS] {
+    return acq.head.channel_mask;
+}
+
+uint16_t Acquisition::discard_pre() const {
+    return acq.head.discard_pre;
+}
+
+uint16_t Acquisition::discard_post() const {
+    return acq.head.discard_post;
+}
+
+uint16_t Acquisition::center_sample() const {
+    return acq.head.center_sample;
+}
+
+uint16_t Acquisition::encoding_space_ref() const {
+    return acq.head.encoding_space_ref;
+}
+
+uint16_t Acquisition::trajectory_dimensions() const  {
+    return acq.head.trajectory_dimensions;
+}
+
+float Acquisition::sample_time_us() const {
+    return acq.head.sample_time_us;
+}
+
+const float (&Acquisition::position() const )[3] {
+    return acq.head.position;
+}
+
+const float (&Acquisition::read_dir() const )[3] {
+    return acq.head.read_dir;
+}
+
+const float (&Acquisition::phase_dir() const)[3] {
+    return acq.head.phase_dir;
+}
+
+const float (&Acquisition::slice_dir() const )[3] {
+    return acq.head.slice_dir;
+}
+
+const float (&Acquisition::patient_table_position() const)[3] {
+    return acq.head.patient_table_position;
+}
+
+const ISMRMRD_EncodingCounters &Acquisition::idx() const {
+    return acq.head.idx;
+}
+
+const int32_t (&Acquisition::user_int() const ) [ISMRMRD_USER_INTS] {
+    return acq.head.user_int;
+}
+
+const float (&Acquisition::user_float() const) [ISMRMRD_USER_FLOATS] {
+    return acq.head.user_float;
+}
+
 
 uint32_t &Acquisition::measurement_uid() {
     return acq.head.measurement_uid;
@@ -319,24 +396,39 @@ float & Acquisition::traj(uint16_t dimension, uint16_t sample){
     return acq.traj[index];
 }
 
-complex_float_t * Acquisition::data_begin() const{
+const complex_float_t * Acquisition::data_begin() const{
        return acq.data;
 }
 
-complex_float_t * Acquisition::data_end() const {
+const complex_float_t * Acquisition::data_end() const {
        return acq.data+size_t(acq.head.number_of_samples)*size_t(acq.head.active_channels);
 }
 
-float * Acquisition::traj_begin() const {
+complex_float_t * Acquisition::data_begin(){
+       return acq.data;
+}
+
+complex_float_t * Acquisition::data_end() {
+       return acq.data+size_t(acq.head.number_of_samples)*size_t(acq.head.active_channels);
+}
+
+const float * Acquisition::traj_begin() const {
        return acq.traj;
 }
 
-float * Acquisition::traj_end() const {
+const float * Acquisition::traj_end() const {
+       return acq.traj+size_t(acq.head.number_of_samples)*size_t(acq.head.trajectory_dimensions);
+}
+ float * Acquisition::traj_begin() {
+       return acq.traj;
+}
+
+float * Acquisition::traj_end() {
        return acq.traj+size_t(acq.head.number_of_samples)*size_t(acq.head.trajectory_dimensions);
 }
 
 // Flag methods
-bool Acquisition::isFlagSet(const uint64_t val) {
+bool Acquisition::isFlagSet(const uint64_t val) const {
     return ismrmrd_is_flag_set(acq.head.flags, val);
 }
 void Acquisition::setFlag(const uint64_t val) {
@@ -350,7 +442,7 @@ void Acquisition::clearAllFlags() {
 }
 
 // Channel mask methods
-bool Acquisition::isChannelActive(uint16_t channel_id) {
+bool Acquisition::isChannelActive(uint16_t channel_id) const {
     return ismrmrd_is_channel_on(acq.head.channel_mask, channel_id);
 }
 void Acquisition::setChannelActive(uint16_t channel_id) {
@@ -362,7 +454,15 @@ void Acquisition::setChannelNotActive(uint16_t channel_id) {
 void Acquisition::setAllChannelsNotActive() {
     ismrmrd_set_all_channels_off(acq.head.channel_mask);
 }
-
+uint32_t Acquisition::measurement_uid() const {
+   return acq.head.measurement_uid;
+}
+uint32_t Acquisition::scan_counter() const {
+   return acq.head.scan_counter;
+}
+uint32_t Acquisition::acquisition_time_stamp() const {
+   return acq.head.acquisition_time_stamp;
+}
 
 //
 // ImageHeader class Implementation
@@ -376,7 +476,7 @@ ImageHeader::ImageHeader() {
 };
 
 // Flag methods
-bool ImageHeader::isFlagSet(const uint64_t val) {
+bool ImageHeader::isFlagSet(const uint64_t val) const {
     return ismrmrd_is_flag_set(flags, val);
 };
 
