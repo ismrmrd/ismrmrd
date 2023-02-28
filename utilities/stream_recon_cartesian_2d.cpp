@@ -126,6 +126,8 @@ void reconstruct(std::istream &in, std::ostream &out, bool magnitude = false) {
     img_out.setImageType(ISMRMRD::ISMRMRD_IMTYPE_COMPLEX);
     img_out.setSlice(0);
     img_out.setFieldOfView(r_space.fieldOfView_mm.x, r_space.fieldOfView_mm.y, r_space.fieldOfView_mm.z);
+    img_out.setPosition(acqhdr.position[0], acqhdr.position[1], acqhdr.position[2]);
+    img_out.setPatientTablePosition(acqhdr.patient_table_position[0], acqhdr.patient_table_position[1], acqhdr.patient_table_position[2]);
     img_out.setReadDirection(acqhdr.read_dir[0], acqhdr.read_dir[1], acqhdr.read_dir[2]);
     img_out.setPhaseDirection(acqhdr.phase_dir[0], acqhdr.phase_dir[1], acqhdr.phase_dir[2]);
     img_out.setSliceDirection(acqhdr.slice_dir[0], acqhdr.slice_dir[1], acqhdr.slice_dir[2]);
