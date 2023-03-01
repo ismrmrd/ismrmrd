@@ -15,6 +15,7 @@ on:
 
 env:
   BUILD_TYPE: Release
+  REGISTRY: ghcr.io
 
 jobs:
   build:
