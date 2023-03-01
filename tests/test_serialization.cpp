@@ -366,7 +366,7 @@ void test_end_to_end_streaming_reconstruction(bool use_binary_files) {
     BOOST_CHECK_EQUAL(std::system((simulator_path + " -o " + tmp_raw_data).c_str()), 0);
 
     std::string recon_path = util_path() + executable_name("utilities" + path_separator() + "ismrmrd_recon_cartesian_2d");
-    std::string stream_recon_path = util_path() + executable_name("utilities" + path_separator() + "ismrmrd_stream_recon_cartesian_2d --output-magnitude");
+    std::string stream_recon_path = util_path() + executable_name("utilities" + path_separator() + "ismrmrd_stream_recon_cartesian_2d");
     std::string stoh_path = util_path() + executable_name("utilities" + path_separator() + "ismrmrd_stream_to_hdf5");
     std::string htos_path = util_path() + executable_name("utilities" + path_separator() + "ismrmrd_hdf5_to_stream");
 
@@ -417,12 +417,12 @@ void test_end_to_end_streaming_reconstruction(bool use_binary_files) {
         if (use_binary_files) {
             std::string cmd = htos_path + " -i " + tmp_raw_data + " -o " + tmp_raw_data_stream2;
             BOOST_CHECK_EQUAL(std::system(cmd.c_str()), 0);
-            cmd = stream_recon_path + " -i " + tmp_raw_data_stream2 + " -o " + tmp_recon_data_stream1;
+            cmd = stream_recon_path + " --output-magnitude -i " + tmp_raw_data_stream2 + " -o " + tmp_recon_data_stream1;
             BOOST_CHECK_EQUAL(std::system(cmd.c_str()), 0);
             cmd = stoh_path + " -i " + tmp_recon_data_stream1 + " -o " + tmp_stream_recon_data;
             BOOST_CHECK_EQUAL(std::system(cmd.c_str()), 0);
         } else {
-            std::string stream_recon_cmd = htos_path + " -i " + tmp_raw_data + " --use-stdout | " + stream_recon_path + " --use-stdin --use-stdout | " + stoh_path + " --use-stdin -o " + tmp_stream_recon_data;
+            std::string stream_recon_cmd = htos_path + " -i " + tmp_raw_data + " --use-stdout | " + stream_recon_path + " --output-magnitude --use-stdin --use-stdout | " + stoh_path + " --use-stdin -o " + tmp_stream_recon_data;
             BOOST_CHECK_EQUAL(std::system(stream_recon_cmd.c_str()), 0);
         }
 
