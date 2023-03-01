@@ -475,8 +475,8 @@ BOOST_AUTO_TEST_CASE(test_end_to_end_streaming_reconstruction_pipes) {
     test_end_to_end_streaming_reconstruction(false);
 }
 
-// BOOST_AUTO_TEST_CASE(test_end_to_end_streaming_reconstruction_files) {
-//     test_end_to_end_streaming_reconstruction(true);
-// }
+BOOST_AUTO_TEST_CASE(test_end_to_end_streaming_reconstruction_files) {
+    test_end_to_end_streaming_reconstruction(true);
+}
 
 BOOST_AUTO_TEST_SUITE_END()
