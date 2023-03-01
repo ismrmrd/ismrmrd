@@ -207,7 +207,7 @@ int main(int argc, char **argv) {
     } else if (input_file.size() && output_file.size()) {
         std::ifstream input(input_file.c_str(), std::ios::in | std::ios::binary);
         std::ofstream output(output_file.c_str(), std::ios::out | std::ios::binary);
-        reconstruct(input, output);
+        reconstruct(input, output, output_magnitude);
     } else if (input_file.size() && use_stdout) {
         ISMRMRD::set_binary_io();
         std::ifstream input(input_file.c_str(), std::ios::in | std::ios::binary);
