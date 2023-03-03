@@ -2,22 +2,22 @@
 
 The ISMRM Raw Data format is described by an XML schema and some C-style structs with fixed memory layout and as such does not have dependencies. However, it uses HDF5 files for storage and a C++ library for reading and writing the ISMRMRD files is included in this distribution. Furthermore, since the XML header is defined with an XML schema, we encourage using XML data binding when writing software using the format. To compile all components of this distribution you need:
 
-* HDF5 (version 1.8 or higher) libraries. Available from http://www.hdfgroup.org/downloads/index.html.
-* Boost (http://www.boost.org/)
-* Cmake build tool (http://www.cmake.org/)
-* Git if you would like to use the source code archive (http://git-scm.com/)
-* FFTW if you would like to compile some of the example applications
-  (http://www.fftw.org)
-* Doxygen if you would like to generate API documentation (http://www.doxygen.org)
+* [HDF5](http://www.hdfgroup.org/downloads/index.html) (version 1.8 or higher) libraries.
+* [Boost](http://www.boost.org/)
+* [Pugixml](https://pugixml.org)
+* [Cmake build tool](http://www.cmake.org/)
+* [Git](http://git-scm.com/) if you would like to use the source code archive
+* [FFTW](http://www.fftw.org) if you would like to compile some of the example applications
+* [Doxygen](http://www.doxygen.org) if you would like to generate API documentation
 
-> It is only necessary to install the dependencies if you wish to develop compiled C/C++ software, which uses the ISMRMRD format. The format can be read in Matlab or Python without installing any additional software.
+It is only necessary to install the dependencies if you wish to develop compiled C/C++ software, which uses the ISMRMRD format. The format can be read in Matlab or Python without installing any additional software.
 
 ## Linux installation
 
 The dependencies mentioned above should be included in most linux distributions. On Ubuntu you can install all required dependencies with::
 
 ```bash
-sudo apt-get -y install doxygen git-core graphviz libboost-all-dev libfftw3-dev libhdf5-serial-dev
+sudo apt-get -y install doxygen git-core graphviz libboost-all-dev libfftw3-dev libhdf5-serial-dev libxml2-utils libpugixml-dev
 ```
 
 After installation of dependencies, the library can be installed with:

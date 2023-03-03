@@ -238,12 +238,13 @@
         <center>0</center>
       </set>
       <user_1>
-         <minimum>0</minimum>
+        <minimum>0</minimum>
         <maximum>0</maximum>
         <center>0</center>
       </user_1>
     </encodingLimits>
     <trajectory>cartesian</trajectory>
+
   </encoding>
   <encoding>
     <encodedSpace>
@@ -284,7 +285,7 @@
       <average>
         <minimum>0</minimum>
         <maximum>16</maximum>
-        <center>0</center>	
+        <center>0</center>
       </average>
       <slice>
         <minimum>0</minimum>
@@ -294,17 +295,17 @@
       <contrast>
         <minimum>2</minimum>
         <maximum>4</maximum>
-        <center>3</center>	
+        <center>3</center>
       </contrast>
       <phase>
         <minimum>0</minimum>
         <maximum>0</maximum>
-        <center>0</center>	
+        <center>0</center>
       </phase>
       <repetition>
-	<minimum>0</minimum>
+        <minimum>0</minimum>
         <maximum>16</maximum>
-        <center>8</center>	
+        <center>8</center>
       </repetition>
       <set>
         <minimum>0</minimum>
@@ -314,40 +315,58 @@
       <segment>
         <minimum>0</minimum>
         <maximum>1</maximum>
-        <center>0</center>	
+        <center>0</center>
       </segment>
     </encodingLimits>
     <trajectory>other</trajectory>
     <trajectoryDescription>
       <identifier>Custom Trajector</identifier>
       <userParameterLong>
-	<name>sample_rate_ns</name>
-	<value>100</value>
+        <name>sample_rate_ns</name>
+        <value>100</value>
       </userParameterLong>
       <userParameterLong>
-	<name>constant_1</name>
-	<value>300</value>
+        <name>constant_1</name>
+        <value>300</value>
       </userParameterLong>
       <userParameterDouble>
-	<name>coefficient_1</name>
-	<value>2.72386</value>
+        <name>coefficient_1</name>
+        <value>2.72386</value>
       </userParameterDouble>
       <userParameterDouble>
-	<name>coefficient_2</name>
-	<value>2233.72</value>
+        <name>coefficient_2</name>
+        <value>2233.72</value>
       </userParameterDouble>
       <userParameterDouble>
-	<name>coefficient_3</name>
-	<value>112.86</value>
+        <name>coefficient_3</name>
+        <value>112.86</value>
       </userParameterDouble>
+      <userParameterString>
+        <name>Trajectory monitoring system vendor</name>
+        <value>Purview</value>
+      </userParameterString>
       <comment>This is an example description of a custom trajectory</comment>
     </trajectoryDescription>
     <parallelImaging>
       <accelerationFactor>
-	<kspace_encoding_step_1>1</kspace_encoding_step_1>
-	<kspace_encoding_step_2>2</kspace_encoding_step_2>
+        <kspace_encoding_step_1>1</kspace_encoding_step_1>
+        <kspace_encoding_step_2>2</kspace_encoding_step_2>
       </accelerationFactor>
       <calibrationMode>other</calibrationMode>
+      <multiband>
+        <spacing>
+          <dZ>0.0</dZ>
+          <dZ>2.0</dZ>
+        </spacing>
+        <spacing>
+          <dZ>0.0</dZ>
+          <dZ>2.5</dZ>
+        </spacing>
+        <deltaKz>1.0</deltaKz>
+        <multiband_factor>2</multiband_factor>
+        <calibration>full3D</calibration>
+        <calibration_encoding>0</calibration_encoding>
+      </multiband>
     </parallelImaging>
     <echoTrainLength>12</echoTrainLength>
   </encoding>
@@ -360,6 +379,32 @@
     <TI>300.08</TI>
     <flipAngle_deg>90.0</flipAngle_deg>
     <flipAngle_deg>120.0</flipAngle_deg>
+    <diffusionDimension>segment</diffusionDimension>
+    <diffusion>
+      <gradientDirection>
+        <ap>1</ap>
+        <fh>0</fh>
+        <rl>0</rl>
+      </gradientDirection>
+      <bvalue>2.0</bvalue>
+    </diffusion>
+    <diffusion>
+      <gradientDirection>
+        <ap>0</ap>
+        <fh>1</fh>
+        <rl>0</rl>
+      </gradientDirection>
+      <bvalue>1.0</bvalue>
+    </diffusion>
+    <diffusion>
+      <gradientDirection>
+        <ap>0</ap>
+        <fh>0</fh>
+        <rl>1</rl>
+      </gradientDirection>
+      <bvalue>4.0</bvalue>
+    </diffusion>
+    <diffusionScheme>bipolar</diffusionScheme>
   </sequenceParameters>
   <userParameters>
     <userParameterLong>

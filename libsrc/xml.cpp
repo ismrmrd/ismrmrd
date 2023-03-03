@@ -2,6 +2,7 @@
 #include "ismrmrd/version.h"
 #include "pugixml.hpp"
 #include <cstdlib>
+#include <tuple>
 
 namespace ISMRMRD
 {
@@ -16,9 +17,9 @@ namespace ISMRMRD
     if (!matrixSize) {
       throw std::runtime_error("matrixSize not found in encodingSpace");
     } else {
-      e.matrixSize.x = std::atoi(matrixSize.child_value("x"));
-      e.matrixSize.y = std::atoi(matrixSize.child_value("y"));
-      e.matrixSize.z = std::atoi(matrixSize.child_value("z"));
+      e.matrixSize.x = std::stoi(matrixSize.child_value("x"));
+      e.matrixSize.y = std::stoi(matrixSize.child_value("y"));
+      e.matrixSize.z = std::stoi(matrixSize.child_value("z"));
     }
 
     if (!fieldOfView_mm) {
@@ -39,9 +40,9 @@ namespace ISMRMRD
     
     if (nc) {
       Limit l;
-      l.minimum = std::atoi(nc.child_value("minimum"));
-      l.maximum = std::atoi(nc.child_value("maximum"));
-      l.center = std::atoi(nc.child_value("center"));
+      l.minimum = std::stoi(nc.child_value("minimum"));
+      l.maximum = std::stoi(nc.child_value("maximum"));
+      l.center = std::stoi(nc.child_value("center"));
       o = l;
     }
 
@@ -73,25 +74,36 @@ namespace ISMRMRD
     return r;
   }
 
-  Optional<long> parse_optional_long(pugi::xml_node& n, const char* child) {
-    Optional<long> r;
+  Optional<std::int64_t> parse_optional_long(pugi::xml_node& n, const char* child) {
+    Optional<std::int64_t> r;
     pugi::xml_node nc = n.child(child);
     if (nc) {
-      r = std::atol(nc.child_value());
+      r = std::stoll(nc.child_value());
     }
     return r;
   }
 
-  Optional<unsigned short> parse_optional_ushort(pugi::xml_node& n, const char* child) {
-    Optional<unsigned short> r;
+  Optional<std::uint16_t> parse_optional_ushort(pugi::xml_node& n, const char* child) {
+    Optional<std::uint16_t> r;
     pugi::xml_node nc = n.child(child);
     if (nc) {
-      r = static_cast<unsigned short>(std::atoi(nc.child_value()));
+      r = static_cast<std::uint16_t>(std::stoi(nc.child_value()));
     }
     return r;
   }
 
-  std::vector<float> parse_vector_float(pugi::xml_node& n, const char* child) 
+  float parse_float(pugi::xml_node& n, const char* child){
+        try {
+            return std::stof(n.child_value(child), nullptr);
+        } catch (const std::invalid_argument& ){
+            throw std::runtime_error("Illegal value encountered in node " + std::string(n.name()) + ". Value is not a float:" + std::string(n.child_value(child)));
+
+        } catch (const std::out_of_range &  ){
+            throw std::runtime_error("Value out of float range in node " + std::string(n.name()) + ". Value:" + std::string(n.child_value(child)));
+        }
+  }
+
+  std::vector<float> parse_vector_float(pugi::xml_node& n, const char* child)
   {
     std::vector<float> r;
     
@@ -148,7 +160,7 @@ namespace ISMRMRD
       }
 
       v.name = std::string(name.child_value());
-      v.value = std::atoi(value.child_value());
+      v.value = std::stoi(value.child_value());
 
       r.push_back(v);
 
@@ -206,8 +218,19 @@ namespace ISMRMRD
    
     return r;
   }
+  MultibandCalibrationType parse_multiband_type(const std::string& multibandString) {
+      if (multibandString == "separable2D")
+          return MultibandCalibrationType::SEPARABLE2D;
+      if (multibandString == "full3D")
+          return MultibandCalibrationType::FULL3D;
+      if (multibandString == "other")
+          return MultibandCalibrationType::OTHER;
 
-  TrajectoryType parse_trajectory_type(const std::string trajectoryString) {
+      throw std::runtime_error("Invalid multiband calibration type in xml header: " + multibandString);
+
+  }
+
+  TrajectoryType parse_trajectory_type(const std::string& trajectoryString) {
       if (trajectoryString == "cartesian")
           return TrajectoryType::CARTESIAN;
       if (trajectoryString == "epi")
@@ -224,7 +247,7 @@ namespace ISMRMRD
       throw std::runtime_error("Invalid trajectory type in xml header");
   }
 
-  WaveformType parse_waveform_type(const std::string waveformString) {
+  WaveformType parse_waveform_type(const std::string& waveformString) {
       if (waveformString == "ecg")
           return WaveformType::ECG;
       if ( waveformString == "pulse")
@@ -242,12 +265,57 @@ namespace ISMRMRD
   }
 
 
+    DiffusionDimension parse_diffusiondimension(const std::string& diffusiondimension) {
+        if (diffusiondimension == "average") return DiffusionDimension::AVERAGE;
+        if (diffusiondimension == "contrast") return DiffusionDimension::CONTRAST;
+        if (diffusiondimension == "phase") return DiffusionDimension::PHASE;
+        if (diffusiondimension == "repetition") return DiffusionDimension::REPETITION;
+        if (diffusiondimension == "set") return DiffusionDimension::SET;
+        if (diffusiondimension == "segment") return DiffusionDimension::SEGMENT;
+        if (diffusiondimension == "user_0") return DiffusionDimension::USER_0;
+        if (diffusiondimension == "user_1") return DiffusionDimension::USER_1;
+        if (diffusiondimension == "user_2") return DiffusionDimension::USER_2;
+        if (diffusiondimension == "user_3") return DiffusionDimension::USER_3;
+        if (diffusiondimension == "user_4") return DiffusionDimension::USER_4;
+        if (diffusiondimension == "user_5") return DiffusionDimension::USER_5;
+        if (diffusiondimension == "user_6") return DiffusionDimension::USER_6;
+        if (diffusiondimension == "user_7") return DiffusionDimension::USER_7;
+        throw std::runtime_error("Invalid diffusion dimension in xml header");
+    }
+
+  static Diffusion parse_diffusion(pugi::xml_node& node) {
+      Diffusion diff{};
+      diff.bvalue = std::stof(node.child_value("bvalue"));
+
+      auto grad_node = node.child("gradientDirection");
+
+      diff.gradientDirection.rl = std::stof(grad_node.child_value("rl"));
+      diff.gradientDirection.ap = std::stof(grad_node.child_value("ap"));
+      diff.gradientDirection.fh = std::stof(grad_node.child_value("fh"));
+      return diff;
+  }
+
+  static Optional<std::vector<Diffusion>> parse_diffusion_vector(pugi::xml_node& node){
+
+      auto diffusion_node = node.child("diffusion");
+      if (!diffusion_node) return {};
+
+      std::vector<Diffusion> diffusions;
+      while(diffusion_node){
+          diffusions.push_back(parse_diffusion(diffusion_node));
+          diffusion_node = diffusion_node.next_sibling("diffusion");
+      }
+      return diffusions;
+
+
+  }
+
   //End of utility functions for deserializing header
 
   void deserialize(const char* xml, IsmrmrdHeader& h) 
   {
     pugi::xml_document doc;
-    pugi::xml_parse_result result = doc.load(xml);
+    pugi::xml_parse_result result = doc.load_string(xml);
     
     if (!result) {
       throw std::runtime_error("Unable to load ISMRMRD XML header");
@@ -332,6 +400,9 @@ namespace ISMRMRD
 		parse_user_parameter_long(trajectoryDescription, "userParameterLong");
 	      traj.userParameterDouble = 
 		parse_user_parameter_double(trajectoryDescription, "userParameterDouble");
+	      traj.userParameterString = 
+		parse_user_parameter_string(trajectoryDescription, "userParameterString");
+
 	      traj.comment = parse_optional_string(trajectoryDescription, "comment");
 	      e.trajectoryDescription = traj;
 	    } catch (std::runtime_error& e) {
@@ -349,14 +420,32 @@ namespace ISMRMRD
 	    if (!accelerationFactor) {
 	      throw std::runtime_error("Unable to accelerationFactor section in parallelImaging");
 	    } else {
-	      info.accelerationFactor.kspace_encoding_step_1 = static_cast<unsigned short>(std::atoi(accelerationFactor.child_value("kspace_encoding_step_1")));
-	      info.accelerationFactor.kspace_encoding_step_2 = static_cast<unsigned short>(std::atoi(accelerationFactor.child_value("kspace_encoding_step_2")));
+	      info.accelerationFactor.kspace_encoding_step_1 = static_cast<std::uint16_t>(std::stoi(accelerationFactor.child_value("kspace_encoding_step_1")));
+	      info.accelerationFactor.kspace_encoding_step_2 = static_cast<std::uint16_t>(std::stoi(accelerationFactor.child_value("kspace_encoding_step_2")));
 	    }
 	    
 	    info.calibrationMode = parse_optional_string(parallelImaging,"calibrationMode");
 	    info.interleavingDimension = parse_optional_string(parallelImaging,"interleavingDimension");
-	    e.parallelImaging = info;
+
+     pugi::xml_node multiband = parallelImaging.child("multiband");
+        if (multiband) {
+            Multiband mb;
+            mb.deltaKz = parse_float(multiband, "deltaKz");
+            mb.multiband_factor =  static_cast<std::uint32_t>(std::stoi(multiband.child_value("multiband_factor")));
+
+            auto spacing_node = multiband.child("spacing");
+            do {
+                mb.spacing.push_back(MultibandSpacing{parse_vector_float(spacing_node, "dZ")});
+                spacing_node = spacing_node.next_sibling("spacing");
+            } while (spacing_node);
+
+            mb.calibration = parse_multiband_type(multiband.child_value("calibration"));
+            mb.calibration_encoding = std::stoul(multiband.child_value("calibration_encoding"));
+            info.multiband = mb;
+        }
+        e.parallelImaging = info;
 	  }
+
 
 	  e.echoTrainLength = parse_optional_long(encoding, "echoTrainLength");
 
@@ -399,7 +488,7 @@ namespace ISMRMRD
 	info.relativeTablePosition = parse_optional_threeDimensionalFloat(measurementInformation, "relativeTablePosition");
 	info.initialSeriesNumber = parse_optional_long(measurementInformation, "initialSeriesNumber");
 	info.protocolName = parse_optional_string(measurementInformation, "protocolName");
-	info.protocolName = parse_optional_string(measurementInformation, "sequenceName");
+	info.sequenceName = parse_optional_string(measurementInformation, "sequenceName");
 	info.seriesDescription = parse_optional_string(measurementInformation, "seriesDescription");
 	pugi::xml_node measurementDependency = measurementInformation.child("measurementDependency");
 	while (measurementDependency) {
@@ -443,7 +532,7 @@ namespace ISMRMRD
 	pugi::xml_node coilLabel = acquisitionSystemInformation.child("coilLabel");
 	while (coilLabel) {
 	  CoilLabel l;
-	  l.coilNumber = std::atoi(coilLabel.child_value("coilNumber"));
+	  l.coilNumber = std::stoi(coilLabel.child_value("coilNumber"));
 	  l.coilName = parse_string(coilLabel, "coilName");
 	  info.coilLabel.push_back(l);
 	  coilLabel = coilLabel.next_sibling("coilLabel");
@@ -470,6 +559,17 @@ namespace ISMRMRD
 
     r = parse_vector_float(sequenceParameters, "flipAngle_deg");
     if (!r.empty()) p.flipAngle_deg = r;
+
+
+    auto diffusiondimension = std::string(sequenceParameters.child_value("diffusionDimension"));
+    if (!diffusiondimension.empty()) p.diffusionDimension = parse_diffusiondimension(diffusiondimension);
+
+    
+    p.diffusion = parse_diffusion_vector(sequenceParameters);
+
+    p.diffusionScheme = parse_optional_string(sequenceParameters, "diffusionScheme");
+
+
 
     p.sequence_type = parse_optional_string(sequenceParameters, "sequence_type");
 
@@ -511,96 +611,101 @@ namespace ISMRMRD
 
   }
 
+    using std::to_string;
+    std::string to_string(const std::string& s){return s;}
 
-  //Utility functions for serialization
-  void to_string_val(const std::string& v, std::string& o)
-  {
-    o = v;
-  }
-
-  void to_string_val(const float& v, std::string& o)
-  {
-    char buffer[256];
-    sprintf(buffer,"%f",v);
-    o = std::string(buffer);
-  }
-
-  void to_string_val(const double& v, std::string& o)
-  {
-    char buffer[256];
-    sprintf(buffer,"%f",v);
-    o = std::string(buffer);
-  }
-
-  void to_string_val(const unsigned short& v, std::string& o)
-  {
-    char buffer[256];
-    sprintf(buffer,"%d",v);
-    o = std::string(buffer);
-  }
-
-  void to_string_val(const long& v, std::string& o)
-  {
-    char buffer[256];
-    sprintf(buffer,"%ld",v);
-    o = std::string(buffer);
-  }
-
-  void to_string_val(const TrajectoryType& v, std::string& o)
+  std::string to_string(TrajectoryType v)
   {
       switch (v){
           case TrajectoryType::CARTESIAN:
-              o = "cartesian";
-              break;
+              return "cartesian";
           case TrajectoryType::EPI:
-              o = "epi";
-              break;
+              return "epi";
           case TrajectoryType::RADIAL:
-              o = "radial";
-              break;
+              return  "radial";
           case TrajectoryType::GOLDENANGLE:
-              o = "goldenangle";
-              break;
+              return "goldenangle";
           case TrajectoryType::SPIRAL:
-              o = "spiral";
-              break;
+              return  "spiral";
           case TrajectoryType::OTHER:
-              o = "other";
-              break;
+              return "other";
       }
+      throw std::runtime_error("Illegal enum class value");
   }
 
-  void to_string_val(const WaveformType& v, std::string& o)
+  std::string to_string(const WaveformType& v)
   {
       switch (v){
           case WaveformType::ECG:
-              o = "ecg";
-              break;
+              return "ecg";
           case WaveformType::PULSE:
-              o = "pulse";
-              break;
+              return "pulse";
           case WaveformType::RESPIRATORY:
-              o = "respiratory";
-              break;
+              return "respiratory";
           case WaveformType::TRIGGER:
-              o = "trigger";
-              break;
+              return "trigger";
           case WaveformType::GRADIENTWAVEFORM:
-              o = "gradientwaveform";
-              break;
+              return "gradientwaveform";
           case WaveformType::OTHER:
-              o = "other";
-              break;
-
+              return "other";
       }
+
+      throw std::runtime_error("Illegal enum class value");
   }
 
-  template <class T> void append_optional_node(pugi::xml_node& n, const char* child, const Optional<T>& v) 
+  std::string to_string(const  DiffusionDimension& d){
+      switch (d){
+      case DiffusionDimension::AVERAGE:
+          return "average";
+      case DiffusionDimension::CONTRAST:
+          return "contrast";
+      case DiffusionDimension::PHASE:
+          return "phase";
+      case DiffusionDimension::REPETITION:
+          return "repetition";
+      case DiffusionDimension::SET:
+          return "set";
+      case DiffusionDimension::SEGMENT:
+          return "segment";
+      case DiffusionDimension::USER_0:
+          return "user_0";
+      case DiffusionDimension::USER_1:
+          return "user_1";
+      case DiffusionDimension::USER_2:
+          return "user_2";
+      case DiffusionDimension::USER_3:
+          return "user_3";
+      case DiffusionDimension::USER_4:
+          return "user_4";
+      case DiffusionDimension::USER_5:
+          return "user_5";
+      case DiffusionDimension::USER_6:
+          return "user_6";
+      case DiffusionDimension::USER_7:
+          return "user_7";
+      }
+      throw std::runtime_error("Illegal enum class value");
+  }
+
+std::string to_string(const MultibandCalibrationType& v)
+{
+    switch (v){
+        case MultibandCalibrationType::FULL3D:
+            return "full3D";
+        case MultibandCalibrationType::SEPARABLE2D:
+            return "separable2D";
+        case MultibandCalibrationType::OTHER:
+            return "other";
+    }
+
+    throw std::runtime_error("Illegal enum class value");
+}
+
+template <class T> void append_optional_node(pugi::xml_node& n, const char* child, const Optional<T>& v)
   {
     if (v) {
       pugi::xml_node n2 = n.append_child(child);
-      std::string v_as_string;
-      to_string_val(*v, v_as_string);
+      std::string v_as_string = to_string(*v);
       n2.append_child(pugi::node_pcdata).set_value(v_as_string.c_str());
     }
   } 
@@ -608,8 +713,7 @@ namespace ISMRMRD
   template <class T> void append_node(pugi::xml_node& n, const char* child, const T& v) 
   {
     pugi::xml_node n2 = n.append_child(child);
-    std::string v_as_string;
-    to_string_val(v, v_as_string);
+    auto v_as_string = to_string(v);
     n2.append_child(pugi::node_pcdata).set_value(v_as_string.c_str());
   } 
 
@@ -814,19 +918,38 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
 	append_node(n2,"identifier",h.encoding[i].trajectoryDescription->identifier);
 	append_user_parameter(n2,"userParameterLong",h.encoding[i].trajectoryDescription->userParameterLong); 
 	append_user_parameter(n2,"userParameterDouble",h.encoding[i].trajectoryDescription->userParameterDouble); 
+	append_user_parameter(n2,"userParameterString",h.encoding[i].trajectoryDescription->userParameterString); 
 	append_optional_node(n2,"comment",h.encoding[i].trajectoryDescription->comment);
       }
 
       if (h.encoding[i].parallelImaging) {
+        const auto& parallelImaging = *h.encoding[i].parallelImaging;
 	n2 = n1.append_child("parallelImaging");
 	n3 = n2.append_child("accelerationFactor");
-	append_node(n3,"kspace_encoding_step_1",h.encoding[i].parallelImaging->accelerationFactor.kspace_encoding_step_1);
-	append_node(n3,"kspace_encoding_step_2",h.encoding[i].parallelImaging->accelerationFactor.kspace_encoding_step_2);
-	append_optional_node(n2, "calibrationMode", h.encoding[i].parallelImaging->calibrationMode);
-	append_optional_node(n2, "interleavingDimension", h.encoding[i].parallelImaging->interleavingDimension);
+	append_node(n3,"kspace_encoding_step_1",parallelImaging.accelerationFactor.kspace_encoding_step_1);
+	append_node(n3,"kspace_encoding_step_2",parallelImaging.accelerationFactor.kspace_encoding_step_2);
+	append_optional_node(n2, "calibrationMode", parallelImaging.calibrationMode);
+	append_optional_node(n2, "interleavingDimension",parallelImaging.interleavingDimension);
+
+
+      if (parallelImaging.multiband){
+          auto& multiband = *parallelImaging.multiband;
+        auto n4 = n2.append_child("multiband");
+        for (const auto& mb : multiband.spacing){
+            auto n5 = n4.append_child("spacing");
+            for (const auto dZ : mb.dZ){
+              append_node(n5,"dZ",dZ);
+            }
+        }
+        append_node(n4, "deltaKz", multiband.deltaKz);
+        append_node(n4, "multiband_factor", multiband.multiband_factor);
+        append_node(n4,"calibration",multiband.calibration);
+        append_node(n4,"calibration_encoding",multiband.calibration_encoding);
       }
 
-      append_optional_node(n1, "echoTrainLength", h.encoding[i].echoTrainLength);
+      }
+
+      append_optional_node(n1,"echoTrainLength",h.encoding[i].echoTrainLength);
 
     }
 
@@ -869,6 +992,19 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
               append_node(n1, "echo_spacing", h.sequenceParameters->echo_spacing->operator[](i));
           }
       }
+
+      append_optional_node(n1,"diffusionDimension", h.sequenceParameters->diffusionDimension);
+      if (h.sequenceParameters->diffusion){
+          for (const auto& diff : h.sequenceParameters->diffusion.get()){
+              auto diff_node = n1.append_child("diffusion");
+              append_node(diff_node,"bvalue",diff.bvalue);
+              auto grad_node = diff_node.append_child("gradientDirection");
+              append_node(grad_node,"rl",diff.gradientDirection.rl);
+              append_node(grad_node,"ap",diff.gradientDirection.ap);
+              append_node(grad_node,"fh",diff.gradientDirection.fh);
+          }
+      }
+      append_optional_node(n1, "diffusionScheme", h.sequenceParameters->diffusionScheme);
     }
 
     if (h.userParameters) {
@@ -888,4 +1024,196 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
   }
 
 
-}
+  std::ostream& operator<<(std::ostream& stream, const IsmrmrdHeader& header){
+    serialize(header, stream);
+    return stream;
+  }
+
+  bool operator==(const IsmrmrdHeader &lhs, const IsmrmrdHeader &rhs) {
+      return std::tie(lhs.version, lhs.subjectInformation, lhs.studyInformation, lhs.measurementInformation, lhs.acquisitionSystemInformation, lhs.experimentalConditions, lhs.encoding, lhs.sequenceParameters, lhs.userParameters, lhs.waveformInformation) == std::tie(rhs.version, rhs.subjectInformation, rhs.studyInformation, rhs.measurementInformation, rhs.acquisitionSystemInformation, rhs.experimentalConditions, rhs.encoding, rhs.sequenceParameters, rhs.userParameters, rhs.waveformInformation);
+  }
+  bool operator!=(const IsmrmrdHeader &lhs, const IsmrmrdHeader &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const SubjectInformation &lhs, const SubjectInformation &rhs) {
+      return std::tie(lhs.patientName, lhs.patientWeight_kg, lhs.patientID, lhs.patientBirthdate, lhs.patientGender) == std::tie(rhs.patientName, rhs.patientWeight_kg, rhs.patientID, rhs.patientBirthdate, rhs.patientGender);
+  }
+  bool operator!=(const SubjectInformation &lhs, const SubjectInformation &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const StudyInformation &lhs, const StudyInformation &rhs) {
+      return std::tie(lhs.studyDate, lhs.studyTime, lhs.studyID, lhs.accessionNumber, lhs.referringPhysicianName, lhs.studyDescription, lhs.studyInstanceUID, lhs.bodyPartExamined) == std::tie(rhs.studyDate, rhs.studyTime, rhs.studyID, rhs.accessionNumber, rhs.referringPhysicianName, rhs.studyDescription, rhs.studyInstanceUID,lhs.bodyPartExamined);
+  }
+  bool operator!=(const StudyInformation &lhs, const StudyInformation &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator<(const MeasurementDependency &lhs, const MeasurementDependency &rhs) {
+      return std::tie(lhs.dependencyType, lhs.measurementID) < std::tie(rhs.dependencyType, rhs.measurementID);
+  }
+  bool operator>(const MeasurementDependency &lhs, const MeasurementDependency &rhs) {
+      return rhs < lhs;
+  }
+  bool operator<=(const MeasurementDependency &lhs, const MeasurementDependency &rhs) {
+      return !(rhs < lhs);
+  }
+  bool operator>=(const MeasurementDependency &lhs, const MeasurementDependency &rhs) {
+      return !(lhs < rhs);
+  }
+  bool operator==(const ReferencedImageSequence &lhs, const ReferencedImageSequence &rhs) {
+      return lhs.referencedSOPInstanceUID == rhs.referencedSOPInstanceUID;
+  }
+  bool operator!=(const ReferencedImageSequence &lhs, const ReferencedImageSequence &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const MeasurementInformation &lhs, const MeasurementInformation &rhs) {
+      return std::tie(lhs.measurementID, lhs.seriesDate, lhs.seriesTime, lhs.patientPosition, lhs.relativeTablePosition, lhs.initialSeriesNumber, lhs.protocolName, lhs.seriesDescription, lhs.measurementDependency, lhs.seriesInstanceUIDRoot, lhs.frameOfReferenceUID, lhs.referencedImageSequence,lhs.sequenceName) == std::tie(rhs.measurementID, rhs.seriesDate, rhs.seriesTime, rhs.patientPosition, rhs.relativeTablePosition, rhs.initialSeriesNumber, rhs.protocolName, rhs.seriesDescription, rhs.measurementDependency, rhs.seriesInstanceUIDRoot, rhs.frameOfReferenceUID, rhs.referencedImageSequence,lhs.sequenceName);
+  }
+  bool operator!=(const MeasurementInformation &lhs, const MeasurementInformation &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const CoilLabel &lhs, const CoilLabel &rhs) {
+      return std::tie(lhs.coilNumber, lhs.coilName) == std::tie(rhs.coilNumber, rhs.coilName);
+  }
+  bool operator!=(const CoilLabel &lhs, const CoilLabel &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const AcquisitionSystemInformation &lhs, const AcquisitionSystemInformation &rhs) {
+      return std::tie(lhs.systemVendor, lhs.systemModel, lhs.systemFieldStrength_T, lhs.relativeReceiverNoiseBandwidth, lhs.receiverChannels, lhs.coilLabel, lhs.institutionName, lhs.stationName, lhs.deviceID, lhs.deviceSerialNumber) == std::tie(rhs.systemVendor, rhs.systemModel, rhs.systemFieldStrength_T, rhs.relativeReceiverNoiseBandwidth, rhs.receiverChannels, rhs.coilLabel, rhs.institutionName, rhs.stationName, rhs.deviceID,lhs.deviceSerialNumber);
+  }
+  bool operator!=(const AcquisitionSystemInformation &lhs, const AcquisitionSystemInformation &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const ExperimentalConditions &lhs, const ExperimentalConditions &rhs) {
+      return lhs.H1resonanceFrequency_Hz == rhs.H1resonanceFrequency_Hz;
+  }
+  bool operator!=(const ExperimentalConditions &lhs, const ExperimentalConditions &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const MatrixSize &lhs, const MatrixSize &rhs) {
+      return std::tie(lhs.x, lhs.y, lhs.z) == std::tie(rhs.x, rhs.y, rhs.z);
+  }
+  bool operator!=(const MatrixSize &lhs, const MatrixSize &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const FieldOfView_mm &lhs, const FieldOfView_mm &rhs) {
+      return std::tie(lhs.x, lhs.y, lhs.z) == std::tie(rhs.x, rhs.y, rhs.z);
+  }
+  bool operator!=(const FieldOfView_mm &lhs, const FieldOfView_mm &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const EncodingSpace &lhs, const EncodingSpace &rhs) {
+      return std::tie(lhs.matrixSize, lhs.fieldOfView_mm) == std::tie(rhs.matrixSize, rhs.fieldOfView_mm);
+  }
+  bool operator!=(const EncodingSpace &lhs, const EncodingSpace &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const Limit &lhs, const Limit &rhs) {
+      return std::tie(lhs.minimum, lhs.maximum, lhs.center) == std::tie(rhs.minimum, rhs.maximum, rhs.center);
+  }
+  bool operator!=(const Limit &lhs, const Limit &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const EncodingLimits &lhs, const EncodingLimits &rhs) {
+      return std::tie(lhs.kspace_encoding_step_0, lhs.kspace_encoding_step_1, lhs.kspace_encoding_step_2, lhs.average, lhs.slice, lhs.contrast, lhs.phase, lhs.repetition, lhs.set, lhs.segment) == std::tie(rhs.kspace_encoding_step_0, rhs.kspace_encoding_step_1, rhs.kspace_encoding_step_2, rhs.average, rhs.slice, rhs.contrast, rhs.phase, rhs.repetition, rhs.set, rhs.segment);
+  }
+  bool operator!=(const EncodingLimits &lhs, const EncodingLimits &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const UserParameterLong &lhs, const UserParameterLong &rhs) {
+      return std::tie(lhs.name, lhs.value) == std::tie(rhs.name, rhs.value);
+  }
+  bool operator!=(const UserParameterLong &lhs, const UserParameterLong &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const UserParameterDouble &lhs, const UserParameterDouble &rhs) {
+      return std::tie(lhs.name, lhs.value) == std::tie(rhs.name, rhs.value);
+  }
+  bool operator!=(const UserParameterDouble &lhs, const UserParameterDouble &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const UserParameterString &lhs, const UserParameterString &rhs) {
+      return std::tie(lhs.name, lhs.value) == std::tie(rhs.name, rhs.value);
+  }
+  bool operator!=(const UserParameterString &lhs, const UserParameterString &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const UserParameters &lhs, const UserParameters &rhs) {
+      return std::tie(lhs.userParameterLong, lhs.userParameterDouble, lhs.userParameterString, lhs.userParameterBase64) == std::tie(rhs.userParameterLong, rhs.userParameterDouble, rhs.userParameterString, rhs.userParameterBase64);
+  }
+  bool operator!=(const UserParameters &lhs, const UserParameters &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const TrajectoryDescription &lhs, const TrajectoryDescription &rhs) {
+      return std::tie(lhs.identifier, lhs.userParameterLong, lhs.userParameterDouble, lhs.comment) == std::tie(rhs.identifier, rhs.userParameterLong, rhs.userParameterDouble, rhs.comment);
+  }
+  bool operator!=(const TrajectoryDescription &lhs, const TrajectoryDescription &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const AccelerationFactor &lhs, const AccelerationFactor &rhs) {
+      return std::tie(lhs.kspace_encoding_step_1, lhs.kspace_encoding_step_2) == std::tie(rhs.kspace_encoding_step_1, rhs.kspace_encoding_step_2);
+  }
+  bool operator!=(const AccelerationFactor &lhs, const AccelerationFactor &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const ParallelImaging &lhs, const ParallelImaging &rhs) {
+      return std::tie(lhs.accelerationFactor, lhs.calibrationMode, lhs.interleavingDimension, lhs.multiband) == std::tie(rhs.accelerationFactor, rhs.calibrationMode, rhs.interleavingDimension,rhs.multiband);
+  }
+  bool operator!=(const ParallelImaging &lhs, const ParallelImaging &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const Multiband &lhs, const Multiband &rhs) {
+      return std::tie(lhs.spacing, lhs.deltaKz,lhs.multiband_factor,lhs.calibration,lhs.calibration_encoding) == std::tie(rhs.spacing, rhs.deltaKz,rhs.multiband_factor,rhs.calibration,rhs.calibration_encoding);
+  }
+  bool operator!=(const Multiband &lhs, const Multiband &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const Encoding &lhs, const Encoding &rhs) {
+      return std::tie(lhs.encodedSpace, lhs.reconSpace, lhs.encodingLimits, lhs.trajectory, lhs.trajectoryDescription, lhs.parallelImaging, lhs.echoTrainLength) == std::tie(rhs.encodedSpace, rhs.reconSpace, rhs.encodingLimits, rhs.trajectory, rhs.trajectoryDescription, rhs.parallelImaging, rhs.echoTrainLength);
+  }
+  bool operator!=(const Encoding &lhs, const Encoding &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const SequenceParameters &lhs, const SequenceParameters &rhs) {
+      return std::tie(lhs.TR, lhs.TE, lhs.TI, lhs.flipAngle_deg, lhs.sequence_type, lhs.echo_spacing, lhs.diffusion, lhs.diffusionDimension, lhs.diffusionScheme) == std::tie(rhs.TR, rhs.TE, rhs.TI, rhs.flipAngle_deg, rhs.sequence_type, rhs.echo_spacing, lhs.diffusion, lhs.diffusionDimension, lhs.diffusionScheme);
+  }
+  bool operator!=(const SequenceParameters &lhs, const SequenceParameters &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const WaveformInformation &lhs, const WaveformInformation &rhs) {
+      return std::tie(lhs.waveformName, lhs.waveformType, lhs.userParameters) == std::tie(rhs.waveformName, rhs.waveformType, rhs.userParameters);
+  }
+  bool operator!=(const WaveformInformation &lhs, const WaveformInformation &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const threeDimensionalFloat &lhs, const threeDimensionalFloat &rhs) {
+      return std::tie(lhs.x, lhs.y, lhs.z) == std::tie(rhs.x, rhs.y, rhs.z);
+  }
+  bool operator!=(const threeDimensionalFloat &lhs, const threeDimensionalFloat &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const MeasurementDependency &lhs, const MeasurementDependency &rhs) {
+      return std::tie(lhs.dependencyType, lhs.measurementID) == std::tie(rhs.dependencyType, rhs.measurementID);
+  }
+  bool operator!=(const MeasurementDependency &lhs, const MeasurementDependency &rhs) {
+      return !(rhs == lhs);
+  }
+   bool operator==(const MultibandSpacing &lhs, const MultibandSpacing &rhs) {
+      return lhs.dZ == rhs.dZ;
+  }
+  bool operator!=(const MultibandSpacing &lhs, const MultibandSpacing &rhs) {
+      return !(rhs == lhs);
+  }
+
+ bool operator==(const Diffusion &lhs, const Diffusion &rhs) {
+      return std::tie(lhs.bvalue, lhs.gradientDirection) == std::tie(rhs.bvalue, rhs.gradientDirection);
+  }
+  bool operator!=(const Diffusion &lhs, const Diffusion &rhs) {
+      return !(rhs == lhs);
+  }
+  bool operator==(const GradientDirection &lhs, const GradientDirection &rhs) {
+      return std::tie(lhs.rl, lhs.ap, lhs.fh) == std::tie(rhs.rl, rhs.ap, rhs.fh);
+  }
+  bool operator!=(const GradientDirection &lhs, const GradientDirection &rhs) {
+      return !(rhs == lhs);
+  }
+  }

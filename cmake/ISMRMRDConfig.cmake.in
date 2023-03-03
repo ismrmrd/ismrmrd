@@ -34,11 +34,9 @@ include(CMakeFindDependencyMacro)
 
 list(INSERT CMAKE_MODULE_PATH 0 ${ISMRMRD_CMAKE_DIR})
 
-if(USE_SYSTEM_PUGIXML)
-  find_package(PugiXML CONFIG)
-  if (NOT PugiXML_FOUND)
+find_package(PugiXML CONFIG)
+if (NOT PugiXML_FOUND)
     find_dependency(PugiXML)
-  endif()
 endif()
 
 if (@USE_HDF5_DATASET_SUPPORT@)

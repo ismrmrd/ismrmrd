@@ -24,7 +24,7 @@ int main(int argc, char** argv)
   deserialize(xml.c_str(),h);
 
   pugi::xml_document doc;
-  pugi::xml_parse_result result = doc.load(xml.c_str());
+  pugi::xml_parse_result result = doc.load_string(xml.c_str());
   if (!result) {
     std::cout << "Unable to load XML document using pugixml parser" << std::endl;
   }

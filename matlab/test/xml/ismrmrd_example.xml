@@ -3,6 +3,7 @@
   <subjectInformation>
     <patientName>phantom</patientName>
     <patientWeight_kg>70.3068</patientWeight_kg>
+    <patientHeight_m>1.80</patientHeight_m>
   </subjectInformation>
   <acquisitionSystemInformation>
     <systemVendor>SIEMENS</systemVendor>
@@ -15,6 +16,7 @@
     <H1resonanceFrequency_Hz>63642459</H1resonanceFrequency_Hz>
   </experimentalConditions>
   <encoding>
+    <trajectory>cartesian</trajectory>
     <encodedSpace>
       <matrixSize>
         <x>256</x>
@@ -61,7 +63,6 @@
         <center>0</center>
       </set>
     </encodingLimits>
-    <trajectory>cartesian</trajectory>
     <parallelImaging>
       <accelerationFactor>
         <kspace_encoding_step_1>1</kspace_encoding_step_1>
@@ -69,6 +70,7 @@
       </accelerationFactor>
       <calibrationMode>other</calibrationMode>
     </parallelImaging>
+
   </encoding>
   <sequenceParameters>
     <TR>4.6</TR>
@@ -76,4 +78,3 @@
     <TI>300</TI>
   </sequenceParameters>
 </ismrmrdHeader>
-

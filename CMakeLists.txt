@@ -18,7 +18,6 @@ set (ISMRMRD_CMAKE_DIR ${PROJECT_SOURCE_DIR}/cmake CACHE PATH
   "Location of CMake scripts")
 
 # command line options
-option(USE_SYSTEM_PUGIXML "Use pugixml installed on the system" OFF)
 option(USE_HDF5_DATASET_SUPPORT "Compile with support for reading and writing datasets to HDF5 files" ON)
 option(BUILD_TESTS "Build unit tests " ON)
 option(BUILD_UTILITIES "Build utilities tests " ON)
@@ -40,7 +39,7 @@ endif()
 
 # compiler flags
 if (WIN32)
-    add_definitions(-DWIN32 -D_WIN32 -D_WINDOWS)
+    add_definitions(-DWIN32 -D_WIN32 -D_WINDOWS -DBOOST_UUID_FORCE_AUTO_LINK)
     add_definitions(-DUNICODE -D_UNICODE)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
@@ -80,12 +79,31 @@ endif ()
 #in the utility libraries, that don't affect the data format itself.
 # For more information see http://semver.org/
 set(ISMRMRD_VERSION_MAJOR 1)
-set(ISMRMRD_VERSION_MINOR 10)
-set(ISMRMRD_VERSION_PATCH 0)
+set(ISMRMRD_VERSION_MINOR 13)
+set(ISMRMRD_VERSION_PATCH 3)
+
 set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
 set(ISMRMRD_SOVERSION ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR})
 
-set(ISMRMRD_XML_SCHEMA_SHA1 "22137b8bcbe7fe670019c61d3c645b6c9289641a")
+if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.19)
+file(READ ${CMAKE_CURRENT_SOURCE_DIR}/vcpkg.json VCPKG_JSON)
+string(JSON VCPKG_VERSION_STRING GET ${VCPKG_JSON} version)
+
+if (NOT VCPKG_VERSION_STRING STREQUAL ISMRMRD_VERSION_STRING)
+    message("")
+    message("-----------------------------------------------")
+    message("            !! VCPKG VERSION ERROR!!           ")
+    message(" Vcpkg version in vcpkg.json must match ISMRMRD")
+    message("           version in CMakeLists.txt           ")
+    message("-----------------------------------------------")
+    message("")
+    message(FATAL_ERROR "     FATAL VCPKG VERSION ERROR")
+endif ()
+
+endif()
+
+
+set(ISMRMRD_XML_SCHEMA_SHA1  "40036f175a77542b50acbcfb0f019094c90b5e18")
 
 #Remove line breaks and white space that does not change the meaning of the schema
 file(STRINGS ${CMAKE_SOURCE_DIR}/schema/ismrmrd.xsd SCHEMA_STRINGS) #Read all strings from file
@@ -182,6 +200,7 @@ set(ISMRMRD_TARGET_SOURCES
   libsrc/ismrmrd.cpp
   libsrc/xml.cpp
   libsrc/meta.cpp
+  libsrc/serialization.cpp
   libsrc/waveform.cpp
   libsrc/waveform.c
   ${ISMRMRD_DATASET_SOURCES}
@@ -189,23 +208,17 @@ set(ISMRMRD_TARGET_SOURCES
 
 set(ISMRMRD_TARGET_LINK_LIBS ${ISMRMRD_DATASET_LIBRARIES})
 
-# optional handling of system-installed pugixml
-if (USE_SYSTEM_PUGIXML)
-
-    if (VCPKG_TARGET_TRIPLET) #VCPKG .
-        find_package(PugiXML CONFIG REQUIRED)
-        list(APPEND ISMRMRD_TARGET_LINK_LIBS pugixml)
-    else ()
-        find_package(PugiXML REQUIRED)
-
-        message("Found system pugixml: ${PugiXML_INCLUDE_DIR} ${PugiXML_LIBRARY}")
-        list(APPEND ISMRMRD_TARGET_INCLUDE_DIRS ${PugiXML_INCLUDE_DIR})
-        list(APPEND ISMRMRD_TARGET_LINK_LIBS ${PugiXML_LIBRARY})
-        list(APPEND ISMRMRD_TARGET_INCLUDE_DIRS ${PugiXML_INCLUDE_DIR})
-        list(APPEND ISMRMRD_TARGET_LINK_LIBS ${PugiXML_LIBRARY})
-    endif ()
+if (VCPKG_TARGET_TRIPLET) #VCPKG .
+    find_package(PugiXML CONFIG REQUIRED)
+    list(APPEND ISMRMRD_TARGET_LINK_LIBS pugixml)
 else ()
-    list(APPEND ISMRMRD_TARGET_SOURCES libsrc/pugixml.cpp)
+    find_package(PugiXML REQUIRED)
+
+    message("Found system pugixml: ${PugiXML_INCLUDE_DIR} ${PugiXML_LIBRARY}")
+    list(APPEND ISMRMRD_TARGET_INCLUDE_DIRS ${PugiXML_INCLUDE_DIR})
+    list(APPEND ISMRMRD_TARGET_LINK_LIBS ${PugiXML_LIBRARY})
+    list(APPEND ISMRMRD_TARGET_INCLUDE_DIRS ${PugiXML_INCLUDE_DIR})
+    list(APPEND ISMRMRD_TARGET_LINK_LIBS ${PugiXML_LIBRARY})
 endif ()
 
 if (build4GE)
@@ -238,7 +251,7 @@ include(GNUInstallDirs)
 install(TARGETS ismrmrd EXPORT ISMRMRDTargets
    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} 
+   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
    COMPONENT Devel
 )
 
@@ -265,6 +278,8 @@ endif ()
 # TODO: make this work on Windows
 if (BUILD_TESTS)
    if (NOT build4GE)
+
+       enable_testing()
       add_subdirectory(tests)
    endif ()
 endif ()
