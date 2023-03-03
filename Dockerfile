@@ -127,3 +127,4 @@ ENTRYPOINT [ "/opt/entrypoint-stream.sh" ]
 FROM ismrmrd AS ismrmrd-stream-recon-server
 
 ENTRYPOINT [ "/opt/entrypoint-stream.sh", "--socket-port", "9002" ]
+EXPOSE 9002
