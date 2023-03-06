@@ -21,6 +21,7 @@ COPY docker/entrypoint.sh /entrypoints/
 COPY docker/entrypoint-stream.sh /entrypoints/
 
 RUN sed -i 's/\r$//' /entrypoints/*.sh
+RUN chmod +x /entrypoints/*.sh
 
 FROM mcr.microsoft.com/vscode/devcontainers/base:0.201.8-focal AS basecontainer
 
@@ -87,10 +88,10 @@ FROM devcontainer AS ismrmrd-build
 
 ARG USER_UID
 ARG USER_GID
-
+SHELL ["/bin/bash", "-c"]
 COPY --chown=$USER_UID:$USER_GID . /opt/code/ismrmrd/
 
-RUN . /opt/conda/etc/profile.d/conda.sh && umask 0002 && conda activate ismrmrd && sh -x && mkdir -p /opt/package && \
+RUN . /opt/conda/etc/profile.d/conda.sh && umask 0002 && conda activate ismrmrd && mkdir -p /opt/package && \
     cd /opt/code/ismrmrd && \
     mkdir build && \
     cd build && \
