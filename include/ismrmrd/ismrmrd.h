@@ -605,8 +605,8 @@ public:
     ~Acquisition();
 
     // Accessors and mutators
-    const uint16_t &version();
-    const uint64_t &flags();
+    uint16_t version() const;
+    uint64_t flags() const;
     uint32_t &measurement_uid();
     uint32_t &scan_counter();
     uint32_t &acquisition_time_stamp();
@@ -629,6 +629,30 @@ public:
     ISMRMRD_EncodingCounters &idx();
     int32_t (&user_int())[ISMRMRD_USER_INTS];
     float (&user_float())[ISMRMRD_USER_FLOATS];
+
+
+    uint32_t measurement_uid() const;
+    uint32_t scan_counter() const;
+    uint32_t acquisition_time_stamp() const;
+    const uint32_t (&physiology_time_stamp() const )[ISMRMRD_PHYS_STAMPS];
+    uint16_t number_of_samples() const;
+    uint16_t available_channels() const;
+    uint16_t active_channels() const;
+    const uint64_t (&channel_mask() const)[ISMRMRD_CHANNEL_MASKS];
+    uint16_t discard_pre() const;
+    uint16_t discard_post() const;
+    uint16_t center_sample() const;
+    uint16_t encoding_space_ref() const;
+    uint16_t trajectory_dimensions() const;
+    float sample_time_us() const;
+    const float (&position() const)[3];
+    const float (&read_dir() const)[3];
+    const float (&phase_dir() const)[3];
+    const float (&slice_dir() const)[3];
+    const float (&patient_table_position() const)[3];
+    const ISMRMRD_EncodingCounters &idx() const;
+    const int32_t (&user_int() const)[ISMRMRD_USER_INTS];
+    const float (&user_float() const)[ISMRMRD_USER_FLOATS];
 
     // Sizes
     void resize(uint16_t num_samples, uint16_t active_channels=1, uint16_t trajectory_dimensions=0);
@@ -660,12 +684,14 @@ public:
     /**
      * Returns an iterator to the beginning of the data
      */
-    complex_float_t * data_begin() const;
+    complex_float_t * data_begin();
+    const complex_float_t * data_begin() const;
 
     /**
      * Returns an iterator of the end of the data
      */
-    complex_float_t * data_end() const;
+    complex_float_t * data_end();
+    const complex_float_t * data_end() const;
 
     /**
      * Returns a pointer to the trajectory
@@ -686,25 +712,27 @@ public:
     /**
      * Returns an iterator to the beginning of the trajectories
      */
-    float * traj_begin() const;
+    float * traj_begin();
+    const float * traj_begin() const;
 
     /**
      * Returns an iterator to the end of the trajectories
      */
-    float * traj_end() const;
+    float * traj_end();
+    const float * traj_end() const;
 
     // Flag methods
-    bool isFlagSet(const uint64_t val);
+    bool isFlagSet(const uint64_t val) const;
     void setFlag(const uint64_t val);
     void clearFlag(const uint64_t val);
     void clearAllFlags();
 
-    bool isFlagSet(const FlagBit &val)  { return isFlagSet(val.bitmask_); }
+    bool isFlagSet(const FlagBit &val) const { return isFlagSet(val.bitmask_); }
     void setFlag(const FlagBit &val)    { setFlag(val.bitmask_); }
     void clearFlag(const FlagBit &val)  { clearFlag(val.bitmask_); }
 
     // Channel mask methods
-    bool isChannelActive(uint16_t channel_id);
+    bool isChannelActive(uint16_t channel_id) const;
     void setChannelActive(uint16_t channel_id);
     void setChannelNotActive(uint16_t channel_id);
     void setAllChannelsNotActive();
@@ -720,7 +748,7 @@ public:
     ImageHeader();
 
     // Flag methods
-    bool isFlagSet(const uint64_t val);
+    bool isFlagSet(const uint64_t val) const;
     void setFlag(const uint64_t val);
     void clearFlag(const uint64_t val);
     void clearAllFlags();
