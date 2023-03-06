@@ -13,10 +13,14 @@ ARG USER_GID=$USER_UID
 
 FROM mcr.microsoft.com/oss/busybox/busybox:1.33.1 as file-normalizer
 
-COPY environment.yml \
-     /data/
-
+COPY environment.yml /data/
 RUN chmod -R 555 /data/
+
+RUN mkdir -p /entrypoints
+COPY docker/entrypoint.sh /entrypoints/
+COPY docker/entrypoint-stream.sh /entrypoints/
+
+RUN sed -i 's/\r$//' /entrypoints/*.sh
 
 FROM mcr.microsoft.com/vscode/devcontainers/base:0.201.8-focal AS basecontainer
 
@@ -114,8 +118,8 @@ RUN grep -v "#.*\<dev\>" /tmp/build/environment.yml > /tmp/build/filtered_enviro
     && sudo chown -R :conda /opt/conda/envs
 
 COPY --from=ismrmrd-build --chown=$USER_UID:conda /opt/package /opt/conda/envs/ismrmrd/
-COPY --from=ismrmrd-build --chown=$USER_UID:conda /opt/code/ismrmrd/docker/entrypoint.sh /opt/
-COPY --from=ismrmrd-build --chown=$USER_UID:conda /opt/code/ismrmrd/docker/entrypoint-stream.sh /opt/
+COPY --from=file-normalizer --chown=$USER_UID:conda /entrypoints/entrypoint.sh /opt/
+COPY --from=file-normalizer --chown=$USER_UID:conda /entrypoints/entrypoint-stream.sh /opt/
 
 ENTRYPOINT [ "/opt/entrypoint.sh" ]
 
