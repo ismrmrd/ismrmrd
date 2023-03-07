@@ -13,17 +13,17 @@ ARG USER_GID=$USER_UID
 
 FROM mcr.microsoft.com/oss/busybox/busybox:1.33.1 as file-normalizer
 
-COPY environment.yml \
-     /data/
-
+COPY environment.yml /data/
 RUN chmod -R 555 /data/
 
-#########################################################
-# devcontainer stage
-# Installs all dependencies and tooling for development.
-#########################################################
+RUN mkdir -p /entrypoints
+COPY docker/entrypoint.sh /entrypoints/
+COPY docker/entrypoint-stream.sh /entrypoints/
 
-FROM mcr.microsoft.com/vscode/devcontainers/base:0.201.8-focal AS devcontainer
+RUN sed -i 's/\r$//' /entrypoints/*.sh
+RUN chmod +x /entrypoints/*.sh
+
+FROM mcr.microsoft.com/vscode/devcontainers/base:0.201.8-focal AS basecontainer
 
 # Install needed packages and setup non-root user.
 ARG USERNAME
@@ -32,19 +32,12 @@ ARG USER_GID
 
 ARG CONDA_GID=900
 ARG CONDA_ENVIRONMENT_NAME=ismrmrd
-ARG VSCODE_DEV_CONTAINERS_SCRIPT_LIBRARY_VERSION=v0.229.0
 
 RUN apt-get update && apt-get install -y \
     libc6-dbg \
     && rm -rf /var/lib/apt/lists/*
 
-# Setting the ENTRYPOINT to docker-init.sh will configure non-root access to
-# the Docker socket if "overrideCommand": false is set in devcontainer.json.
-# The script will also execute CMD if you need to alter startup behaviors.
-ENTRYPOINT [ "/usr/local/share/docker-init.sh" ]
-CMD [ "sleep", "infinity" ]
-
-ARG MAMBA_VERSION=0.22.1
+ARG MAMBA_VERSION=1.3.1
 
 # Based on https://github.com/ContinuumIO/docker-images/blob/master/miniconda3/debian/Dockerfile.
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh \
@@ -60,6 +53,12 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86
     && chown -R :conda /opt/conda \
     && chmod -R g+w /opt/conda \
     && find /opt -type d | xargs -n 1 chmod g+s
+
+
+FROM basecontainer AS devcontainer
+
+ARG USER_UID
+ARG USER_GID
 
 # Create a conda environment from the environment file in the repo root.
 COPY --from=file-normalizer --chown=$USER_UID:conda /data/environment.yml /tmp/build/
@@ -84,3 +83,53 @@ ENV CMAKE_GENERATOR=Ninja
 RUN mkdir -p /home/vscode/.local/share/CMakeTools \
     && echo '[{"name":"GCC-11","compilers":{"C":"/opt/conda/envs/ismrmrd/bin/x86_64-conda_cos6-linux-gnu-gcc","CXX":"/opt/conda/envs/ismrmrd/bin/x86_64-conda_cos6-linux-gnu-g++"}}]' > /home/vscode/.local/share/CMakeTools/cmake-tools-kits.json \
     && chown vscode:conda /home/vscode/.local/share/CMakeTools/cmake-tools-kits.json
+
+FROM devcontainer AS ismrmrd-build
+
+ARG USER_UID
+ARG USER_GID
+SHELL ["/bin/bash", "-c"]
+COPY --chown=$USER_UID:$USER_GID . /opt/code/ismrmrd/
+
+RUN . /opt/conda/etc/profile.d/conda.sh && umask 0002 && conda activate ismrmrd && mkdir -p /opt/package && \
+    cd /opt/code/ismrmrd && \
+    mkdir build && \
+    cd build && \
+    cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/package ../ && \
+    ninja && \
+    ninja install
+
+FROM ismrmrd-build AS ismrmrd-test
+
+ENTRYPOINT [ "/opt/code/ismrmrd/docker/entrypoint.sh", "python", "/opt/code/ismrmrd/docker/validate_results.py" ]
+
+FROM basecontainer AS ismrmrd
+
+ARG USER_UID
+
+RUN apt-get update && apt-get install -y socat \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=file-normalizer --chown=$USER_UID:conda /data/environment.yml /tmp/build/
+RUN grep -v "#.*\<dev\>" /tmp/build/environment.yml > /tmp/build/filtered_environment.yml \
+    && mv /tmp/build/filtered_environment.yml /tmp/build/environment.yml \
+    && umask 0002 \
+    && /opt/conda/bin/mamba env create -f /tmp/build/environment.yml \
+    && /opt/conda/bin/mamba clean -fy \
+    && sudo chown -R :conda /opt/conda/envs
+
+COPY --from=ismrmrd-build --chown=$USER_UID:conda /opt/package /opt/conda/envs/ismrmrd/
+COPY --from=file-normalizer --chown=$USER_UID:conda /entrypoints/entrypoint.sh /opt/
+COPY --from=file-normalizer --chown=$USER_UID:conda /entrypoints/entrypoint-stream.sh /opt/
+
+ENTRYPOINT [ "/opt/entrypoint.sh" ]
+
+
+FROM ismrmrd AS ismrmrd-stream-recon
+
+ENTRYPOINT [ "/opt/entrypoint-stream.sh" ]
+
+FROM ismrmrd AS ismrmrd-stream-recon-server
+
+ENTRYPOINT [ "/opt/entrypoint-stream.sh", "--socket-port", "9002" ]
+EXPOSE 9002

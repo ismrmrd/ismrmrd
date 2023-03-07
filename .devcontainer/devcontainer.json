@@ -3,7 +3,7 @@
 {
   "name": "ismrmrd",
   "build": {
-    "dockerfile": "./Dockerfile",
+    "dockerfile": "../Dockerfile",
     "target": "devcontainer",
     "context": ".."
   },
@@ -64,6 +64,12 @@
     }
   },
 
+  "containerEnv": {
+    "HOST_WORKSPACE_DIR": "${localWorkspaceFolder}", // The host's path to the repo's folder
+    "CONTAINER_WORKSPACE_DIR": "${containerWorkspaceFolder}",
+    "DOCKER_BUIKDKIT": "1"
+  },
+
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // "forwardPorts": [],
 
@@ -77,8 +83,8 @@
       "username": "automatic"
     },
     "docker-from-docker": {
-      "version": "latest",
-      "moby": "false"
+      "version": "20.10",
+      "moby": false
     },
     "git": "os-provided"
   }
