@@ -493,7 +493,7 @@ bool ismrmrd_is_flag_set(const uint64_t flags, const uint64_t val) {
     return (flags & bitmask) > 0;
 }
 
-int ismrmrd_set_flag(uint64_t *flags, const uint64_t val) {
+int ismrmrd_set_flag(ISMRMRD_UNALIGNED uint64_t *flags, const uint64_t val) {
     uint64_t bitmask;
     if (flags==NULL) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
@@ -503,7 +503,7 @@ int ismrmrd_set_flag(uint64_t *flags, const uint64_t val) {
     return ISMRMRD_NOERROR;
 }
 
-int ismrmrd_set_flags(uint64_t *flags, const uint64_t val) {
+int ismrmrd_set_flags(ISMRMRD_UNALIGNED uint64_t *flags, const uint64_t val) {
     if (flags==NULL) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
     }
@@ -511,7 +511,7 @@ int ismrmrd_set_flags(uint64_t *flags, const uint64_t val) {
     return ISMRMRD_NOERROR;
 }
 
-int ismrmrd_clear_flag(uint64_t *flags, const uint64_t val) {
+int ismrmrd_clear_flag(ISMRMRD_UNALIGNED uint64_t *flags, const uint64_t val) {
     uint64_t bitmask;
     if (flags==NULL) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
@@ -521,7 +521,7 @@ int ismrmrd_clear_flag(uint64_t *flags, const uint64_t val) {
     return ISMRMRD_NOERROR;
 }
 
-int ismrmrd_clear_all_flags(uint64_t *flags) {
+int ismrmrd_clear_all_flags(ISMRMRD_UNALIGNED uint64_t *flags) {
     if (flags==NULL) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
     }

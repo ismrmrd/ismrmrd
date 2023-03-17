@@ -30,6 +30,13 @@
 #include <type_traits>
 #endif
 
+/* Unaligned */
+#ifdef _MSC_VER
+#define ISMRMRD_UNALIGNED __unaligned
+#else
+#define ISMRMRD_UNALIGNED
+#endif
+
 /* Complex numbers */
 #ifdef __cplusplus
 #include <complex>
@@ -463,10 +470,10 @@ EXPORTISMRMRD size_t ismrmrd_size_of_ndarray_data(const ISMRMRD_NDArray *arr);
  *  @{
  */
 EXPORTISMRMRD bool ismrmrd_is_flag_set(const uint64_t flags, const uint64_t val);
-EXPORTISMRMRD int ismrmrd_set_flag(uint64_t *flags, const uint64_t val);
-EXPORTISMRMRD int ismrmrd_set_flags(uint64_t *flags, const uint64_t val);
-EXPORTISMRMRD int ismrmrd_clear_flag(uint64_t *flags, const uint64_t val);
-EXPORTISMRMRD int ismrmrd_clear_all_flags(uint64_t *flags);
+EXPORTISMRMRD int ismrmrd_set_flag(ISMRMRD_UNALIGNED uint64_t *flags, const uint64_t val);
+EXPORTISMRMRD int ismrmrd_set_flags(ISMRMRD_UNALIGNED uint64_t *flags, const uint64_t val);
+EXPORTISMRMRD int ismrmrd_clear_flag(ISMRMRD_UNALIGNED uint64_t *flags, const uint64_t val);
+EXPORTISMRMRD int ismrmrd_clear_all_flags(ISMRMRD_UNALIGNED uint64_t *flags);
 /** @} */
 
 /*****************/
