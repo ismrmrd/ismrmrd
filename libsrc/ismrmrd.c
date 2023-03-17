@@ -751,9 +751,9 @@ void ismrmrd_set_error_handler(ismrmrd_error_handler_t handler) {
     ismrmrd_error_handler = handler;
 }
 
-char *ismrmrd_strerror(int code) {
+const char *ismrmrd_strerror(int code) {
     /* Match the ISMRMRD_ErrorCodes */
-    static char * const error_messages []= {
+    static const char * error_messages []= {
         "No Error",
         "Memory Error",
         "File Error",
@@ -767,7 +767,7 @@ char *ismrmrd_strerror(int code) {
 static void ismrmrd_error_default(const char *file, int line,
         const char *func, int code, const char *msg)
 {
-    char *msgtype = ismrmrd_strerror(code);
+    const char *msgtype = ismrmrd_strerror(code);
     fprintf(stderr, "ERROR: %s in %s, line %d: %s\n", msgtype, file, line, msg);
 }
 

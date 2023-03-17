@@ -503,7 +503,7 @@ int ismrmrd_push_error(const char *file, const int line, const char *func,
 /** Sets a custom error handler */
 EXPORTISMRMRD void ismrmrd_set_error_handler(ismrmrd_error_handler_t);
 /** Returns message for corresponding error code */
-EXPORTISMRMRD char *ismrmrd_strerror(int code);
+EXPORTISMRMRD const char *ismrmrd_strerror(int code);
 /** @} */
 
 /** Populates parameters (if non-NULL) with error information
