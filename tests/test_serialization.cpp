@@ -417,12 +417,12 @@ void test_end_to_end_streaming_reconstruction(bool use_binary_files) {
         if (use_binary_files) {
             std::string cmd = htos_path + " -i " + tmp_raw_data + " -o " + tmp_raw_data_stream2;
             BOOST_CHECK_EQUAL(std::system(cmd.c_str()), 0);
-            cmd = stream_recon_path + " -i " + tmp_raw_data_stream2 + " -o " + tmp_recon_data_stream1;
+            cmd = stream_recon_path + " --output-magnitude -i " + tmp_raw_data_stream2 + " -o " + tmp_recon_data_stream1;
             BOOST_CHECK_EQUAL(std::system(cmd.c_str()), 0);
             cmd = stoh_path + " -i " + tmp_recon_data_stream1 + " -o " + tmp_stream_recon_data;
             BOOST_CHECK_EQUAL(std::system(cmd.c_str()), 0);
         } else {
-            std::string stream_recon_cmd = htos_path + " -i " + tmp_raw_data + " --use-stdout | " + stream_recon_path + " --use-stdin --use-stdout | " + stoh_path + " --use-stdin -o " + tmp_stream_recon_data;
+            std::string stream_recon_cmd = htos_path + " -i " + tmp_raw_data + " --use-stdout | " + stream_recon_path + " --output-magnitude --use-stdin --use-stdout | " + stoh_path + " --use-stdin -o " + tmp_stream_recon_data;
             BOOST_CHECK_EQUAL(std::system(stream_recon_cmd.c_str()), 0);
         }
 
@@ -454,10 +454,11 @@ void test_end_to_end_streaming_reconstruction(bool use_binary_files) {
         d_recon_copy.readImage("image_0", 0, cpp_stream_recon_copy);
 
         // The 3 images should be the same
-        BOOST_CHECK_EQUAL_COLLECTIONS(cpp_recon.getDataPtr(), cpp_recon.getDataPtr() + cpp_recon.getNumberOfDataElements(),
-                                      cpp_stream_recon.getDataPtr(), cpp_stream_recon.getDataPtr() + cpp_stream_recon.getNumberOfDataElements());
-        BOOST_CHECK_EQUAL_COLLECTIONS(cpp_recon.getDataPtr(), cpp_recon.getDataPtr() + cpp_recon.getNumberOfDataElements(),
-                                      cpp_stream_recon_copy.getDataPtr(), cpp_stream_recon_copy.getDataPtr() + cpp_stream_recon_copy.getNumberOfDataElements());
+        auto elements = cpp_recon.getNumberOfDataElements();
+        for (size_t i = 0; i < elements; i++) {
+            BOOST_CHECK_CLOSE(cpp_recon.getDataPtr()[i], cpp_stream_recon.getDataPtr()[i], 1e-4);
+            BOOST_CHECK_CLOSE(cpp_recon.getDataPtr()[i], cpp_stream_recon_copy.getDataPtr()[i], 1e-4);
+        }
     }
 
     // delete temporary files

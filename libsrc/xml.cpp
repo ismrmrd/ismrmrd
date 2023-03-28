@@ -17,9 +17,9 @@ namespace ISMRMRD
     if (!matrixSize) {
       throw std::runtime_error("matrixSize not found in encodingSpace");
     } else {
-      e.matrixSize.x = std::stoi(matrixSize.child_value("x"));
-      e.matrixSize.y = std::stoi(matrixSize.child_value("y"));
-      e.matrixSize.z = std::stoi(matrixSize.child_value("z"));
+      e.matrixSize.x = static_cast<uint16_t>(std::stoi(matrixSize.child_value("x")));
+      e.matrixSize.y = static_cast<uint16_t>(std::stoi(matrixSize.child_value("y")));
+      e.matrixSize.z = static_cast<uint16_t>(std::stoi(matrixSize.child_value("z")));
     }
 
     if (!fieldOfView_mm) {
@@ -40,9 +40,9 @@ namespace ISMRMRD
     
     if (nc) {
       Limit l;
-      l.minimum = std::stoi(nc.child_value("minimum"));
-      l.maximum = std::stoi(nc.child_value("maximum"));
-      l.center = std::stoi(nc.child_value("center"));
+      l.minimum = static_cast<uint16_t>(std::stoi(nc.child_value("minimum")));
+      l.maximum = static_cast<uint16_t>(std::stoi(nc.child_value("maximum")));
+      l.center = static_cast<uint16_t>(std::stoi(nc.child_value("center")));
       o = l;
     }
 
@@ -532,7 +532,7 @@ namespace ISMRMRD
 	pugi::xml_node coilLabel = acquisitionSystemInformation.child("coilLabel");
 	while (coilLabel) {
 	  CoilLabel l;
-	  l.coilNumber = std::stoi(coilLabel.child_value("coilNumber"));
+	  l.coilNumber = static_cast<uint16_t>(std::stoi(coilLabel.child_value("coilNumber")));
 	  l.coilName = parse_string(coilLabel, "coilName");
 	  info.coilLabel.push_back(l);
 	  coilLabel = coilLabel.next_sibling("coilLabel");

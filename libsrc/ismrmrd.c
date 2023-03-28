@@ -493,7 +493,7 @@ bool ismrmrd_is_flag_set(const uint64_t flags, const uint64_t val) {
     return (flags & bitmask) > 0;
 }
 
-int ismrmrd_set_flag(uint64_t *flags, const uint64_t val) {
+int ismrmrd_set_flag(ISMRMRD_UNALIGNED uint64_t *flags, const uint64_t val) {
     uint64_t bitmask;
     if (flags==NULL) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
@@ -503,7 +503,7 @@ int ismrmrd_set_flag(uint64_t *flags, const uint64_t val) {
     return ISMRMRD_NOERROR;
 }
 
-int ismrmrd_set_flags(uint64_t *flags, const uint64_t val) {
+int ismrmrd_set_flags(ISMRMRD_UNALIGNED uint64_t *flags, const uint64_t val) {
     if (flags==NULL) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
     }
@@ -511,7 +511,7 @@ int ismrmrd_set_flags(uint64_t *flags, const uint64_t val) {
     return ISMRMRD_NOERROR;
 }
 
-int ismrmrd_clear_flag(uint64_t *flags, const uint64_t val) {
+int ismrmrd_clear_flag(ISMRMRD_UNALIGNED uint64_t *flags, const uint64_t val) {
     uint64_t bitmask;
     if (flags==NULL) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
@@ -521,7 +521,7 @@ int ismrmrd_clear_flag(uint64_t *flags, const uint64_t val) {
     return ISMRMRD_NOERROR;
 }
 
-int ismrmrd_clear_all_flags(uint64_t *flags) {
+int ismrmrd_clear_all_flags(ISMRMRD_UNALIGNED uint64_t *flags) {
     if (flags==NULL) {
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
     }
@@ -751,9 +751,9 @@ void ismrmrd_set_error_handler(ismrmrd_error_handler_t handler) {
     ismrmrd_error_handler = handler;
 }
 
-char *ismrmrd_strerror(int code) {
+const char *ismrmrd_strerror(int code) {
     /* Match the ISMRMRD_ErrorCodes */
-    static char * const error_messages []= {
+    static const char * error_messages []= {
         "No Error",
         "Memory Error",
         "File Error",
@@ -767,7 +767,7 @@ char *ismrmrd_strerror(int code) {
 static void ismrmrd_error_default(const char *file, int line,
         const char *func, int code, const char *msg)
 {
-    char *msgtype = ismrmrd_strerror(code);
+    const char *msgtype = ismrmrd_strerror(code);
     fprintf(stderr, "ERROR: %s in %s, line %d: %s\n", msgtype, file, line, msg);
 }
 

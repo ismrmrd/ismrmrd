@@ -44,8 +44,8 @@ namespace ISMRMRD {
             pugi::xml_node name = meta.append_child("name");
             name.append_child(pugi::node_pcdata).set_value(node.first.c_str());
             for (unsigned int i = 0; i < node.second.size(); i++) {
-                pugi::xml_node name = meta.append_child("value");
-                name.append_child(pugi::node_pcdata).set_value(node.second[i].as_str());
+                pugi::xml_node cname = meta.append_child("value");
+                cname.append_child(pugi::node_pcdata).set_value(node.second[i].as_str());
             }
         }
         doc.save(o);
