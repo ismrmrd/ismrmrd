@@ -184,13 +184,14 @@ Acquisition::Acquisition() {
     }
 }
 
-
 Acquisition::Acquisition(uint16_t num_samples, uint16_t active_channels, uint16_t trajectory_dimensions){
     if (ismrmrd_init_acquisition(&acq) != ISMRMRD_NOERROR) {
         throw std::runtime_error(build_exception_string());
     }
     this->resize(num_samples,active_channels,trajectory_dimensions);
 }
+
+Acquisition::Acquisition(std::unique_ptr<ISMRMRD_Acquisition> pacq) : acq(*pacq) {}
 
 Acquisition::Acquisition(const Acquisition &other) {
     int err = 0;
@@ -203,6 +204,11 @@ Acquisition::Acquisition(const Acquisition &other) {
     if (err) {
         throw std::runtime_error(build_exception_string());
     }
+}
+
+Acquisition::Acquisition(Acquisition &&other) : acq(other.acq){
+   other.acq.data = NULL;
+   other.acq.traj = NULL;
 }
 
 Acquisition & Acquisition::operator= (const Acquisition &other) {
@@ -221,6 +227,14 @@ Acquisition & Acquisition::operator= (const Acquisition &other) {
         }
     }
     return *this;
+}
+
+Acquisition & Acquisition::operator= (Acquisition &&other){
+   ismrmrd_cleanup_acquisition(&acq);
+   acq = other.acq;
+   other.acq.data = NULL;
+   other.acq.traj = NULL;
+   return *this;
 }
 
 bool Acquisition::operator==(Acquisition const &other) const
@@ -596,6 +610,8 @@ template <typename T> Image<T>::Image(uint16_t matrix_size_x,
     resize(matrix_size_x, matrix_size_y, matrix_size_z, channels);
 }
 
+template <typename T> Image<T>::Image(std::unique_ptr<ISMRMRD_Image> pim) : im(*pim) {}
+
 template <typename T> Image<T>::Image(const Image<T> &other) {
     int err = 0;
     // This is a deep copy
@@ -607,6 +623,12 @@ template <typename T> Image<T>::Image(const Image<T> &other) {
     if (err) {
         throw std::runtime_error(build_exception_string());
     }
+}
+
+template <typename T> Image<T>::Image(Image &&other) : im(other.im){
+   other.im.data = NULL;
+   other.im.attribute_string = NULL;
+   other.im.head.attribute_string_len = 0;
 }
 
 template <typename T> Image<T> & Image<T>::operator= (const Image<T> &other)
@@ -626,6 +648,15 @@ template <typename T> Image<T> & Image<T>::operator= (const Image<T> &other)
         }
     }
     return *this;
+}
+
+template <typename T> Image<T> & Image<T>::operator= (Image &&other){
+   ismrmrd_cleanup_image(&im);
+   im = other.im;
+   other.im.data = NULL;
+   other.im.attribute_string = NULL;
+   other.im.head.attribute_string_len = 0;
+   return *this;
 }
 
 template <typename T> bool Image<T>::operator== (const Image<T> &other) const

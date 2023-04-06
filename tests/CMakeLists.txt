@@ -38,6 +38,7 @@ add_executable(test_ismrmrd
     test_quaternions.cpp
     test_serialization.cpp
     ${ISMRMRD_SERIALIZE_TEST}
+    test_ismrmrd.cpp
     test_dataset.cpp)
 
 target_link_libraries(test_ismrmrd ismrmrd ${Boost_LIBRARIES})
