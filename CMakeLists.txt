@@ -47,6 +47,12 @@ option(BUILD_EXAMPLES "Build examples tests " ON)
 # If defined, this will modify the build environment to use General Electric's Libraries,
 # which are needed to link against and use their SDK to open and process their raw data.
 option(build4GE FALSE OFF)
+option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+
+if (NOT BUILD_SHARED_LIBS AND NOT WIN32)
+   SET(CMAKE_FIND_LIBRARY_SUFFIXES .a)
+   SET(USE_HDF5_DATASET_SUPPORT OFF)
+endif()
 
 # and include it to the search list
 list(APPEND CMAKE_MODULE_PATH ${ISMRMRD_CMAKE_DIR})
@@ -261,7 +267,7 @@ if (build4GE)
 endif ()
 
 # main library
-add_library(ismrmrd SHARED ${ISMRMRD_TARGET_SOURCES})
+add_library(ismrmrd ${ISMRMRD_TARGET_SOURCES})
 target_include_directories(ismrmrd PUBLIC ${ISMRMRD_TARGET_INCLUDE_DIRS})
 if (USE_HDF5_DATASET_SUPPORT)
   target_compile_options(ismrmrd PUBLIC ${HDF5_DEFINITIONS})

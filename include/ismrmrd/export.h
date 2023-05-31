@@ -1,7 +1,7 @@
 #ifndef ISMRMRD_EXPORT_H_
 #define ISMRMRD_EXPORT_H_
 
-#if defined (WIN32)
+#if defined (WIN32) && !defined(ismrmrd_STATIC)
 #if defined (ismrmrd_EXPORTS)
 #define EXPORTISMRMRD __declspec(dllexport)
 #else
