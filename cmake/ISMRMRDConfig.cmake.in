@@ -48,6 +48,11 @@ if (@USE_HDF5_DATASET_SUPPORT@)
   endif()
 endif()
 
+if (@USE_SERIALIZATION_SUPPORT@)
+    find_dependency(zfp)
+    find_dependency(cereal)
+endif()
+
 list(REMOVE_AT CMAKE_MODULE_PATH 0)
 
 # ==============================================================================

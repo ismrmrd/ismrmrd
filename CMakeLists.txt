@@ -6,6 +6,7 @@ foreach(p
     CMP0054 # CMake 3.1 Only interpret ``if()`` arguments as variables or keywords when unquoted.
     CMP0056 # CMake 3.2 Honor link flags in ``try_compile()`` source-file signature.
     CMP0058 # CMake 3.3 Ninja requires custom command byproducts to be explicit.
+    CMP0074 # CMake 3.12 ``find_package()`` uses ``<PackageName>_ROOT`` variables.
     )
   if(POLICY ${p})
     cmake_policy(SET ${p} NEW)
@@ -19,6 +20,7 @@ set (ISMRMRD_CMAKE_DIR ${PROJECT_SOURCE_DIR}/cmake CACHE PATH
 
 # command line options
 option(USE_HDF5_DATASET_SUPPORT "Compile with support for reading and writing datasets to HDF5 files" ON)
+option(USE_SERIALIZATION_SUPPORT "Compile with support for serialization" ON)
 option(BUILD_TESTS "Build unit tests " ON)
 option(BUILD_UTILITIES "Build utilities tests " ON)
 option(BUILD_EXAMPLES "Build examples tests " ON)
@@ -172,6 +174,18 @@ else ()
     message(WARNING " Dataset and file support unavailable!")
 endif ()
 
+if (USE_SERIALIZATION_SUPPORT)
+    find_package(zfp REQUIRED)
+    find_package(cereal REQUIRED)
+    set(ISMRMRD_SERIALIZATION_INCLUDE_DIR ${ZFP_INCLUDE_DIRS})
+    set(ISMRMRD_SERIALIZATION_LIBRARIES cereal::cereal ${ZFP_LIBRARIES})
+    set(ISMRMRD_SERIALIZATION_SOURCE libsrc/compression.cpp)
+    set(ISMRMRD_SERIALIZATION_SUPPORT true)
+else()
+    set(ISMRMRD_SERIALIZATION_SUPPORT false)
+    message(WARNING " Serialization support unavailable!")
+endif ()
+
 # Generate the version.h header file
 find_package(Git)
 if (GIT_FOUND)
@@ -202,6 +216,7 @@ set(ISMRMRD_TARGET_INCLUDE_DIRS
   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>
+  ${ISMRMRD_SERIALIZATION_INCLUDE_DIR}
   ${ISMRMRD_DATASET_INCLUDE_DIR}
 )
 
@@ -213,10 +228,11 @@ set(ISMRMRD_TARGET_SOURCES
   libsrc/serialization.cpp
   libsrc/waveform.cpp
   libsrc/waveform.c
+  ${ISMRMRD_SERIALIZATION_SOURCE}
   ${ISMRMRD_DATASET_SOURCES}
 )
 
-set(ISMRMRD_TARGET_LINK_LIBS ${ISMRMRD_DATASET_LIBRARIES})
+set(ISMRMRD_TARGET_LINK_LIBS ${ISMRMRD_DATASET_LIBRARIES} ${ISMRMRD_SERIALIZATION_LIBRARIES})
 find_package(PugiXML CONFIG REQUIRED)
 list(APPEND ISMRMRD_TARGET_LINK_LIBS pugixml::pugixml)
 

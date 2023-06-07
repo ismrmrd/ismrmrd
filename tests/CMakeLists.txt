@@ -19,6 +19,12 @@ string(REPLACE "\n" "\\\n" ismrmrd_example_extended ${ismrmrd_example_extended})
 
 configure_file(embedded_xml.h.in embedded_xml.h)
 
+if (USE_SERIALIZATION_SUPPORT)
+    set(ISMRMRD_SERIALIZE_TEST
+          test_serialize.cpp
+          test_compression.cpp)
+endif()
+
 include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include ${Boost_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 add_executable(test_ismrmrd
@@ -31,6 +37,7 @@ add_executable(test_ismrmrd
     test_xml_header.cpp
     test_quaternions.cpp
     test_serialization.cpp
+    ${ISMRMRD_SERIALIZE_TEST}
     test_dataset.cpp)
 
 target_link_libraries(test_ismrmrd ismrmrd ${Boost_LIBRARIES})

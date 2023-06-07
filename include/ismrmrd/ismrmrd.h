@@ -210,6 +210,10 @@ enum ISMRMRD_ImageFlags {
     ISMRMRD_IMAGE_LAST_IN_REPETITION  = 14,
     ISMRMRD_IMAGE_FIRST_IN_SET        = 15,
     ISMRMRD_IMAGE_LAST_IN_SET         = 16,
+    ISMRMRD_IMAGE_COMPRESSION1        = 53,
+    ISMRMRD_IMAGE_COMPRESSION2        = 54,
+    ISMRMRD_IMAGE_COMPRESSION3        = 55,
+    ISMRMRD_IMAGE_COMPRESSION4        = 56,
     ISMRMRD_IMAGE_USER1               = 57,
     ISMRMRD_IMAGE_USER2               = 58,
     ISMRMRD_IMAGE_USER3               = 59,
@@ -218,6 +222,7 @@ enum ISMRMRD_ImageFlags {
     ISMRMRD_IMAGE_USER6               = 62,
     ISMRMRD_IMAGE_USER7               = 63,
     ISMRMRD_IMAGE_USER8               = 64
+
 };
 
 /**
@@ -611,6 +616,7 @@ static_assert(std::is_standard_layout<AcquisitionHeader>::value, "AcquisitionHea
 /// MR Acquisition type
 class EXPORTISMRMRD Acquisition {
     friend class Dataset;
+    friend class Serialize;
 public:
     // Constructors, assignment, destructor
     Acquisition();
@@ -782,6 +788,7 @@ static_assert(std::is_standard_layout<ImageHeader>::value, "ImageHeader is not a
 /// MR Image type
 template <typename T> class EXPORTISMRMRD Image {
     friend class Dataset;
+    friend class Serialize;
 public:
     // Constructors
     Image(uint16_t matrix_size_x = 0, uint16_t matrix_size_y = 1,
@@ -946,6 +953,7 @@ protected:
 /// N-Dimensional array type
 template <typename T> class EXPORTISMRMRD NDArray {
     friend class Dataset;
+    friend class Serialize;
 public:
     // Constructors, destructor and copy
     NDArray();
