@@ -1,3 +1,4 @@
+#pragma once
 #ifndef NHLBICOMPRESSION_H
 #define NHLBICOMPRESSION_H
 

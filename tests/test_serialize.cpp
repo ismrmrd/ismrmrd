@@ -248,7 +248,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_Image_serialize_compression, T, test_types) {
         T a = value1.getDataPtr()[i];
         T b = value2.getDataPtr()[i];
         std::stringstream ss;
-        ss << "Failed on index " << i;
+        ss << "Failed on index " << i << " (" << a << " != " << b << ")";
         BOOST_REQUIRE_MESSAGE(a == b,ss.str());
     }
 

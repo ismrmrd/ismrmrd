@@ -42,6 +42,8 @@
 // Not all ISMRMRD data structures are versioned, so serialization versions must be maintained separately
 #define ISMRMRD_SERIALIZE_VERSION 0
 
+static_assert(std::numeric_limits<double>::is_iec559 && std::numeric_limits<float>::is_iec559, "Serialize only supports IEEE 754 standardized floating point");
+
 // Access to the protected members of ISMRMRD C++ classes via friend
 namespace ISMRMRD {
 

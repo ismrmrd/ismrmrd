@@ -2,6 +2,7 @@
 // Created by Martyn Klassen on 2020-05-20.
 //
 
+#pragma once
 #ifndef ISMRMRD_COMPRESSION_TEMPLATES_H
 #define ISMRMRD_COMPRESSION_TEMPLATES_H
 
@@ -49,53 +50,108 @@ size_t (*get_partial_decoder(uint dims, int64 *))(zfp_stream *, int64 *, size_t,
 
 // Templated version of promote and demote
 template <typename D, typename S>
-typename std::enable_if<std::is_signed<D>::value && std::is_integral<D>::value && std::is_integral<S>::value && (std::numeric_limits<D>::digits > std::numeric_limits<S>::digits), void>::type
-promote(D *oblock, const S *iblock, size_t points) {
+typename std::enable_if<std::is_signed<D>::value && std::is_integral<D>::value && std::is_integral<S>::value && (sizeof(D) >= sizeof(S)), void>::type
+promote(D *oblock, const S *iblock, size_t points, D extra) {
     // The number of powers of 2 between D and S
     // D digits is 31 or 63, D is signed
-    unsigned int shift = std::numeric_limits<D>::digits - std::numeric_limits<S>::digits;
+    auto shift = static_cast<D>(std::numeric_limits<D>::digits - std::numeric_limits<S>::digits) + extra;
 
     if (std::is_signed<S>::value) {
         // S digits is 7, 15, or 31
-        // shift is 24, 16, or 32, but needs to be 23, 15, or 31
-        shift--;
+        // shift is 24, 16, 0, or 32, but needs to be 23, 15, 0, or 31
 
+        // int32 to int32 is already correct
+        if (sizeof(S) != sizeof(D))
+            shift--;
+
+        // arithmetic left shift assumed, i.e. sign bit is preserved, not shifted (C++20)
+        // shift is multiply by 2^shift so data spans [-2^30, 2^30 - 1] for int32
         while (points--)
             *oblock++ = static_cast<D>(*iblock++) << shift;
     } else {
         // S digits is 8, 16, or 32
-        // shift is 23, 15, or 31
-        D offset = 1u << static_cast<unsigned int>(std::numeric_limits<S>::digits - 1);
+        // shift is 23, 15, -1, or 31
+
+        // D is signed so offset is 2^30 or 2^62
+        D offset = static_cast<uint64_t>(1) << static_cast<uint64_t>(std::numeric_limits<D>::digits - 1);
+
+        // if uint32 to int32
+        if (sizeof(S) == sizeof(D)) {
+            // shift needs to be 0 not -1, uint32 must have been verified < 2^31 already
+            shift++;
+        }
+
+        // arithmetic left shift assumed, i.e. sign bit is preserved, not shifted (C++20)
+        // shift is multiply by 2^shift so data spans [0, 2^31 - 1] for int32
+        // offset moves range to span [-2^30, 2^30 -1]
         while (points--)
-            *oblock++ = (static_cast<D>(*iblock++) - offset) << shift;
+            *oblock++ = (static_cast<D>(*iblock++) << shift) - offset;
     }
 }
 
 template <typename D, typename S>
-typename std::enable_if<std::is_signed<S>::value && std::is_integral<D>::value && std::is_integral<S>::value && (std::numeric_limits<D>::digits < std::numeric_limits<S>::digits), void>::type
-demote(D *oblock, const S *iblock, size_t points) {
+typename std::enable_if<std::is_signed<S>::value && std::is_integral<D>::value && std::is_integral<S>::value && (sizeof(D) <= sizeof(S)), void>::type
+demote(D *oblock, const S *iblock, size_t points, S extra) {
     // The number of powers of 2 between S and D
     // S digits is always 31 or 63, S is signed
-    unsigned int shift = std::numeric_limits<S>::digits - std::numeric_limits<D>::digits;
+    auto shift = static_cast<S>(std::numeric_limits<S>::digits - std::numeric_limits<D>::digits) + extra;
 
     if (std::is_signed<D>::value) {
         // D digits is 7, 15, or 31
-        // shift is 24, 16, or 32, but needs to be 23, 15, or 31
-        shift--;
+        // shift is 24, 16, 0, or 32, but needs to be 23, 15, 0, or 31
 
-        S offset = 1lu << static_cast<unsigned int>(std::numeric_limits<D>::digits);
+        // int32 to int32 is already correct
+        if (sizeof(S) != sizeof(D))
+            shift--;
+
+        // By design S and D are both signed (in this branch of if statement) and
+        // D is equal or smaller than S
+        // Therefore calculate the min and max values as S types for comparison
+        // Otherwise compiler complains about signed/unsigned comparison
+        S maxValue = static_cast<S>(std::numeric_limits<D>::max());
+        S minValue = static_cast<S>(std::numeric_limits<D>::min());
+
+        // arithmetic right shift assumed, i.e. sign bit is preserved, not shifted (C++20)
+        // shift is divide by 2^shift to range [-2^15, 2^15 - 1] for int16
+        // includes extra shifts reduce the range further depending on maximum initial values
+        // force the values to be within the range of D
         while (points--) {
-            S i = static_cast<S>(*iblock++ >> shift);
-            *oblock++ = static_cast<D>(std::max(-offset, std::min(i, offset - 1)));
+            S i = *iblock++ >> shift;
+            *oblock++ = i < minValue ? std::numeric_limits<D>::min() : (i > maxValue ? std::numeric_limits<D>::max() : static_cast<D>(i));
         }
     } else {
         // S digits is 8, 16, or 32
-        // shift is 23, 15, or 31
+        // shift is 23, 15, -1, or 31
 
-        S offset = 1lu << static_cast<unsigned int>(std::numeric_limits<D>::digits - 1);
+        // S is signed and D is unsigned (in this branch of if statement)
+        // Calculate the limits in S type for comparison
+        S minValue = static_cast<S>(std::numeric_limits<D>::min());
+        S maxValue = 0; // Not used unless sizeof(D) < sizeof(S)
+
+        // uint32 to int32
+        if (sizeof(S) == sizeof(D)) {
+            // Ignoring extra, offset is 2^30 not 2^31 for uint32 because first bit in int32 cannot be so promote used 2^30
+            extra++;
+
+            // shift needs to be 0 not -1
+            shift++;
+        }
+        else {
+            // D is smaller than S so maximum of D will fit in S
+            maxValue = static_cast<S>(std::numeric_limits<D>::max());
+        }
+
+        S offset = 1ULL << static_cast<unsigned int>(std::numeric_limits<D>::digits - 1 - extra);
+
+        // arithmetic right shift assumed, i.e. sign bit is preserved, not shifted (C++20)
         while (points--) {
-            S i = (*iblock++ >> shift) + offset;
-            *oblock++ = static_cast<D>(std::max(S(0), std::min(i, offset * 2 - 1)));
+            S i = ((*iblock++ >> shift) + offset);
+            if (sizeof(S) == sizeof(D))
+                // Because max value in uint32 is larger than int32, no need to check the maximum
+                *oblock++ = i < minValue ? std::numeric_limits<D>::min() : static_cast<D>(i);
+            else
+                // Limit the range to that handled by the type D
+                *oblock++ = i < minValue ? std::numeric_limits<D>::min() : (i > maxValue ? std::numeric_limits<D>::max() : static_cast<D>(i));
         }
     }
 }
@@ -124,8 +180,8 @@ pad_block(T *p, size_t n, size_t s) {
 
 // Templated compression for integers
 template <typename S, typename D>
-typename std::enable_if<std::is_signed<D>::value && std::is_integral<D>::value && std::is_integral<S>::value && (std::numeric_limits<D>::digits > std::numeric_limits<S>::digits), size_t>::type
-compress(zfp_stream *zfp, const zfp_field *field) {
+typename std::enable_if<std::is_signed<D>::value && std::is_integral<D>::value && std::is_integral<S>::value && (sizeof(D) >= sizeof(S)), size_t>::type
+compress(zfp_stream *zfp, const zfp_field *field, D shift) {
     auto dims = static_cast<size_t>(zfp_field_dimensionality(field));
 
     auto pData = reinterpret_cast<const S *>(field->data);
@@ -174,7 +230,7 @@ compress(zfp_stream *zfp, const zfp_field *field) {
                     auto totalPoints = bx * by * bz * bw;
 
                     // Promote the block
-                    promote(oblock, iblock, totalPoints);
+                    promote(oblock, iblock, totalPoints, shift);
 
                     // Encode the block
                     if (totalPoints != blockSize)
@@ -193,8 +249,8 @@ compress(zfp_stream *zfp, const zfp_field *field) {
 
 // Templated decompression for integers
 template <typename S, typename D>
-typename std::enable_if<std::is_signed<D>::value && std::is_integral<D>::value && std::is_integral<S>::value && (std::numeric_limits<D>::digits > std::numeric_limits<S>::digits), size_t>::type
-decompress(zfp_stream *zfp, zfp_field *field) {
+typename std::enable_if<std::is_signed<D>::value && std::is_integral<D>::value && std::is_integral<S>::value && (sizeof(D) >= sizeof(S)), size_t>::type
+decompress(zfp_stream *zfp, zfp_field *field, D shift) {
     auto dims = static_cast<size_t>(zfp_field_dimensionality(field));
 
     S *pData = reinterpret_cast<S *>(field->data);
@@ -238,7 +294,7 @@ decompress(zfp_stream *zfp, zfp_field *field) {
                         consumed += decode(zfp, iblock);
 
                     // Demote the block
-                    demote(oblock, iblock, totalPoints);
+                    demote(oblock, iblock, totalPoints, shift);
 
                     // Copy to the field
                     for (l = 0, ll = w * sw; l < bw; l++, ll += sw) {
