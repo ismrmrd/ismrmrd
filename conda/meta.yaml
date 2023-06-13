@@ -21,12 +21,12 @@ requirements:
     - git
     - hdf5=1.10.6
     - ninja=1.10.*
-    - pugixml=1.11.4
+    - pugixml=1.12.1
   run:
     - boost
     - hdf5=1.10.6
     - fftw=3.3.9
-    - pugixml=1.11.4
+    - pugixml=1.12.1
 
 test:
   requires:

@@ -37,23 +37,21 @@ RUN apt-get update && apt-get install -y \
     libc6-dbg \
     && rm -rf /var/lib/apt/lists/*
 
-ARG MAMBA_VERSION=1.3.1
+ARG MAMBAFORGE_VERSION=22.9.0-2
 
-# Based on https://github.com/ContinuumIO/docker-images/blob/master/miniconda3/debian/Dockerfile.
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh \
-    && mkdir -p /opt \
-    && sh miniconda.sh -b -p /opt/conda \
-    && ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh \
-    && find /opt/conda/ -follow -type f -name '*.a' -delete \
-    && find /opt/conda/ -follow -type f -name '*.js.map' -delete \
-    && /opt/conda/bin/conda install -n base -c conda-forge mamba=${MAMBA_VERSION} \
-    && /opt/conda/bin/conda clean -afy \
+# Based on https://github.com/conda-forge/miniforge-images/blob/master/ubuntu/Dockerfile
+RUN wget --no-hsts --quiet https://github.com/conda-forge/miniforge/releases/download/${MAMBAFORGE_VERSION}/Mambaforge-${MAMBAFORGE_VERSION}-Linux-$(uname -m).sh -O /tmp/miniforge.sh \
+    && /bin/bash /tmp/miniforge.sh -b -p /opt/conda \
+    && rm /tmp/miniforge.sh \
+    && /opt/conda/bin/conda clean --tarballs --index-cache --packages --yes \
+    && find /opt/conda -follow -type f -name '*.a' -delete \
+    && find /opt/conda -follow -type f -name '*.pyc' -delete \
+    && /opt/conda/bin/conda clean --force-pkgs-dirs --all --yes  \
     && groupadd -r conda --gid ${CONDA_GID} \
     && usermod -aG conda ${USERNAME} \
     && chown -R :conda /opt/conda \
     && chmod -R g+w /opt/conda \
     && find /opt -type d | xargs -n 1 chmod g+s
-
 
 FROM basecontainer AS devcontainer
 
