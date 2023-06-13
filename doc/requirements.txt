@@ -1,5 +1,5 @@
-myst-parser==0.19.2
-sphinx~=4.3.0
-breathe==4.35.0
-sphinx-rtd-theme==1.2.0
-sphinxcontrib-mermaid==0.8.1
+myst-parser
+sphinx
+breathe
+sphinx-rtd-theme
+sphinxcontrib-mermaid
