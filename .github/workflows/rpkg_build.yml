@@ -4,14 +4,14 @@ on:
   push:
     branches:
       - master
-
+  
   pull_request:
     branches:
       - master
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    
     container:
       image: fedora:37
     steps:
@@ -19,14 +19,14 @@ jobs:
       run: sudo dnf install rpkg git dnf-plugins-core -y
 
     - uses: actions/checkout@v3
-      with:
+      with: 
         fetch-depth: 0
-    - name: Run RPKG
+    - name: Run RPKG 
       run: |
         git config --global --add safe.directory "*"
         chown -hR root "$GITHUB_WORKSPACE"
-        cd "$GITHUB_WORKSPACE"
+        cd "$GITHUB_WORKSPACE" 
         rpkg spec --outdir ./
         sudo dnf builddep -y ismrmrd.spec
         rm ismrmrd.spec
-        rpkg local
+        rpkg local 
