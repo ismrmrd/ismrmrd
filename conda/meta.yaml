@@ -9,6 +9,9 @@ package:
 source:
   path: ../
 
+build:
+  number: 1
+
 requirements:
   build:
     - boost {{ boost }}

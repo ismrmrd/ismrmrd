@@ -11,6 +11,7 @@
 #include <cstddef>
 #include <new> //For std::badalloc
 #include <stdexcept> //For std::length_error
+#include <cstdint>
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
