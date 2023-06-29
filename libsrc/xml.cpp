@@ -656,7 +656,7 @@ std::string to_string(TrajectoryType v) {
     case TrajectoryType::OTHER:
         return "other";
     }
-    throw std::runtime_error("Illegal enum class value");
+    throw std::runtime_error("Illegal TrajectoryType enum class value");
 }
 
 std::string to_string(const WaveformType &v) {
@@ -675,7 +675,7 @@ std::string to_string(const WaveformType &v) {
         return "other";
     }
 
-    throw std::runtime_error("Illegal enum class value");
+    throw std::runtime_error("Illegal WaveFormType enum class value");
 }
 
 std::string to_string(const DiffusionDimension &d) {
@@ -709,7 +709,7 @@ std::string to_string(const DiffusionDimension &d) {
     case DiffusionDimension::USER_7:
         return "user_7";
     }
-    throw std::runtime_error("Illegal enum class value");
+    throw std::runtime_error("Illegal DiffusionDimension enum class value");
 }
 
 std::string to_string(const MultibandCalibrationType &v) {
@@ -722,7 +722,7 @@ std::string to_string(const MultibandCalibrationType &v) {
         return "other";
     }
 
-    throw std::runtime_error("Illegal enum class value");
+    throw std::runtime_error("Illegal MultibandCalibrationType enum class value");
 }
 
 template <class T>
