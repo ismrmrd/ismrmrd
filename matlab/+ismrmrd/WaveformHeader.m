@@ -6,7 +6,7 @@ classdef WaveformHeader < handle
         flags = uint64([]);                            % bit field with flags %
         measurement_uid = uint32([]);                  % Unique ID for the measurement %
         scan_counter = uint32([]);                     % Current acquisition number in the measurement %
-        time_stamp = uint32([]);            % Physiology time stamps, e.g. ecg, breating, etc. %
+        time_stamp = uint32([]);            % Physiology time stamps, e.g. ecg, breathing, etc. %
         number_of_samples = uint16([]);                % Number of samples acquired %
         channels = uint16([]);               % Available channels %
         sample_time_us = single([]);                   % Time between samples in micro seconds, sampling BW %
