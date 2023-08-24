@@ -93,9 +93,14 @@ void deserialize_attr_and_pixels(Image<T> &img, ReadableStreamView &rs) {
     uint64_t attr_length;
     rs.read(reinterpret_cast<char *>(&attr_length), sizeof(uint64_t));
     if (attr_length) {
-        std::vector<char> attr(attr_length + 1);
-        rs.read(&attr[0], attr_length);
-        attr[attr_length] = '\0';
+        if (attr_length >= std::numeric_limits<std::vector<char>::size_type>::max())
+        {
+            throw std::runtime_error("Attribute string is too large");
+        }
+        auto strSize = static_cast<std::vector<char>::size_type>(attr_length);
+        std::vector<char> attr(strSize + 1);
+        rs.read(&attr[0], strSize);
+        attr[strSize] = '\0';
         img.setAttributeString(&attr[0]);
     }
     rs.read(reinterpret_cast<char *>(img.getDataPtr()), img.getDataSize());

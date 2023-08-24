@@ -42,7 +42,7 @@ public:
 
         if (tolerance > 0) {
             tolerance_ = tolerance;
-            scale_ = 0.5/tolerance_;
+            scale_ = T(0.5)/tolerance_;
             uint64_t max_int = static_cast<uint64_t>(std::ceil(std::abs(scale_*max_val_+1)));
             bits_ = 0;
             while (max_int) {
@@ -54,7 +54,7 @@ public:
             bits_ = precision_bits;
             uint64_t max_int = (1<<(bits_-1))-1;
             scale_ = (max_int-1)/max_val_;
-            tolerance_ = 0.5/scale_;
+            tolerance_ = T(0.5)/scale_;
         }
 
         elements_ = stop - start;
@@ -113,9 +113,9 @@ public:
         }
 
         this->bits_ = h.bits_;
-        this->elements_ = h.elements_;
+        this->elements_ = static_cast<size_t>(h.elements_);
         this->scale_ = h.scale_;
-        this->tolerance_ = 0.5/h.scale_;
+        this->tolerance_ = static_cast<T>(0.5/h.scale_);
         this->comp_.resize(bytes_needed,0);
 
         memcpy(&comp_[0], &buffer[sizeof(CompressionHeader)], bytes_needed);
@@ -181,7 +181,7 @@ private:
 
     int64_t uncompact_int(uint64_t cbin)
     {
-        if (cbin & (1<<(bits_-1))) {
+        if (cbin & (uint64_t(1)<<(bits_-1))) {
             const uint64_t bitmask = ((1<<bits_)-1);
             int64_t out = static_cast<int64_t>((cbin ^ bitmask)+1);
             out = -out;

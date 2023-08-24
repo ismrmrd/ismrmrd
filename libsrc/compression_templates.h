@@ -182,7 +182,7 @@ pad_block(T *p, size_t n, size_t s) {
 template <typename S, typename D>
 typename std::enable_if<std::is_signed<D>::value && std::is_integral<D>::value && std::is_integral<S>::value && (sizeof(D) >= sizeof(S)), size_t>::type
 compress(zfp_stream *zfp, const zfp_field *field, D shift) {
-    auto dims = static_cast<size_t>(zfp_field_dimensionality(field));
+    auto dims = zfp_field_dimensionality(field);
 
     auto pData = reinterpret_cast<const S *>(field->data);
     size_t blockSize = integerPower(zfp_block_size, dims);
@@ -251,7 +251,7 @@ compress(zfp_stream *zfp, const zfp_field *field, D shift) {
 template <typename S, typename D>
 typename std::enable_if<std::is_signed<D>::value && std::is_integral<D>::value && std::is_integral<S>::value && (sizeof(D) >= sizeof(S)), size_t>::type
 decompress(zfp_stream *zfp, zfp_field *field, D shift) {
-    auto dims = static_cast<size_t>(zfp_field_dimensionality(field));
+    auto dims = zfp_field_dimensionality(field);
 
     S *pData = reinterpret_cast<S *>(field->data);
     size_t blockSize = integerPower(zfp_block_size, dims);

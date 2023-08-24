@@ -31,7 +31,7 @@
 #endif
 
 /* Unaligned */
-#if defined(_MSC_VER) && __cplusplus > 199711L
+#if defined(_WIN64) && defined(_MSC_VER) && __cplusplus > 199711L
 #define ISMRMRD_UNALIGNED __unaligned
 #else
 #define ISMRMRD_UNALIGNED
