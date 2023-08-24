@@ -4,13 +4,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-find_path(PugiXML_INCLUDE_DIR pugixml.hpp /usr/include)
+find_path(PugiXML_INCLUDE_DIR pugixml.hpp /usr/include C:/Program\ Files\ \(x86\)/pugixml/include)
 
 find_library(PugiXML_LIBRARY
   NAMES
   "pugixml"
   PATHS
   /usr/lib
+  C:/Program\ Files\ \(x86\)/pugixml/lib
   )
 
 if(PugiXML_LIBRARY AND PugiXML_INCLUDE_DIR)
