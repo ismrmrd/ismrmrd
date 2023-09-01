@@ -9,6 +9,7 @@
 #include "ismrmrd/export.h"
 #include "ismrmrd.h"
 #include <cstddef>
+#include <cstdint>
 #include <new> //For std::badalloc
 #include <stdexcept> //For std::length_error
 #include <stdio.h>
@@ -90,7 +91,7 @@ namespace ISMRMRD
     }
 
 
-  T &value() &{
+  T &value() {
       if (!present_) {
           throw std::runtime_error("Access optional value, which has not been set");
       }
@@ -98,50 +99,27 @@ namespace ISMRMRD
   }
 
 
-  const T &value() const &{
+  const T &value() const {
       if (!present_) {
           throw std::runtime_error("Access optional value, which has not been set");
       }
       return value_;
   }
 
-  T &&value() &&{
-      if (!present_) {
-          throw std::runtime_error("Access optional value, which has not been set");
-      }
-      return std::move(value_);
-  }
 
-  const T &&value() const &&{
-      if (!present_) {
-          throw std::runtime_error("Access optional value, which has not been set");
-      }
-      return std::move(value_);
-  }
-
-  T &get() & {
+   T &get() {
       return  this->value();
     }
 
-    T&& get()&&{
-        return this->value();
-    }
-     const T &get() const &  {
+     const T &get() const {
           return  this->value();
       }
 
-     const  T&& get() const &&{
-          return this->value();
-      }
   template<class U>
-  T value_or(U &&default_value) const &{
+  T value_or(U &default_value) const {
       return bool(*this) ? **this : static_cast<T>(std::forward<U>(default_value));
   }
 
-  template<class U>
-  T value_or(U &&default_value) &&{
-      return bool(*this) ? std::move(**this) : static_cast<T>(std::forward<U>(default_value));
-  }
 
     bool operator==(const Optional<T>& other) const {
       if (this->present_ && other.present_) return this->get() == *other;
@@ -335,7 +313,7 @@ namespace ISMRMRD
     Optional<Limit> repetition;
     Optional<Limit> set;
     Optional<Limit> segment;
-    std::array<Optional<Limit>,ISMRMRD_USER_INTS> user;
+    Optional<Limit> user[ISMRMRD_USER_INTS];
   };
 
 
@@ -381,21 +359,21 @@ namespace ISMRMRD
   };
 
 
-  enum class TrajectoryType {
-      CARTESIAN,
-      EPI,
-      RADIAL,
-      GOLDENANGLE,
-      SPIRAL,
-      OTHER
+  enum TrajectoryType {
+      TRAJECTORY_TYPE_CARTESIAN,
+      TRAJECTORY_TYPE_EPI,
+      TRAJECTORY_TYPE_RADIAL,
+      TRAJECTORY_TYPE_GOLDENANGLE,
+      TRAJECTORY_TYPE_SPIRAL,
+      TRAJECTORY_TYPE_OTHER
   };
 
 
 
-  enum class MultibandCalibrationType {
-    SEPARABLE2D,
-    FULL3D,
-    OTHER
+  enum MultibandCalibrationType {
+    MULTIBAND_CALIBRATION_TYPE_SEPARABLE2D,
+    MULTIBAND_CALIBRATION_TYPE_FULL3D,
+    MULTIBAND_CALIBRATION_TYPE_OTHER
   };
 
   struct MultibandSpacing {
@@ -436,21 +414,21 @@ namespace ISMRMRD
       float fh;
   };
 
-  enum class DiffusionDimension {
-      AVERAGE,
-      CONTRAST,
-      PHASE,
-      REPETITION,
-      SET,
-      SEGMENT,
-      USER_0,
-      USER_1,
-      USER_2,
-      USER_3,
-      USER_4,
-      USER_5,
-      USER_6,
-      USER_7
+  enum DiffusionDimension {
+      DIFFUSION_DIMENSION_AVERAGE,
+      DIFFUSION_DIMENSION_CONTRAST,
+      DIFFUSION_DIMENSION_PHASE,
+      DIFFUSION_DIMENSION_REPETITION,
+      DIFFUSION_DIMENSION_SET,
+      DIFFUSION_DIMENSION_SEGMENT,
+      DIFFUSION_DIMENSION_USER_0,
+      DIFFUSION_DIMENSION_USER_1,
+      DIFFUSION_DIMENSION_USER_2,
+      DIFFUSION_DIMENSION_USER_3,
+      DIFFUSION_DIMENSION_USER_4,
+      DIFFUSION_DIMENSION_USER_5,
+      DIFFUSION_DIMENSION_USER_6,
+      DIFFUSION_DIMENSION_USER_7
   };
 
   struct Diffusion {
@@ -471,13 +449,13 @@ namespace ISMRMRD
     Optional<std::string> diffusionScheme;
   };
 
-  enum class WaveformType {
-      ECG,
-      PULSE,
-      RESPIRATORY,
-      TRIGGER,
-      GRADIENTWAVEFORM,
-      OTHER
+  enum WaveformType {
+      WAVEFORM_TYPE_ECG,
+      WAVEFORM_TYPE_PULSE,
+      WAVEFORM_TYPE_RESPIRATORY,
+      WAVEFORM_TYPE_TRIGGER,
+      WAVEFORM_TYPE_GRADIENTWAVEFORM,
+      WAVEFORM_TYPE_OTHER
   };
 
 

@@ -4,6 +4,30 @@
 #include <cstdlib>
 #include <tuple>
 
+namespace std
+{
+  long stoi(const char* str)
+  {
+    return atol(str);
+  }
+
+  long stoll(const char* str)
+  {
+    return atol(str);
+  }
+
+  float strtof(const char* str, char** str_end = NULL)
+  {
+    return static_cast<float>(atof(str));
+  }
+
+  float stof(const char* str, char** str_end = NULL)
+  {
+    return static_cast<float>(atof(str));
+  }
+
+}
+
 namespace ISMRMRD
 {
   //Utility Functions for deserializing Header
@@ -220,11 +244,11 @@ namespace ISMRMRD
   }
   MultibandCalibrationType parse_multiband_type(const std::string& multibandString) {
       if (multibandString == "separable2D")
-          return MultibandCalibrationType::SEPARABLE2D;
+          return MultibandCalibrationType::MULTIBAND_CALIBRATION_TYPE_SEPARABLE2D;
       if (multibandString == "full3D")
-          return MultibandCalibrationType::FULL3D;
+          return MultibandCalibrationType::MULTIBAND_CALIBRATION_TYPE_FULL3D;
       if (multibandString == "other")
-          return MultibandCalibrationType::OTHER;
+          return MultibandCalibrationType::MULTIBAND_CALIBRATION_TYPE_OTHER;
 
       throw std::runtime_error("Invalid multiband calibration type in xml header: " + multibandString);
 
@@ -232,62 +256,62 @@ namespace ISMRMRD
 
   TrajectoryType parse_trajectory_type(const std::string& trajectoryString) {
       if (trajectoryString == "cartesian")
-          return TrajectoryType::CARTESIAN;
+          return TrajectoryType::TRAJECTORY_TYPE_CARTESIAN;
       if (trajectoryString == "epi")
-          return TrajectoryType::EPI;
+          return TrajectoryType::TRAJECTORY_TYPE_EPI;
       if (trajectoryString == "radial")
-          return TrajectoryType::RADIAL;
+          return TrajectoryType::TRAJECTORY_TYPE_RADIAL;
       if (trajectoryString == "goldenangle")
-          return TrajectoryType::GOLDENANGLE;
+          return TrajectoryType::TRAJECTORY_TYPE_GOLDENANGLE;
       if (trajectoryString == "spiral")
-          return TrajectoryType::SPIRAL;
+          return TrajectoryType::TRAJECTORY_TYPE_SPIRAL;
       if (trajectoryString == "other")
-          return TrajectoryType::OTHER;
+          return TrajectoryType::TRAJECTORY_TYPE_OTHER;
 
       throw std::runtime_error("Invalid trajectory type in xml header");
   }
 
   WaveformType parse_waveform_type(const std::string& waveformString) {
       if (waveformString == "ecg")
-          return WaveformType::ECG;
+          return WaveformType::WAVEFORM_TYPE_ECG;
       if ( waveformString == "pulse")
-          return WaveformType::PULSE;
+          return WaveformType::WAVEFORM_TYPE_PULSE;
       if (waveformString == "respiratory")
-          return WaveformType::RESPIRATORY;
+          return WaveformType::WAVEFORM_TYPE_RESPIRATORY;
       if (waveformString == "trigger")
-          return WaveformType::TRIGGER;
+          return WaveformType::WAVEFORM_TYPE_TRIGGER;
       if (waveformString == "gradientwaveform")
-          return WaveformType::GRADIENTWAVEFORM;
+          return WaveformType::WAVEFORM_TYPE_GRADIENTWAVEFORM;
       if (waveformString == "other")
-          return WaveformType::OTHER;
+          return WaveformType::WAVEFORM_TYPE_OTHER;
 
       throw std::runtime_error("Invalid waveform type in xml header");
   }
 
 
     DiffusionDimension parse_diffusiondimension(const std::string& diffusiondimension) {
-        if (diffusiondimension == "average") return DiffusionDimension::AVERAGE;
-        if (diffusiondimension == "contrast") return DiffusionDimension::CONTRAST;
-        if (diffusiondimension == "phase") return DiffusionDimension::PHASE;
-        if (diffusiondimension == "repetition") return DiffusionDimension::REPETITION;
-        if (diffusiondimension == "set") return DiffusionDimension::SET;
-        if (diffusiondimension == "segment") return DiffusionDimension::SEGMENT;
-        if (diffusiondimension == "user_0") return DiffusionDimension::USER_0;
-        if (diffusiondimension == "user_1") return DiffusionDimension::USER_1;
-        if (diffusiondimension == "user_2") return DiffusionDimension::USER_2;
-        if (diffusiondimension == "user_3") return DiffusionDimension::USER_3;
-        if (diffusiondimension == "user_4") return DiffusionDimension::USER_4;
-        if (diffusiondimension == "user_5") return DiffusionDimension::USER_5;
-        if (diffusiondimension == "user_6") return DiffusionDimension::USER_6;
-        if (diffusiondimension == "user_7") return DiffusionDimension::USER_7;
+        if (diffusiondimension == "average") return DiffusionDimension::DIFFUSION_DIMENSION_AVERAGE;
+        if (diffusiondimension == "contrast") return DiffusionDimension::DIFFUSION_DIMENSION_CONTRAST;
+        if (diffusiondimension == "phase") return DiffusionDimension::DIFFUSION_DIMENSION_PHASE;
+        if (diffusiondimension == "repetition") return DiffusionDimension::DIFFUSION_DIMENSION_REPETITION;
+        if (diffusiondimension == "set") return DiffusionDimension::DIFFUSION_DIMENSION_SET;
+        if (diffusiondimension == "segment") return DiffusionDimension::DIFFUSION_DIMENSION_SEGMENT;
+        if (diffusiondimension == "user_0") return DiffusionDimension::DIFFUSION_DIMENSION_USER_0;
+        if (diffusiondimension == "user_1") return DiffusionDimension::DIFFUSION_DIMENSION_USER_1;
+        if (diffusiondimension == "user_2") return DiffusionDimension::DIFFUSION_DIMENSION_USER_2;
+        if (diffusiondimension == "user_3") return DiffusionDimension::DIFFUSION_DIMENSION_USER_3;
+        if (diffusiondimension == "user_4") return DiffusionDimension::DIFFUSION_DIMENSION_USER_4;
+        if (diffusiondimension == "user_5") return DiffusionDimension::DIFFUSION_DIMENSION_USER_5;
+        if (diffusiondimension == "user_6") return DiffusionDimension::DIFFUSION_DIMENSION_USER_6;
+        if (diffusiondimension == "user_7") return DiffusionDimension::DIFFUSION_DIMENSION_USER_7;
         throw std::runtime_error("Invalid diffusion dimension in xml header");
     }
 
   static Diffusion parse_diffusion(pugi::xml_node& node) {
-      Diffusion diff{};
+      Diffusion diff;
       diff.bvalue = std::stof(node.child_value("bvalue"));
 
-      auto grad_node = node.child("gradientDirection");
+      pugi::xml_node grad_node = node.child("gradientDirection");
 
       diff.gradientDirection.rl = std::stof(grad_node.child_value("rl"));
       diff.gradientDirection.ap = std::stof(grad_node.child_value("ap"));
@@ -297,7 +321,7 @@ namespace ISMRMRD
 
   static Optional<std::vector<Diffusion>> parse_diffusion_vector(pugi::xml_node& node){
 
-      auto diffusion_node = node.child("diffusion");
+      pugi::xml_node diffusion_node = node.child("diffusion");
       if (!diffusion_node) return {};
 
       std::vector<Diffusion> diffusions;
@@ -617,17 +641,17 @@ namespace ISMRMRD
   std::string to_string(TrajectoryType v)
   {
       switch (v){
-          case TrajectoryType::CARTESIAN:
+          case TrajectoryType::TRAJECTORY_TYPE+CARTESIAN:
               return "cartesian";
-          case TrajectoryType::EPI:
+          case TrajectoryType::TRAJECTORY_TYPE+EPI:
               return "epi";
-          case TrajectoryType::RADIAL:
+          case TrajectoryType::TRAJECTORY_TYPE+RADIAL:
               return  "radial";
-          case TrajectoryType::GOLDENANGLE:
+          case TrajectoryType::TRAJECTORY_TYPE+GOLDENANGLE:
               return "goldenangle";
-          case TrajectoryType::SPIRAL:
+          case TrajectoryType::TRAJECTORY_TYPE+SPIRAL:
               return  "spiral";
-          case TrajectoryType::OTHER:
+          case TrajectoryType::TRAJECTORY_TYPE+OTHER:
               return "other";
       }
       throw std::runtime_error("Illegal enum class value");
@@ -636,17 +660,17 @@ namespace ISMRMRD
   std::string to_string(const WaveformType& v)
   {
       switch (v){
-          case WaveformType::ECG:
+          case WaveformType::WAVEFORM_TYPE_ECG:
               return "ecg";
-          case WaveformType::PULSE:
+          case WaveformType::WAVEFORM_TYPE_PULSE:
               return "pulse";
-          case WaveformType::RESPIRATORY:
+          case WaveformType::WAVEFORM_TYPE_RESPIRATORY:
               return "respiratory";
-          case WaveformType::TRIGGER:
+          case WaveformType::WAVEFORM_TYPE_TRIGGER:
               return "trigger";
-          case WaveformType::GRADIENTWAVEFORM:
+          case WaveformType::WAVEFORM_TYPE_GRADIENTWAVEFORM:
               return "gradientwaveform";
-          case WaveformType::OTHER:
+          case WaveformType::WAVEFORM_TYPE_OTHER:
               return "other";
       }
 
@@ -655,33 +679,33 @@ namespace ISMRMRD
 
   std::string to_string(const  DiffusionDimension& d){
       switch (d){
-      case DiffusionDimension::AVERAGE:
+      case DiffusionDimension::DIFFUSION_DIMENSION_AVERAGE:
           return "average";
-      case DiffusionDimension::CONTRAST:
+      case DiffusionDimension::DIFFUSION_DIMENSION_CONTRAST:
           return "contrast";
-      case DiffusionDimension::PHASE:
+      case DiffusionDimension::DIFFUSION_DIMENSION_PHASE:
           return "phase";
-      case DiffusionDimension::REPETITION:
+      case DiffusionDimension::DIFFUSION_DIMENSION_REPETITION:
           return "repetition";
-      case DiffusionDimension::SET:
+      case DiffusionDimension::DIFFUSION_DIMENSION_SET:
           return "set";
-      case DiffusionDimension::SEGMENT:
+      case DiffusionDimension::DIFFUSION_DIMENSION_SEGMENT:
           return "segment";
-      case DiffusionDimension::USER_0:
+      case DiffusionDimension::DIFFUSION_DIMENSION_USER_0:
           return "user_0";
-      case DiffusionDimension::USER_1:
+      case DiffusionDimension::DIFFUSION_DIMENSION_USER_1:
           return "user_1";
-      case DiffusionDimension::USER_2:
+      case DiffusionDimension::DIFFUSION_DIMENSION_USER_2:
           return "user_2";
-      case DiffusionDimension::USER_3:
+      case DiffusionDimension::DIFFUSION_DIMENSION_USER_3:
           return "user_3";
-      case DiffusionDimension::USER_4:
+      case DiffusionDimension::DIFFUSION_DIMENSION_USER_4:
           return "user_4";
-      case DiffusionDimension::USER_5:
+      case DiffusionDimension::DIFFUSION_DIMENSION_USER_5:
           return "user_5";
-      case DiffusionDimension::USER_6:
+      case DiffusionDimension::DIFFUSION_DIMENSION_USER_6:
           return "user_6";
-      case DiffusionDimension::USER_7:
+      case DiffusionDimension::DIFFUSION_DIMENSION_USER_7:
           return "user_7";
       }
       throw std::runtime_error("Illegal enum class value");
@@ -690,11 +714,11 @@ namespace ISMRMRD
 std::string to_string(const MultibandCalibrationType& v)
 {
     switch (v){
-        case MultibandCalibrationType::FULL3D:
+        case MultibandCalibrationType::MULTIBAND_CALIBRATION_TYPE_FULL3D:
             return "full3D";
-        case MultibandCalibrationType::SEPARABLE2D:
+        case MultibandCalibrationType::MULTIBAND_CALIBRATION_TYPE_SEPARABLE2D:
             return "separable2D";
-        case MultibandCalibrationType::OTHER:
+        case MultibandCalibrationType::MULTIBAND_CALIBRATION_TYPE_OTHER:
             return "other";
     }
 

@@ -159,7 +159,7 @@ void ProtocolSerializer::serialize(const TextMessage &tm) {
 void ProtocolSerializer::serialize(const IsmrmrdHeader &hdr) {
     std::stringstream str;
     ISMRMRD::serialize(hdr, str);
-    auto as_str = str.str();
+    std::string as_str = str.str();
     uint32_t size = static_cast<uint32_t>(as_str.size());
     write_msg_id(ISMRMRD_MESSAGE_HEADER);
     _ws.write(reinterpret_cast<const char *>(&size), sizeof(uint32_t));

@@ -56,26 +56,10 @@ ISMRMRD::Waveform::Waveform(const Waveform &other) {
 	this->head = other.head;
 }
 
-ISMRMRD::Waveform::Waveform(Waveform &&other) {
-    this->data = other.data;
-    other.data = NULL;
-	this->head = other.head;
-
-}
-
 ISMRMRD::Waveform::~Waveform() {
 	if (data != NULL) free(data);
     
 
-}
-
-ISMRMRD::Waveform & ISMRMRD::Waveform::operator=(Waveform &&other) {
-	
-	if (data != NULL) free(data);
-    this->data = other.data;
-    other.data = nullptr;
-	this->head = other.head;
-    return *this;
 }
 
 ISMRMRD::Waveform & ISMRMRD::Waveform::operator=(const Waveform &other) {
