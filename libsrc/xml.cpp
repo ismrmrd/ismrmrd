@@ -26,6 +26,18 @@ namespace std
     return static_cast<float>(atof(str));
   }
 
+  template <typename T>
+  std::string to_string(const T& v)
+  {
+    std::stringstream ss;
+    ss << v;
+    return ss.str();
+  }
+
+  unsigned long stoul(const std::string &str)
+  {
+    return strtoul(str.c_str(), NULL, 10);
+  }
 }
 
 namespace ISMRMRD
@@ -322,9 +334,9 @@ namespace ISMRMRD
   static Optional<std::vector<Diffusion>> parse_diffusion_vector(pugi::xml_node& node){
 
       pugi::xml_node diffusion_node = node.child("diffusion");
-      if (!diffusion_node) return {};
-
       std::vector<Diffusion> diffusions;
+      if (!diffusion_node) return diffusions;
+
       while(diffusion_node){
           diffusions.push_back(parse_diffusion(diffusion_node));
           diffusion_node = diffusion_node.next_sibling("diffusion");
@@ -401,7 +413,7 @@ namespace ISMRMRD
 	    e.encodingLimits.set                    = parse_encoding_limit(encodingLimits,"set");
 	    e.encodingLimits.segment                = parse_encoding_limit(encodingLimits,"segment");
       for (size_t k = 0; k < ISMRMRD_USER_INTS; k++){
-        auto name = std::string("user_") + std::to_string(k);
+        std::string name = std::string("user_") + std::to_string(k);
         e.encodingLimits.user[k]              = parse_encoding_limit(encodingLimits,name.c_str()); 
       }
 
@@ -457,9 +469,11 @@ namespace ISMRMRD
             mb.deltaKz = parse_float(multiband, "deltaKz");
             mb.multiband_factor =  static_cast<std::uint32_t>(std::stoi(multiband.child_value("multiband_factor")));
 
-            auto spacing_node = multiband.child("spacing");
+            pugi::xml_node spacing_node = multiband.child("spacing");
             do {
-                mb.spacing.push_back(MultibandSpacing{parse_vector_float(spacing_node, "dZ")});
+                MultibandSpacing mbs;
+                mbs.dZ = parse_vector_float(spacing_node, "dZ");
+                mb.spacing.push_back(mbs);
                 spacing_node = spacing_node.next_sibling("spacing");
             } while (spacing_node);
 
@@ -585,7 +599,7 @@ namespace ISMRMRD
     if (!r.empty()) p.flipAngle_deg = r;
 
 
-    auto diffusiondimension = std::string(sequenceParameters.child_value("diffusionDimension"));
+    std::string diffusiondimension = std::string(sequenceParameters.child_value("diffusionDimension"));
     if (!diffusiondimension.empty()) p.diffusionDimension = parse_diffusiondimension(diffusiondimension);
 
     
@@ -616,7 +630,7 @@ namespace ISMRMRD
         WaveformInformation w;
         w.waveformName = parse_string(waveformInformation,"waveformName");
         w.waveformType = parse_waveform_type(parse_string(waveformInformation,"waveformType"));
-        auto waveformUserparameters = waveformInformation.child("userParameters");
+        pugi::xml_node waveformUserparameters = waveformInformation.child("userParameters");
         if (waveformUserparameters) {
             UserParameters p;
             p.userParameterLong = parse_user_parameter_long(waveformUserparameters, "userParameterLong");
@@ -641,17 +655,17 @@ namespace ISMRMRD
   std::string to_string(TrajectoryType v)
   {
       switch (v){
-          case TrajectoryType::TRAJECTORY_TYPE+CARTESIAN:
+          case TrajectoryType::TRAJECTORY_TYPE_CARTESIAN:
               return "cartesian";
-          case TrajectoryType::TRAJECTORY_TYPE+EPI:
+          case TrajectoryType::TRAJECTORY_TYPE_EPI:
               return "epi";
-          case TrajectoryType::TRAJECTORY_TYPE+RADIAL:
+          case TrajectoryType::TRAJECTORY_TYPE_RADIAL:
               return  "radial";
-          case TrajectoryType::TRAJECTORY_TYPE+GOLDENANGLE:
+          case TrajectoryType::TRAJECTORY_TYPE_GOLDENANGLE:
               return "goldenangle";
-          case TrajectoryType::TRAJECTORY_TYPE+SPIRAL:
+          case TrajectoryType::TRAJECTORY_TYPE_SPIRAL:
               return  "spiral";
-          case TrajectoryType::TRAJECTORY_TYPE+OTHER:
+          case TrajectoryType::TRAJECTORY_TYPE_OTHER:
               return "other";
       }
       throw std::runtime_error("Illegal enum class value");
@@ -737,7 +751,7 @@ template <class T> void append_optional_node(pugi::xml_node& n, const char* chil
   template <class T> void append_node(pugi::xml_node& n, const char* child, const T& v) 
   {
     pugi::xml_node n2 = n.append_child(child);
-    auto v_as_string = to_string(v);
+    std::string v_as_string = to_string(v);
     n2.append_child(pugi::node_pcdata).set_value(v_as_string.c_str());
   } 
 
@@ -790,7 +804,7 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       append_node(n2,"waveformName",w.waveformName);
       append_node(n2,"waveformType",w.waveformType);
       if (w.userParameters){
-          auto n3 = n2.append_child("userParameters");
+          pugi::xml_node n3 = n2.append_child("userParameters");
           append_user_parameter(n3,"userParameterLong",w.userParameters->userParameterLong);
           append_user_parameter(n3,"userParameterDouble",w.userParameters->userParameterDouble);
           append_user_parameter(n3,"userParameterString",w.userParameters->userParameterString);
@@ -931,7 +945,7 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       append_encoding_limit(n2,"segment",h.encoding[i].encodingLimits.segment);
 
       for (size_t k = 0; k < ISMRMRD_USER_INTS; k++){
-        auto name = std::string("user_") + std::to_string(k);
+        std::string name = std::string("user_") + std::to_string(k);
         append_encoding_limit(n2,name.c_str(),h.encoding[i].encodingLimits.user[k]);
       }
 
@@ -947,7 +961,7 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       }
 
       if (h.encoding[i].parallelImaging) {
-        const auto& parallelImaging = *h.encoding[i].parallelImaging;
+        const ParallelImaging& parallelImaging = *h.encoding[i].parallelImaging;
 	n2 = n1.append_child("parallelImaging");
 	n3 = n2.append_child("accelerationFactor");
 	append_node(n3,"kspace_encoding_step_1",parallelImaging.accelerationFactor.kspace_encoding_step_1);
@@ -957,12 +971,14 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
 
 
       if (parallelImaging.multiband){
-          auto& multiband = *parallelImaging.multiband;
-        auto n4 = n2.append_child("multiband");
-        for (const auto& mb : multiband.spacing){
-            auto n5 = n4.append_child("spacing");
-            for (const auto dZ : mb.dZ){
-              append_node(n5,"dZ",dZ);
+        const Multiband& multiband = *parallelImaging.multiband;
+        pugi::xml_node n4 = n2.append_child("multiband");
+//        for (const auto& mb : multiband.spacing){
+        for (std::vector<MultibandSpacing>::const_iterator mb = multiband.spacing.begin(); mb != multiband.spacing.end(); ++mb) {
+            pugi::xml_node n5 = n4.append_child("spacing");
+//            for (const auto dZ : mb.dZ){
+            for (std::vector<float>::const_iterator dZ = mb->dZ.begin(); dZ != mb->dZ.end(); ++dZ){
+              append_node(n5,"dZ",*dZ);
             }
         }
         append_node(n4, "deltaKz", multiband.deltaKz);
@@ -1019,13 +1035,15 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
 
       append_optional_node(n1,"diffusionDimension", h.sequenceParameters->diffusionDimension);
       if (h.sequenceParameters->diffusion){
-          for (const auto& diff : h.sequenceParameters->diffusion.get()){
-              auto diff_node = n1.append_child("diffusion");
-              append_node(diff_node,"bvalue",diff.bvalue);
-              auto grad_node = diff_node.append_child("gradientDirection");
-              append_node(grad_node,"rl",diff.gradientDirection.rl);
-              append_node(grad_node,"ap",diff.gradientDirection.ap);
-              append_node(grad_node,"fh",diff.gradientDirection.fh);
+
+          // for (const auto& diff : h.sequenceParameters->diffusion.get()){
+          for (std::vector<Diffusion>::const_iterator diff = h.sequenceParameters->diffusion->begin(); diff != h.sequenceParameters->diffusion->end(); ++diff) {
+              pugi::xml_node diff_node = n1.append_child("diffusion");
+              append_node(diff_node,"bvalue", diff->bvalue);
+              pugi::xml_node grad_node = diff_node.append_child("gradientDirection");
+              append_node(grad_node,"rl", diff->gradientDirection.rl);
+              append_node(grad_node,"ap", diff->gradientDirection.ap);
+              append_node(grad_node,"fh", diff->gradientDirection.fh);
           }
       }
       append_optional_node(n1, "diffusionScheme", h.sequenceParameters->diffusionScheme);
@@ -1039,8 +1057,9 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       append_user_parameter(n1,"userParameterBase64",h.userParameters->userParameterBase64);
     }
 
-    for (auto w : h.waveformInformation){
-        append_waveform_information(root,"waveformInformation",w);
+    //for (auto w : h.waveformInformation){
+    for (std::vector<WaveformInformation> ::const_iterator w = h.waveformInformation.begin(); w != h.waveformInformation.end(); ++w){
+        append_waveform_information(root,"waveformInformation", *w);
     }
 
 
@@ -1054,25 +1073,49 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
   }
 
   bool operator==(const IsmrmrdHeader &lhs, const IsmrmrdHeader &rhs) {
-      return std::tie(lhs.version, lhs.subjectInformation, lhs.studyInformation, lhs.measurementInformation, lhs.acquisitionSystemInformation, lhs.experimentalConditions, lhs.encoding, lhs.sequenceParameters, lhs.userParameters, lhs.waveformInformation) == std::tie(rhs.version, rhs.subjectInformation, rhs.studyInformation, rhs.measurementInformation, rhs.acquisitionSystemInformation, rhs.experimentalConditions, rhs.encoding, rhs.sequenceParameters, rhs.userParameters, rhs.waveformInformation);
+      return 
+         lhs.version  == rhs.version &&
+         lhs.subjectInformation == rhs.subjectInformation &&
+         lhs.studyInformation == rhs.studyInformation &&
+         lhs.measurementInformation == rhs.measurementInformation &&
+         lhs.acquisitionSystemInformation == rhs.acquisitionSystemInformation &&
+         lhs.experimentalConditions == rhs.experimentalConditions &&
+         lhs.encoding == rhs.encoding &&
+         lhs.sequenceParameters == rhs.sequenceParameters &&
+         lhs.userParameters == rhs.userParameters &&
+         lhs.waveformInformation == rhs.waveformInformation;
   }
   bool operator!=(const IsmrmrdHeader &lhs, const IsmrmrdHeader &rhs) {
       return !(rhs == lhs);
   }
   bool operator==(const SubjectInformation &lhs, const SubjectInformation &rhs) {
-      return std::tie(lhs.patientName, lhs.patientWeight_kg, lhs.patientID, lhs.patientBirthdate, lhs.patientGender) == std::tie(rhs.patientName, rhs.patientWeight_kg, rhs.patientID, rhs.patientBirthdate, rhs.patientGender);
+      return
+        lhs.patientName == rhs.patientName &&
+        lhs.patientWeight_kg == rhs.patientWeight_kg &&
+        lhs.patientID == rhs.patientID &&
+        lhs.patientBirthdate == rhs.patientBirthdate &&
+        lhs.patientGender == rhs.patientGender;
   }
   bool operator!=(const SubjectInformation &lhs, const SubjectInformation &rhs) {
       return !(rhs == lhs);
   }
   bool operator==(const StudyInformation &lhs, const StudyInformation &rhs) {
-      return std::tie(lhs.studyDate, lhs.studyTime, lhs.studyID, lhs.accessionNumber, lhs.referringPhysicianName, lhs.studyDescription, lhs.studyInstanceUID, lhs.bodyPartExamined) == std::tie(rhs.studyDate, rhs.studyTime, rhs.studyID, rhs.accessionNumber, rhs.referringPhysicianName, rhs.studyDescription, rhs.studyInstanceUID,lhs.bodyPartExamined);
+      return
+        lhs.studyDate == rhs.studyDate &&
+        lhs.studyTime == rhs.studyTime &&
+        lhs.studyID == rhs.studyID &&
+        lhs.accessionNumber == rhs.accessionNumber &&
+        lhs.referringPhysicianName == rhs.referringPhysicianName &&
+        lhs.studyDescription == rhs.studyDescription &&
+        lhs.studyInstanceUID == rhs.studyInstanceUID &&
+        lhs.bodyPartExamined == rhs.bodyPartExamined;
+
   }
   bool operator!=(const StudyInformation &lhs, const StudyInformation &rhs) {
       return !(rhs == lhs);
   }
   bool operator<(const MeasurementDependency &lhs, const MeasurementDependency &rhs) {
-      return std::tie(lhs.dependencyType, lhs.measurementID) < std::tie(rhs.dependencyType, rhs.measurementID);
+    return lhs.dependencyType < rhs.dependencyType || (lhs.dependencyType == rhs.dependencyType && lhs.measurementID < rhs.measurementID);
   }
   bool operator>(const MeasurementDependency &lhs, const MeasurementDependency &rhs) {
       return rhs < lhs;
@@ -1090,19 +1133,19 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       return !(rhs == lhs);
   }
   bool operator==(const MeasurementInformation &lhs, const MeasurementInformation &rhs) {
-      return std::tie(lhs.measurementID, lhs.seriesDate, lhs.seriesTime, lhs.patientPosition, lhs.relativeTablePosition, lhs.initialSeriesNumber, lhs.protocolName, lhs.seriesDescription, lhs.measurementDependency, lhs.seriesInstanceUIDRoot, lhs.frameOfReferenceUID, lhs.referencedImageSequence,lhs.sequenceName) == std::tie(rhs.measurementID, rhs.seriesDate, rhs.seriesTime, rhs.patientPosition, rhs.relativeTablePosition, rhs.initialSeriesNumber, rhs.protocolName, rhs.seriesDescription, rhs.measurementDependency, rhs.seriesInstanceUIDRoot, rhs.frameOfReferenceUID, rhs.referencedImageSequence,lhs.sequenceName);
+      return lhs.measurementID == rhs.measurementID && lhs.seriesDate == rhs.seriesDate && lhs.seriesTime == rhs.seriesTime && lhs.patientPosition == rhs.patientPosition && lhs.relativeTablePosition == rhs.relativeTablePosition && lhs.initialSeriesNumber == rhs.initialSeriesNumber && lhs.protocolName == rhs.protocolName && lhs.seriesDescription == rhs.seriesDescription && lhs.measurementDependency == rhs.measurementDependency && lhs.seriesInstanceUIDRoot == rhs.seriesInstanceUIDRoot && lhs.frameOfReferenceUID == rhs.frameOfReferenceUID && lhs.referencedImageSequence == rhs.referencedImageSequence;
   }
   bool operator!=(const MeasurementInformation &lhs, const MeasurementInformation &rhs) {
       return !(rhs == lhs);
   }
   bool operator==(const CoilLabel &lhs, const CoilLabel &rhs) {
-      return std::tie(lhs.coilNumber, lhs.coilName) == std::tie(rhs.coilNumber, rhs.coilName);
+      return lhs.coilNumber == rhs.coilNumber && lhs.coilName == rhs.coilName;
   }
   bool operator!=(const CoilLabel &lhs, const CoilLabel &rhs) {
       return !(rhs == lhs);
   }
   bool operator==(const AcquisitionSystemInformation &lhs, const AcquisitionSystemInformation &rhs) {
-      return std::tie(lhs.systemVendor, lhs.systemModel, lhs.systemFieldStrength_T, lhs.relativeReceiverNoiseBandwidth, lhs.receiverChannels, lhs.coilLabel, lhs.institutionName, lhs.stationName, lhs.deviceID, lhs.deviceSerialNumber) == std::tie(rhs.systemVendor, rhs.systemModel, rhs.systemFieldStrength_T, rhs.relativeReceiverNoiseBandwidth, rhs.receiverChannels, rhs.coilLabel, rhs.institutionName, rhs.stationName, rhs.deviceID,lhs.deviceSerialNumber);
+      return lhs.systemVendor == rhs.systemVendor && lhs.systemModel == rhs.systemModel && lhs.systemFieldStrength_T == rhs.systemFieldStrength_T && lhs.relativeReceiverNoiseBandwidth == rhs.relativeReceiverNoiseBandwidth && lhs.receiverChannels == rhs.receiverChannels && lhs.coilLabel == rhs.coilLabel && lhs.institutionName == rhs.institutionName && lhs.stationName == rhs.stationName && lhs.deviceID == rhs.deviceID && lhs.deviceSerialNumber == rhs.deviceSerialNumber;
   }
   bool operator!=(const AcquisitionSystemInformation &lhs, const AcquisitionSystemInformation &rhs) {
       return !(rhs == lhs);
@@ -1114,109 +1157,109 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       return !(rhs == lhs);
   }
   bool operator==(const MatrixSize &lhs, const MatrixSize &rhs) {
-      return std::tie(lhs.x, lhs.y, lhs.z) == std::tie(rhs.x, rhs.y, rhs.z);
+      return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
   }
   bool operator!=(const MatrixSize &lhs, const MatrixSize &rhs) {
       return !(rhs == lhs);
   }
   bool operator==(const FieldOfView_mm &lhs, const FieldOfView_mm &rhs) {
-      return std::tie(lhs.x, lhs.y, lhs.z) == std::tie(rhs.x, rhs.y, rhs.z);
+      return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
   }
   bool operator!=(const FieldOfView_mm &lhs, const FieldOfView_mm &rhs) {
       return !(rhs == lhs);
   }
   bool operator==(const EncodingSpace &lhs, const EncodingSpace &rhs) {
-      return std::tie(lhs.matrixSize, lhs.fieldOfView_mm) == std::tie(rhs.matrixSize, rhs.fieldOfView_mm);
+      return lhs.matrixSize == rhs.matrixSize && lhs.fieldOfView_mm == rhs.fieldOfView_mm;
   }
   bool operator!=(const EncodingSpace &lhs, const EncodingSpace &rhs) {
       return !(rhs == lhs);
   }
   bool operator==(const Limit &lhs, const Limit &rhs) {
-      return std::tie(lhs.minimum, lhs.maximum, lhs.center) == std::tie(rhs.minimum, rhs.maximum, rhs.center);
+      return lhs.minimum == rhs.minimum && lhs.maximum == rhs.maximum && lhs.center == rhs.center;
   }
   bool operator!=(const Limit &lhs, const Limit &rhs) {
       return !(rhs == lhs);
   }
   bool operator==(const EncodingLimits &lhs, const EncodingLimits &rhs) {
-      return std::tie(lhs.kspace_encoding_step_0, lhs.kspace_encoding_step_1, lhs.kspace_encoding_step_2, lhs.average, lhs.slice, lhs.contrast, lhs.phase, lhs.repetition, lhs.set, lhs.segment) == std::tie(rhs.kspace_encoding_step_0, rhs.kspace_encoding_step_1, rhs.kspace_encoding_step_2, rhs.average, rhs.slice, rhs.contrast, rhs.phase, rhs.repetition, rhs.set, rhs.segment);
+      return lhs.kspace_encoding_step_0 == rhs.kspace_encoding_step_0 && lhs.kspace_encoding_step_1 == rhs.kspace_encoding_step_1 && lhs.kspace_encoding_step_2 == rhs.kspace_encoding_step_2 && lhs.average == rhs.average && lhs.slice == rhs.slice && lhs.contrast == rhs.contrast && lhs.phase == rhs.phase && lhs.repetition == rhs.repetition && lhs.set == rhs.set && lhs.segment == rhs.segment;
   }
   bool operator!=(const EncodingLimits &lhs, const EncodingLimits &rhs) {
       return !(rhs == lhs);
   }
   bool operator==(const UserParameterLong &lhs, const UserParameterLong &rhs) {
-      return std::tie(lhs.name, lhs.value) == std::tie(rhs.name, rhs.value);
+      return lhs.name == rhs.name && lhs.value == rhs.value;
   }
   bool operator!=(const UserParameterLong &lhs, const UserParameterLong &rhs) {
       return !(rhs == lhs);
   }
   bool operator==(const UserParameterDouble &lhs, const UserParameterDouble &rhs) {
-      return std::tie(lhs.name, lhs.value) == std::tie(rhs.name, rhs.value);
+      return lhs.name == rhs.name && lhs.value == rhs.value;
   }
   bool operator!=(const UserParameterDouble &lhs, const UserParameterDouble &rhs) {
       return !(rhs == lhs);
   }
   bool operator==(const UserParameterString &lhs, const UserParameterString &rhs) {
-      return std::tie(lhs.name, lhs.value) == std::tie(rhs.name, rhs.value);
+      return lhs.name == rhs.name && lhs.value == rhs.value;
   }
   bool operator!=(const UserParameterString &lhs, const UserParameterString &rhs) {
       return !(rhs == lhs);
   }
   bool operator==(const UserParameters &lhs, const UserParameters &rhs) {
-      return std::tie(lhs.userParameterLong, lhs.userParameterDouble, lhs.userParameterString, lhs.userParameterBase64) == std::tie(rhs.userParameterLong, rhs.userParameterDouble, rhs.userParameterString, rhs.userParameterBase64);
+      return lhs.userParameterLong == rhs.userParameterLong && lhs.userParameterDouble == rhs.userParameterDouble && lhs.userParameterString == rhs.userParameterString && lhs.userParameterBase64 == rhs.userParameterBase64;
   }
   bool operator!=(const UserParameters &lhs, const UserParameters &rhs) {
       return !(rhs == lhs);
   }
   bool operator==(const TrajectoryDescription &lhs, const TrajectoryDescription &rhs) {
-      return std::tie(lhs.identifier, lhs.userParameterLong, lhs.userParameterDouble, lhs.comment) == std::tie(rhs.identifier, rhs.userParameterLong, rhs.userParameterDouble, rhs.comment);
+      return lhs.identifier == rhs.identifier && lhs.userParameterLong == rhs.userParameterLong && lhs.userParameterDouble == rhs.userParameterDouble && lhs.comment == rhs.comment;
   }
   bool operator!=(const TrajectoryDescription &lhs, const TrajectoryDescription &rhs) {
       return !(rhs == lhs);
   }
   bool operator==(const AccelerationFactor &lhs, const AccelerationFactor &rhs) {
-      return std::tie(lhs.kspace_encoding_step_1, lhs.kspace_encoding_step_2) == std::tie(rhs.kspace_encoding_step_1, rhs.kspace_encoding_step_2);
+      return lhs.kspace_encoding_step_1 == rhs.kspace_encoding_step_1 && lhs.kspace_encoding_step_2 == rhs.kspace_encoding_step_2;
   }
   bool operator!=(const AccelerationFactor &lhs, const AccelerationFactor &rhs) {
       return !(rhs == lhs);
   }
   bool operator==(const ParallelImaging &lhs, const ParallelImaging &rhs) {
-      return std::tie(lhs.accelerationFactor, lhs.calibrationMode, lhs.interleavingDimension, lhs.multiband) == std::tie(rhs.accelerationFactor, rhs.calibrationMode, rhs.interleavingDimension,rhs.multiband);
+      return lhs.accelerationFactor == rhs.accelerationFactor && lhs.calibrationMode == rhs.calibrationMode && lhs.interleavingDimension == rhs.interleavingDimension && lhs.multiband == rhs.multiband;
   }
   bool operator!=(const ParallelImaging &lhs, const ParallelImaging &rhs) {
       return !(rhs == lhs);
   }
   bool operator==(const Multiband &lhs, const Multiband &rhs) {
-      return std::tie(lhs.spacing, lhs.deltaKz,lhs.multiband_factor,lhs.calibration,lhs.calibration_encoding) == std::tie(rhs.spacing, rhs.deltaKz,rhs.multiband_factor,rhs.calibration,rhs.calibration_encoding);
+      return lhs.spacing == rhs.spacing && lhs.deltaKz == rhs.deltaKz && lhs.multiband_factor == rhs.multiband_factor && lhs.calibration == rhs.calibration && lhs.calibration_encoding == rhs.calibration_encoding;
   }
   bool operator!=(const Multiband &lhs, const Multiband &rhs) {
       return !(rhs == lhs);
   }
   bool operator==(const Encoding &lhs, const Encoding &rhs) {
-      return std::tie(lhs.encodedSpace, lhs.reconSpace, lhs.encodingLimits, lhs.trajectory, lhs.trajectoryDescription, lhs.parallelImaging, lhs.echoTrainLength) == std::tie(rhs.encodedSpace, rhs.reconSpace, rhs.encodingLimits, rhs.trajectory, rhs.trajectoryDescription, rhs.parallelImaging, rhs.echoTrainLength);
+      return lhs.encodedSpace == rhs.encodedSpace && lhs.reconSpace == rhs.reconSpace && lhs.encodingLimits == rhs.encodingLimits && lhs.trajectory == rhs.trajectory && lhs.trajectoryDescription == rhs.trajectoryDescription && lhs.parallelImaging == rhs.parallelImaging && lhs.echoTrainLength == rhs.echoTrainLength;
   }
   bool operator!=(const Encoding &lhs, const Encoding &rhs) {
       return !(rhs == lhs);
   }
   bool operator==(const SequenceParameters &lhs, const SequenceParameters &rhs) {
-      return std::tie(lhs.TR, lhs.TE, lhs.TI, lhs.flipAngle_deg, lhs.sequence_type, lhs.echo_spacing, lhs.diffusion, lhs.diffusionDimension, lhs.diffusionScheme) == std::tie(rhs.TR, rhs.TE, rhs.TI, rhs.flipAngle_deg, rhs.sequence_type, rhs.echo_spacing, lhs.diffusion, lhs.diffusionDimension, lhs.diffusionScheme);
+      return lhs.TR == rhs.TR && lhs.TE == rhs.TE && lhs.TI == rhs.TI && lhs.flipAngle_deg == rhs.flipAngle_deg && lhs.sequence_type == rhs.sequence_type && lhs.echo_spacing == rhs.echo_spacing && lhs.diffusion == rhs.diffusion && lhs.diffusionDimension == rhs.diffusionDimension && lhs.diffusionScheme == rhs.diffusionScheme;
   }
   bool operator!=(const SequenceParameters &lhs, const SequenceParameters &rhs) {
       return !(rhs == lhs);
   }
   bool operator==(const WaveformInformation &lhs, const WaveformInformation &rhs) {
-      return std::tie(lhs.waveformName, lhs.waveformType, lhs.userParameters) == std::tie(rhs.waveformName, rhs.waveformType, rhs.userParameters);
+      return lhs.waveformName == rhs.waveformName && lhs.waveformType == rhs.waveformType && lhs.userParameters == rhs.userParameters;
   }
   bool operator!=(const WaveformInformation &lhs, const WaveformInformation &rhs) {
       return !(rhs == lhs);
   }
   bool operator==(const threeDimensionalFloat &lhs, const threeDimensionalFloat &rhs) {
-      return std::tie(lhs.x, lhs.y, lhs.z) == std::tie(rhs.x, rhs.y, rhs.z);
+      return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
   }
   bool operator!=(const threeDimensionalFloat &lhs, const threeDimensionalFloat &rhs) {
       return !(rhs == lhs);
   }
   bool operator==(const MeasurementDependency &lhs, const MeasurementDependency &rhs) {
-      return std::tie(lhs.dependencyType, lhs.measurementID) == std::tie(rhs.dependencyType, rhs.measurementID);
+      return lhs.dependencyType == rhs.dependencyType && lhs.measurementID == rhs.measurementID;
   }
   bool operator!=(const MeasurementDependency &lhs, const MeasurementDependency &rhs) {
       return !(rhs == lhs);
@@ -1229,13 +1272,13 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
   }
 
  bool operator==(const Diffusion &lhs, const Diffusion &rhs) {
-      return std::tie(lhs.bvalue, lhs.gradientDirection) == std::tie(rhs.bvalue, rhs.gradientDirection);
+      return lhs.bvalue == rhs.bvalue && lhs.gradientDirection == rhs.gradientDirection;
   }
   bool operator!=(const Diffusion &lhs, const Diffusion &rhs) {
       return !(rhs == lhs);
   }
   bool operator==(const GradientDirection &lhs, const GradientDirection &rhs) {
-      return std::tie(lhs.rl, lhs.ap, lhs.fh) == std::tie(rhs.rl, rhs.ap, rhs.fh);
+      return lhs.rl == rhs.rl && lhs.ap == rhs.ap && lhs.fh == rhs.fh;
   }
   bool operator!=(const GradientDirection &lhs, const GradientDirection &rhs) {
       return !(rhs == lhs);
