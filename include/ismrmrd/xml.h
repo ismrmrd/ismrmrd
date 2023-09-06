@@ -359,16 +359,22 @@ namespace ISMRMRD
     std::uint16_t kspace_encoding_step_2;
   };
 
+  class TrajectoryType {
+  public:
+    static const int CARTESIAN = 0;
+    static const int EPI = 1;
+    static const int RADIAL = 2;
+    static const int GOLDENANGLE = 3;
+    static const int SPIRAL = 4;
+    static const int OTHER = 5;
 
-  enum TrajectoryType {
-      TRAJECTORY_TYPE_CARTESIAN,
-      TRAJECTORY_TYPE_EPI,
-      TRAJECTORY_TYPE_RADIAL,
-      TRAJECTORY_TYPE_GOLDENANGLE,
-      TRAJECTORY_TYPE_SPIRAL,
-      TRAJECTORY_TYPE_OTHER
+    TrajectoryType() : value_(OTHER) {}
+    TrajectoryType(int value) : value_(value) {}
+    operator int() const { return value_; }
+    bool operator==(const TrajectoryType& rhs) const { return value_ == rhs.value_; }
+  protected:
+    int value_;
   };
-
 
 
   enum MultibandCalibrationType {

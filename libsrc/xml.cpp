@@ -265,17 +265,17 @@ namespace ISMRMRD
 
   TrajectoryType parse_trajectory_type(const std::string& trajectoryString) {
       if (trajectoryString == "cartesian")
-          return TrajectoryType::TRAJECTORY_TYPE_CARTESIAN;
+          return TrajectoryType::CARTESIAN;
       if (trajectoryString == "epi")
-          return TrajectoryType::TRAJECTORY_TYPE_EPI;
+          return TrajectoryType::EPI;
       if (trajectoryString == "radial")
-          return TrajectoryType::TRAJECTORY_TYPE_RADIAL;
+          return TrajectoryType::RADIAL;
       if (trajectoryString == "goldenangle")
-          return TrajectoryType::TRAJECTORY_TYPE_GOLDENANGLE;
+          return TrajectoryType::GOLDENANGLE;
       if (trajectoryString == "spiral")
-          return TrajectoryType::TRAJECTORY_TYPE_SPIRAL;
+          return TrajectoryType::SPIRAL;
       if (trajectoryString == "other")
-          return TrajectoryType::TRAJECTORY_TYPE_OTHER;
+          return TrajectoryType::OTHER;
 
       throw std::runtime_error("Invalid trajectory type in xml header");
   }
@@ -475,7 +475,7 @@ namespace ISMRMRD
             } while (spacing_node);
 
             mb.calibration = parse_multiband_type(multiband.child_value("calibration"));
-            mb.calibration_encoding = std::stoul(multiband.child_value("calibration_encoding"));
+            mb.calibration_encoding = ISMRMRD::stoul(multiband.child_value("calibration_encoding"));
             info.multiband = mb;
         }
         e.parallelImaging = info;
@@ -652,17 +652,17 @@ namespace ISMRMRD
   std::string to_string(TrajectoryType v)
   {
       switch (v){
-          case TrajectoryType::TRAJECTORY_TYPE_CARTESIAN:
+          case TrajectoryType::CARTESIAN:
               return "cartesian";
-          case TrajectoryType::TRAJECTORY_TYPE_EPI:
+          case TrajectoryType::EPI:
               return "epi";
-          case TrajectoryType::TRAJECTORY_TYPE_RADIAL:
+          case TrajectoryType::RADIAL:
               return  "radial";
-          case TrajectoryType::TRAJECTORY_TYPE_GOLDENANGLE:
+          case TrajectoryType::GOLDENANGLE:
               return "goldenangle";
-          case TrajectoryType::TRAJECTORY_TYPE_SPIRAL:
+          case TrajectoryType::SPIRAL:
               return  "spiral";
-          case TrajectoryType::TRAJECTORY_TYPE_OTHER:
+          case TrajectoryType::OTHER:
               return "other";
       }
       throw std::runtime_error("Illegal enum class value");
