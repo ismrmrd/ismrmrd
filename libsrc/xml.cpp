@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <tuple>
 
-namespace std
+namespace ISMRMRD
 {
   long stoi(const char* str)
   {
@@ -16,12 +16,10 @@ namespace std
     return atol(str);
   }
 
-#ifdef _MSC_VER
   float strtof(const char* str, char** str_end = NULL)
   {
     return static_cast<float>(atof(str));
   }
-#endif
 
   float stof(const char* str, char** str_end = NULL)
   {
@@ -36,16 +34,11 @@ namespace std
     return ss.str();
   }
 
-#ifdef _MSC_VER
   unsigned long stoul(const std::string &str)
   {
     return strtoul(str.c_str(), NULL, 10);
   }
-#endif
-}
 
-namespace ISMRMRD
-{
   //Utility Functions for deserializing Header
   EncodingSpace parse_encoding_space(pugi::xml_node& n, const char* child) 
   {
@@ -57,17 +50,17 @@ namespace ISMRMRD
     if (!matrixSize) {
       throw std::runtime_error("matrixSize not found in encodingSpace");
     } else {
-      e.matrixSize.x = static_cast<uint16_t>(std::stoi(matrixSize.child_value("x")));
-      e.matrixSize.y = static_cast<uint16_t>(std::stoi(matrixSize.child_value("y")));
-      e.matrixSize.z = static_cast<uint16_t>(std::stoi(matrixSize.child_value("z")));
+      e.matrixSize.x = static_cast<uint16_t>(ISMRMRD::stoi(matrixSize.child_value("x")));
+      e.matrixSize.y = static_cast<uint16_t>(ISMRMRD::stoi(matrixSize.child_value("y")));
+      e.matrixSize.z = static_cast<uint16_t>(ISMRMRD::stoi(matrixSize.child_value("z")));
     }
 
     if (!fieldOfView_mm) {
       throw std::runtime_error("fieldOfView_mm not found in encodingSpace");
     } else {
-      e.fieldOfView_mm.x = std::strtof(fieldOfView_mm.child_value("x"), nullptr);
-      e.fieldOfView_mm.y = std::strtof(fieldOfView_mm.child_value("y"), nullptr);
-      e.fieldOfView_mm.z = std::strtof(fieldOfView_mm.child_value("z"), nullptr);
+      e.fieldOfView_mm.x = ISMRMRD::strtof(fieldOfView_mm.child_value("x"), nullptr);
+      e.fieldOfView_mm.y = ISMRMRD::strtof(fieldOfView_mm.child_value("y"), nullptr);
+      e.fieldOfView_mm.z = ISMRMRD::strtof(fieldOfView_mm.child_value("z"), nullptr);
     }
 
     return e;
@@ -80,9 +73,9 @@ namespace ISMRMRD
     
     if (nc) {
       Limit l;
-      l.minimum = static_cast<uint16_t>(std::stoi(nc.child_value("minimum")));
-      l.maximum = static_cast<uint16_t>(std::stoi(nc.child_value("maximum")));
-      l.center = static_cast<uint16_t>(std::stoi(nc.child_value("center")));
+      l.minimum = static_cast<uint16_t>(ISMRMRD::stoi(nc.child_value("minimum")));
+      l.maximum = static_cast<uint16_t>(ISMRMRD::stoi(nc.child_value("maximum")));
+      l.center = static_cast<uint16_t>(ISMRMRD::stoi(nc.child_value("center")));
       o = l;
     }
 
@@ -109,7 +102,7 @@ namespace ISMRMRD
     Optional<float> r;
     pugi::xml_node nc = n.child(child);
     if (nc) {
-      r = std::strtof(nc.child_value(), nullptr);
+      r = ISMRMRD::strtof(nc.child_value(), nullptr);
     }
     return r;
   }
@@ -118,7 +111,7 @@ namespace ISMRMRD
     Optional<std::int64_t> r;
     pugi::xml_node nc = n.child(child);
     if (nc) {
-      r = std::stoll(nc.child_value());
+      r = ISMRMRD::stoll(nc.child_value());
     }
     return r;
   }
@@ -127,14 +120,14 @@ namespace ISMRMRD
     Optional<std::uint16_t> r;
     pugi::xml_node nc = n.child(child);
     if (nc) {
-      r = static_cast<std::uint16_t>(std::stoi(nc.child_value()));
+      r = static_cast<std::uint16_t>(ISMRMRD::stoi(nc.child_value()));
     }
     return r;
   }
 
   float parse_float(pugi::xml_node& n, const char* child){
         try {
-            return std::stof(n.child_value(child), nullptr);
+            return ISMRMRD::stof(n.child_value(child), nullptr);
         } catch (const std::invalid_argument& ){
             throw std::runtime_error("Illegal value encountered in node " + std::string(n.name()) + ". Value is not a float:" + std::string(n.child_value(child)));
 
@@ -150,7 +143,7 @@ namespace ISMRMRD
     pugi::xml_node nc = n.child(child);
 
     while (nc) {
-      float f = std::strtof(nc.child_value(), nullptr);
+      float f = ISMRMRD::strtof(nc.child_value(), nullptr);
       r.push_back(f);
       nc = nc.next_sibling(child);
     }
@@ -177,9 +170,9 @@ namespace ISMRMRD
       pugi::xml_node nc = n.child(child);
       if (nc) {
           threeDimensionalFloat s;
-          s.x = std::strtof(nc.child_value("x"), nullptr);
-          s.y = std::strtof(nc.child_value("y"), nullptr);
-          s.z = std::strtof(nc.child_value("z"), nullptr);
+          s.x = ISMRMRD::strtof(nc.child_value("x"), nullptr);
+          s.y = ISMRMRD::strtof(nc.child_value("y"), nullptr);
+          s.z = ISMRMRD::strtof(nc.child_value("z"), nullptr);
           r = s;
       }
 
@@ -200,7 +193,7 @@ namespace ISMRMRD
       }
 
       v.name = std::string(name.child_value());
-      v.value = std::stoi(value.child_value());
+      v.value = ISMRMRD::stoi(value.child_value());
 
       r.push_back(v);
 
@@ -325,13 +318,13 @@ namespace ISMRMRD
 
   static Diffusion parse_diffusion(pugi::xml_node& node) {
       Diffusion diff;
-      diff.bvalue = std::stof(node.child_value("bvalue"));
+      diff.bvalue = ISMRMRD::stof(node.child_value("bvalue"));
 
       pugi::xml_node grad_node = node.child("gradientDirection");
 
-      diff.gradientDirection.rl = std::stof(grad_node.child_value("rl"));
-      diff.gradientDirection.ap = std::stof(grad_node.child_value("ap"));
-      diff.gradientDirection.fh = std::stof(grad_node.child_value("fh"));
+      diff.gradientDirection.rl = ISMRMRD::stof(grad_node.child_value("rl"));
+      diff.gradientDirection.ap = ISMRMRD::stof(grad_node.child_value("ap"));
+      diff.gradientDirection.fh = ISMRMRD::stof(grad_node.child_value("fh"));
       return diff;
   }
 
@@ -417,7 +410,7 @@ namespace ISMRMRD
 	    e.encodingLimits.set                    = parse_encoding_limit(encodingLimits,"set");
 	    e.encodingLimits.segment                = parse_encoding_limit(encodingLimits,"segment");
       for (size_t k = 0; k < ISMRMRD_USER_INTS; k++){
-        std::string name = std::string("user_") + std::to_string(k);
+        std::string name = std::string("user_") + ISMRMRD::to_string(k);
         e.encodingLimits.user[k]              = parse_encoding_limit(encodingLimits,name.c_str()); 
       }
 
@@ -460,8 +453,8 @@ namespace ISMRMRD
 	    if (!accelerationFactor) {
 	      throw std::runtime_error("Unable to accelerationFactor section in parallelImaging");
 	    } else {
-	      info.accelerationFactor.kspace_encoding_step_1 = static_cast<std::uint16_t>(std::stoi(accelerationFactor.child_value("kspace_encoding_step_1")));
-	      info.accelerationFactor.kspace_encoding_step_2 = static_cast<std::uint16_t>(std::stoi(accelerationFactor.child_value("kspace_encoding_step_2")));
+	      info.accelerationFactor.kspace_encoding_step_1 = static_cast<std::uint16_t>(ISMRMRD::stoi(accelerationFactor.child_value("kspace_encoding_step_1")));
+	      info.accelerationFactor.kspace_encoding_step_2 = static_cast<std::uint16_t>(ISMRMRD::stoi(accelerationFactor.child_value("kspace_encoding_step_2")));
 	    }
 	    
 	    info.calibrationMode = parse_optional_string(parallelImaging,"calibrationMode");
@@ -471,7 +464,7 @@ namespace ISMRMRD
         if (multiband) {
             Multiband mb;
             mb.deltaKz = parse_float(multiband, "deltaKz");
-            mb.multiband_factor =  static_cast<std::uint32_t>(std::stoi(multiband.child_value("multiband_factor")));
+            mb.multiband_factor =  static_cast<std::uint32_t>(ISMRMRD::stoi(multiband.child_value("multiband_factor")));
 
             pugi::xml_node spacing_node = multiband.child("spacing");
             do {
@@ -574,7 +567,7 @@ namespace ISMRMRD
 	pugi::xml_node coilLabel = acquisitionSystemInformation.child("coilLabel");
 	while (coilLabel) {
 	  CoilLabel l;
-	  l.coilNumber = static_cast<uint16_t>(std::stoi(coilLabel.child_value("coilNumber")));
+	  l.coilNumber = static_cast<uint16_t>(ISMRMRD::stoi(coilLabel.child_value("coilNumber")));
 	  l.coilName = parse_string(coilLabel, "coilName");
 	  info.coilLabel.push_back(l);
 	  coilLabel = coilLabel.next_sibling("coilLabel");
@@ -653,7 +646,7 @@ namespace ISMRMRD
 
   }
 
-    using std::to_string;
+    using ISMRMRD::to_string;
     std::string to_string(const std::string& s){return s;}
 
   std::string to_string(TrajectoryType v)
@@ -949,7 +942,7 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       append_encoding_limit(n2,"segment",h.encoding[i].encodingLimits.segment);
 
       for (size_t k = 0; k < ISMRMRD_USER_INTS; k++){
-        std::string name = std::string("user_") + std::to_string(k);
+        std::string name = std::string("user_") + ISMRMRD::to_string(k);
         append_encoding_limit(n2,name.c_str(),h.encoding[i].encodingLimits.user[k]);
       }
 
