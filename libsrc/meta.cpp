@@ -41,7 +41,7 @@ namespace ISMRMRD {
 
 //        for (auto &node : h) {
         typedef std::map<std::string, std::vector<MetaValue> > map_t;
-        for (map_t::const_iterator &node = h.begin(); node != h.end(); ++node) {
+        for (map_t::const_iterator node = h.begin(); node != h.end(); ++node) {
             pugi::xml_node meta = root.append_child("meta");
             pugi::xml_node name = meta.append_child("name");
             name.append_child(pugi::node_pcdata).set_value(node->first.c_str());

@@ -75,6 +75,17 @@ typedef int bool;
 #include <vector>
 #endif /* __cplusplus */
 
+/* std::begin/std::end for older MSC */
+#ifdef __cplusplus
+#if defined(_MSC_VER) && (_MSC_VER < 1800)
+namespace std
+{
+  template <typename T, int N> inline T* begin(T (&arr)[N]) { return arr; }
+  template <typename T, int N> inline T* end(T (&arr)[N]) { return arr+N; }
+}
+#endif
+#endif
+
 /* Exports needed for MS C++ */
 #include "ismrmrd/export.h"
 

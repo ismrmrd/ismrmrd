@@ -6,11 +6,6 @@
 #include <iostream>
 #include "ismrmrd/ismrmrd.h"
 
-namespace std {
-    template <typename T, int N> inline T* begin(T (&arr)[N]) { return arr; }
-    template <typename T, int N> inline T* end(T (&arr)[N]) { return arr+N; }
-}
-
 namespace ISMRMRD {
 
 

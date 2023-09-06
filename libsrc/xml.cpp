@@ -16,10 +16,12 @@ namespace std
     return atol(str);
   }
 
+#ifdef _MSC_VER
   float strtof(const char* str, char** str_end = NULL)
   {
     return static_cast<float>(atof(str));
   }
+#endif
 
   float stof(const char* str, char** str_end = NULL)
   {
@@ -34,10 +36,12 @@ namespace std
     return ss.str();
   }
 
+#ifdef _MSC_VER
   unsigned long stoul(const std::string &str)
   {
     return strtoul(str.c_str(), NULL, 10);
   }
+#endif
 }
 
 namespace ISMRMRD
