@@ -1,7 +1,7 @@
 #ifndef ISMRMRDSERIALIZATION_H
 #define ISMRMRDSERIALIZATION_H
 
-//#include <cstdint>
+#include <cstdint>
 #include <exception>
 #include <iostream>
 

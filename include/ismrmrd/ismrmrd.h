@@ -75,7 +75,6 @@ typedef int bool;
 #include <vector>
 #endif /* __cplusplus */
 
-
 /* Exports needed for MS C++ */
 #include "ismrmrd/export.h"
 
