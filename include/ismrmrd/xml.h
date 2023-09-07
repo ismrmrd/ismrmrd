@@ -376,11 +376,19 @@ namespace ISMRMRD
     int value_;
   };
 
+  // Implement Mutiband calibration type as a class with static members
+  class MultibandCalibrationType {
+  public:
+    static const int SEPARABLE2D = 0;
+    static const int FULL3D = 1;
+    static const int OTHER = 2;
 
-  enum MultibandCalibrationType {
-    MULTIBAND_CALIBRATION_TYPE_SEPARABLE2D,
-    MULTIBAND_CALIBRATION_TYPE_FULL3D,
-    MULTIBAND_CALIBRATION_TYPE_OTHER
+    MultibandCalibrationType() : value_(OTHER) {}
+    MultibandCalibrationType(int value) : value_(value) {}
+    operator int() const { return value_; }
+    bool operator==(const MultibandCalibrationType& rhs) const { return value_ == rhs.value_; }
+  protected:
+    int value_;
   };
 
   struct MultibandSpacing {
@@ -421,21 +429,29 @@ namespace ISMRMRD
       float fh;
   };
 
-  enum DiffusionDimension {
-      DIFFUSION_DIMENSION_AVERAGE,
-      DIFFUSION_DIMENSION_CONTRAST,
-      DIFFUSION_DIMENSION_PHASE,
-      DIFFUSION_DIMENSION_REPETITION,
-      DIFFUSION_DIMENSION_SET,
-      DIFFUSION_DIMENSION_SEGMENT,
-      DIFFUSION_DIMENSION_USER_0,
-      DIFFUSION_DIMENSION_USER_1,
-      DIFFUSION_DIMENSION_USER_2,
-      DIFFUSION_DIMENSION_USER_3,
-      DIFFUSION_DIMENSION_USER_4,
-      DIFFUSION_DIMENSION_USER_5,
-      DIFFUSION_DIMENSION_USER_6,
-      DIFFUSION_DIMENSION_USER_7
+  class DiffusionDimension {
+    public:
+      static const int AVERAGE = 0;
+      static const int CONTRAST = 1;
+      static const int PHASE = 2;
+      static const int REPETITION = 3;
+      static const int SET = 4;
+      static const int SEGMENT = 5;
+      static const int USER_0 = 6;
+      static const int USER_1 = 7;
+      static const int USER_2 = 8;
+      static const int USER_3 = 9;
+      static const int USER_4 = 10;
+      static const int USER_5 = 11;
+      static const int USER_6 = 12;
+      static const int USER_7 = 13;
+
+      DiffusionDimension() : value_(AVERAGE) {}
+      DiffusionDimension(int value) : value_(value) {}
+      operator int() const { return value_; }
+      bool operator==(const DiffusionDimension& rhs) const { return value_ == rhs.value_; }
+    protected:
+      int value_;
   };
 
   struct Diffusion {
@@ -456,15 +472,22 @@ namespace ISMRMRD
     Optional<std::string> diffusionScheme;
   };
 
-  enum WaveformType {
-      WAVEFORM_TYPE_ECG,
-      WAVEFORM_TYPE_PULSE,
-      WAVEFORM_TYPE_RESPIRATORY,
-      WAVEFORM_TYPE_TRIGGER,
-      WAVEFORM_TYPE_GRADIENTWAVEFORM,
-      WAVEFORM_TYPE_OTHER
-  };
+  class WaveformType {
+  public:
+    static const int ECG = 0;
+    static const int PULSE = 1;
+    static const int RESPIRATORY = 2;
+    static const int TRIGGER = 3;
+    static const int GRADIENTWAVEFORM = 4;
+    static const int OTHER = 5;
 
+    WaveformType() : value_(OTHER) {}
+    WaveformType(int value) : value_(value) {}
+    operator int() const { return value_; }
+    bool operator==(const WaveformType& rhs) const { return value_ == rhs.value_; }
+  protected:
+    int value_;
+  };
 
   struct WaveformInformation{
       std::string waveformName;

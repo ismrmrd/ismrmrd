@@ -253,11 +253,11 @@ namespace ISMRMRD
   }
   MultibandCalibrationType parse_multiband_type(const std::string& multibandString) {
       if (multibandString == "separable2D")
-          return MultibandCalibrationType::MULTIBAND_CALIBRATION_TYPE_SEPARABLE2D;
+          return MultibandCalibrationType::SEPARABLE2D;
       if (multibandString == "full3D")
-          return MultibandCalibrationType::MULTIBAND_CALIBRATION_TYPE_FULL3D;
+          return MultibandCalibrationType::FULL3D;
       if (multibandString == "other")
-          return MultibandCalibrationType::MULTIBAND_CALIBRATION_TYPE_OTHER;
+          return MultibandCalibrationType::OTHER;
 
       throw std::runtime_error("Invalid multiband calibration type in xml header: " + multibandString);
 
@@ -282,37 +282,37 @@ namespace ISMRMRD
 
   WaveformType parse_waveform_type(const std::string& waveformString) {
       if (waveformString == "ecg")
-          return WaveformType::WAVEFORM_TYPE_ECG;
+          return WaveformType::ECG;
       if ( waveformString == "pulse")
-          return WaveformType::WAVEFORM_TYPE_PULSE;
+          return WaveformType::PULSE;
       if (waveformString == "respiratory")
-          return WaveformType::WAVEFORM_TYPE_RESPIRATORY;
+          return WaveformType::RESPIRATORY;
       if (waveformString == "trigger")
-          return WaveformType::WAVEFORM_TYPE_TRIGGER;
+          return WaveformType::TRIGGER;
       if (waveformString == "gradientwaveform")
-          return WaveformType::WAVEFORM_TYPE_GRADIENTWAVEFORM;
+          return WaveformType::GRADIENTWAVEFORM;
       if (waveformString == "other")
-          return WaveformType::WAVEFORM_TYPE_OTHER;
+          return WaveformType::OTHER;
 
       throw std::runtime_error("Invalid waveform type in xml header");
   }
 
 
     DiffusionDimension parse_diffusiondimension(const std::string& diffusiondimension) {
-        if (diffusiondimension == "average") return DiffusionDimension::DIFFUSION_DIMENSION_AVERAGE;
-        if (diffusiondimension == "contrast") return DiffusionDimension::DIFFUSION_DIMENSION_CONTRAST;
-        if (diffusiondimension == "phase") return DiffusionDimension::DIFFUSION_DIMENSION_PHASE;
-        if (diffusiondimension == "repetition") return DiffusionDimension::DIFFUSION_DIMENSION_REPETITION;
-        if (diffusiondimension == "set") return DiffusionDimension::DIFFUSION_DIMENSION_SET;
-        if (diffusiondimension == "segment") return DiffusionDimension::DIFFUSION_DIMENSION_SEGMENT;
-        if (diffusiondimension == "user_0") return DiffusionDimension::DIFFUSION_DIMENSION_USER_0;
-        if (diffusiondimension == "user_1") return DiffusionDimension::DIFFUSION_DIMENSION_USER_1;
-        if (diffusiondimension == "user_2") return DiffusionDimension::DIFFUSION_DIMENSION_USER_2;
-        if (diffusiondimension == "user_3") return DiffusionDimension::DIFFUSION_DIMENSION_USER_3;
-        if (diffusiondimension == "user_4") return DiffusionDimension::DIFFUSION_DIMENSION_USER_4;
-        if (diffusiondimension == "user_5") return DiffusionDimension::DIFFUSION_DIMENSION_USER_5;
-        if (diffusiondimension == "user_6") return DiffusionDimension::DIFFUSION_DIMENSION_USER_6;
-        if (diffusiondimension == "user_7") return DiffusionDimension::DIFFUSION_DIMENSION_USER_7;
+        if (diffusiondimension == "average") return DiffusionDimension::AVERAGE;
+        if (diffusiondimension == "contrast") return DiffusionDimension::CONTRAST;
+        if (diffusiondimension == "phase") return DiffusionDimension::PHASE;
+        if (diffusiondimension == "repetition") return DiffusionDimension::REPETITION;
+        if (diffusiondimension == "set") return DiffusionDimension::SET;
+        if (diffusiondimension == "segment") return DiffusionDimension::SEGMENT;
+        if (diffusiondimension == "user_0") return DiffusionDimension::USER_0;
+        if (diffusiondimension == "user_1") return DiffusionDimension::USER_1;
+        if (diffusiondimension == "user_2") return DiffusionDimension::USER_2;
+        if (diffusiondimension == "user_3") return DiffusionDimension::USER_3;
+        if (diffusiondimension == "user_4") return DiffusionDimension::USER_4;
+        if (diffusiondimension == "user_5") return DiffusionDimension::USER_5;
+        if (diffusiondimension == "user_6") return DiffusionDimension::USER_6;
+        if (diffusiondimension == "user_7") return DiffusionDimension::USER_7;
         throw std::runtime_error("Invalid diffusion dimension in xml header");
     }
 
@@ -671,17 +671,17 @@ namespace ISMRMRD
   std::string to_string(const WaveformType& v)
   {
       switch (v){
-          case WaveformType::WAVEFORM_TYPE_ECG:
+          case WaveformType::ECG:
               return "ecg";
-          case WaveformType::WAVEFORM_TYPE_PULSE:
+          case WaveformType::PULSE:
               return "pulse";
-          case WaveformType::WAVEFORM_TYPE_RESPIRATORY:
+          case WaveformType::RESPIRATORY:
               return "respiratory";
-          case WaveformType::WAVEFORM_TYPE_TRIGGER:
+          case WaveformType::TRIGGER:
               return "trigger";
-          case WaveformType::WAVEFORM_TYPE_GRADIENTWAVEFORM:
+          case WaveformType::GRADIENTWAVEFORM:
               return "gradientwaveform";
-          case WaveformType::WAVEFORM_TYPE_OTHER:
+          case WaveformType::OTHER:
               return "other";
       }
 
@@ -690,33 +690,33 @@ namespace ISMRMRD
 
   std::string to_string(const  DiffusionDimension& d){
       switch (d){
-      case DiffusionDimension::DIFFUSION_DIMENSION_AVERAGE:
+      case DiffusionDimension::AVERAGE:
           return "average";
-      case DiffusionDimension::DIFFUSION_DIMENSION_CONTRAST:
+      case DiffusionDimension::CONTRAST:
           return "contrast";
-      case DiffusionDimension::DIFFUSION_DIMENSION_PHASE:
+      case DiffusionDimension::PHASE:
           return "phase";
-      case DiffusionDimension::DIFFUSION_DIMENSION_REPETITION:
+      case DiffusionDimension::REPETITION:
           return "repetition";
-      case DiffusionDimension::DIFFUSION_DIMENSION_SET:
+      case DiffusionDimension::SET:
           return "set";
-      case DiffusionDimension::DIFFUSION_DIMENSION_SEGMENT:
+      case DiffusionDimension::SEGMENT:
           return "segment";
-      case DiffusionDimension::DIFFUSION_DIMENSION_USER_0:
+      case DiffusionDimension::USER_0:
           return "user_0";
-      case DiffusionDimension::DIFFUSION_DIMENSION_USER_1:
+      case DiffusionDimension::USER_1:
           return "user_1";
-      case DiffusionDimension::DIFFUSION_DIMENSION_USER_2:
+      case DiffusionDimension::USER_2:
           return "user_2";
-      case DiffusionDimension::DIFFUSION_DIMENSION_USER_3:
+      case DiffusionDimension::USER_3:
           return "user_3";
-      case DiffusionDimension::DIFFUSION_DIMENSION_USER_4:
+      case DiffusionDimension::USER_4:
           return "user_4";
-      case DiffusionDimension::DIFFUSION_DIMENSION_USER_5:
+      case DiffusionDimension::USER_5:
           return "user_5";
-      case DiffusionDimension::DIFFUSION_DIMENSION_USER_6:
+      case DiffusionDimension::USER_6:
           return "user_6";
-      case DiffusionDimension::DIFFUSION_DIMENSION_USER_7:
+      case DiffusionDimension::USER_7:
           return "user_7";
       }
       throw std::runtime_error("Illegal enum class value");
@@ -725,11 +725,11 @@ namespace ISMRMRD
 std::string to_string(const MultibandCalibrationType& v)
 {
     switch (v){
-        case MultibandCalibrationType::MULTIBAND_CALIBRATION_TYPE_FULL3D:
+        case MultibandCalibrationType::FULL3D:
             return "full3D";
-        case MultibandCalibrationType::MULTIBAND_CALIBRATION_TYPE_SEPARABLE2D:
+        case MultibandCalibrationType::SEPARABLE2D:
             return "separable2D";
-        case MultibandCalibrationType::MULTIBAND_CALIBRATION_TYPE_OTHER:
+        case MultibandCalibrationType::OTHER:
             return "other";
     }
 
