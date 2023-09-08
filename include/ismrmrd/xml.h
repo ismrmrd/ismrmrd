@@ -9,16 +9,18 @@
 #include "ismrmrd/export.h"
 #include "ismrmrd.h"
 #include <cstddef>
-#include <cstdint>
 #include <new> //For std::badalloc
 #include <stdexcept> //For std::length_error
-#include <cstdint>
+#if __cplusplus > 199711L
+    #include <cstdint>
+#else
+    #include "cpp03shim.h"
+#endif
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <array>
 
 /**
   TODO LIST
@@ -47,13 +49,13 @@ namespace ISMRMRD
 
     Optional(const T&v) {
       present_ = true;
-      value_ = v;      
+      value_ = v;
     }
 
 	Optional& operator=(const Optional& o) {
 		present_ = o.present_;
 		if (present_)
-			value_ = o.value_;	
+			value_ = o.value_;
 		return *this;
 	}
 
@@ -116,11 +118,12 @@ namespace ISMRMRD
           return  this->value();
       }
 
+#if __cplusplus > 199711L
   template<class U>
   T value_or(U &default_value) const {
       return bool(*this) ? **this : static_cast<T>(std::forward<U>(default_value));
   }
-
+#endif
 
     bool operator==(const Optional<T>& other) const {
       if (this->present_ && other.present_) return this->get() == *other;
@@ -130,7 +133,7 @@ namespace ISMRMRD
 
     bool operator==(const T& val) const {
       if (this->present_) return this->get() == val;
-      return false; 
+      return false;
     }
 
 
@@ -147,7 +150,7 @@ namespace ISMRMRD
     bool present_;
     T value_;
 
-  }; 
+  };
 
   struct threeDimensionalFloat
   {
@@ -156,7 +159,7 @@ namespace ISMRMRD
     float z;
   };
 
-  struct SubjectInformation 
+  struct SubjectInformation
   {
     Optional<std::string> patientName;
     Optional<float> patientWeight_kg;
@@ -190,7 +193,7 @@ namespace ISMRMRD
   {
       std::string referencedSOPInstanceUID;
   };
-  
+
   struct MeasurementInformation
   {
     Optional<std::string> measurementID;
@@ -213,7 +216,7 @@ namespace ISMRMRD
     std::uint16_t coilNumber;
     std::string coilName;
   };
-  
+
   struct AcquisitionSystemInformation
   {
     Optional<std::string> systemVendor;
@@ -243,7 +246,7 @@ namespace ISMRMRD
     {
 
     }
-    
+
     MatrixSize(std::uint16_t x, std::uint16_t y)
     : x(x)
     , y(y)
@@ -251,7 +254,7 @@ namespace ISMRMRD
     {
 
     }
-    
+
     MatrixSize(std::uint16_t x, std::uint16_t y, std::uint16_t z)
     : x(x)
     , y(y)
@@ -281,15 +284,15 @@ namespace ISMRMRD
 
   struct Limit
   {
-    Limit() 
+    Limit()
     : minimum(0)
     , maximum(0)
     , center(0)
     {
 
     }
-    
-    Limit(std::uint16_t minimum, std::uint16_t maximum, std::uint16_t center) 
+
+    Limit(std::uint16_t minimum, std::uint16_t maximum, std::uint16_t center)
     : minimum(minimum)
     , maximum(maximum)
     , center(center)
@@ -329,7 +332,7 @@ namespace ISMRMRD
     std::string name;
     double value;
   };
-  
+
   struct UserParameterString
   {
       std::string name;
@@ -350,7 +353,7 @@ namespace ISMRMRD
     std::vector<UserParameterLong> userParameterLong;
     std::vector<UserParameterDouble> userParameterDouble;
     std::vector<UserParameterString> userParameterString;
-    Optional<std::string> comment; 
+    Optional<std::string> comment;
   };
 
   struct AccelerationFactor
@@ -468,7 +471,7 @@ namespace ISMRMRD
     Optional<std::string> sequence_type;
     Optional<std::vector<float> > echo_spacing;
     Optional<DiffusionDimension> diffusionDimension;
-    Optional<std::vector<Diffusion>> diffusion;
+    Optional< std::vector<Diffusion> > diffusion;
     Optional<std::string> diffusionScheme;
   };
 

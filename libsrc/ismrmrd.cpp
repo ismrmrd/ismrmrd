@@ -3,6 +3,10 @@
 #include <sstream>
 #include <stdexcept>
 
+#if __cplusplus <= 199711L
+    #include "ismrmrd/cpp03shim.h"
+#endif
+
 #include <iostream>
 #include "ismrmrd/ismrmrd.h"
 

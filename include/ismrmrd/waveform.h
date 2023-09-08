@@ -13,7 +13,11 @@
 
 #include "export.h"
 #ifdef __cplusplus
-#include <cstdint>
+#if __cplusplus > 199711L
+    #include <cstdint>
+#else
+    #include "cpp03shim.h"
+#endif
 #include <cstddef>
 #include <stdint.h>
 namespace ISMRMRD {

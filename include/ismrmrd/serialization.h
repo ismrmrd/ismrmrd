@@ -1,7 +1,11 @@
 #ifndef ISMRMRDSERIALIZATION_H
 #define ISMRMRDSERIALIZATION_H
 
-#include <cstdint>
+#if __cplusplus > 199711L
+    #include <cstdint>
+#else
+    #include "cpp03shim.h"
+#endif
 #include <exception>
 #include <iostream>
 

@@ -142,7 +142,7 @@ int main(int argc, char **argv) {
         ("output,o", po::value<std::string>(&output_file),"Binary output file")
         ("use-stdout", po::bool_switch(&use_stdout), "Use stdout for output")
         ("group,g", po::value<std::string>(&groupname)->default_value("dataset"), "group name")
-        ("image-series,s", po::value<std::vector<std::string>>(&image_series)->multitoken(), "image series to extract")
+        ("image-series,s", po::value<std::vector<std::string> >(&image_series)->multitoken(), "image series to extract")
         ("config-file,c", po::value<std::string>(&config_file), "Configuration name (aka config file)")
         ("local-config-file,C", po::value<std::string>(&local_config_file), "Configuration text file");
     // clang-format on
@@ -174,7 +174,7 @@ int main(int argc, char **argv) {
 
     // Read config text file into string
     if (vm.count("local-config-file")) {
-        std::ifstream f(local_config_file);
+        std::ifstream f(local_config_file.c_str());
         std::stringstream buffer;
         buffer << f.rdbuf();
         config_text = buffer.str();
@@ -184,7 +184,7 @@ int main(int argc, char **argv) {
         ISMRMRD::set_binary_io();
         serialize_to_stream(input_file, groupname, image_series, std::cout, config_file, config_text);
     } else if (output_file != "") {
-        std::ofstream out(output_file, std::ios::out | std::ios::binary);
+        std::ofstream out(output_file.c_str(), std::ios::out | std::ios::binary);
         serialize_to_stream(input_file, groupname, image_series, out, config_file, config_text);
     } else {
         std::cerr << "Error: Must specify either output file or use-stdout" << std::endl;
