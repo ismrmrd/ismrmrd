@@ -13,8 +13,10 @@
 
 #define __unaligned
 #define noexcept
-#define nullptr NULL
 
+#ifndef nullptr
+#define nullptr NULL
+#endif
 namespace std {
 using ::int16_t;
 using ::int32_t;
@@ -26,7 +28,7 @@ using ::uint32_t;
 using ::uint64_t;
 using ::uint8_t;
 
-#if not defined(_MSC_VER) or _MSC_VER <= 1600
+#if !defined(_MSC_VER) || _MSC_VER <= 1600
 template <typename T, size_t N>
 T *begin(T (&array)[N]) {
     return array;
