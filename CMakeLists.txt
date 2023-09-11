@@ -38,12 +38,12 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # compiler flags
-# if(NOT "${CMAKE_CXX_STANDARD}")
-#   message(STATUS "CMAKE_CXX_STANDARD not set externally, setting to 11")
-#   set(CMAKE_CXX_STANDARD 11)
-# else()
-#   message(STATUS "CMAKE_CXX_STANDARD set externally to ${CMAKE_CXX_STANDARD}")
-# endif()
+if(NOT "${CMAKE_CXX_STANDARD}")
+  message(STATUS "CMAKE_CXX_STANDARD not set externally, setting to 11")
+  set(CMAKE_CXX_STANDARD 11)
+else()
+  message(STATUS "CMAKE_CXX_STANDARD set externally to ${CMAKE_CXX_STANDARD}")
+endif()
 
 if (WIN32)
     add_definitions(-DWIN32 -D_WIN32 -D_WINDOWS -DBOOST_UUID_FORCE_AUTO_LINK)
