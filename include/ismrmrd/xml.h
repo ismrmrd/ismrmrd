@@ -362,14 +362,26 @@ namespace ISMRMRD
     std::uint16_t kspace_encoding_step_2;
   };
 
+#if __cplusplus > 199711L
+  enum class TrajectoryType {
+      CARTESIAN = 0,
+      EPI = 1,
+      RADIAL = 2,
+      GOLDENANGLE = 3,
+      SPIRAL = 4,
+      OTHER = 5
+  };
+#else
   class TrajectoryType {
   public:
-    static const int CARTESIAN = 0;
-    static const int EPI = 1;
-    static const int RADIAL = 2;
-    static const int GOLDENANGLE = 3;
-    static const int SPIRAL = 4;
-    static const int OTHER = 5;
+    enum {
+      CARTESIAN,
+      EPI,
+      RADIAL,
+      GOLDENANGLE,
+      SPIRAL,
+      OTHER
+    };
 
     TrajectoryType() : value_(OTHER) {}
     TrajectoryType(int value) : value_(value) {}
@@ -378,14 +390,22 @@ namespace ISMRMRD
   protected:
     int value_;
   };
+#endif
 
-  // Implement Mutiband calibration type as a class with static members
+#if __cplusplus > 199711L
+  enum class MultibandCalibrationType {
+      SEPARABLE2D,
+      FULL3D,
+      OTHER
+  };
+#else
   class MultibandCalibrationType {
   public:
-    static const int SEPARABLE2D = 0;
-    static const int FULL3D = 1;
-    static const int OTHER = 2;
-
+    enum {
+      SEPARABLE2D,
+      FULL3D,
+      OTHER
+    };
     MultibandCalibrationType() : value_(OTHER) {}
     MultibandCalibrationType(int value) : value_(value) {}
     operator int() const { return value_; }
@@ -393,6 +413,7 @@ namespace ISMRMRD
   protected:
     int value_;
   };
+#endif
 
   struct MultibandSpacing {
       std::vector<float> dZ;
@@ -432,22 +453,42 @@ namespace ISMRMRD
       float fh;
   };
 
+#if __cplusplus > 199711L
+  enum class DiffusionDimension {
+      AVERAGE,
+      CONTRAST,
+      PHASE,
+      REPETITION,
+      SET,
+      SEGMENT,
+      USER_0,
+      USER_1,
+      USER_2,
+      USER_3,
+      USER_4,
+      USER_5,
+      USER_6,
+      USER_7
+  };
+#else
   class DiffusionDimension {
     public:
-      static const int AVERAGE = 0;
-      static const int CONTRAST = 1;
-      static const int PHASE = 2;
-      static const int REPETITION = 3;
-      static const int SET = 4;
-      static const int SEGMENT = 5;
-      static const int USER_0 = 6;
-      static const int USER_1 = 7;
-      static const int USER_2 = 8;
-      static const int USER_3 = 9;
-      static const int USER_4 = 10;
-      static const int USER_5 = 11;
-      static const int USER_6 = 12;
-      static const int USER_7 = 13;
+      enum {
+        AVERAGE,
+        CONTRAST,
+        PHASE,
+        REPETITION,
+        SET,
+        SEGMENT,
+        USER_0,
+        USER_1,
+        USER_2,
+        USER_3,
+        USER_4,
+        USER_5,
+        USER_6,
+        USER_7
+      };
 
       DiffusionDimension() : value_(AVERAGE) {}
       DiffusionDimension(int value) : value_(value) {}
@@ -456,6 +497,7 @@ namespace ISMRMRD
     protected:
       int value_;
   };
+#endif
 
   struct Diffusion {
       float bvalue;
@@ -475,14 +517,26 @@ namespace ISMRMRD
     Optional<std::string> diffusionScheme;
   };
 
+#if __cplusplus > 199711L
+  enum class WaveformType {
+      ECG,
+      PULSE,
+      RESPIRATORY,
+      TRIGGER,
+      GRADIENTWAVEFORM,
+      OTHER
+  };
+#else
   class WaveformType {
   public:
-    static const int ECG = 0;
-    static const int PULSE = 1;
-    static const int RESPIRATORY = 2;
-    static const int TRIGGER = 3;
-    static const int GRADIENTWAVEFORM = 4;
-    static const int OTHER = 5;
+    enum {
+    ECG,
+    PULSE,
+    RESPIRATORY,
+    TRIGGER,
+    GRADIENTWAVEFORM,
+    OTHER
+    };
 
     WaveformType() : value_(OTHER) {}
     WaveformType(int value) : value_(value) {}
@@ -491,6 +545,7 @@ namespace ISMRMRD
   protected:
     int value_;
   };
+#endif
 
   struct WaveformInformation{
       std::string waveformName;
