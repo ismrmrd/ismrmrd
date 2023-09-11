@@ -3,6 +3,9 @@
 #include <sstream>
 #include <stdexcept>
 
+#include <boost/preprocessor/stringize.hpp>
+#pragma message("__cplusplus=" BOOST_PP_STRINGIZE(__cplusplus))
+
 #if __cplusplus > 199711L
     // C++11
 #else
