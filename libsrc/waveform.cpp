@@ -44,7 +44,7 @@ ISMRMRD::Waveform::Waveform() {
 
 ISMRMRD::Waveform::Waveform(const Waveform &other) {
 
-	
+
 	size_t datasize = other.size();
 	if (datasize == 0)
 		this->data = NULL;
@@ -56,16 +56,35 @@ ISMRMRD::Waveform::Waveform(const Waveform &other) {
 	this->head = other.head;
 }
 
+#if __cplusplus > 199711L
+ISMRMRD::Waveform::Waveform(Waveform &&other) {
+    this->data = other.data;
+    other.data = NULL;
+	this->head = other.head;
+
+}
+#endif
+
 ISMRMRD::Waveform::~Waveform() {
 	if (data != NULL) free(data);
-    
+
 
 }
 
+#if __cplusplus > 199711L
+ISMRMRD::Waveform & ISMRMRD::Waveform::operator=(Waveform &&other) {
+	if (data != NULL) free(data);
+    this->data = other.data;
+    other.data = nullptr;
+	this->head = other.head;
+    return *this;
+}
+#endif
+
 ISMRMRD::Waveform & ISMRMRD::Waveform::operator=(const Waveform &other) {
-	
+
 	if (this->data != NULL) free(this->data);
-	
+
 	size_t datasize = other.size();
 	if (datasize == 0)
 		this->data = NULL;
@@ -94,4 +113,3 @@ void ISMRMRD::WaveformHeader::clearFlag(const uint64_t val) {
 void ISMRMRD::WaveformHeader::clearAllFlags() {
     ismrmrd_clear_all_flags(&flags);
 };
-
