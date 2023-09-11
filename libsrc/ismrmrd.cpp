@@ -3,6 +3,7 @@
 #include <sstream>
 #include <stdexcept>
 
+#pragma message( "__cplusplus " __cplusplus )
 #if __cplusplus <= 199711L
     #include "ismrmrd/cpp03shim.h"
 #endif
