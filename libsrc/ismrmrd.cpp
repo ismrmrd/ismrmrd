@@ -3,7 +3,9 @@
 #include <sstream>
 #include <stdexcept>
 
-#if __cplusplus < 199712L
+#if __cplusplus > 199711L
+    // C++11
+#else
     #include "ismrmrd/cpp03shim.h"
 #endif
 
