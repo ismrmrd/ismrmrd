@@ -1,6 +1,5 @@
 #ifndef ISMRMRD_CPP03SHIM_H
 #define ISMRMRD_CPP03SHIM_H
-#pragma message("cpp03shim.h is deprecated and will be removed in a future release. Please use a C++11 compiler.")
 #if __cplusplus <= 199711L
 
 #include <stdint.h>

@@ -39,7 +39,6 @@ endif()
 
 # compiler flags
 if(NOT "${CMAKE_CXX_STANDARD}")
-  message(STATUS "CMAKE_CXX_STANDARD not set externally, setting to 11")
   set(CMAKE_CXX_STANDARD 11)
 else()
   message(STATUS "CMAKE_CXX_STANDARD set externally to ${CMAKE_CXX_STANDARD}")
@@ -50,7 +49,10 @@ if (WIN32)
     add_definitions(-DUNICODE -D_UNICODE)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
+
+    # https://devblogs.microsoft.com/cppblog/msvc-now-correctly-reports-__cplusplus/
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus")
+
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3 /WX")
     set(CMAKE_EXE_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
     set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
