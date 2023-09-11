@@ -3,7 +3,10 @@
 #include <sstream>
 #include <stdexcept>
 
-#pragma message( "__cplusplus " __cplusplus )
+#define XSTR(x) STR(x)
+#define STR(x) #x
+#pragma message "__cplusplus " XSTR(__cplusplus)
+
 #if __cplusplus <= 199711L
     #include "ismrmrd/cpp03shim.h"
 #endif
