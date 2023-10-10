@@ -4,4 +4,4 @@ channels:
 dependencies:
   - conda-build
   - anaconda-client
-
+  - conda-libmamba-solver
