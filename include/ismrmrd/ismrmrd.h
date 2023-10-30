@@ -72,6 +72,7 @@ typedef int bool;
 
 /* Vectors */
 #ifdef __cplusplus
+#include "cpp98.h"
 #include <vector>
 #endif /* __cplusplus */
 

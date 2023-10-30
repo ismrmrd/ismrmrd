@@ -97,8 +97,8 @@ Optional<float> parse_optional_float(pugi::xml_node &n, const char *child) {
     return r;
 }
 
-Optional<std::int64_t> parse_optional_long(pugi::xml_node &n, const char *child) {
-    Optional<std::int64_t> r;
+Optional<ISMRMRD::int64_t> parse_optional_long(pugi::xml_node &n, const char *child) {
+    Optional<ISMRMRD::int64_t> r;
     pugi::xml_node nc = n.child(child);
     if (nc) {
         r = ISMRMRD::stoll(nc.child_value());
@@ -106,11 +106,11 @@ Optional<std::int64_t> parse_optional_long(pugi::xml_node &n, const char *child)
     return r;
 }
 
-Optional<std::uint16_t> parse_optional_ushort(pugi::xml_node &n, const char *child) {
-    Optional<std::uint16_t> r;
+Optional<ISMRMRD::uint16_t> parse_optional_ushort(pugi::xml_node &n, const char *child) {
+    Optional<ISMRMRD::uint16_t> r;
     pugi::xml_node nc = n.child(child);
     if (nc) {
-        r = static_cast<std::uint16_t>(ISMRMRD::stoi(nc.child_value()));
+        r = static_cast<ISMRMRD::uint16_t>(ISMRMRD::stoi(nc.child_value()));
     }
     return r;
 }
@@ -446,8 +446,8 @@ void deserialize(const char *xml, IsmrmrdHeader &h) {
                     if (!accelerationFactor) {
                         throw std::runtime_error("Unable to accelerationFactor section in parallelImaging");
                     } else {
-                        info.accelerationFactor.kspace_encoding_step_1 = static_cast<std::uint16_t>(ISMRMRD::stoi(accelerationFactor.child_value("kspace_encoding_step_1")));
-                        info.accelerationFactor.kspace_encoding_step_2 = static_cast<std::uint16_t>(ISMRMRD::stoi(accelerationFactor.child_value("kspace_encoding_step_2")));
+                        info.accelerationFactor.kspace_encoding_step_1 = static_cast<ISMRMRD::uint16_t>(ISMRMRD::stoi(accelerationFactor.child_value("kspace_encoding_step_1")));
+                        info.accelerationFactor.kspace_encoding_step_2 = static_cast<ISMRMRD::uint16_t>(ISMRMRD::stoi(accelerationFactor.child_value("kspace_encoding_step_2")));
                     }
 
                     info.calibrationMode = parse_optional_string(parallelImaging, "calibrationMode");
@@ -457,7 +457,7 @@ void deserialize(const char *xml, IsmrmrdHeader &h) {
                     if (multiband) {
                         Multiband mb;
                         mb.deltaKz = parse_float(multiband, "deltaKz");
-                        mb.multiband_factor = static_cast<std::uint32_t>(ISMRMRD::stoi(multiband.child_value("multiband_factor")));
+                        mb.multiband_factor = static_cast<ISMRMRD::uint32_t>(ISMRMRD::stoi(multiband.child_value("multiband_factor")));
 
                         pugi::xml_node spacing_node = multiband.child("spacing");
                         do {

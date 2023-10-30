@@ -11,11 +11,7 @@
 #include <cstddef>
 #include <new> //For std::badalloc
 #include <stdexcept> //For std::length_error
-#if __cplusplus > 199711L
-    #include <cstdint>
-#else
-    #include "cpp03shim.h"
-#endif
+#include "cpp98.h"
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
@@ -175,7 +171,7 @@ namespace ISMRMRD
     Optional<std::string> studyDate;
     Optional<std::string> studyTime;
     Optional<std::string> studyID;
-    Optional<std::int64_t> accessionNumber;
+    Optional<ISMRMRD::int64_t> accessionNumber;
     Optional<std::string> referringPhysicianName;
     Optional<std::string> studyDescription;
     Optional<std::string> studyInstanceUID;
@@ -201,7 +197,7 @@ namespace ISMRMRD
     Optional<std::string> seriesTime;
     std::string patientPosition;
     Optional<threeDimensionalFloat> relativeTablePosition;
-    Optional<std::int64_t> initialSeriesNumber;
+    Optional<ISMRMRD::int64_t> initialSeriesNumber;
     Optional<std::string> protocolName;
     Optional<std::string> sequenceName;
     Optional<std::string> seriesDescription;
@@ -213,7 +209,7 @@ namespace ISMRMRD
 
   struct CoilLabel
   {
-    std::uint16_t coilNumber;
+    ISMRMRD::uint16_t coilNumber;
     std::string coilName;
   };
 
@@ -223,7 +219,7 @@ namespace ISMRMRD
     Optional<std::string> systemModel;
     Optional<float> systemFieldStrength_T;
     Optional<float> relativeReceiverNoiseBandwidth;
-    Optional<std::uint16_t> receiverChannels;
+    Optional<ISMRMRD::uint16_t> receiverChannels;
     std::vector<CoilLabel> coilLabel;
     Optional<std::string> institutionName;
     Optional<std::string> stationName;
@@ -234,7 +230,7 @@ namespace ISMRMRD
 
   struct ExperimentalConditions
   {
-      std::int64_t H1resonanceFrequency_Hz;
+      ISMRMRD::int64_t H1resonanceFrequency_Hz;
   };
 
   struct MatrixSize
@@ -247,7 +243,7 @@ namespace ISMRMRD
 
     }
 
-    MatrixSize(std::uint16_t x, std::uint16_t y)
+    MatrixSize(ISMRMRD::uint16_t x, ISMRMRD::uint16_t y)
     : x(x)
     , y(y)
     , z(1)
@@ -255,7 +251,7 @@ namespace ISMRMRD
 
     }
 
-    MatrixSize(std::uint16_t x, std::uint16_t y, std::uint16_t z)
+    MatrixSize(ISMRMRD::uint16_t x, ISMRMRD::uint16_t y, ISMRMRD::uint16_t z)
     : x(x)
     , y(y)
     , z(z)
@@ -263,9 +259,9 @@ namespace ISMRMRD
 
     }
 
-    std::uint16_t x;
-    std::uint16_t y;
-    std::uint16_t z;
+    ISMRMRD::uint16_t x;
+    ISMRMRD::uint16_t y;
+    ISMRMRD::uint16_t z;
   };
 
   struct FieldOfView_mm
@@ -292,7 +288,7 @@ namespace ISMRMRD
 
     }
 
-    Limit(std::uint16_t minimum, std::uint16_t maximum, std::uint16_t center)
+    Limit(ISMRMRD::uint16_t minimum, ISMRMRD::uint16_t maximum, ISMRMRD::uint16_t center)
     : minimum(minimum)
     , maximum(maximum)
     , center(center)
@@ -300,9 +296,9 @@ namespace ISMRMRD
 
     }
 
-    std::uint16_t minimum;
-    std::uint16_t maximum;
-    std::uint16_t center;
+    ISMRMRD::uint16_t minimum;
+    ISMRMRD::uint16_t maximum;
+    ISMRMRD::uint16_t center;
   };
 
   struct EncodingLimits
@@ -324,7 +320,7 @@ namespace ISMRMRD
   struct UserParameterLong
   {
     std::string name;
-    std::int64_t value;
+    ISMRMRD::int64_t value;
   };
 
   struct UserParameterDouble
@@ -358,8 +354,8 @@ namespace ISMRMRD
 
   struct AccelerationFactor
   {
-    std::uint16_t kspace_encoding_step_1;
-    std::uint16_t kspace_encoding_step_2;
+    ISMRMRD::uint16_t kspace_encoding_step_1;
+    ISMRMRD::uint16_t kspace_encoding_step_2;
   };
 
 #if __cplusplus > 199711L
@@ -422,9 +418,9 @@ namespace ISMRMRD
   struct Multiband{
     std::vector<MultibandSpacing> spacing;
     float deltaKz;
-    std::uint32_t multiband_factor;
+    ISMRMRD::uint32_t multiband_factor;
     MultibandCalibrationType calibration;
-    std::uint64_t calibration_encoding;
+    ISMRMRD::uint64_t calibration_encoding;
   };
 
   struct ParallelImaging
@@ -443,7 +439,7 @@ namespace ISMRMRD
     TrajectoryType trajectory;
     Optional<TrajectoryDescription> trajectoryDescription;
     Optional<ParallelImaging> parallelImaging;
-    Optional<std::int64_t> echoTrainLength;
+    Optional<ISMRMRD::int64_t> echoTrainLength;
   };
 
    struct GradientDirection {
@@ -555,7 +551,7 @@ namespace ISMRMRD
 
   struct IsmrmrdHeader
   {
-    Optional<std::int64_t> version;
+    Optional<ISMRMRD::int64_t> version;
     Optional<SubjectInformation> subjectInformation;
     Optional<StudyInformation> studyInformation;
     Optional<MeasurementInformation> measurementInformation;
