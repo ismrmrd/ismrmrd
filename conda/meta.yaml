@@ -14,7 +14,7 @@ build:
 
 requirements:
   build:
-    - boost {{ boost }}
+    - boost
     - clang>=13.0.1        # [osx]
     - clangxx>=13.0.1      # [osx]
     - cmake>=3.20.0
