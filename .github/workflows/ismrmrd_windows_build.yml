@@ -41,10 +41,8 @@ jobs:
     - name: Install dependencies
       shell: pwsh
       run: |
-        vcpkg install fftw3 boost-test boost-program-options boost-random boost-uuid hdf5 pugixml
+        vcpkg install
         vcpkg list
-        dir c:\
-        dir d:\
 
     - name: Configure CMake
       working-directory: ${{github.workspace}}/build

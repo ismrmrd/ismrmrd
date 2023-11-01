@@ -31,7 +31,7 @@
 #endif
 
 /* Unaligned */
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && __cplusplus > 199711L
 #define ISMRMRD_UNALIGNED __unaligned
 #else
 #define ISMRMRD_UNALIGNED
@@ -72,6 +72,7 @@ typedef int bool;
 
 /* Vectors */
 #ifdef __cplusplus
+#include "cpp98.h"
 #include <vector>
 #endif /* __cplusplus */
 

@@ -148,12 +148,14 @@ void reconstruct(std::istream &in, std::ostream &out, bool magnitude = false) {
     // If this we want magnitude:
     if (magnitude) {
         ISMRMRD::Image<float> float_img_out(img_out.getMatrixSizeX(), img_out.getMatrixSizeY(), 1, 1);
-        auto head = img_out.getHead();
+        ISMRMRD::ImageHeader head = img_out.getHead();
         head.image_type = ISMRMRD::ISMRMRD_IMTYPE_MAGNITUDE;
         head.data_type = ISMRMRD::ISMRMRD_FLOAT;
         float_img_out.setHead(head);
         float_img_out.setAttributeString(meta_string_stream.str().c_str());
-        std::transform(img_out.begin(), img_out.end(), float_img_out.begin(), [](std::complex<float> val) { return std::abs(val); });
+        for (size_t i = 0; i < img_out.getNumberOfDataElements(); i++) {
+            float_img_out.getDataPtr()[i] = std::abs(img_out.getDataPtr()[i]);
+        }
         serializer.serialize(float_img_out);
     } else {
         serializer.serialize(img_out);

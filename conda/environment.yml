@@ -3,5 +3,6 @@ channels:
   - conda-forge
 dependencies:
   - conda-build
+  - conda-libmamba-solver
   - anaconda-client
   - conda-libmamba-solver
