@@ -39,13 +39,15 @@ namespace ISMRMRD {
         pugi::xml_document doc;
         pugi::xml_node root = doc.append_child("ismrmrdMeta");
 
-        for (auto &node : h) {
+//        for (auto &node : h) {
+        typedef std::map<std::string, std::vector<MetaValue> > map_t;
+        for (map_t::const_iterator node = h.begin(); node != h.end(); ++node) {
             pugi::xml_node meta = root.append_child("meta");
             pugi::xml_node name = meta.append_child("name");
-            name.append_child(pugi::node_pcdata).set_value(node.first.c_str());
-            for (unsigned int i = 0; i < node.second.size(); i++) {
+            name.append_child(pugi::node_pcdata).set_value(node->first.c_str());
+            for (unsigned int i = 0; i < node->second.size(); i++) {
                 pugi::xml_node cname = meta.append_child("value");
-                cname.append_child(pugi::node_pcdata).set_value(node.second[i].as_str());
+                cname.append_child(pugi::node_pcdata).set_value(node->second[i].as_str());
             }
         }
         doc.save(o);

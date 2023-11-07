@@ -13,8 +13,9 @@
 
 #include "export.h"
 #ifdef __cplusplus
-#include <cstdint>
+#include "cpp98.h"
 #include <cstddef>
+#include <stdint.h>
 namespace ISMRMRD {
 extern "C" {
 #else
@@ -95,12 +96,15 @@ EXPORTISMRMRD int ismrmrd_copy_waveform(ISMRMRD_Waveform* dest, const ISMRMRD_Wa
     struct EXPORTISMRMRD Waveform : public ISMRMRD_Waveform {
         Waveform();
         Waveform(const Waveform &other);
+#if __cplusplus > 199711L
         Waveform(Waveform&& other);
+#endif
         Waveform(uint16_t number_of_samples, uint16_t available_channels);
         ~Waveform();
         Waveform & operator=(const Waveform &other);
+#if __cplusplus > 199711L
         Waveform & operator=(Waveform &&other);
-
+#endif
 		uint32_t* begin_data();
 		uint32_t* end_data();
         const uint32_t* begin_data() const;

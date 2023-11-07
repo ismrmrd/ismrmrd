@@ -3,6 +3,7 @@
 #include <sstream>
 #include <stdexcept>
 
+#include "ismrmrd/cpp98.h"
 #include <iostream>
 #include "ismrmrd/ismrmrd.h"
 
@@ -19,7 +20,7 @@ bool operator==(const EncodingCounters& ec1, const EncodingCounters& ec2){
         ec1.repetition == ec2.repetition &&
         ec1.set == ec2.set &&
         ec1.segment == ec2.segment &&
-        std::equal(std::begin(ec1.user),std::end(ec1.user),std::begin(ec2.user));
+        std::equal(ISMRMRD::begin(ec1.user),ISMRMRD::end(ec1.user),ISMRMRD::begin(ec2.user));
 
 
 }
@@ -71,25 +72,25 @@ bool AcquisitionHeader::operator==(const AcquisitionHeader &hdr) const {
            measurement_uid == hdr.measurement_uid &&
            scan_counter == hdr.scan_counter &&
            acquisition_time_stamp == hdr.acquisition_time_stamp &&
-           std::equal(std::begin(physiology_time_stamp), std::end(physiology_time_stamp), std::begin(hdr.physiology_time_stamp)) &&
+           std::equal(ISMRMRD::begin(physiology_time_stamp), ISMRMRD::end(physiology_time_stamp), ISMRMRD::begin(hdr.physiology_time_stamp)) &&
            number_of_samples == hdr.number_of_samples &&
            available_channels == hdr.available_channels &&
            active_channels == hdr.active_channels &&
-           std::equal(std::begin(channel_mask), std::end(channel_mask), std::begin(hdr.channel_mask)) &&
+           std::equal(ISMRMRD::begin(channel_mask), ISMRMRD::end(channel_mask), ISMRMRD::begin(hdr.channel_mask)) &&
            discard_pre == hdr.discard_pre &&
            discard_post == hdr.discard_post &&
            center_sample == hdr.center_sample &&
            encoding_space_ref == hdr.encoding_space_ref &&
            trajectory_dimensions == hdr.trajectory_dimensions &&
            sample_time_us == hdr.sample_time_us &&
-           std::equal(std::begin(position), std::end(position), std::begin(hdr.position)) &&
-           std::equal(std::begin(read_dir), std::end(read_dir), std::begin(hdr.read_dir)) &&
-           std::equal(std::begin(phase_dir), std::end(phase_dir), std::begin(hdr.phase_dir)) &&
-           std::equal(std::begin(slice_dir), std::end(slice_dir), std::begin(hdr.slice_dir)) &&
-           std::equal(std::begin(patient_table_position), std::end(patient_table_position), std::begin(hdr.patient_table_position)) &&
+           std::equal(ISMRMRD::begin(position), ISMRMRD::end(position), ISMRMRD::begin(hdr.position)) &&
+           std::equal(ISMRMRD::begin(read_dir), ISMRMRD::end(read_dir), ISMRMRD::begin(hdr.read_dir)) &&
+           std::equal(ISMRMRD::begin(phase_dir), ISMRMRD::end(phase_dir), ISMRMRD::begin(hdr.phase_dir)) &&
+           std::equal(ISMRMRD::begin(slice_dir), ISMRMRD::end(slice_dir), ISMRMRD::begin(hdr.slice_dir)) &&
+           std::equal(ISMRMRD::begin(patient_table_position), ISMRMRD::end(patient_table_position), ISMRMRD::begin(hdr.patient_table_position)) &&
            idx == hdr.idx &&
-           std::equal(std::begin(user_int), std::end(user_int), std::begin(hdr.user_int)) &&
-           std::equal(std::begin(user_int), std::end(user_int), std::begin(hdr.user_int));
+           std::equal(ISMRMRD::begin(user_int), ISMRMRD::end(user_int), ISMRMRD::begin(hdr.user_int)) &&
+           std::equal(ISMRMRD::begin(user_int), ISMRMRD::end(user_int), ISMRMRD::begin(hdr.user_int));
 }
 
 //

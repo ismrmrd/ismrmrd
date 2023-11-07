@@ -11,13 +11,12 @@
 #include <cstddef>
 #include <new> //For std::badalloc
 #include <stdexcept> //For std::length_error
-#include <cstdint>
+#include "cpp98.h"
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <array>
 
 /**
   TODO LIST
@@ -46,13 +45,13 @@ namespace ISMRMRD
 
     Optional(const T&v) {
       present_ = true;
-      value_ = v;      
+      value_ = v;
     }
 
 	Optional& operator=(const Optional& o) {
 		present_ = o.present_;
 		if (present_)
-			value_ = o.value_;	
+			value_ = o.value_;
 		return *this;
 	}
 
@@ -91,7 +90,7 @@ namespace ISMRMRD
     }
 
 
-  T &value() &{
+  T &value() {
       if (!present_) {
           throw std::runtime_error("Access optional value, which has not been set");
       }
@@ -99,50 +98,28 @@ namespace ISMRMRD
   }
 
 
-  const T &value() const &{
+  const T &value() const {
       if (!present_) {
           throw std::runtime_error("Access optional value, which has not been set");
       }
       return value_;
   }
 
-  T &&value() &&{
-      if (!present_) {
-          throw std::runtime_error("Access optional value, which has not been set");
-      }
-      return std::move(value_);
-  }
 
-  const T &&value() const &&{
-      if (!present_) {
-          throw std::runtime_error("Access optional value, which has not been set");
-      }
-      return std::move(value_);
-  }
-
-  T &get() & {
+   T &get() {
       return  this->value();
     }
 
-    T&& get()&&{
-        return this->value();
-    }
-     const T &get() const &  {
+     const T &get() const {
           return  this->value();
       }
 
-     const  T&& get() const &&{
-          return this->value();
-      }
+#if __cplusplus > 199711L
   template<class U>
-  T value_or(U &&default_value) const &{
+  T value_or(U &default_value) const {
       return bool(*this) ? **this : static_cast<T>(std::forward<U>(default_value));
   }
-
-  template<class U>
-  T value_or(U &&default_value) &&{
-      return bool(*this) ? std::move(**this) : static_cast<T>(std::forward<U>(default_value));
-  }
+#endif
 
     bool operator==(const Optional<T>& other) const {
       if (this->present_ && other.present_) return this->get() == *other;
@@ -152,7 +129,7 @@ namespace ISMRMRD
 
     bool operator==(const T& val) const {
       if (this->present_) return this->get() == val;
-      return false; 
+      return false;
     }
 
 
@@ -169,7 +146,7 @@ namespace ISMRMRD
     bool present_;
     T value_;
 
-  }; 
+  };
 
   struct threeDimensionalFloat
   {
@@ -178,7 +155,7 @@ namespace ISMRMRD
     float z;
   };
 
-  struct SubjectInformation 
+  struct SubjectInformation
   {
     Optional<std::string> patientName;
     Optional<float> patientWeight_kg;
@@ -194,7 +171,7 @@ namespace ISMRMRD
     Optional<std::string> studyDate;
     Optional<std::string> studyTime;
     Optional<std::string> studyID;
-    Optional<std::int64_t> accessionNumber;
+    Optional<ISMRMRD::int64_t> accessionNumber;
     Optional<std::string> referringPhysicianName;
     Optional<std::string> studyDescription;
     Optional<std::string> studyInstanceUID;
@@ -212,7 +189,7 @@ namespace ISMRMRD
   {
       std::string referencedSOPInstanceUID;
   };
-  
+
   struct MeasurementInformation
   {
     Optional<std::string> measurementID;
@@ -220,7 +197,7 @@ namespace ISMRMRD
     Optional<std::string> seriesTime;
     std::string patientPosition;
     Optional<threeDimensionalFloat> relativeTablePosition;
-    Optional<std::int64_t> initialSeriesNumber;
+    Optional<ISMRMRD::int64_t> initialSeriesNumber;
     Optional<std::string> protocolName;
     Optional<std::string> sequenceName;
     Optional<std::string> seriesDescription;
@@ -232,17 +209,17 @@ namespace ISMRMRD
 
   struct CoilLabel
   {
-    std::uint16_t coilNumber;
+    ISMRMRD::uint16_t coilNumber;
     std::string coilName;
   };
-  
+
   struct AcquisitionSystemInformation
   {
     Optional<std::string> systemVendor;
     Optional<std::string> systemModel;
     Optional<float> systemFieldStrength_T;
     Optional<float> relativeReceiverNoiseBandwidth;
-    Optional<std::uint16_t> receiverChannels;
+    Optional<ISMRMRD::uint16_t> receiverChannels;
     std::vector<CoilLabel> coilLabel;
     Optional<std::string> institutionName;
     Optional<std::string> stationName;
@@ -253,7 +230,7 @@ namespace ISMRMRD
 
   struct ExperimentalConditions
   {
-      std::int64_t H1resonanceFrequency_Hz;
+      ISMRMRD::int64_t H1resonanceFrequency_Hz;
   };
 
   struct MatrixSize
@@ -265,16 +242,16 @@ namespace ISMRMRD
     {
 
     }
-    
-    MatrixSize(std::uint16_t x, std::uint16_t y)
+
+    MatrixSize(ISMRMRD::uint16_t x, ISMRMRD::uint16_t y)
     : x(x)
     , y(y)
     , z(1)
     {
 
     }
-    
-    MatrixSize(std::uint16_t x, std::uint16_t y, std::uint16_t z)
+
+    MatrixSize(ISMRMRD::uint16_t x, ISMRMRD::uint16_t y, ISMRMRD::uint16_t z)
     : x(x)
     , y(y)
     , z(z)
@@ -282,9 +259,9 @@ namespace ISMRMRD
 
     }
 
-    std::uint16_t x;
-    std::uint16_t y;
-    std::uint16_t z;
+    ISMRMRD::uint16_t x;
+    ISMRMRD::uint16_t y;
+    ISMRMRD::uint16_t z;
   };
 
   struct FieldOfView_mm
@@ -303,15 +280,15 @@ namespace ISMRMRD
 
   struct Limit
   {
-    Limit() 
+    Limit()
     : minimum(0)
     , maximum(0)
     , center(0)
     {
 
     }
-    
-    Limit(std::uint16_t minimum, std::uint16_t maximum, std::uint16_t center) 
+
+    Limit(ISMRMRD::uint16_t minimum, ISMRMRD::uint16_t maximum, ISMRMRD::uint16_t center)
     : minimum(minimum)
     , maximum(maximum)
     , center(center)
@@ -319,9 +296,9 @@ namespace ISMRMRD
 
     }
 
-    std::uint16_t minimum;
-    std::uint16_t maximum;
-    std::uint16_t center;
+    ISMRMRD::uint16_t minimum;
+    ISMRMRD::uint16_t maximum;
+    ISMRMRD::uint16_t center;
   };
 
   struct EncodingLimits
@@ -336,14 +313,14 @@ namespace ISMRMRD
     Optional<Limit> repetition;
     Optional<Limit> set;
     Optional<Limit> segment;
-    std::array<Optional<Limit>,ISMRMRD_USER_INTS> user;
+    Optional<Limit> user[ISMRMRD_USER_INTS];
   };
 
 
   struct UserParameterLong
   {
     std::string name;
-    std::int64_t value;
+    ISMRMRD::int64_t value;
   };
 
   struct UserParameterDouble
@@ -351,7 +328,7 @@ namespace ISMRMRD
     std::string name;
     double value;
   };
-  
+
   struct UserParameterString
   {
       std::string name;
@@ -372,32 +349,67 @@ namespace ISMRMRD
     std::vector<UserParameterLong> userParameterLong;
     std::vector<UserParameterDouble> userParameterDouble;
     std::vector<UserParameterString> userParameterString;
-    Optional<std::string> comment; 
+    Optional<std::string> comment;
   };
 
   struct AccelerationFactor
   {
-    std::uint16_t kspace_encoding_step_1;
-    std::uint16_t kspace_encoding_step_2;
+    ISMRMRD::uint16_t kspace_encoding_step_1;
+    ISMRMRD::uint16_t kspace_encoding_step_2;
   };
 
-
+#if __cplusplus > 199711L
   enum class TrajectoryType {
+      CARTESIAN = 0,
+      EPI = 1,
+      RADIAL = 2,
+      GOLDENANGLE = 3,
+      SPIRAL = 4,
+      OTHER = 5
+  };
+#else
+  class TrajectoryType {
+  public:
+    enum {
       CARTESIAN,
       EPI,
       RADIAL,
       GOLDENANGLE,
       SPIRAL,
       OTHER
+    };
+
+    TrajectoryType() : value_(OTHER) {}
+    TrajectoryType(int value) : value_(value) {}
+    operator int() const { return value_; }
+    bool operator==(const TrajectoryType& rhs) const { return value_ == rhs.value_; }
+  protected:
+    int value_;
   };
+#endif
 
-
-
+#if __cplusplus > 199711L
   enum class MultibandCalibrationType {
-    SEPARABLE2D,
-    FULL3D,
-    OTHER
+      SEPARABLE2D,
+      FULL3D,
+      OTHER
   };
+#else
+  class MultibandCalibrationType {
+  public:
+    enum {
+      SEPARABLE2D,
+      FULL3D,
+      OTHER
+    };
+    MultibandCalibrationType() : value_(OTHER) {}
+    MultibandCalibrationType(int value) : value_(value) {}
+    operator int() const { return value_; }
+    bool operator==(const MultibandCalibrationType& rhs) const { return value_ == rhs.value_; }
+  protected:
+    int value_;
+  };
+#endif
 
   struct MultibandSpacing {
       std::vector<float> dZ;
@@ -406,9 +418,9 @@ namespace ISMRMRD
   struct Multiband{
     std::vector<MultibandSpacing> spacing;
     float deltaKz;
-    std::uint32_t multiband_factor;
+    ISMRMRD::uint32_t multiband_factor;
     MultibandCalibrationType calibration;
-    std::uint64_t calibration_encoding;
+    ISMRMRD::uint64_t calibration_encoding;
   };
 
   struct ParallelImaging
@@ -427,7 +439,7 @@ namespace ISMRMRD
     TrajectoryType trajectory;
     Optional<TrajectoryDescription> trajectoryDescription;
     Optional<ParallelImaging> parallelImaging;
-    Optional<std::int64_t> echoTrainLength;
+    Optional<ISMRMRD::int64_t> echoTrainLength;
   };
 
    struct GradientDirection {
@@ -437,6 +449,7 @@ namespace ISMRMRD
       float fh;
   };
 
+#if __cplusplus > 199711L
   enum class DiffusionDimension {
       AVERAGE,
       CONTRAST,
@@ -453,6 +466,34 @@ namespace ISMRMRD
       USER_6,
       USER_7
   };
+#else
+  class DiffusionDimension {
+    public:
+      enum {
+        AVERAGE,
+        CONTRAST,
+        PHASE,
+        REPETITION,
+        SET,
+        SEGMENT,
+        USER_0,
+        USER_1,
+        USER_2,
+        USER_3,
+        USER_4,
+        USER_5,
+        USER_6,
+        USER_7
+      };
+
+      DiffusionDimension() : value_(AVERAGE) {}
+      DiffusionDimension(int value) : value_(value) {}
+      operator int() const { return value_; }
+      bool operator==(const DiffusionDimension& rhs) const { return value_ == rhs.value_; }
+    protected:
+      int value_;
+  };
+#endif
 
   struct Diffusion {
       float bvalue;
@@ -468,10 +509,11 @@ namespace ISMRMRD
     Optional<std::string> sequence_type;
     Optional<std::vector<float> > echo_spacing;
     Optional<DiffusionDimension> diffusionDimension;
-    Optional<std::vector<Diffusion>> diffusion;
+    Optional< std::vector<Diffusion> > diffusion;
     Optional<std::string> diffusionScheme;
   };
 
+#if __cplusplus > 199711L
   enum class WaveformType {
       ECG,
       PULSE,
@@ -480,7 +522,26 @@ namespace ISMRMRD
       GRADIENTWAVEFORM,
       OTHER
   };
+#else
+  class WaveformType {
+  public:
+    enum {
+    ECG,
+    PULSE,
+    RESPIRATORY,
+    TRIGGER,
+    GRADIENTWAVEFORM,
+    OTHER
+    };
 
+    WaveformType() : value_(OTHER) {}
+    WaveformType(int value) : value_(value) {}
+    operator int() const { return value_; }
+    bool operator==(const WaveformType& rhs) const { return value_ == rhs.value_; }
+  protected:
+    int value_;
+  };
+#endif
 
   struct WaveformInformation{
       std::string waveformName;
@@ -490,7 +551,7 @@ namespace ISMRMRD
 
   struct IsmrmrdHeader
   {
-    Optional<std::int64_t> version;
+    Optional<ISMRMRD::int64_t> version;
     Optional<SubjectInformation> subjectInformation;
     Optional<StudyInformation> studyInformation;
     Optional<MeasurementInformation> measurementInformation;
