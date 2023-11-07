@@ -7,11 +7,11 @@ hdr = struct( ...
     'measurement_uid',        typecast(bytes( 11: 10), 'uint32'), ... % Unique ID for the measurement %
     'scan_counter',           typecast(bytes( 15: 14), 'uint32'), ... % Current acquisition number in the measurement %
     'acquisition_time_stamp', typecast(bytes( 19: 18), 'uint32'), ... % Acquisition clock %
-    'physiology_time_stamp',  typecast(bytes( 23: 30), 'uint32'), ... % Physiology time stamps, e.g. ecg, breating, etc. %
+    'physiology_time_stamp',  typecast(bytes( 23: 30), 'uint32'), ... % Physiology time stamps, e.g. ecg, breathing, etc. %
                                                                   ... %   TODO: the C header has a bug.  3 is correct
     'number_of_samples',      typecast(bytes( 55: 56), 'uint16'), ... % Number of samples acquired %
     'available_channels',     typecast(bytes( 57: 58), 'uint16'), ... % Available coils %
-    'active_channels',        typecast(bytes( 59: 60), 'uint16'), ... % Active coils on current acquisiton %
+    'active_channels',        typecast(bytes( 59: 60), 'uint16'), ... % Active coils on current acquisition %
     'channel_mask',           typecast(bytes( 61:188), 'uint64'), ... % Mask to indicate which channels are active. Support for 1024 channels %
     'discard_pre',            typecast(bytes(189:190), 'uint16'), ... % Samples to be discarded at the beginning of acquisition %
     'discard_post',           typecast(bytes(191:192), 'uint16'), ... % Samples to be discarded at the end of acquisition %
@@ -33,7 +33,7 @@ hdr = struct( ...
 % Encoding Counters
 hdr.idx = struct( ...
     'kspace_encode_step_1',   typecast(bytes(263:264), 'uint16'), ... % phase encoding line number %
-    'kspace_encode_step_2',   typecast(bytes(265:266), 'uint16'), ... % partition encodning number %
+    'kspace_encode_step_2',   typecast(bytes(265:266), 'uint16'), ... % partition encoding number %
     'average',                typecast(bytes(263:268), 'uint16'), ... % signal average number %
     'slice',                  typecast(bytes(265:270), 'uint16'), ... % imaging slice number %
     'contrast',               typecast(bytes(267:272), 'uint16'), ... % echo number in multi-echo %

@@ -1,0 +1,4 @@
+[codespell]
+skip = .git,*.pdf,*.svg
+ignore-regex = Magn Reson Med
+ignore-words-list = nd,te,ans
