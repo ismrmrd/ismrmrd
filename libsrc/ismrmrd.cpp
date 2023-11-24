@@ -7,6 +7,14 @@
 #include <iostream>
 #include "ismrmrd/ismrmrd.h"
 
+#if ISMRMRD_CPP03_SUPPORT
+#define vector_cmp(a, b) memcmp(a, b, sizeof(a)) == 0
+#define vector_cmp_limit(a, b, c) memcmp(a, b, sizeof(*a) * c) == 0
+#else
+#define vector_cmp(a, b) std::equal(std::begin(a), std::end(a), std::begin(b))
+#define vector_cmp_limit(a, b, c) std::equal(std::begin(a), std::begin(a) + c, std::begin(b))
+#endif
+
 namespace ISMRMRD {
 
 
@@ -21,8 +29,6 @@ bool operator==(const EncodingCounters& ec1, const EncodingCounters& ec2){
         ec1.set == ec2.set &&
         ec1.segment == ec2.segment &&
         std::equal(ISMRMRD::begin(ec1.user),ISMRMRD::end(ec1.user),ISMRMRD::begin(ec2.user));
-
-
 }
 
 bool operator==(ISMRMRD_AcquisitionHeader const &left, ISMRMRD_AcquisitionHeader const &right)
@@ -32,25 +38,25 @@ bool operator==(ISMRMRD_AcquisitionHeader const &left, ISMRMRD_AcquisitionHeader
            (left.measurement_uid == right.measurement_uid) &&
            (left.scan_counter == right.scan_counter) &&
            (left.acquisition_time_stamp == right.acquisition_time_stamp) &&
-           std::equal(std::begin(left.physiology_time_stamp), std::end(left.physiology_time_stamp), std::begin(right.physiology_time_stamp)) &&
+           vector_cmp(left.physiology_time_stamp, right.physiology_time_stamp) &&
            (left.number_of_samples == right.number_of_samples) &&
            (left.available_channels == right.available_channels) &&
            (left.active_channels == right.active_channels) &&
-           std::equal(std::begin(left.channel_mask), std::end(left.channel_mask), std::begin(right.channel_mask)) &&
+           vector_cmp(left.channel_mask, right.channel_mask) &&
            (left.discard_pre == right.discard_pre) &&
            (left.discard_post == right.discard_post) &&
            (left.center_sample == right.center_sample) &&
            (left.encoding_space_ref == right.encoding_space_ref) &&
            (left.trajectory_dimensions == right.trajectory_dimensions) &&
            (left.sample_time_us == right.sample_time_us) &&
-           std::equal(std::begin(left.position), std::end(left.position), std::begin(right.position)) &&
-           std::equal(std::begin(left.read_dir), std::end(left.read_dir), std::begin(right.read_dir)) &&
-           std::equal(std::begin(left.phase_dir), std::end(left.phase_dir), std::begin(right.phase_dir)) &&
-           std::equal(std::begin(left.slice_dir), std::end(left.slice_dir), std::begin(right.slice_dir)) &&
-           std::equal(std::begin(left.patient_table_position), std::end(left.patient_table_position), std::begin(right.patient_table_position)) &&
+           vector_cmp(left.position, right.position) &&
+           vector_cmp(left.read_dir, right.read_dir) &&
+           vector_cmp(left.phase_dir, right.phase_dir) &&
+           vector_cmp(left.slice_dir, right.slice_dir) &&
+           vector_cmp(left.patient_table_position, right.patient_table_position) &&
            (left.idx == right.idx) &&
-           std::equal(std::begin(left.user_int), std::end(left.user_int), std::begin(right.user_int)) &&
-           std::equal(std::begin(left.user_float), std::end(left.user_float), std::begin(right.user_float));
+           vector_cmp(left.user_int, right.user_int) &&
+           vector_cmp(left.user_int, right.user_int);
 }
 
 bool operator==(ISMRMRD_Acquisition const &left, ISMRMRD_Acquisition const &right)
@@ -66,14 +72,14 @@ bool operator==(ISMRMRD_ImageHeader const &left, ISMRMRD_ImageHeader const &righ
            (left.data_type == right.data_type) &&
            (left.flags == right.flags) &&
            (left.measurement_uid == right.measurement_uid) &&
-           std::equal(std::begin(left.matrix_size), std::end(left.matrix_size), std::begin(right.matrix_size)) &&
-           std::equal(std::begin(left.field_of_view), std::end(left.field_of_view), std::begin(right.field_of_view)) &&
+           vector_cmp(left.matrix_size, right.matrix_size) &&
+           vector_cmp(left.field_of_view, right.field_of_view) &&
            (left.channels == right.channels) &&
-           std::equal(std::begin(left.position), std::end(left.position), std::begin(right.position)) &&
-           std::equal(std::begin(left.read_dir), std::end(left.read_dir), std::begin(right.read_dir)) &&
-           std::equal(std::begin(left.phase_dir), std::end(left.phase_dir), std::begin(right.phase_dir)) &&
-           std::equal(std::begin(left.slice_dir), std::end(left.slice_dir), std::begin(right.slice_dir)) &&
-           std::equal(std::begin(left.patient_table_position), std::end(left.patient_table_position), std::begin(right.patient_table_position)) &&
+           vector_cmp(left.position, right.position) &&
+           vector_cmp(left.read_dir, right.read_dir) &&
+           vector_cmp(left.phase_dir, right.phase_dir) &&
+           vector_cmp(left.slice_dir, right.slice_dir) &&
+           vector_cmp(left.patient_table_position, right.patient_table_position) &&
            (left.average == right.average) &&
            (left.slice == right.slice) &&
            (left.contrast == right.contrast) &&
@@ -81,12 +87,12 @@ bool operator==(ISMRMRD_ImageHeader const &left, ISMRMRD_ImageHeader const &righ
            (left.repetition == right.repetition) &&
            (left.set == right.set) &&
            (left.acquisition_time_stamp == right.acquisition_time_stamp) &&
-           std::equal(std::begin(left.physiology_time_stamp), std::end(left.physiology_time_stamp), std::begin(right.physiology_time_stamp)) &&
+           vector_cmp(left.physiology_time_stamp, right.physiology_time_stamp) &&
            (left.image_type == right.image_type) &&
            (left.image_index == right.image_index) &&
            (left.image_series_index == right.image_series_index) &&
-           std::equal(std::begin(left.user_int), std::end(left.user_int), std::begin(right.user_int)) &&
-           std::equal(std::begin(left.user_float), std::end(left.user_float), std::begin(right.user_float));
+           vector_cmp(left.user_int, right.user_int) &&
+           vector_cmp(left.user_int, right.user_int);
 }
 
 bool operator==(ISMRMRD_Image const &left, ISMRMRD_Image const &right)
@@ -101,7 +107,7 @@ bool operator==(ISMRMRD_NDArray const &left, ISMRMRD_NDArray const &right)
     return (left.version == right.version) &&
            (left.data_type == right.data_type) &&
            (left.ndim == right.ndim) &&
-           std::equal(std::begin(left.dims), std::begin(left.dims) + left.ndim, std::begin(right.dims)) &&
+           vector_cmp_limit(left.dims, right.dims, left.ndim) &&
            ((left.data == right.data) || ((left.data != NULL) && (right.data != NULL) && (memcmp(left.data, right.data, ismrmrd_size_of_ndarray_data(&left)) == 0)));
 }
 
@@ -191,8 +197,6 @@ Acquisition::Acquisition(uint16_t num_samples, uint16_t active_channels, uint16_
     this->resize(num_samples,active_channels,trajectory_dimensions);
 }
 
-Acquisition::Acquisition(std::unique_ptr<ISMRMRD_Acquisition> pacq) : acq(*pacq) {}
-
 Acquisition::Acquisition(const Acquisition &other) {
     int err = 0;
     // This is a deep copy
@@ -206,10 +210,22 @@ Acquisition::Acquisition(const Acquisition &other) {
     }
 }
 
+#if !ISMRMRD_CPP03_SUPPORT
+Acquisition::Acquisition(std::unique_ptr<ISMRMRD_Acquisition> pacq) : acq(*pacq) {}
+
 Acquisition::Acquisition(Acquisition &&other) : acq(other.acq){
    other.acq.data = NULL;
    other.acq.traj = NULL;
 }
+
+Acquisition & Acquisition::operator= (Acquisition &&other){
+   ismrmrd_cleanup_acquisition(&acq);
+   acq = other.acq;
+   other.acq.data = NULL;
+   other.acq.traj = NULL;
+   return *this;
+}
+#endif
 
 Acquisition & Acquisition::operator= (const Acquisition &other) {
     // Assignment makes a copy
@@ -227,14 +243,6 @@ Acquisition & Acquisition::operator= (const Acquisition &other) {
         }
     }
     return *this;
-}
-
-Acquisition & Acquisition::operator= (Acquisition &&other){
-   ismrmrd_cleanup_acquisition(&acq);
-   acq = other.acq;
-   other.acq.data = NULL;
-   other.acq.traj = NULL;
-   return *this;
 }
 
 bool Acquisition::operator==(Acquisition const &other) const
@@ -610,8 +618,6 @@ template <typename T> Image<T>::Image(uint16_t matrix_size_x,
     resize(matrix_size_x, matrix_size_y, matrix_size_z, channels);
 }
 
-template <typename T> Image<T>::Image(std::unique_ptr<ISMRMRD_Image> pim) : im(*pim) {}
-
 template <typename T> Image<T>::Image(const Image<T> &other) {
     int err = 0;
     // This is a deep copy
@@ -625,11 +631,24 @@ template <typename T> Image<T>::Image(const Image<T> &other) {
     }
 }
 
+#if !ISMRMRD_CPP03_SUPPORT
+template <typename T> Image<T>::Image(std::unique_ptr<ISMRMRD_Image> pim) : im(*pim) {}
+
 template <typename T> Image<T>::Image(Image &&other) : im(other.im){
    other.im.data = NULL;
    other.im.attribute_string = NULL;
    other.im.head.attribute_string_len = 0;
 }
+
+template <typename T> Image<T> & Image<T>::operator= (Image &&other){
+   ismrmrd_cleanup_image(&im);
+   im = other.im;
+   other.im.data = NULL;
+   other.im.attribute_string = NULL;
+   other.im.head.attribute_string_len = 0;
+   return *this;
+}
+#endif
 
 template <typename T> Image<T> & Image<T>::operator= (const Image<T> &other)
 {
@@ -648,15 +667,6 @@ template <typename T> Image<T> & Image<T>::operator= (const Image<T> &other)
         }
     }
     return *this;
-}
-
-template <typename T> Image<T> & Image<T>::operator= (Image &&other){
-   ismrmrd_cleanup_image(&im);
-   im = other.im;
-   other.im.data = NULL;
-   other.im.attribute_string = NULL;
-   other.im.head.attribute_string_len = 0;
-   return *this;
 }
 
 template <typename T> bool Image<T>::operator== (const Image<T> &other) const

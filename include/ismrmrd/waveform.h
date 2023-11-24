@@ -7,20 +7,22 @@
 #ifndef ISMRMRD_WAVEFORM_H
 #define ISMRMRD_WAVEFORM_H
 
+#include "ismrmrd/version.h"
+
 #if __cplusplus > 199711L
 #include <type_traits>
 #endif
 
 #include "export.h"
+
+#include "vstypes.h"
+
 #ifdef __cplusplus
 #include "cpp98.h"
 #include <cstddef>
-#include <stdint.h>
 namespace ISMRMRD {
 extern "C" {
-#else
-#include <stdint.h>
-#endif
+#endif //ifdef __cplusplus
 
 // Note: This header does not use 2-byte packing like the rest of the ISMRMRD
 typedef struct ISMRMRD_WaveformHeader
@@ -81,7 +83,7 @@ EXPORTISMRMRD int ismrmrd_copy_waveform(ISMRMRD_Waveform* dest, const ISMRMRD_Wa
     EXPORTISMRMRD bool operator==(ISMRMRD_Waveform const &left, ISMRMRD_Waveform const &right);
 
     struct EXPORTISMRMRD WaveformHeader : public ISMRMRD_WaveformHeader {
-        WaveformHeader() = default;
+        WaveformHeader() {};
 
         WaveformHeader(ISMRMRD_WaveformHeader const &header): ISMRMRD_WaveformHeader(header) {};
 
@@ -102,15 +104,14 @@ EXPORTISMRMRD int ismrmrd_copy_waveform(ISMRMRD_Waveform* dest, const ISMRMRD_Wa
     struct EXPORTISMRMRD Waveform : public ISMRMRD_Waveform {
         Waveform();
         Waveform(const Waveform &other);
-#if __cplusplus > 199711L
+#if !ISMRMRD_CPP03_SUPPORT
         Waveform(Waveform&& other);
+        Waveform & operator=(Waveform &&other);
 #endif
         Waveform(uint16_t number_of_samples, uint16_t available_channels);
         ~Waveform();
         Waveform & operator=(const Waveform &other);
-#if __cplusplus > 199711L
-        Waveform & operator=(Waveform &&other);
-#endif
+
 		uint32_t* begin_data();
 		uint32_t* end_data();
         const uint32_t* begin_data() const;

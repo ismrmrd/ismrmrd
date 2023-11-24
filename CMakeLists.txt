@@ -181,7 +181,7 @@ endif()
 # Find HDF5 for dataset support
 
 
-if (USE_HDF5_DATASET_SUPPORT)
+if (USE_HDF5_DATASET_SUPPORT AND NOT USE_CPP03_SUPPORT)
     if (VCPKG_TARGET_TRIPLET) #VCPKG HDF5 is packaged differently.
         find_package(HDF5 CONFIG COMPONENTS C shared REQUIRED)
         set(HDF5_C_LIBRARIES hdf5::hdf5-shared)
@@ -200,7 +200,7 @@ else ()
     message(WARNING " Dataset and file support unavailable!")
 endif ()
 
-if (USE_SERIALIZATION_SUPPORT)
+if (USE_SERIALIZATION_SUPPORT AND NOT USE_CPP03_SUPPORT)
     find_package(zfp REQUIRED)
     find_package(cereal REQUIRED)
     set(ISMRMRD_SERIALIZATION_INCLUDE_DIR ${ZFP_INCLUDE_DIRS})
@@ -210,6 +210,12 @@ if (USE_SERIALIZATION_SUPPORT)
 else()
     set(ISMRMRD_SERIALIZATION_SUPPORT false)
     message(WARNING " Serialization support unavailable!")
+endif ()
+
+if (USE_CPP03_SUPPORT)
+    set(ISMRMRD_CPP03_SUPPORT true)
+else()
+    set(ISMRMRD_CPP03_SUPPORT false)
 endif ()
 
 # Generate the version.h header file
@@ -246,14 +252,20 @@ set(ISMRMRD_TARGET_INCLUDE_DIRS
   ${ISMRMRD_DATASET_INCLUDE_DIR}
 )
 
+if (NOT USE_CPP03_SUPPORT)
+    set (c11_files
+      libsrc/serialization.cpp
+      libsrc/xml.cpp
+    )
+endif()
+
 set(ISMRMRD_TARGET_SOURCES
   libsrc/ismrmrd.c
   libsrc/ismrmrd.cpp
-  libsrc/xml.cpp
   libsrc/meta.cpp
-  libsrc/serialization.cpp
   libsrc/waveform.cpp
   libsrc/waveform.c
+  ${c11_files}
   ${ISMRMRD_SERIALIZATION_SOURCE}
   ${ISMRMRD_DATASET_SOURCES}
 )

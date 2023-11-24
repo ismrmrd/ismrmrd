@@ -8,7 +8,7 @@ add_executable(ismrmrd_info ismrmrd_info.cpp)
 target_link_libraries(ismrmrd_info ismrmrd)
 install(TARGETS ismrmrd_info DESTINATION bin)
 
-if (NOT WIN32)
+if (NOT WIN32 AND NOT USE_CPP03_SUPPORT)
   add_executable(ismrmrd_test_xml
     ismrmrd_test_xml.cpp)
   target_link_libraries(ismrmrd_test_xml ismrmrd)

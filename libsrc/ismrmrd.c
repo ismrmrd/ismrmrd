@@ -1,17 +1,16 @@
 #include <string.h>
 #include <stdlib.h>
-#include <stdint.h>
+#include "ismrmrd/version.h"
+#include "ismrmrd/vstypes.h"
 
 /* Language and Cross platform section for defining types */
 #ifdef __cplusplus
 #include <cmath>
 #include <cstdio>
-
 #else
 /* C99 compiler */
 #include <math.h>
 #include <stdio.h>
-
 #endif /* __cplusplus */
 
 #include "ismrmrd/ismrmrd.h"

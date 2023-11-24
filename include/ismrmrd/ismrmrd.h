@@ -23,8 +23,9 @@
 
 /* Language and cross platform section for defining types */
 /* integers */
-#include <stdint.h>
+#include "ismrmrd/version.h"
 #include <stddef.h>     /* for size_t */
+#include "vstypes.h"
 
 #if __cplusplus > 199711L
 #include <type_traits>
@@ -63,8 +64,6 @@ typedef double complex complex_double_t;
 #ifndef __cplusplus
 #if defined (_MSC_VER) && (_MSC_VER < 1800) /* old MS C compiler */
 typedef int bool;
-#define false 0
-#define true 1
 #else /* C99 compiler */
 #include <stdbool.h>
 #endif /* _MSC_VER */
@@ -626,11 +625,13 @@ public:
     // Constructors, assignment, destructor
     Acquisition();
     Acquisition(uint16_t num_samples, uint16_t active_channels=1, uint16_t trajectory_dimensions=0);
-    Acquisition(std::unique_ptr<ISMRMRD_Acquisition> pacq);
     Acquisition(const Acquisition &other);
+#if !ISMRMRD_CPP03_SUPPORT
+    Acquisition(std::unique_ptr<ISMRMRD_Acquisition> pacq);
     Acquisition(Acquisition &&other);
-    Acquisition & operator= (const Acquisition &other);
     Acquisition & operator= (Acquisition &&other);
+#endif
+    Acquisition & operator= (const Acquisition &other);
     bool operator==(Acquisition const &other) const;
 
     ~Acquisition();
@@ -801,11 +802,14 @@ public:
     // Constructors
     Image(uint16_t matrix_size_x = 0, uint16_t matrix_size_y = 1,
           uint16_t matrix_size_z = 1, uint16_t channels = 1);
+
+#if !ISMRMRD_CPP03_SUPPORT
     Image(std::unique_ptr<ISMRMRD_Image> pim);
-    Image(const Image &other);
     Image(Image &&other);
-    Image & operator= (const Image &other);
     Image & operator= (Image &&other);
+#endif
+    Image(const Image &other);
+    Image & operator= (const Image &other);
     bool operator==(const Image<T> &other) const;
 
     ~Image();

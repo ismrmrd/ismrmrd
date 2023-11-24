@@ -21,6 +21,13 @@ configure_file(embedded_xml.h.in embedded_xml.h)
 
 include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include ${Boost_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
+if (!USE_CPP03_SUPPORT)
+    set (c11_tests
+        test_ismrmrd.cpp
+        test_xml_header.cpp
+    )
+endif()
+
 add_executable(test_ismrmrd
     test_main.cpp
     test_acquisitions.cpp
@@ -28,17 +35,17 @@ add_executable(test_ismrmrd
     test_ndarray.cpp
     test_flags.cpp
     test_channels.cpp
-    test_xml_header.cpp
     test_quaternions.cpp
-    test_ismrmrd.cpp)
+    ${c11_tests}
+)
 
-if (USE_SERIALIZATION_SUPPORT)
+if (USE_SERIALIZATION_SUPPORT AND NOT USE_CPP03_SUPPORT)
     target_sources(test_ismrmrd
           PRIVATE test_serialize.cpp
           PRIVATE test_compression.cpp)
 endif()
 
-if (HDF5_FOUND)
+if (HDF5_FOUND AND NOT USE_CPP03_SUPPORT)
     target_sources(test_ismrmrd
           PRIVATE test_dataset.cpp
           PRIVATE test_serialization.cpp)

@@ -78,7 +78,7 @@ ISMRMRD::Waveform::Waveform(const Waveform &other) {
 	this->head = other.head;
 }
 
-#if __cplusplus > 199711L
+#if !ISMRMRD_CPP03_SUPPORT
 ISMRMRD::Waveform::Waveform(Waveform &&other) {
     this->data = other.data;
     other.data = NULL;
@@ -93,7 +93,7 @@ ISMRMRD::Waveform::~Waveform() {
 
 }
 
-#if __cplusplus > 199711L
+#if !ISMRMRD_CPP03_SUPPORT
 ISMRMRD::Waveform & ISMRMRD::Waveform::operator=(Waveform &&other) {
 	if (data != NULL) free(data);
     this->data = other.data;
