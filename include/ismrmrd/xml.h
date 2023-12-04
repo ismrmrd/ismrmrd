@@ -17,6 +17,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <array>
+#include "pugixml.hpp"
 
 /**
   TODO LIST
@@ -33,6 +35,17 @@
 
 namespace ISMRMRD
 {
+
+  class xml_document: public pugi::xml_document
+  {
+  public:
+    xml_document() = default;
+    ~xml_document() = default;
+    xml_document(const xml_document&);
+    xml_document& operator=(const xml_document&);
+    xml_document(xml_document&&) noexcept ;
+    xml_document& operator=(xml_document&&) noexcept ;
+  };
 
   template <typename T> class Optional
   {
@@ -561,6 +574,7 @@ namespace ISMRMRD
     Optional<SequenceParameters> sequenceParameters;
     Optional<UserParameters> userParameters;
     std::vector<WaveformInformation> waveformInformation;
+    ISMRMRD::xml_document customXML;
   };
 
 
@@ -569,6 +583,7 @@ namespace ISMRMRD
 
     EXPORTISMRMRD std::ostream& operator<<(std::ostream & os, const IsmrmrdHeader&);
 
+ EXPORTISMRMRD bool subtree_equal(const pugi::xml_node &, const pugi::xml_node &);
  EXPORTISMRMRD bool operator==(const IsmrmrdHeader&, const IsmrmrdHeader&);
  EXPORTISMRMRD bool operator!=(const IsmrmrdHeader &lhs, const IsmrmrdHeader &rhs);
  EXPORTISMRMRD bool operator==(const SubjectInformation &lhs, const SubjectInformation &rhs);

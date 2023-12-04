@@ -15,6 +15,7 @@
       <xs:element maxOccurs="1" minOccurs="0" name="sequenceParameters" type="sequenceParametersType" />
       <xs:element maxOccurs="1" minOccurs="0" name="userParameters" type="userParametersType" />
       <xs:element maxOccurs="32" minOccurs="0" name="waveformInformation" type="waveformInformationType" />
+      <xs:element maxOccurs="1" minOccurs="0" name="customXML" />
     </xs:sequence>
   </xs:complexType>
 

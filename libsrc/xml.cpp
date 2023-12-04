@@ -1,6 +1,5 @@
 #include "ismrmrd/xml.h"
 #include "ismrmrd/version.h"
-#include "pugixml.hpp"
 #include <cstdlib>
 #include <iomanip>
 #include <tuple>
@@ -35,7 +34,28 @@ unsigned long stoul(const std::string &str) {
 }
 
 // Utility Functions for deserializing Header
-EncodingSpace parse_encoding_space(pugi::xml_node &n, const char *child) {
+  xml_document::xml_document(const xml_document& other)
+  {
+    reset(other);
+  }
+
+  xml_document& xml_document::operator=(const xml_document& other)
+  {
+    reset(other);
+    return *this;
+  }
+
+  xml_document::xml_document(xml_document&& rhs)  noexcept : pugi::xml_document(std::move(rhs)){}
+
+  xml_document& xml_document::operator=(xml_document&& rhs) noexcept
+  {
+    pugi::xml_document::operator=(std::move(rhs));
+    return *this;
+  }
+
+  //Utility Functions for deserializing Header
+  EncodingSpace parse_encoding_space(pugi::xml_node& n, const char* child) 
+  {
     EncodingSpace e;
     pugi::xml_node encodingSpace = n.child(child);
     pugi::xml_node matrixSize = encodingSpace.child("matrixSize");
@@ -363,6 +383,7 @@ void deserialize(const char *xml, IsmrmrdHeader &h) {
         pugi::xml_node sequenceParameters = root.child("sequenceParameters");
         pugi::xml_node userParameters = root.child("userParameters");
         pugi::xml_node waveformInformation = root.child("waveformInformation");
+        pugi::xml_node customXML = root.child("customXML");
 
         // Parsing version
         h.version = parse_optional_long(root, "version");
@@ -634,6 +655,11 @@ void deserialize(const char *xml, IsmrmrdHeader &h) {
             h.waveformInformation.push_back(w);
             waveformInformation = waveformInformation.next_sibling();
         }
+
+        if (customXML) {
+            h.customXML.append_copy(customXML);
+        }
+
     } else {
         throw std::runtime_error("Root node 'ismrmrdHeader' not found");
     }
@@ -1033,6 +1059,12 @@ void serialize(const IsmrmrdHeader &h, std::ostream &o) {
         append_waveform_information(root, "waveformInformation", *w);
     }
 
+    auto customXMLNode = h.customXML.child("customXML");
+    if (customXMLNode){
+        root.append_copy(customXMLNode);
+    }
+
+
     doc.save(o);
 }
 
@@ -1041,18 +1073,25 @@ std::ostream &operator<<(std::ostream &stream, const IsmrmrdHeader &header) {
     return stream;
 }
 
-bool operator==(const IsmrmrdHeader &lhs, const IsmrmrdHeader &rhs) {
-    return lhs.version == rhs.version &&
-           lhs.subjectInformation == rhs.subjectInformation &&
-           lhs.studyInformation == rhs.studyInformation &&
-           lhs.measurementInformation == rhs.measurementInformation &&
-           lhs.acquisitionSystemInformation == rhs.acquisitionSystemInformation &&
-           lhs.experimentalConditions == rhs.experimentalConditions &&
-           lhs.encoding == rhs.encoding &&
-           lhs.sequenceParameters == rhs.sequenceParameters &&
-           lhs.userParameters == rhs.userParameters &&
-           lhs.waveformInformation == rhs.waveformInformation;
+bool subtree_equal (const pugi::xml_node &lhs, const pugi::xml_node &rhs){
+    // pugixml doesn't support comparison of trees
+    // the following is dependent on node order
+    std::stringstream lhs_ss,rhs_ss;
+    lhs.print(lhs_ss);
+    rhs.print(rhs_ss);
+    return lhs_ss.str() == rhs_ss.str();
 }
+
+bool operator==(const IsmrmrdHeader &lhs, const IsmrmrdHeader &rhs) {
+     bool equal = std::tie(lhs.version, lhs.subjectInformation, lhs.studyInformation, lhs.measurementInformation, lhs.acquisitionSystemInformation, lhs.experimentalConditions, lhs.encoding, lhs.sequenceParameters, lhs.userParameters, lhs.waveformInformation) == std::tie(rhs.version, rhs.subjectInformation, rhs.studyInformation, rhs.measurementInformation, rhs.acquisitionSystemInformation, rhs.experimentalConditions, rhs.encoding, rhs.sequenceParameters, rhs.userParameters, rhs.waveformInformation);
+     auto lhs_custom = lhs.customXML.child("customXML");
+     auto rhs_custom = rhs.customXML.child("customXML");
+     if (lhs_custom || rhs_custom){
+         return equal && subtree_equal(lhs_custom, rhs_custom);
+     }
+     return equal;
+}
+
 bool operator!=(const IsmrmrdHeader &lhs, const IsmrmrdHeader &rhs) {
     return !(rhs == lhs);
 }
@@ -1235,7 +1274,6 @@ bool operator==(const MultibandSpacing &lhs, const MultibandSpacing &rhs) {
 bool operator!=(const MultibandSpacing &lhs, const MultibandSpacing &rhs) {
     return !(rhs == lhs);
 }
-
 bool operator==(const Diffusion &lhs, const Diffusion &rhs) {
     return lhs.bvalue == rhs.bvalue && lhs.gradientDirection == rhs.gradientDirection;
 }

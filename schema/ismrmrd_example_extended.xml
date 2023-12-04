@@ -432,4 +432,7 @@
       <value>VGhpcyBpcyBhIGpvdXJuZXkgaW50byBzb3VuZA==</value>
     </userParameterBase64>
   </userParameters>
+  <customXML>
+    <testName>testValue</testName>
+  </customXML>
 </ismrmrdHeader>
