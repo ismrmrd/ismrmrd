@@ -31,7 +31,7 @@ if (HDF5_FOUND)
         install(TARGETS ismrmrd_read_timing_test DESTINATION bin)
         endif()
 
-    find_package(Boost 1.80 COMPONENTS program_options random)
+    find_package(Boost 1.43 COMPONENTS program_options random)
     if (WIN32)
         add_definitions(-DBOOST_ALL_NO_LIB)
         add_definitions(-DBOOST_ALL_DYN_LINK)
