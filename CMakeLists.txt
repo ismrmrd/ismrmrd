@@ -90,7 +90,7 @@ endif ()
 # For more information see http://semver.org/
 set(ISMRMRD_VERSION_MAJOR 1)
 set(ISMRMRD_VERSION_MINOR 14)
-set(ISMRMRD_VERSION_PATCH 0)
+set(ISMRMRD_VERSION_PATCH 1)
 
 set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
 set(ISMRMRD_SOVERSION ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR})
@@ -157,6 +157,9 @@ if (USE_HDF5_DATASET_SUPPORT)
     if (VCPKG_TARGET_TRIPLET) #VCPKG HDF5 is packaged differently.
         find_package(HDF5 CONFIG COMPONENTS C shared REQUIRED)
         set(HDF5_C_LIBRARIES hdf5::hdf5-shared)
+    elseif(CMAKE_TOOLCHAIN_FILE MATCHES "conan_") # Conan is yet another way to do this
+        find_package(HDF5 CONFIG COMPONENTS C shared REQUIRED)
+        set(HDF5_C_LIBRARIES hdf5::hdf5)
     else ()
         find_package(HDF5 COMPONENTS C REQUIRED)
     endif ()

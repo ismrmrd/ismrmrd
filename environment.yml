@@ -5,6 +5,7 @@ channels:
 dependencies:
   - boost=1.80.0
   - cmake=3.21.3             # dev
+  - conan=2.0.17             # dev
   - fftw=3.3.9
   - gcc_linux-64=11.2.0      # dev
   - gdb=11.1                 # dev
