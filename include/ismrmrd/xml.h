@@ -418,6 +418,12 @@ namespace ISMRMRD
     Optional<Multiband> multiband;
   };
 
+  struct FOVShifted {
+    bool kspace_encoding_0;
+    bool kspace_encoding_1;
+    bool kspace_encoding_2;
+  };
+
   struct Encoding
   {
     EncodingSpace encodedSpace;
@@ -427,6 +433,7 @@ namespace ISMRMRD
     Optional<TrajectoryDescription> trajectoryDescription;
     Optional<ParallelImaging> parallelImaging;
     Optional<std::int64_t> echoTrainLength;
+    Optional<FOVShifted> fovShifted;
   };
 
    struct GradientDirection {

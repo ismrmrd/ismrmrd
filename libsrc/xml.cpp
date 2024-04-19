@@ -49,6 +49,14 @@ namespace ISMRMRD
     return o;
   }
 
+  bool parse_bool(pugi::xml_node& n, const char* child) {
+      const std::string val(n.child_value(child));
+      if (val == "true" || val == "1") return true;
+      if (val == "false" || val == "0") return false;
+     // If the input string does not match any of the accepted values
+      throw std::invalid_argument("Invalid boolean value");
+  }
+
   std::string parse_string(pugi::xml_node& n, const char* child) 
   {
     std::string r(n.child_value(child));
@@ -310,6 +318,13 @@ namespace ISMRMRD
 
   }
 
+static Optional<FOVShifted> parse_fov_shifted(pugi::xml_node& encoding_node) {
+      pugi::xml_node fov_shifted_node = encoding_node.child("fovShifted");
+      if (!fov_shifted_node) return {};
+      return FOVShifted{parse_bool(encoding_node,"kspace_encoding_0"),
+          parse_bool(encoding_node,"kspace_encoding_1"),parse_bool(encoding_node,"kspace_encoding_2")};
+  }
+
   //End of utility functions for deserializing header
 
   void deserialize(const char* xml, IsmrmrdHeader& h) 
@@ -448,6 +463,8 @@ namespace ISMRMRD
 
 
 	  e.echoTrainLength = parse_optional_long(encoding, "echoTrainLength");
+
+	    e.fovShifted = parse_fov_shifted(encoding);
 
 	  h.encoding.push_back(e);
 	  encoding = encoding.next_sibling("encoding");
@@ -700,6 +717,10 @@ std::string to_string(const MultibandCalibrationType& v)
 
     throw std::runtime_error("Illegal enum class value");
 }
+std::string to_string(bool b) {
+        if (b) return "true";
+        return "false";
+}
 
 template <class T> void append_optional_node(pugi::xml_node& n, const char* child, const Optional<T>& v)
   {
@@ -747,6 +768,16 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       append_node(n2,"maximum",l->maximum);
       append_node(n2,"center",l->center);
     }
+  }
+
+  void append_fov_shifted(pugi::xml_node& n, const char* child, const Optional<FOVShifted>& fov_shifted) {
+        if (fov_shifted) {
+            pugi::xml_node n2 = n.append_child(child);
+            append_node(n2,"kspace_encoding_0",fov_shifted->kspace_encoding_0);
+            append_node(n2,"kspace_encoding_0",fov_shifted->kspace_encoding_1);
+            append_node(n2, "kspace_encoding_0",fov_shifted->kspace_encoding_2);
+        }
+
   }
 
   template <class T> 
@@ -950,6 +981,7 @@ void append_optional_three_dimensional_float(pugi::xml_node& n, const char* chil
       }
 
       append_optional_node(n1,"echoTrainLength",h.encoding[i].echoTrainLength);
+      append_fov_shifted(n1,"fovShifted",h.encoding[i].fovShifted);
 
     }
 
