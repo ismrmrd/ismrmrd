@@ -6,7 +6,7 @@
 #include "ismrmrd/dataset.h"
 
 void myerror(const char *file, int line, const char *func, int code, const char *msg) {
-    char *msgtype = ismrmrd_strerror(code);
+    const char *msgtype = ismrmrd_strerror(code);
     fprintf(stderr, "Whoa! ERROR: %s in %s, line %d: %s\n", msgtype, file, line, msg);
     exit(-1);
 }

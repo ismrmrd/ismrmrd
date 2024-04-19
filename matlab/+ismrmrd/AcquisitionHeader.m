@@ -207,11 +207,11 @@ classdef AcquisitionHeader < handle
             obj.user_float(1:8,range)             = zeros(8,N,'single');
         end
         
-        function append(obj, head)
+        function append(obj, hdr)
             % Append a header
             
             Nstart = obj.getNumber + 1;
-            Nend   = obj.getNumber + length(head.version);
+            Nend   = obj.getNumber + length(hdr.version);
             Nrange = Nstart:Nend;
             obj.version(1,Nrange) = hdr.version(:);
             obj.flags(1,Nrange) = hdr.flags(:);

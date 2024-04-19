@@ -1,0 +1,38 @@
+name: "C++98 Smoketest"
+
+on:
+  pull_request:
+    branches:
+      - master
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Create Build Environment
+      run: cmake -E make_directory ${{github.workspace}}/build
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get -y install git-core libboost-all-dev libfftw3-dev libhdf5-serial-dev libxml2-utils libpugixml-dev socat
+
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_STANDARD=98
+
+    - name: Build
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: |
+        cmake --build . --config $BUILD_TYPE
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build/tests
+      shell: bash
+      run: ./test_ismrmrd

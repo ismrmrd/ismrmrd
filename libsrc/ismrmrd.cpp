@@ -3,6 +3,7 @@
 #include <sstream>
 #include <stdexcept>
 
+#include "ismrmrd/cpp98.h"
 #include <iostream>
 #include "ismrmrd/ismrmrd.h"
 
@@ -19,7 +20,7 @@ bool operator==(const EncodingCounters& ec1, const EncodingCounters& ec2){
         ec1.repetition == ec2.repetition &&
         ec1.set == ec2.set &&
         ec1.segment == ec2.segment &&
-        std::equal(std::begin(ec1.user),std::end(ec1.user),std::begin(ec2.user));
+        std::equal(ISMRMRD::begin(ec1.user),ISMRMRD::end(ec1.user),ISMRMRD::begin(ec2.user));
 
 
 }
@@ -71,25 +72,25 @@ bool AcquisitionHeader::operator==(const AcquisitionHeader &hdr) const {
            measurement_uid == hdr.measurement_uid &&
            scan_counter == hdr.scan_counter &&
            acquisition_time_stamp == hdr.acquisition_time_stamp &&
-           std::equal(std::begin(physiology_time_stamp), std::end(physiology_time_stamp), std::begin(hdr.physiology_time_stamp)) &&
+           std::equal(ISMRMRD::begin(physiology_time_stamp), ISMRMRD::end(physiology_time_stamp), ISMRMRD::begin(hdr.physiology_time_stamp)) &&
            number_of_samples == hdr.number_of_samples &&
            available_channels == hdr.available_channels &&
            active_channels == hdr.active_channels &&
-           std::equal(std::begin(channel_mask), std::end(channel_mask), std::begin(hdr.channel_mask)) &&
+           std::equal(ISMRMRD::begin(channel_mask), ISMRMRD::end(channel_mask), ISMRMRD::begin(hdr.channel_mask)) &&
            discard_pre == hdr.discard_pre &&
            discard_post == hdr.discard_post &&
            center_sample == hdr.center_sample &&
            encoding_space_ref == hdr.encoding_space_ref &&
            trajectory_dimensions == hdr.trajectory_dimensions &&
            sample_time_us == hdr.sample_time_us &&
-           std::equal(std::begin(position), std::end(position), std::begin(hdr.position)) &&
-           std::equal(std::begin(read_dir), std::end(read_dir), std::begin(hdr.read_dir)) &&
-           std::equal(std::begin(phase_dir), std::end(phase_dir), std::begin(hdr.phase_dir)) &&
-           std::equal(std::begin(slice_dir), std::end(slice_dir), std::begin(hdr.slice_dir)) &&
-           std::equal(std::begin(patient_table_position), std::end(patient_table_position), std::begin(hdr.patient_table_position)) &&
+           std::equal(ISMRMRD::begin(position), ISMRMRD::end(position), ISMRMRD::begin(hdr.position)) &&
+           std::equal(ISMRMRD::begin(read_dir), ISMRMRD::end(read_dir), ISMRMRD::begin(hdr.read_dir)) &&
+           std::equal(ISMRMRD::begin(phase_dir), ISMRMRD::end(phase_dir), ISMRMRD::begin(hdr.phase_dir)) &&
+           std::equal(ISMRMRD::begin(slice_dir), ISMRMRD::end(slice_dir), ISMRMRD::begin(hdr.slice_dir)) &&
+           std::equal(ISMRMRD::begin(patient_table_position), ISMRMRD::end(patient_table_position), ISMRMRD::begin(hdr.patient_table_position)) &&
            idx == hdr.idx &&
-           std::equal(std::begin(user_int), std::end(user_int), std::begin(hdr.user_int)) &&
-           std::equal(std::begin(user_int), std::end(user_int), std::begin(hdr.user_int));
+           std::equal(ISMRMRD::begin(user_int), ISMRMRD::end(user_int), ISMRMRD::begin(hdr.user_int)) &&
+           std::equal(ISMRMRD::begin(user_int), ISMRMRD::end(user_int), ISMRMRD::begin(hdr.user_int));
 }
 
 //
@@ -146,13 +147,90 @@ Acquisition::~Acquisition() {
 }
 
 // Accessors and mutators
-const uint16_t &Acquisition::version() {
+uint16_t Acquisition::version() const {
     return acq.head.version;
 }
 
-const uint64_t &Acquisition::flags() {
+uint64_t Acquisition::flags() const {
     return acq.head.flags;
 }
+
+const uint32_t (&Acquisition::physiology_time_stamp() const) [ISMRMRD_PHYS_STAMPS] {
+    return acq.head.physiology_time_stamp;
+}
+
+uint16_t Acquisition::number_of_samples() const  {
+    return acq.head.number_of_samples;
+}
+
+uint16_t Acquisition::available_channels() const {
+    return acq.head.available_channels;
+}
+
+uint16_t Acquisition::active_channels() const {
+    return acq.head.active_channels;
+}
+
+const uint64_t (&Acquisition::channel_mask() const) [ISMRMRD_CHANNEL_MASKS] {
+    return acq.head.channel_mask;
+}
+
+uint16_t Acquisition::discard_pre() const {
+    return acq.head.discard_pre;
+}
+
+uint16_t Acquisition::discard_post() const {
+    return acq.head.discard_post;
+}
+
+uint16_t Acquisition::center_sample() const {
+    return acq.head.center_sample;
+}
+
+uint16_t Acquisition::encoding_space_ref() const {
+    return acq.head.encoding_space_ref;
+}
+
+uint16_t Acquisition::trajectory_dimensions() const  {
+    return acq.head.trajectory_dimensions;
+}
+
+float Acquisition::sample_time_us() const {
+    return acq.head.sample_time_us;
+}
+
+const float (&Acquisition::position() const )[3] {
+    return acq.head.position;
+}
+
+const float (&Acquisition::read_dir() const )[3] {
+    return acq.head.read_dir;
+}
+
+const float (&Acquisition::phase_dir() const)[3] {
+    return acq.head.phase_dir;
+}
+
+const float (&Acquisition::slice_dir() const )[3] {
+    return acq.head.slice_dir;
+}
+
+const float (&Acquisition::patient_table_position() const)[3] {
+    return acq.head.patient_table_position;
+}
+
+const ISMRMRD_EncodingCounters &Acquisition::idx() const {
+    return acq.head.idx;
+}
+
+const int32_t (&Acquisition::user_int() const ) [ISMRMRD_USER_INTS] {
+    return acq.head.user_int;
+}
+
+const float (&Acquisition::user_float() const) [ISMRMRD_USER_FLOATS] {
+    return acq.head.user_float;
+}
+
 
 uint32_t &Acquisition::measurement_uid() {
     return acq.head.measurement_uid;
@@ -319,24 +397,39 @@ float & Acquisition::traj(uint16_t dimension, uint16_t sample){
     return acq.traj[index];
 }
 
-complex_float_t * Acquisition::data_begin() const{
+const complex_float_t * Acquisition::data_begin() const{
        return acq.data;
 }
 
-complex_float_t * Acquisition::data_end() const {
+const complex_float_t * Acquisition::data_end() const {
        return acq.data+size_t(acq.head.number_of_samples)*size_t(acq.head.active_channels);
 }
 
-float * Acquisition::traj_begin() const {
+complex_float_t * Acquisition::data_begin(){
+       return acq.data;
+}
+
+complex_float_t * Acquisition::data_end() {
+       return acq.data+size_t(acq.head.number_of_samples)*size_t(acq.head.active_channels);
+}
+
+const float * Acquisition::traj_begin() const {
        return acq.traj;
 }
 
-float * Acquisition::traj_end() const {
+const float * Acquisition::traj_end() const {
+       return acq.traj+size_t(acq.head.number_of_samples)*size_t(acq.head.trajectory_dimensions);
+}
+ float * Acquisition::traj_begin() {
+       return acq.traj;
+}
+
+float * Acquisition::traj_end() {
        return acq.traj+size_t(acq.head.number_of_samples)*size_t(acq.head.trajectory_dimensions);
 }
 
 // Flag methods
-bool Acquisition::isFlagSet(const uint64_t val) {
+bool Acquisition::isFlagSet(const uint64_t val) const {
     return ismrmrd_is_flag_set(acq.head.flags, val);
 }
 void Acquisition::setFlag(const uint64_t val) {
@@ -350,7 +443,7 @@ void Acquisition::clearAllFlags() {
 }
 
 // Channel mask methods
-bool Acquisition::isChannelActive(uint16_t channel_id) {
+bool Acquisition::isChannelActive(uint16_t channel_id) const {
     return ismrmrd_is_channel_on(acq.head.channel_mask, channel_id);
 }
 void Acquisition::setChannelActive(uint16_t channel_id) {
@@ -362,7 +455,15 @@ void Acquisition::setChannelNotActive(uint16_t channel_id) {
 void Acquisition::setAllChannelsNotActive() {
     ismrmrd_set_all_channels_off(acq.head.channel_mask);
 }
-
+uint32_t Acquisition::measurement_uid() const {
+   return acq.head.measurement_uid;
+}
+uint32_t Acquisition::scan_counter() const {
+   return acq.head.scan_counter;
+}
+uint32_t Acquisition::acquisition_time_stamp() const {
+   return acq.head.acquisition_time_stamp;
+}
 
 //
 // ImageHeader class Implementation
@@ -376,7 +477,7 @@ ImageHeader::ImageHeader() {
 };
 
 // Flag methods
-bool ImageHeader::isFlagSet(const uint64_t val) {
+bool ImageHeader::isFlagSet(const uint64_t val) const {
     return ismrmrd_is_flag_set(flags, val);
 };
 

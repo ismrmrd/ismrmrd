@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     
     container:
-      image: fedora:latest
+      image: fedora:37
     steps:
     - name: Install dependencies
       run: sudo dnf install rpkg git dnf-plugins-core -y

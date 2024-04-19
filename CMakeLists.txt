@@ -38,11 +38,21 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # compiler flags
+if(NOT "${CMAKE_CXX_STANDARD}")
+  set(CMAKE_CXX_STANDARD 11)
+else()
+  message(STATUS "CMAKE_CXX_STANDARD set externally to ${CMAKE_CXX_STANDARD}")
+endif()
+
 if (WIN32)
     add_definitions(-DWIN32 -D_WIN32 -D_WINDOWS -DBOOST_UUID_FORCE_AUTO_LINK)
     add_definitions(-DUNICODE -D_UNICODE)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
+
+    # https://devblogs.microsoft.com/cppblog/msvc-now-correctly-reports-__cplusplus/
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus")
+
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3 /WX")
     set(CMAKE_EXE_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
     set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
@@ -62,10 +72,10 @@ elseif (build4GE)
     set(Boost_NO_SYSTEM_PATHS       "TRUE")
     set(HDF5_USE_STATIC_LIBRARIES   "yes")
     set(CMAKE_C_FLAGS               "${CMAKE_C_FLAGS} -std=c99 -Wall")
-    set(CMAKE_CXX_FLAGS             "${CMAKE_CXX_FLAGS} -w -std=c++11 -D_GLIBCXX_USE_CXX11_ABI=0")
+    set(CMAKE_CXX_FLAGS             "${CMAKE_CXX_FLAGS} -w -D_GLIBCXX_USE_CXX11_ABI=0")
 else ()
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wall -Werror")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11 -Werror")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
 endif ()
 
 #  ---   VERSIONING  (begin) ----
@@ -79,8 +89,8 @@ endif ()
 #in the utility libraries, that don't affect the data format itself.
 # For more information see http://semver.org/
 set(ISMRMRD_VERSION_MAJOR 1)
-set(ISMRMRD_VERSION_MINOR 13)
-set(ISMRMRD_VERSION_PATCH 3)
+set(ISMRMRD_VERSION_MINOR 15)
+set(ISMRMRD_VERSION_PATCH 0)
 
 set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
 set(ISMRMRD_SOVERSION ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR})
@@ -207,19 +217,8 @@ set(ISMRMRD_TARGET_SOURCES
 )
 
 set(ISMRMRD_TARGET_LINK_LIBS ${ISMRMRD_DATASET_LIBRARIES})
-
-if (VCPKG_TARGET_TRIPLET) #VCPKG .
-    find_package(PugiXML CONFIG REQUIRED)
-    list(APPEND ISMRMRD_TARGET_LINK_LIBS pugixml)
-else ()
-    find_package(PugiXML REQUIRED)
-
-    message("Found system pugixml: ${PugiXML_INCLUDE_DIR} ${PugiXML_LIBRARY}")
-    list(APPEND ISMRMRD_TARGET_INCLUDE_DIRS ${PugiXML_INCLUDE_DIR})
-    list(APPEND ISMRMRD_TARGET_LINK_LIBS ${PugiXML_LIBRARY})
-    list(APPEND ISMRMRD_TARGET_INCLUDE_DIRS ${PugiXML_INCLUDE_DIR})
-    list(APPEND ISMRMRD_TARGET_LINK_LIBS ${PugiXML_LIBRARY})
-endif ()
+find_package(PugiXML CONFIG REQUIRED)
+list(APPEND ISMRMRD_TARGET_LINK_LIBS pugixml::pugixml)
 
 if (build4GE)
    list(APPEND ISMRMRD_TARGET_LINK_LIBS pthread z dl)

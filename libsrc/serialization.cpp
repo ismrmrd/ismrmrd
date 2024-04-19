@@ -159,7 +159,7 @@ void ProtocolSerializer::serialize(const TextMessage &tm) {
 void ProtocolSerializer::serialize(const IsmrmrdHeader &hdr) {
     std::stringstream str;
     ISMRMRD::serialize(hdr, str);
-    auto as_str = str.str();
+    std::string as_str = str.str();
     uint32_t size = static_cast<uint32_t>(as_str.size());
     write_msg_id(ISMRMRD_MESSAGE_HEADER);
     _ws.write(reinterpret_cast<const char *>(&size), sizeof(uint32_t));
@@ -287,34 +287,34 @@ void ProtocolDeserializer::deserialize(Waveform &wfm) {
 }
 
 // template instantiations
-template EXPORTISMRMRD void serialize(const Image<unsigned short> &img, WritableStreamView &ws);
-template EXPORTISMRMRD void serialize(const Image<unsigned int> &img, WritableStreamView &ws);
-template EXPORTISMRMRD void serialize(const Image<short> &img, WritableStreamView &ws);
-template EXPORTISMRMRD void serialize(const Image<int> &img, WritableStreamView &ws);
+template EXPORTISMRMRD void serialize(const Image<uint16_t> &img, WritableStreamView &ws);
+template EXPORTISMRMRD void serialize(const Image<uint32_t> &img, WritableStreamView &ws);
+template EXPORTISMRMRD void serialize(const Image<int16_t> &img, WritableStreamView &ws);
+template EXPORTISMRMRD void serialize(const Image<int32_t> &img, WritableStreamView &ws);
 template EXPORTISMRMRD void serialize(const Image<float> &img, WritableStreamView &ws);
 template EXPORTISMRMRD void serialize(const Image<double> &img, WritableStreamView &ws);
 template EXPORTISMRMRD void serialize(const Image<std::complex<float> > &img, WritableStreamView &ws);
 template EXPORTISMRMRD void serialize(const Image<std::complex<double> > &img, WritableStreamView &ws);
-template EXPORTISMRMRD void deserialize(Image<unsigned short> &img, ReadableStreamView &rs);
-template EXPORTISMRMRD void deserialize(Image<unsigned int> &img, ReadableStreamView &rs);
-template EXPORTISMRMRD void deserialize(Image<short> &img, ReadableStreamView &rs);
-template EXPORTISMRMRD void deserialize(Image<int> &img, ReadableStreamView &rs);
+template EXPORTISMRMRD void deserialize(Image<uint16_t> &img, ReadableStreamView &rs);
+template EXPORTISMRMRD void deserialize(Image<uint32_t> &img, ReadableStreamView &rs);
+template EXPORTISMRMRD void deserialize(Image<int16_t> &img, ReadableStreamView &rs);
+template EXPORTISMRMRD void deserialize(Image<int32_t> &img, ReadableStreamView &rs);
 template EXPORTISMRMRD void deserialize(Image<float> &img, ReadableStreamView &rs);
 template EXPORTISMRMRD void deserialize(Image<double> &img, ReadableStreamView &rs);
 template EXPORTISMRMRD void deserialize(Image<std::complex<float> > &img, ReadableStreamView &rs);
 template EXPORTISMRMRD void deserialize(Image<std::complex<double> > &img, ReadableStreamView &rs);
-template EXPORTISMRMRD void ProtocolSerializer::serialize(const Image<unsigned short> &img);
-template EXPORTISMRMRD void ProtocolSerializer::serialize(const Image<unsigned int> &img);
-template EXPORTISMRMRD void ProtocolSerializer::serialize(const Image<short> &img);
-template EXPORTISMRMRD void ProtocolSerializer::serialize(const Image<int> &img);
+template EXPORTISMRMRD void ProtocolSerializer::serialize(const Image<uint16_t> &img);
+template EXPORTISMRMRD void ProtocolSerializer::serialize(const Image<uint32_t> &img);
+template EXPORTISMRMRD void ProtocolSerializer::serialize(const Image<int16_t> &img);
+template EXPORTISMRMRD void ProtocolSerializer::serialize(const Image<int32_t> &img);
 template EXPORTISMRMRD void ProtocolSerializer::serialize(const Image<float> &img);
 template EXPORTISMRMRD void ProtocolSerializer::serialize(const Image<double> &img);
 template EXPORTISMRMRD void ProtocolSerializer::serialize(const Image<std::complex<float> > &img);
 template EXPORTISMRMRD void ProtocolSerializer::serialize(const Image<std::complex<double> > &img);
-template EXPORTISMRMRD void ProtocolDeserializer::deserialize(Image<unsigned short> &img);
-template EXPORTISMRMRD void ProtocolDeserializer::deserialize(Image<unsigned int> &img);
-template EXPORTISMRMRD void ProtocolDeserializer::deserialize(Image<short> &img);
-template EXPORTISMRMRD void ProtocolDeserializer::deserialize(Image<int> &img);
+template EXPORTISMRMRD void ProtocolDeserializer::deserialize(Image<uint16_t> &img);
+template EXPORTISMRMRD void ProtocolDeserializer::deserialize(Image<uint32_t> &img);
+template EXPORTISMRMRD void ProtocolDeserializer::deserialize(Image<int16_t> &img);
+template EXPORTISMRMRD void ProtocolDeserializer::deserialize(Image<int32_t> &img);
 template EXPORTISMRMRD void ProtocolDeserializer::deserialize(Image<float> &img);
 template EXPORTISMRMRD void ProtocolDeserializer::deserialize(Image<double> &img);
 template EXPORTISMRMRD void ProtocolDeserializer::deserialize(Image<std::complex<float> > &img);

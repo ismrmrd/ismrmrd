@@ -4,17 +4,25 @@ on:
   push:
     branches:
       - master
-  
+
   pull_request:
     branches:
       - master
 
+  release:
+    types:
+      - created
+
 env:
   BUILD_TYPE: Release
+  REGISTRY: ghcr.io
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
     - uses: actions/checkout@v2
@@ -25,7 +33,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get -y install doxygen git-core graphviz libboost-all-dev libfftw3-dev libhdf5-serial-dev libxml2-utils libpugixml-dev
+        sudo apt-get -y install doxygen git-core graphviz libboost-all-dev libfftw3-dev libhdf5-serial-dev libxml2-utils libpugixml-dev socat
 
     - name: Configure CMake
       working-directory: ${{github.workspace}}/build
@@ -41,10 +49,30 @@ jobs:
     - name: Test XML
       working-directory: ${{github.workspace}}/schema
       shell: bash
-      run: for xml_file in *.xml; do xmllint --schema ismrmrd.xsd "$xml_file" --noout; done 
-   
+      run: for xml_file in *.xml; do xmllint --schema ismrmrd.xsd "$xml_file" --noout; done
+
     - name: Test
       working-directory: ${{github.workspace}}/build/tests
       shell: bash
       run: ./test_ismrmrd
 
+    - name: Build and test docker images
+      working-directory: ${{github.workspace}}
+      shell: bash
+      run: |
+        ./docker/build-images.sh
+        ./docker/test-docker-images.sh
+
+    - name: Log into registry ${{ env.REGISTRY }}
+      uses: docker/login-action@28218f9b04b4f3f62068d7b6ce6ca5b26e35336c
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Push images
+      if: ${{ github.event_name == 'release' }}
+      working-directory: ${{github.workspace}}
+      shell: bash
+      run: |
+        ./docker/build-images.sh --tag "${GITHUB_REF##*/}" --push
