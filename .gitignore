@@ -11,3 +11,4 @@ cmake/cpack_options.cmake
 .vscode/
 *.ipynb
 *.h5
+cmake-*/

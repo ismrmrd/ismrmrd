@@ -369,6 +369,11 @@
       </multiband>
     </parallelImaging>
     <echoTrainLength>12</echoTrainLength>
+    <fovShifted>
+      <kspace_encoding_step_0>true</kspace_encoding_step_0>
+      <kspace_encoding_step_1>false</kspace_encoding_step_1>
+      <kspace_encoding_step_2>false</kspace_encoding_step_2>
+    </fovShifted>
   </encoding>
   <sequenceParameters>
     <TR>4.6</TR>

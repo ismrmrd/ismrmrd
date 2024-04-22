@@ -73,7 +73,17 @@ Optional<Limit> parse_encoding_limit(pugi::xml_node &n, const char *child) {
     return o;
 }
 
-std::string parse_string(pugi::xml_node &n, const char *child) {
+bool parse_bool(pugi::xml_node& n, const char* child) {
+      if (!n.child(child)) throw std::invalid_argument("Node does not have child value");
+      const std::string val(n.child_value(child));
+      if (val == "true" || val == "1") return true;
+      if (val == "false" || val == "0") return false;
+     // If the input string does not match any of the accepted values
+      throw std::invalid_argument("Invalid boolean value");
+  }
+
+  std::string parse_string(pugi::xml_node& n, const char* child)
+  {
     std::string r(n.child_value(child));
     if (r.size() == 0)
         throw std::runtime_error("Null length string");
@@ -339,7 +349,18 @@ static Optional<std::vector<Diffusion> > parse_diffusion_vector(pugi::xml_node &
     return diffusions;
 }
 
-// End of utility functions for deserializing header
+static Optional<FOVShifted> parse_fov_shifted(pugi::xml_node& encoding_node) {
+    pugi::xml_node fov_shifted_node = encoding_node.child("fovShifted");
+    if (!fov_shifted_node) return Optional<FOVShifted>();
+    FOVShifted result;
+    result.kspace_encoding_step_0 =parse_bool(fov_shifted_node,"kspace_encoding_step_0");
+    result.kspace_encoding_step_1 =parse_bool(fov_shifted_node,"kspace_encoding_step_1");
+    result.kspace_encoding_step_2 =parse_bool(fov_shifted_node,"kspace_encoding_step_2");
+    return result;
+
+  }
+
+  //End of utility functions for deserializing header
 
 void deserialize(const char *xml, IsmrmrdHeader &h) {
     pugi::xml_document doc;
@@ -476,10 +497,13 @@ void deserialize(const char *xml, IsmrmrdHeader &h) {
 
                 e.echoTrainLength = parse_optional_long(encoding, "echoTrainLength");
 
-                h.encoding.push_back(e);
-                encoding = encoding.next_sibling("encoding");
-            }
-        }
+	    e.fovShifted = parse_fov_shifted(encoding);
+
+	  h.encoding.push_back(e);
+	  encoding = encoding.next_sibling("encoding");
+	}
+
+      }
 
         if (subjectInformation) {
             SubjectInformation info;
@@ -723,6 +747,10 @@ std::string to_string(const MultibandCalibrationType &v) {
 
     throw std::runtime_error("Illegal enum class value");
 }
+std::string to_string(bool b) {
+        if (b) return "true";
+        return "false";
+}
 
 template <class T>
 void append_optional_node(pugi::xml_node &n, const char *child, const Optional<T> &v) {
@@ -769,9 +797,20 @@ void append_encoding_limit(pugi::xml_node &n, const char *child, const Optional<
     }
 }
 
-template <class T>
-void append_user_parameter(pugi::xml_node &n, const char *child,
-                           const std::vector<T> &v) {
+void append_fov_shifted(pugi::xml_node& n, const char* child, const Optional<FOVShifted>& fov_shifted) {
+        if (fov_shifted) {
+            pugi::xml_node n2 = n.append_child(child);
+            append_node(n2,"kspace_encoding_step_0",fov_shifted->kspace_encoding_step_0);
+            append_node(n2,"kspace_encoding_step_1",fov_shifted->kspace_encoding_step_1);
+            append_node(n2, "kspace_encoding_step_2",fov_shifted->kspace_encoding_step_2);
+        }
+
+  }
+
+  template <class T>
+  void append_user_parameter(pugi::xml_node& n, const char* child, 
+			     const std::vector<T>& v) 
+  {
     for (size_t i = 0; i < v.size(); i++) {
         pugi::xml_node n2 = n.append_child(child);
         append_node(n2, "name", v[i].name);
@@ -964,7 +1003,8 @@ void serialize(const IsmrmrdHeader &h, std::ostream &o) {
             }
         }
 
-        append_optional_node(n1, "echoTrainLength", h.encoding[i].echoTrainLength);
+      append_optional_node(n1,"echoTrainLength",h.encoding[i].echoTrainLength);
+      append_fov_shifted(n1,"fovShifted",h.encoding[i].fovShifted);
     }
 
     if (h.sequenceParameters) {

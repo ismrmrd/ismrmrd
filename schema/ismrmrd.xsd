@@ -123,6 +123,7 @@
       <xs:element maxOccurs="1" minOccurs="0" name="trajectoryDescription" type="trajectoryDescriptionType" />
       <xs:element maxOccurs="1" minOccurs="0" name="parallelImaging" type="parallelImagingType" />
       <xs:element maxOccurs="1" minOccurs="0" name="echoTrainLength" type="xs:long" />
+      <xs:element maxOccurs="1" minOccurs="0" name="fovShifted" type="fovShiftedType" />
     </xs:all>
   </xs:complexType>
 
@@ -207,6 +208,14 @@
       <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterDouble" type="userParameterDoubleType" />
       <xs:element maxOccurs="unbounded" minOccurs="0" name="userParameterString" type="userParameterStringType" />
       <xs:element maxOccurs="1" minOccurs="0" name="comment" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="fovShiftedType">
+    <xs:sequence>
+      <xs:element name="kspace_encoding_step_0" type="xs:boolean" />
+      <xs:element name="kspace_encoding_step_1" type="xs:boolean" />
+      <xs:element name="kspace_encoding_step_2" type="xs:boolean" />
     </xs:sequence>
   </xs:complexType>
 
