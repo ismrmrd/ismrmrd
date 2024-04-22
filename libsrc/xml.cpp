@@ -357,7 +357,7 @@ static Optional<FOVShifted> parse_fov_shifted(pugi::xml_node& encoding_node) {
     result.kspace_encoding_step_1 =parse_bool(fov_shifted_node,"kspace_encoding_step_1");
     result.kspace_encoding_step_2 =parse_bool(fov_shifted_node,"kspace_encoding_step_2");
     return result;
-};
+
   }
 
   //End of utility functions for deserializing header
