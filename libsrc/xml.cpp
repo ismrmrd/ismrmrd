@@ -351,7 +351,7 @@ static Optional<std::vector<Diffusion> > parse_diffusion_vector(pugi::xml_node &
 
 static Optional<FOVShifted> parse_fov_shifted(pugi::xml_node& encoding_node) {
       pugi::xml_node fov_shifted_node = encoding_node.child("fovShifted");
-      if (!fov_shifted_node) return FOVShifted{};
+      if (!fov_shifted_node) return Optional<FOVShifted>();
       return FOVShifted{parse_bool(fov_shifted_node,"kspace_encoding_step_0"),
           parse_bool(fov_shifted_node,"kspace_encoding_step_1"),parse_bool(fov_shifted_node,"kspace_encoding_step_2")};
   }
