@@ -74,6 +74,7 @@ Optional<Limit> parse_encoding_limit(pugi::xml_node &n, const char *child) {
 }
 
 bool parse_bool(pugi::xml_node& n, const char* child) {
+      if (!n.child(child)) throw std::invalid_argument("Node does not have child value");
       const std::string val(n.child_value(child));
       if (val == "true" || val == "1") return true;
       if (val == "false" || val == "0") return false;
@@ -351,8 +352,8 @@ static Optional<std::vector<Diffusion> > parse_diffusion_vector(pugi::xml_node &
 static Optional<FOVShifted> parse_fov_shifted(pugi::xml_node& encoding_node) {
       pugi::xml_node fov_shifted_node = encoding_node.child("fovShifted");
       if (!fov_shifted_node) return {};
-      return FOVShifted{parse_bool(encoding_node,"kspace_encoding_0"),
-          parse_bool(encoding_node,"kspace_encoding_1"),parse_bool(encoding_node,"kspace_encoding_2")};
+      return FOVShifted{parse_bool(fov_shifted_node,"kspace_encoding_step_0"),
+          parse_bool(fov_shifted_node,"kspace_encoding_step_1"),parse_bool(fov_shifted_node,"kspace_encoding_step_2")};
   }
 
   //End of utility functions for deserializing header
@@ -795,9 +796,9 @@ void append_encoding_limit(pugi::xml_node &n, const char *child, const Optional<
 void append_fov_shifted(pugi::xml_node& n, const char* child, const Optional<FOVShifted>& fov_shifted) {
         if (fov_shifted) {
             pugi::xml_node n2 = n.append_child(child);
-            append_node(n2,"kspace_encoding_0",fov_shifted->kspace_encoding_0);
-            append_node(n2,"kspace_encoding_0",fov_shifted->kspace_encoding_1);
-            append_node(n2, "kspace_encoding_0",fov_shifted->kspace_encoding_2);
+            append_node(n2,"kspace_encoding_step_0",fov_shifted->kspace_encoding_step_0);
+            append_node(n2,"kspace_encoding_step_1",fov_shifted->kspace_encoding_step_1);
+            append_node(n2, "kspace_encoding_step_2",fov_shifted->kspace_encoding_step_2);
         }
 
   }

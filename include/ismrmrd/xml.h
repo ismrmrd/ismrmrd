@@ -432,9 +432,9 @@ namespace ISMRMRD
   };
 
   struct FOVShifted {
-    bool kspace_encoding_0;
-    bool kspace_encoding_1;
-    bool kspace_encoding_2;
+    bool kspace_encoding_step_0;
+    bool kspace_encoding_step_1;
+    bool kspace_encoding_step_2;
   };
 
   struct Encoding
