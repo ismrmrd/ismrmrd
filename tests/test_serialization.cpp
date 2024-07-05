@@ -187,9 +187,6 @@ typedef boost::mpl::vector<unsigned short, short, unsigned int, int, float, doub
 // Test the serialization of a single image
 BOOST_AUTO_TEST_CASE_TEMPLATE(test_nd_array_serialization, T, array_types_w_tuples) {
 
-    std::mt19937 e1;
-    std::normal_distribution<> normal_dist(0, 128.0);
-
     for (auto ndim=1; ndim<=ISMRMRD_NDARRAY_MAXDIM; ndim++)
     {
         std::vector<size_t> dims(ndim, 1);
@@ -199,7 +196,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_nd_array_serialization, T, array_types_w_tupl
 
         size_t N = arr.getNumberOfElements();
         T* p_data = arr.getDataPtr();
-        for (size_t i=0; i<N; i++) p_data[i] = normal_dist(e1);
+        for (size_t i=0; i<N; i++) p_data[i] = (T)( ( (double)(std::rand()) / RAND_MAX -0.5) * 2048.0 );
 
         // Test serialization and deserialization
         std::stringstream ss(std::ios::in | std::ios::out | std::ios::binary);
