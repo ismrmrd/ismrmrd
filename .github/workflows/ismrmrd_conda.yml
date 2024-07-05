@@ -5,17 +5,19 @@ on:
   release:
     types:
       - created
+  workflow_dispatch:
 
 jobs:
   build-conda-packages:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-13]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: conda-incubator/setup-miniconda@v2
+      - uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v3
         with:
+          miniforge-version: latest
           activate-environment: ismrmrd-build
           environment-file: conda/environment.yml
           python-version: 3.9
