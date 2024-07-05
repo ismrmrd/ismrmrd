@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_nd_array_serialization, T, array_types_w_tupl
     for (auto ndim=1; ndim<=ISMRMRD_NDARRAY_MAXDIM; ndim++)
     {
         std::vector<size_t> dims(ndim, 1);
-        for (auto i=0; i<ndim; i++) dims[i] = std::rand() % 8 + 1;
+        for (size_t i=0; i<ndim; i++) dims[i] = std::rand() % 8 + 1;
         NDArray<T> arr;
         arr.resize(dims);
 
