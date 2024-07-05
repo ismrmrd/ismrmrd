@@ -82,8 +82,8 @@ template void EXPORTISMRMRD serialize(const NDArray<int> &arr, WritableStreamVie
 template void EXPORTISMRMRD serialize(const NDArray<unsigned int> &arr, WritableStreamView &ws);
 template void EXPORTISMRMRD serialize(const NDArray<float> &arr, WritableStreamView &ws);
 template void EXPORTISMRMRD serialize(const NDArray<double> &arr, WritableStreamView &ws);
-template void EXPORTISMRMRD serialize(const NDArray<std::complex<float>> &arr, WritableStreamView &ws);
-template void EXPORTISMRMRD serialize(const NDArray<std::complex<double>> &arr, WritableStreamView &ws);
+template void EXPORTISMRMRD serialize(const NDArray< std::complex<float> > &arr, WritableStreamView &ws);
+template void EXPORTISMRMRD serialize(const NDArray< std::complex<double> > &arr, WritableStreamView &ws);
 
 void deserialize(Acquisition &acq, ReadableStreamView &rs) {
     AcquisitionHeader ahead;
@@ -185,8 +185,8 @@ template void EXPORTISMRMRD deserialize(NDArray<int> &arr, ReadableStreamView &r
 template void EXPORTISMRMRD deserialize(NDArray<unsigned int> &arr, ReadableStreamView &rs);
 template void EXPORTISMRMRD deserialize(NDArray<float> &arr, ReadableStreamView &rs);
 template void EXPORTISMRMRD deserialize(NDArray<double> &arr, ReadableStreamView &rs);
-template void EXPORTISMRMRD deserialize(NDArray<std::complex<float>> &arr, ReadableStreamView &rs);
-template void EXPORTISMRMRD deserialize(NDArray<std::complex<double>> &arr, ReadableStreamView &rs);
+template void EXPORTISMRMRD deserialize(NDArray< std::complex<float> > &arr, ReadableStreamView &rs);
+template void EXPORTISMRMRD deserialize(NDArray< std::complex<double> > &arr, ReadableStreamView &rs);
 
 ProtocolSerializer::ProtocolSerializer(WritableStreamView &ws) : _ws(ws) {}
 
