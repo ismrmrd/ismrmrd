@@ -82,6 +82,10 @@ EXPORTISMRMRD void serialize(const ConfigFile &cfg, WritableStreamView &ws);
 // serialize a string
 EXPORTISMRMRD void serialize(const std::string &str, WritableStreamView &ws);
 
+// serialize a NDArray
+template <typename T> 
+EXPORTISMRMRD void serialize(const NDArray<T> &arr, WritableStreamView &ws);
+
 // deserialize Acquisition from istream
 EXPORTISMRMRD void deserialize(Acquisition &acq, ReadableStreamView &rs);
 
@@ -97,6 +101,10 @@ EXPORTISMRMRD void deserialize(ConfigFile &cfg, ReadableStreamView &rs);
 
 // deserialize a string
 EXPORTISMRMRD void deserialize(std::string &str, ReadableStreamView &rs);
+
+// deserialize a NDArray
+template <typename T> 
+EXPORTISMRMRD void deserialize(NDArray<T> &arr, ReadableStreamView &rs);
 
 class ProtocolStreamClosed : public std::exception {};
 

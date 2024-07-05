@@ -2,6 +2,7 @@
 #include <boost/mpl/vector.hpp>
 #include <fstream>
 #include <sstream>
+#include <random>
 
 #include "ismrmrd/dataset.h"
 #include "ismrmrd/serialization.h"
@@ -179,6 +180,46 @@ BOOST_AUTO_TEST_CASE(test_string_desiralization_with_null_terminators) {
 
     BOOST_CHECK_EQUAL(cf.config_text.size(), 5); // String is 1 shorter
     BOOST_CHECK_EQUAL(cf.config_text, "hello");
+}
+
+typedef boost::mpl::vector<unsigned short, short, unsigned int, int, float, double, std::complex<float>, std::complex<double> > array_types_w_tuples;
+
+// Test the serialization of a single image
+BOOST_AUTO_TEST_CASE_TEMPLATE(test_nd_array_serialization, T, array_types_w_tuples) {
+
+    std::mt19937 e1;
+    std::normal_distribution<> normal_dist(0, 128.0);
+
+    for (auto ndim=1; ndim<=ISMRMRD_NDARRAY_MAXDIM; ndim++)
+    {
+        std::vector<size_t> dims(ndim, 1);
+        for (auto i=0; i<ndim; i++) dims[i] = std::rand() % 8 + 1;
+        NDArray<T> arr;
+        arr.resize(dims);
+
+        size_t N = arr.getNumberOfElements();
+        T* p_data = arr.getDataPtr();
+        for (size_t i=0; i<N; i++) p_data[i] = normal_dist(e1);
+
+        // Test serialization and deserialization
+        std::stringstream ss(std::ios::in | std::ios::out | std::ios::binary);
+        OStreamView ws(ss);
+        IStreamView rs(ss);
+        ISMRMRD::serialize(arr, ws);
+
+        NDArray<T> arr2;
+        ISMRMRD::deserialize(arr2, rs);
+
+        // Check that the data is the same
+        BOOST_CHECK_EQUAL(arr.getNDim(), arr2.getNDim());
+        BOOST_CHECK_EQUAL(arr.getVersion(), arr2.getVersion());
+        BOOST_CHECK_EQUAL(arr.getDataType(), arr2.getDataType());
+        BOOST_CHECK_EQUAL(arr.getDataSize(), arr2.getDataSize());
+        BOOST_CHECK_EQUAL(arr.getNumberOfElements(), arr2.getNumberOfElements());
+
+        BOOST_CHECK_EQUAL_COLLECTIONS(arr.getDataPtr(), arr.getDataPtr() + arr.getNumberOfElements(),
+                                    arr2.getDataPtr(), arr2.getDataPtr() + arr2.getNumberOfElements());
+    }
 }
 
 BOOST_AUTO_TEST_CASE(test_of_control_plane_protocol_serialization) {

@@ -1213,7 +1213,7 @@ template <typename T> uint16_t NDArray<T>::getNDim() const {
     return  arr.ndim;
 };
 
-template <typename T> const size_t (&NDArray<T>::getDims())[ISMRMRD_NDARRAY_MAXDIM] {
+template <typename T> const size_t (&NDArray<T>::getDims() const)[ISMRMRD_NDARRAY_MAXDIM] {
     return arr.dims;
 };
 

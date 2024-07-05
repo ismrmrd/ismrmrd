@@ -58,6 +58,33 @@ void serialize(const std::string &str, WritableStreamView &ws) {
     }
 }
 
+template <typename T> 
+void serialize(const NDArray<T> &arr, WritableStreamView &ws) {
+    uint16_t ver = arr.getVersion();
+    uint16_t dtype = static_cast<uint16_t>(arr.getDataType());
+    uint16_t ndim = arr.getNDim();
+    const size_t* dims = arr.getDims();
+
+    ws.write(reinterpret_cast<char *>(&ver), sizeof(uint16_t));
+    ws.write(reinterpret_cast<char *>(&dtype), sizeof(uint16_t));
+    ws.write(reinterpret_cast<char *>(&ndim), sizeof(uint16_t));
+    ws.write(reinterpret_cast<const char *>(dims), sizeof(size_t)*ndim);
+
+    ws.write(reinterpret_cast<const char *>(arr.getDataPtr()), arr.getDataSize());
+    if (ws.bad()) {
+        throw std::runtime_error("Error writing NDArray to stream");
+    }
+}
+
+template void EXPORTISMRMRD serialize(const NDArray<short> &arr, WritableStreamView &ws);
+template void EXPORTISMRMRD serialize(const NDArray<unsigned short> &arr, WritableStreamView &ws);
+template void EXPORTISMRMRD serialize(const NDArray<int> &arr, WritableStreamView &ws);
+template void EXPORTISMRMRD serialize(const NDArray<unsigned int> &arr, WritableStreamView &ws);
+template void EXPORTISMRMRD serialize(const NDArray<float> &arr, WritableStreamView &ws);
+template void EXPORTISMRMRD serialize(const NDArray<double> &arr, WritableStreamView &ws);
+template void EXPORTISMRMRD serialize(const NDArray<std::complex<float>> &arr, WritableStreamView &ws);
+template void EXPORTISMRMRD serialize(const NDArray<std::complex<double>> &arr, WritableStreamView &ws);
+
 void deserialize(Acquisition &acq, ReadableStreamView &rs) {
     AcquisitionHeader ahead;
     rs.read(reinterpret_cast<char *>(&ahead), sizeof(AcquisitionHeader));
@@ -134,6 +161,32 @@ void deserialize(std::string &str, ReadableStreamView &rs) {
     }
     str.assign(&buf[0], len);
 }
+
+template <typename T> 
+void deserialize(NDArray<T> &arr, ReadableStreamView &rs) {
+    uint16_t ver;
+    uint16_t dtype;
+    uint16_t ndim;
+
+    rs.read(reinterpret_cast<char *>(&ver), sizeof(uint16_t));
+    rs.read(reinterpret_cast<char *>(&dtype), sizeof(uint16_t));
+    rs.read(reinterpret_cast<char *>(&ndim), sizeof(uint16_t));
+
+    std::vector<size_t> dims(ndim, 1);
+    rs.read(reinterpret_cast<char *>(&dims[0]), sizeof(size_t)*ndim);
+
+    arr.resize(dims);
+    rs.read(reinterpret_cast<char *>(arr.getDataPtr()), arr.getDataSize());
+}
+
+template void EXPORTISMRMRD deserialize(NDArray<short> &arr, ReadableStreamView &rs);
+template void EXPORTISMRMRD deserialize(NDArray<unsigned short> &arr, ReadableStreamView &rs);
+template void EXPORTISMRMRD deserialize(NDArray<int> &arr, ReadableStreamView &rs);
+template void EXPORTISMRMRD deserialize(NDArray<unsigned int> &arr, ReadableStreamView &rs);
+template void EXPORTISMRMRD deserialize(NDArray<float> &arr, ReadableStreamView &rs);
+template void EXPORTISMRMRD deserialize(NDArray<double> &arr, ReadableStreamView &rs);
+template void EXPORTISMRMRD deserialize(NDArray<std::complex<float>> &arr, ReadableStreamView &rs);
+template void EXPORTISMRMRD deserialize(NDArray<std::complex<double>> &arr, ReadableStreamView &rs);
 
 ProtocolSerializer::ProtocolSerializer(WritableStreamView &ws) : _ws(ws) {}
 
