@@ -187,7 +187,7 @@ typedef boost::mpl::vector<unsigned short, short, unsigned int, int, float, doub
 // Test the serialization of a single image
 BOOST_AUTO_TEST_CASE_TEMPLATE(test_nd_array_serialization, T, array_types_w_tuples) {
 
-    for (auto ndim=1; ndim<=ISMRMRD_NDARRAY_MAXDIM; ndim++)
+    for (uint16_t ndim=1; ndim<=ISMRMRD_NDARRAY_MAXDIM; ndim++)
     {
         std::vector<size_t> dims(ndim, 1);
         for (size_t i=0; i<ndim; i++) dims[i] = std::rand() % 8 + 1;
