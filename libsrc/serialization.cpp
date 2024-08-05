@@ -58,6 +58,24 @@ void serialize(const std::string &str, WritableStreamView &ws) {
     }
 }
 
+template <typename T> 
+void serialize(const NDArray<T> &arr, WritableStreamView &ws) {
+    uint16_t ver = arr.getVersion();
+    uint16_t dtype = static_cast<uint16_t>(arr.getDataType());
+    uint16_t ndim = arr.getNDim();
+    const size_t* dims = arr.getDims();
+
+    ws.write(reinterpret_cast<char *>(&dtype), sizeof(uint16_t));
+    ws.write(reinterpret_cast<char *>(&ver), sizeof(uint16_t));
+    ws.write(reinterpret_cast<char *>(&ndim), sizeof(uint16_t));
+    ws.write(reinterpret_cast<const char *>(dims), sizeof(size_t)*ndim);
+
+    ws.write(reinterpret_cast<const char *>(arr.getDataPtr()), arr.getDataSize());
+    if (ws.bad()) {
+        throw std::runtime_error("Error writing NDArray to stream");
+    }
+}
+
 void deserialize(Acquisition &acq, ReadableStreamView &rs) {
     AcquisitionHeader ahead;
     rs.read(reinterpret_cast<char *>(&ahead), sizeof(AcquisitionHeader));
@@ -135,6 +153,32 @@ void deserialize(std::string &str, ReadableStreamView &rs) {
     str.assign(&buf[0], len);
 }
 
+template <typename T> 
+void deserialize_ndarray_data(NDArray<T> &arr, ReadableStreamView &rs) {
+    uint16_t ver;
+    uint16_t ndim;
+
+    rs.read(reinterpret_cast<char *>(&ver), sizeof(uint16_t));
+    rs.read(reinterpret_cast<char *>(&ndim), sizeof(uint16_t));
+
+    std::vector<size_t> dims(ndim, 1);
+    rs.read(reinterpret_cast<char *>(&dims[0]), sizeof(size_t)*ndim);
+
+    arr.resize(dims);
+    rs.read(reinterpret_cast<char *>(arr.getDataPtr()), arr.getDataSize());
+}
+
+template <typename T> 
+void deserialize(NDArray<T> &arr, ReadableStreamView &rs) {
+    uint16_t dtype;
+    rs.read(reinterpret_cast<char *>(&dtype), sizeof(uint16_t));
+    ISMRMRD_DataTypes dtype_ismrmrd = static_cast<ISMRMRD_DataTypes>( dtype );
+    if (dtype_ismrmrd != arr.getDataType()) {
+        throw std::runtime_error("Error mismatched data type in deserliazing nd array");
+    }
+    deserialize_ndarray_data(arr, rs);
+}
+
 ProtocolSerializer::ProtocolSerializer(WritableStreamView &ws) : _ws(ws) {}
 
 void ProtocolSerializer::write_msg_id(uint16_t id) {
@@ -185,17 +229,26 @@ void ProtocolSerializer::serialize(const Waveform &wfm) {
     ISMRMRD::serialize(wfm, _ws);
 }
 
+template <typename T>
+void ProtocolSerializer::serialize(const NDArray<T> &arr) {
+    write_msg_id(ISMRMRD_MESSAGE_NDARRAY);
+    ISMRMRD::serialize(arr, _ws);
+}
+
 void ProtocolSerializer::close() {
     write_msg_id(ISMRMRD_MESSAGE_CLOSE);
 }
 
-ProtocolDeserializer::ProtocolDeserializer(ReadableStreamView &rs) : _rs(rs), _peeked(ISMRMRD_MESSAGE_UNPEEKED) {}
+ProtocolDeserializer::ProtocolDeserializer(ReadableStreamView &rs) : _rs(rs), _peeked(ISMRMRD_MESSAGE_UNPEEKED), _peeked_ndarray_data_type(ISMRMRD_MESSAGE_UNPEEKED) {}
 
 uint16_t ProtocolDeserializer::peek() {
     if (_peeked == ISMRMRD_MESSAGE_UNPEEKED) {
         _rs.read(reinterpret_cast<char *>(&_peeked), sizeof(uint16_t));
         if (_peeked == ISMRMRD_MESSAGE_IMAGE) {
             _rs.read(reinterpret_cast<char *>(&_peeked_image_header), sizeof(ImageHeader));
+        }
+        if (_peeked == ISMRMRD_MESSAGE_NDARRAY) {
+            _rs.read(reinterpret_cast<char *>(&_peeked_ndarray_data_type), sizeof(uint16_t));
         }
         if (_rs.eof()) {
             throw std::runtime_error("Error reading message ID");
@@ -209,6 +262,14 @@ int ProtocolDeserializer::peek_image_data_type() {
         return _peeked_image_header.data_type;
     } else {
         throw std::runtime_error("Cannot peak image data type if not peeking an image");
+    }
+}
+
+int ProtocolDeserializer::peek_ndarray_data_type() {
+    if (_peeked == ISMRMRD_MESSAGE_NDARRAY) {
+        return _peeked_ndarray_data_type;
+    } else {
+        throw std::runtime_error("Cannot peak nd array data type if not peeking a nd array");
     }
 }
 
@@ -286,6 +347,18 @@ void ProtocolDeserializer::deserialize(Waveform &wfm) {
     _peeked = ISMRMRD_MESSAGE_UNPEEKED;
 }
 
+template <typename T>
+void ProtocolDeserializer::deserialize(NDArray<T> &arr) {
+    if (peek() == ISMRMRD_MESSAGE_CLOSE) {
+        throw ProtocolStreamClosed();
+    }
+    if (peek() != ISMRMRD_MESSAGE_NDARRAY) {
+        throw std::runtime_error("Expected ISMRMRD_MESSAGE_NDARRAY");
+    }
+    deserialize_ndarray_data(arr, _rs);
+    _peeked = ISMRMRD_MESSAGE_UNPEEKED;
+}
+
 // template instantiations
 template EXPORTISMRMRD void serialize(const Image<uint16_t> &img, WritableStreamView &ws);
 template EXPORTISMRMRD void serialize(const Image<uint32_t> &img, WritableStreamView &ws);
@@ -319,5 +392,42 @@ template EXPORTISMRMRD void ProtocolDeserializer::deserialize(Image<float> &img)
 template EXPORTISMRMRD void ProtocolDeserializer::deserialize(Image<double> &img);
 template EXPORTISMRMRD void ProtocolDeserializer::deserialize(Image<std::complex<float> > &img);
 template EXPORTISMRMRD void ProtocolDeserializer::deserialize(Image<std::complex<double> > &img);
+
+
+template void EXPORTISMRMRD serialize(const NDArray<uint16_t> &arr, WritableStreamView &ws);
+template void EXPORTISMRMRD serialize(const NDArray<uint32_t> &arr, WritableStreamView &ws);
+template void EXPORTISMRMRD serialize(const NDArray<int16_t> &arr, WritableStreamView &ws);
+template void EXPORTISMRMRD serialize(const NDArray<int32_t> &arr, WritableStreamView &ws);
+template void EXPORTISMRMRD serialize(const NDArray<float> &arr, WritableStreamView &ws);
+template void EXPORTISMRMRD serialize(const NDArray<double> &arr, WritableStreamView &ws);
+template void EXPORTISMRMRD serialize(const NDArray< std::complex<float> > &arr, WritableStreamView &ws);
+template void EXPORTISMRMRD serialize(const NDArray< std::complex<double> > &arr, WritableStreamView &ws);
+
+template void EXPORTISMRMRD deserialize(NDArray<uint16_t> &arr, ReadableStreamView &rs);
+template void EXPORTISMRMRD deserialize(NDArray<uint32_t> &arr, ReadableStreamView &rs);
+template void EXPORTISMRMRD deserialize(NDArray<int16_t> &arr, ReadableStreamView &rs);
+template void EXPORTISMRMRD deserialize(NDArray<int32_t> &arr, ReadableStreamView &rs);
+template void EXPORTISMRMRD deserialize(NDArray<float> &arr, ReadableStreamView &rs);
+template void EXPORTISMRMRD deserialize(NDArray<double> &arr, ReadableStreamView &rs);
+template void EXPORTISMRMRD deserialize(NDArray< std::complex<float> > &arr, ReadableStreamView &rs);
+template void EXPORTISMRMRD deserialize(NDArray< std::complex<double> > &arr, ReadableStreamView &rs);
+
+template EXPORTISMRMRD void ProtocolSerializer::serialize(const NDArray<uint16_t> &arr);
+template EXPORTISMRMRD void ProtocolSerializer::serialize(const NDArray<uint32_t> &arr);
+template EXPORTISMRMRD void ProtocolSerializer::serialize(const NDArray<int16_t> &arr);
+template EXPORTISMRMRD void ProtocolSerializer::serialize(const NDArray<int32_t> &arr);
+template EXPORTISMRMRD void ProtocolSerializer::serialize(const NDArray<float> &arr);
+template EXPORTISMRMRD void ProtocolSerializer::serialize(const NDArray<double> &arr);
+template EXPORTISMRMRD void ProtocolSerializer::serialize(const NDArray< std::complex<float> > &arr);
+template EXPORTISMRMRD void ProtocolSerializer::serialize(const NDArray< std::complex<double> > &arr);
+
+template EXPORTISMRMRD void ProtocolDeserializer::deserialize(NDArray<uint16_t> &arr);
+template EXPORTISMRMRD void ProtocolDeserializer::deserialize(NDArray<uint32_t> &arr);
+template EXPORTISMRMRD void ProtocolDeserializer::deserialize(NDArray<int16_t> &arr);
+template EXPORTISMRMRD void ProtocolDeserializer::deserialize(NDArray<int32_t> &arr);
+template EXPORTISMRMRD void ProtocolDeserializer::deserialize(NDArray<float> &arr);
+template EXPORTISMRMRD void ProtocolDeserializer::deserialize(NDArray<double> &arr);
+template EXPORTISMRMRD void ProtocolDeserializer::deserialize(NDArray< std::complex<float> > &arr);
+template EXPORTISMRMRD void ProtocolDeserializer::deserialize(NDArray< std::complex<double> > &arr);
 
 } // namespace ISMRMRD

@@ -14,6 +14,15 @@ std::string create_image_series_name(const ISMRMRD::Image<T> &img) {
     return ss.str();
 }
 
+template <typename T>
+std::string create_nd_array_name(const ISMRMRD::NDArray<T> &arr) {
+    std::stringstream ss;
+    ss << "array_ver_" << arr.getVersion() << "_dim_";
+    for (uint16_t ii=0; ii<arr.getNDim(); ii++) ss << arr.getDims()[ii] << "_";
+    ss << "datatype_" << arr.getDataType();
+    return ss.str();
+}
+
 void convert_stream_to_hdf5(std::string output_file, std::string groupname, std::istream &is) {
     ISMRMRD::Dataset d(output_file.c_str(), groupname.c_str(), true);
 
@@ -76,6 +85,42 @@ void convert_stream_to_hdf5(std::string output_file, std::string groupname, std:
             ISMRMRD::Waveform wfm;
             deserializer.deserialize(wfm);
             d.appendWaveform(wfm);
+        } else if (deserializer.peek() == ISMRMRD::ISMRMRD_MESSAGE_NDARRAY) {
+            if (deserializer.peek_ndarray_data_type() == ISMRMRD::ISMRMRD_USHORT) {
+                ISMRMRD::NDArray<unsigned short> arr;
+                deserializer.deserialize(arr);
+                d.appendNDArray(create_nd_array_name(arr), arr);
+            } else if (deserializer.peek_ndarray_data_type() == ISMRMRD::ISMRMRD_SHORT) {
+                ISMRMRD::NDArray<short> arr;
+                deserializer.deserialize(arr);
+                d.appendNDArray(create_nd_array_name(arr), arr);
+            } else if (deserializer.peek_ndarray_data_type() == ISMRMRD::ISMRMRD_UINT) {
+                ISMRMRD::NDArray<unsigned int> arr;
+                deserializer.deserialize(arr);
+                d.appendNDArray(create_nd_array_name(arr), arr);
+            } else if (deserializer.peek_ndarray_data_type() == ISMRMRD::ISMRMRD_INT) {
+                ISMRMRD::NDArray<int> arr;
+                deserializer.deserialize(arr);
+                d.appendNDArray(create_nd_array_name(arr), arr);
+            } else if (deserializer.peek_ndarray_data_type() == ISMRMRD::ISMRMRD_FLOAT) {
+                ISMRMRD::NDArray<float> arr;
+                deserializer.deserialize(arr);
+                d.appendNDArray(create_nd_array_name(arr), arr);
+            } else if (deserializer.peek_ndarray_data_type() == ISMRMRD::ISMRMRD_DOUBLE) {
+                ISMRMRD::NDArray<double> arr;
+                deserializer.deserialize(arr);
+                d.appendNDArray(create_nd_array_name(arr), arr);
+            } else if (deserializer.peek_ndarray_data_type() == ISMRMRD::ISMRMRD_CXFLOAT) {
+                ISMRMRD::NDArray<std::complex<float> > arr;
+                deserializer.deserialize(arr);
+                d.appendNDArray(create_nd_array_name(arr), arr);
+            } else if (deserializer.peek_ndarray_data_type() == ISMRMRD::ISMRMRD_CXDOUBLE) {
+                ISMRMRD::NDArray<std::complex<double> > arr;
+                deserializer.deserialize(arr);
+                d.appendNDArray(create_nd_array_name(arr), arr);
+            } else {
+                throw std::runtime_error("Unknown nd array type");
+            }
         } else if (deserializer.peek() == ISMRMRD::ISMRMRD_MESSAGE_TEXT) {
             ISMRMRD::TextMessage txt;
             deserializer.deserialize(txt);
