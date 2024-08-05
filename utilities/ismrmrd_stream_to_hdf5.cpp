@@ -18,7 +18,7 @@ template <typename T>
 std::string create_nd_array_name(const ISMRMRD::NDArray<T> &arr) {
     std::stringstream ss;
     ss << "array_ver_" << arr.getVersion() << "_dim_";
-    for (auto ii=0; ii<arr.getNDim(); ii++) ss << arr.getDims()[ii] << "_";
+    for (uint16_t ii=0; ii<arr.getNDim(); ii++) ss << arr.getDims()[ii] << "_";
     ss << "datatype_" << arr.getDataType();
     return ss.str();
 }
