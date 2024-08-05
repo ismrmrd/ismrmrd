@@ -1201,13 +1201,13 @@ template <typename T> NDArray<T> & NDArray<T>::operator= (const NDArray<T> &othe
     return *this;
 }
 
-template <typename T> uint16_t NDArray<T>::getVersion() const {
-    return arr.version;
-};
-
 template <typename T> ISMRMRD_DataTypes NDArray<T>::getDataType() const {
     return static_cast<ISMRMRD_DataTypes>( arr.data_type );
 }
+
+template <typename T> uint16_t NDArray<T>::getVersion() const {
+    return arr.version;
+};
 
 template <typename T> uint16_t NDArray<T>::getNDim() const {
     return  arr.ndim;

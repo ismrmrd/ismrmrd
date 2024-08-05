@@ -942,8 +942,8 @@ public:
     NDArray<T> & operator= (const NDArray<T> &other);
 
     // Accessors and mutators
-    uint16_t getVersion() const;
     ISMRMRD_DataTypes getDataType() const;
+    uint16_t getVersion() const;
     uint16_t getNDim() const;
     const size_t (&getDims() const)[ISMRMRD_NDARRAY_MAXDIM];
     size_t getDataSize() const;

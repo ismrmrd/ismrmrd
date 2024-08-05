@@ -33,7 +33,8 @@ enum ISMRMRD_MESSAGE_ID {
     ISMRMRD_MESSAGE_TEXT = 5,
     ISMRMRD_MESSAGE_ACQUISITION = 1008,
     ISMRMRD_MESSAGE_IMAGE = 1022,
-    ISMRMRD_MESSAGE_WAVEFORM = 1026
+    ISMRMRD_MESSAGE_WAVEFORM = 1026,
+    ISMRMRD_MESSAGE_NDARRAY = 1030
 };
 
 // A wrapper interface, which we can implement, e.g., for std::istream
@@ -116,9 +117,9 @@ public:
     void serialize(const TextMessage &tm);
     void serialize(const IsmrmrdHeader &hdr);
     void serialize(const Acquisition &acq);
-    template <typename T>
-    void serialize(const Image<T> &img);
+    template <typename T> void serialize(const Image<T> &img);
     void serialize(const Waveform &wfm);
+    template <typename T> void serialize(const NDArray<T> &arr);
     void close();
 
 protected:
@@ -134,18 +135,20 @@ public:
     void deserialize(TextMessage &tm);
     void deserialize(IsmrmrdHeader &hdr);
     void deserialize(Acquisition &acq);
-    template <typename T>
-    void deserialize(Image<T> &img);
+    template <typename T> void deserialize(Image<T> &img);
     void deserialize(Waveform &wfm);
+    template <typename T> void deserialize(NDArray<T> &arr);
 
     // Peek at the next data type in the stream
     uint16_t peek();
     int peek_image_data_type();
+    int peek_ndarray_data_type();
 
 protected:
     ReadableStreamView &_rs;
     uint16_t _peeked;
     ImageHeader _peeked_image_header;
+    uint16_t _peeked_ndarray_data_type;
 };
 
 } // namespace ISMRMRD
