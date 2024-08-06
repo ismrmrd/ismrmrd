@@ -1,11 +1,11 @@
 find_package(Boost 1.43 COMPONENTS unit_test_framework filesystem)
 
-if (NOT Boost_UNIT_TEST_FRAMEWORK_FOUND)
+if (NOT TARGET Boost::unit_test_framework)
     message("Boost Unit Test Framework not found. Not compiling tests")
     return()
 endif ()
 
-if (NOT Boost_USE_STATIC_LIBS)
+if (NOT (CMAKE_TOOLCHAIN_FILE MATCHES "conan_") AND NOT Boost_USE_STATIC_LIBS)
     add_definitions(-DBOOST_TEST_DYN_LINK)
 endif()
 
@@ -33,13 +33,10 @@ add_executable(test_ismrmrd
     test_serialization.cpp
     test_dataset.cpp)
 
-target_link_libraries(test_ismrmrd ismrmrd ${Boost_LIBRARIES})
+target_link_libraries(test_ismrmrd ismrmrd Boost::boost Boost::unit_test_framework Boost::filesystem)
+add_test(NAME check COMMAND test_ismrmrd)
 
-add_test(NAME check COMMAND test_ismrmrd )
-
-
-add_executable(benchmark_dataset
-     benchmark_dataset.cpp)
-     target_link_libraries(benchmark_dataset ismrmrd ${Boost_LIBRARIES})
+add_executable(benchmark_dataset benchmark_dataset.cpp)
+target_link_libraries(benchmark_dataset ismrmrd Boost::unit_test_framework Boost::filesystem)
 
 set_property(TARGET benchmark_dataset PROPERTY CXX_STANDARD 11)

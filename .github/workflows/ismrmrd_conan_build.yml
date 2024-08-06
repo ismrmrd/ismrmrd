@@ -1,0 +1,49 @@
+name: Conan
+
+on:
+  push:
+    branches:
+      - master
+
+  pull_request:
+    branches:
+      - master
+
+  release:
+    types:
+      - created
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Conan
+      id: conan
+      uses: turtlebrowser/get-conan@main
+
+    - name: Conan version
+      run: echo "${{ steps.conan.outputs.version }}"
+
+    - name: Conan Build
+      run: |
+        set -euo pipefail
+
+        # Make sure that the conanfile.py dependencies match the environment
+        for d in $(cat conanfile.py | grep "requires" | sed -e "s/[^\"]*\"\([a-z0-9]*\)\/\([0-9\.]*\)\")/\1=\2/g"); do
+            cat environment.yml | grep "$d" 2>&1 1>/dev/null
+        done
+
+        conan profile detect --force
+        conan install . --output-folder=build --build=missing
+        cd build
+        cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+        cmake --build .
+        ./tests/test_ismrmrd

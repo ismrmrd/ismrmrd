@@ -157,6 +157,9 @@ if (USE_HDF5_DATASET_SUPPORT)
     if (VCPKG_TARGET_TRIPLET) #VCPKG HDF5 is packaged differently.
         find_package(HDF5 CONFIG COMPONENTS C shared REQUIRED)
         set(HDF5_C_LIBRARIES hdf5::hdf5-shared)
+    elseif(CMAKE_TOOLCHAIN_FILE MATCHES "conan_") # Conan is yet another way to do this
+        find_package(HDF5 CONFIG COMPONENTS C shared REQUIRED)
+        set(HDF5_C_LIBRARIES hdf5::hdf5)
     else ()
         find_package(HDF5 COMPONENTS C REQUIRED)
     endif ()
