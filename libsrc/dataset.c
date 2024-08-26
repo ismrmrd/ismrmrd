@@ -1170,7 +1170,7 @@ uint32_t ismrmrd_get_number_of_acquisitions(const ISMRMRD_Dataset *dset) {
         ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
         return 0;
     }
-    /* The path to the acqusition data */    
+    /* The path to the acquisition data */    
     path = make_path(dset, "data");
     numacq = get_number_of_elements(dset, path);
     free(path);
@@ -1190,7 +1190,7 @@ int ismrmrd_append_acquisition(const ISMRMRD_Dataset *dset, const ISMRMRD_Acquis
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Acquisition pointer should not be NULL.");
     }
 
-    /* The path to the acqusition data */    
+    /* The path to the acquisition data */    
     path = make_path(dset, "data");
 
     /* The acquisition datatype */
@@ -1342,7 +1342,7 @@ uint32_t ismrmrd_get_number_of_images(const ISMRMRD_Dataset *dset, const char *v
     /* The group for this set of images */
     /* /groupname/varname */
     path = make_path(dset, varname);
-    /* The path to the acqusition image headers */
+    /* The path to the acquisition image headers */
     headerpath = append_to_path(dset, path, "header");
     numimages = get_number_of_elements(dset, headerpath);
     free(headerpath);
@@ -1440,7 +1440,7 @@ int ismrmrd_append_waveform(const ISMRMRD_Dataset *dset, const ISMRMRD_Waveform 
         return ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Acquisition pointer should not be NULL.");
     }
 
-    /* The path to the acqusition data */
+    /* The path to the acquisition data */
     path = make_path(dset, "waveforms");
 
     /* The acquisition datatype */
@@ -1515,7 +1515,7 @@ uint32_t ismrmrd_get_number_of_waveforms(const ISMRMRD_Dataset *dset) {
         ISMRMRD_PUSH_ERR(ISMRMRD_RUNTIMEERROR, "Pointer should not be NULL.");
         return 0;
     }
-    /* The path to the acqusition data */
+    /* The path to the acquisition data */
     path = make_path(dset, "waveforms");
     numacq = get_number_of_elements(dset, path);
     free(path);
