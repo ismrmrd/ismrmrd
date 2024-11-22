@@ -19,7 +19,6 @@ BOOST_AUTO_TEST_CASE(test_basic_xml_header)
     IsmrmrdHeader header2;
     deserialize(stream.str().c_str(),header2);
 
-
     BOOST_CHECK_EQUAL(header,header2);
 }
 
@@ -42,8 +41,24 @@ BOOST_AUTO_TEST_CASE(test_extended_xml_header)
     deserialize(stream.str().c_str(),header2);
 
     BOOST_CHECK_EQUAL(header,header2);
-
-
-
 }
+
+BOOST_AUTO_TEST_CASE(test_xml_header_locale)
+{
+    IsmrmrdHeader header;
+    deserialize(basic_xml.c_str(), header);
+
+    std::stringstream stream1;
+    std::locale original_locale = std::locale::global(std::locale("C"));
+    serialize(header, stream1);
+
+    std::stringstream stream2;
+    std::locale::global(std::locale("en_US.UTF-8"));
+    serialize(header, stream2);
+
+    std::locale::global(original_locale);
+
+    BOOST_CHECK_EQUAL(stream1.str(), stream2.str());
+}
+
 BOOST_AUTO_TEST_SUITE_END()

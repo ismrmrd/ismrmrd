@@ -24,6 +24,7 @@ float stof(const char *str, char **str_end = NULL) {
 template <typename T>
 std::string to_string(const T &v) {
     std::stringstream ss;
+    ss.imbue(std::locale::classic());
     ss << std::setprecision(9) << v;
     return ss.str();
 }
