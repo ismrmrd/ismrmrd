@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(test_xml_header_locale)
     deserialize(basic_xml.c_str(), header);
 
     std::stringstream stream1;
-    auto original_locale = std::locale::global(std::locale("C"));
+    std::locale original_locale = std::locale::global(std::locale("C"));
     serialize(header, stream1);
 
     std::stringstream stream2;
