@@ -10,6 +10,7 @@ namespace po = boost::program_options;
 template <typename T>
 std::string create_image_series_name(const ISMRMRD::Image<T> &img) {
     std::stringstream ss;
+    ss.imbue(std::locale::classic());
     ss << "image_" << img.getHead().image_series_index;
     return ss.str();
 }
@@ -17,6 +18,7 @@ std::string create_image_series_name(const ISMRMRD::Image<T> &img) {
 template <typename T>
 std::string create_nd_array_name(const ISMRMRD::NDArray<T> &arr) {
     std::stringstream ss;
+    ss.imbue(std::locale::classic());
     ss << "array_ver_" << arr.getVersion() << "_dim_";
     for (uint16_t ii=0; ii<arr.getNDim(); ii++) ss << arr.getDims()[ii] << "_";
     ss << "datatype_" << arr.getDataType();

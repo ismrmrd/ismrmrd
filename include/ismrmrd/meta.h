@@ -129,6 +129,7 @@ namespace ISMRMRD {
             l_ = l;
             d_ = static_cast<double>(l_);
             std::stringstream strstream;
+            strstream.imbue(std::locale::classic());
             strstream << l_;
             strstream >> s_;
         }
@@ -137,6 +138,7 @@ namespace ISMRMRD {
             d_ = d;
             l_ = static_cast<long>(d_);
             std::stringstream strstream;
+            strstream.imbue(std::locale::classic());
             strstream << d_;
             strstream >> s_;
         }
