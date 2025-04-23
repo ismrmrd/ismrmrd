@@ -799,6 +799,7 @@ template <typename T> class EXPORTISMRMRD Image {
     friend class Dataset;
     friend class Serialize;
 public:
+    typedef T value_type;
     // Constructors
     Image(uint16_t matrix_size_x = 0, uint16_t matrix_size_y = 1,
           uint16_t matrix_size_z = 1, uint16_t channels = 1);
