@@ -19,6 +19,7 @@ set (ISMRMRD_CMAKE_DIR ${PROJECT_SOURCE_DIR}/cmake CACHE PATH
 
 # command line options
 option(USE_HDF5_DATASET_SUPPORT "Compile with support for reading and writing datasets to HDF5 files" ON)
+option(BUILD_STATIC "Build static library" OFF)
 option(BUILD_TESTS "Build unit tests " ON)
 option(BUILD_UTILITIES "Build utilities tests " ON)
 option(BUILD_EXAMPLES "Build examples tests " ON)
@@ -225,7 +226,12 @@ if (build4GE)
 endif ()
 
 # main library
-add_library(ismrmrd SHARED ${ISMRMRD_TARGET_SOURCES})
+if (BUILD_STATIC)
+  add_library(ismrmrd STATIC ${ISMRMRD_TARGET_SOURCES})
+else (BUILD_STATIC)
+  add_library(ismrmrd SHARED ${ISMRMRD_TARGET_SOURCES})
+endif(BUILD_STATIC)
+
 target_include_directories(ismrmrd PUBLIC ${ISMRMRD_TARGET_INCLUDE_DIRS})
 if (USE_HDF5_DATASET_SUPPORT)
   target_compile_options(ismrmrd PUBLIC ${HDF5_DEFINITIONS})
