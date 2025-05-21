@@ -149,6 +149,43 @@ size_t (*get_partial_decoder(uint dims, int64 *))(zfp_stream *, int64 *, size_t,
 }
 } // namespace _private
 
+size_t ismrmrd_num_of_image_data(const ISMRMRD::ISMRMRD_ImageHeader& hdr){
+    constexpr uint16_t min_value = 1;
+    return std::max(hdr.matrix_size[0], min_value) * std::max(hdr.matrix_size[1], min_value) * std::max(hdr.matrix_size[2], min_value) * std::max(hdr.channels, min_value);
+}
+
+size_t ismrmrd_size_of_image_data(const ISMRMRD::ISMRMRD_ImageHeader& hdr){
+    if (ismrmrd_sizeof_data_type(hdr.data_type) == 0) {
+        ISMRMRD_PUSH_ERR(ISMRMRD_TYPEERROR, "Invalid image data type");
+        return 0;
+    }
+    return ismrmrd_num_of_image_data(hdr) * ismrmrd_sizeof_data_type(hdr.data_type);
+}
+
+size_t ismrmrd_num_of_image_attribute_chars(const ISMRMRD::ISMRMRD_ImageHeader& hdr){
+    return hdr.attribute_string_len;
+}
+
+size_t ismrmrd_size_of_image_attribute_string(const ISMRMRD::ISMRMRD_ImageHeader& hdr){
+    return ismrmrd_num_of_image_attribute_chars(hdr); // attribute's char* has sizeof 1
+}
+
+size_t ismrmrd_num_of_acquisition_data(const ISMRMRD::ISMRMRD_AcquisitionHeader& hdr){
+    return hdr.number_of_samples * hdr.active_channels;
+}
+
+size_t ismrmrd_size_of_acquisition_data(const ISMRMRD::ISMRMRD_AcquisitionHeader& hdr){
+    return ismrmrd_num_of_acquisition_data(hdr) * sizeof(complex_float_t);
+}
+
+size_t ismrmrd_num_of_acquisition_traj(const ISMRMRD::ISMRMRD_AcquisitionHeader& hdr){
+    return hdr.number_of_samples * hdr.trajectory_dimensions;
+}
+
+size_t ismrmrd_size_of_acquisition_traj(const ISMRMRD::ISMRMRD_AcquisitionHeader& hdr){
+    return ismrmrd_num_of_acquisition_traj(hdr) * sizeof(float);
+}
+
 void decompress_acquisition(ISMRMRD::ISMRMRD_AcquisitionHeader &hdr, void* data, std::vector<uint8_t> &buffer){
     auto field = std::unique_ptr<zfp_field, decltype(&zfp_field_free)>(zfp_field_alloc(), &zfp_field_free);
 
@@ -192,7 +229,7 @@ void decompress_acquisition(ISMRMRD::ISMRMRD_AcquisitionHeader &hdr, void* data,
         break;
     }
 
-    if (nx * ny * nz * nw != (hdr.number_of_samples * hdr.active_channels)) {
+    if (nx * ny * nz * nw != ismrmrd_num_of_acquisition_data(hdr)) {
         std::stringstream errorstream;
         errorstream << "Size of decompressed stream does not match the acquisition header ";
         errorstream << "nx=" << nx << ", ny=" << ny << ", nz=" << nz << ", nw=" << nw;
@@ -315,11 +352,7 @@ void decompress_image(ISMRMRD::ISMRMRD_ImageHeader &hdr, void* data, std::vector
     size_t nz = std::max(field->nz, size_t(1));
     size_t nw = std::max(field->nw, size_t(1));
 
-    constexpr uint16_t min_value = 1;
-    if (nx * ny * nz * nw != (std::max(hdr.matrix_size[0], min_value) *
-                              std::max(hdr.matrix_size[1], min_value) *
-                              std::max(hdr.matrix_size[2], min_value) *
-                              std::max(hdr.channels, min_value))) {
+    if (nx * ny * nz * nw != ismrmrd_num_of_image_data(hdr)) {
         std::stringstream errorstream;
         errorstream << "Size of decompressed stream does not match the image header ";
         errorstream << "nx=" << nx << ", ny=" << ny << ", nz=" << nz << ", nw=" << nw;

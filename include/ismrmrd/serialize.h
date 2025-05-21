@@ -47,6 +47,15 @@ static_assert(std::numeric_limits<double>::is_iec559 && std::numeric_limits<floa
 // Access to the protected members of ISMRMRD C++ classes via friend
 namespace ISMRMRD {
 
+EXPORTISMRMRD size_t ismrmrd_num_of_image_data(const ISMRMRD::ISMRMRD_ImageHeader& hdr);
+EXPORTISMRMRD size_t ismrmrd_num_of_image_attribute_string(const ISMRMRD::ISMRMRD_ImageHeader& hdr);
+EXPORTISMRMRD size_t ismrmrd_num_of_acquisition_data(const ISMRMRD::ISMRMRD_AcquisitionHeader& hdr);
+EXPORTISMRMRD size_t ismrmrd_num_of_acquisition_traj(const ISMRMRD::ISMRMRD_AcquisitionHeader& hdr);
+EXPORTISMRMRD size_t ismrmrd_size_of_image_data(const ISMRMRD::ISMRMRD_ImageHeader& hdr);
+EXPORTISMRMRD size_t ismrmrd_size_of_image_attribute_string(const ISMRMRD::ISMRMRD_ImageHeader& hdr);
+EXPORTISMRMRD size_t ismrmrd_size_of_acquisition_data(const ISMRMRD::ISMRMRD_AcquisitionHeader& hdr);
+EXPORTISMRMRD size_t ismrmrd_size_of_acquisition_traj(const ISMRMRD::ISMRMRD_AcquisitionHeader& hdr);
+
 EXPORTISMRMRD void decompress_acquisition(ISMRMRD::ISMRMRD_AcquisitionHeader &hdr, void* data, std::vector<uint8_t> &buffer);
 EXPORTISMRMRD void compress_acquisition(ISMRMRD::ISMRMRD_AcquisitionHeader const &hdr, void* data, size_t data_sz, std::vector<uint8_t> &buffer, unsigned int compression_precision = 0, float compression_tolerance = 0.0);
 
