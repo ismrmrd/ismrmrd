@@ -34,18 +34,18 @@ struct is_same_template<BASETEMPLATE, DERIVEDTEMPLATE<T>> {
 };
 
 template <typename T>
-void check(T &value1, T &value2, ISMRMRD::CompressionType compression = ISMRMRD::CompressionType::NONE) {
+void check(T &value1, T &value2, cereal::CompressionType compression = cereal::CompressionType::NONE) {
     BOOST_CHECK_NE(value1, value2);
 
     std::stringstream ss;
 
-    ISMRMRD::CompressionParameters parameters;
+    cereal::CompressionParameters parameters;
     parameters.tolerance = 0.0;
     parameters.precision = 0;
     parameters.type = compression;
 
     {
-        ISMRMRD::CompressiblePortableBinaryOutputArchive oarchive(ss);
+        cereal::CompressiblePortableBinaryOutputArchive oarchive(ss);
         if (is_same_template<ISMRMRD::Image, T>::value)
             oarchive.setImageCompression(parameters);
         else if (std::is_same<ISMRMRD::Acquisition, T>::value)
@@ -53,7 +53,7 @@ void check(T &value1, T &value2, ISMRMRD::CompressionType compression = ISMRMRD:
         oarchive(value1);
     }
     {
-        ISMRMRD::CompressiblePortableBinaryInputArchive iarchive(ss);
+        cereal::CompressiblePortableBinaryInputArchive iarchive(ss);
         iarchive(value2);
     }
 
@@ -167,10 +167,10 @@ BOOST_AUTO_TEST_CASE(test_ISMRMRD_Image_serialize) {
 
     value1.head.measurement_uid = 5;
 
-    check(value1, value2, ISMRMRD::CompressionType::NONE);
+    check(value1, value2, cereal::CompressionType::NONE);
     ismrmrd_cleanup_image(&value2);
     BOOST_CHECK_EQUAL(ismrmrd_init_image(&value2), ISMRMRD::ISMRMRD_NOERROR);
-    check(value1, value2, ISMRMRD::CompressionType::ZFP);
+    check(value1, value2, cereal::CompressionType::ZFP);
 
     ismrmrd_cleanup_image(&value1);
     ismrmrd_cleanup_image(&value2);
@@ -245,7 +245,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_Image_serialize_compression, T, test_types) {
     for (size_t i = 0; i < datasize; i++)
         data[i] = 1;
 
-    check(value1, value2, ISMRMRD::CompressionType::ZFP);
+    check(value1, value2, cereal::CompressionType::ZFP);
 
     BOOST_REQUIRE_EQUAL(value1.getHead(), value2.getHead());
 
