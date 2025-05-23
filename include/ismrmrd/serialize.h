@@ -561,30 +561,6 @@ void serialize(Archive &ar, ISMRMRD::ISMRMRD_WaveformHeader &header, const unsig
 }
 
 template <class Archive>
-void serialize(Archive &ar, ISMRMRD::AcquisitionHeader &header, const unsigned int version) {
-    if (ISMRMRD_SERIALIZE_VERSION != version)
-        throw std::runtime_error("cereal version mismatch");
-    // All data is in the base class
-    ar(cereal::base_class<ISMRMRD::ISMRMRD_AcquisitionHeader>(&header));
-}
-
-template <class Archive>
-void serialize(Archive &ar, ISMRMRD::ImageHeader &header, const unsigned int version) {
-    if (ISMRMRD_SERIALIZE_VERSION != version)
-        throw std::runtime_error("cereal version mismatch");
-    // All data is in the base class
-    ar(cereal::base_class<ISMRMRD::ISMRMRD_ImageHeader>(&header));
-}
-
-template <class Archive>
-void serialize(Archive &ar, ISMRMRD::WaveformHeader &header, const unsigned int version) {
-    if (ISMRMRD_SERIALIZE_VERSION != version)
-        throw std::runtime_error("cereal version mismatch");
-    // All data is in the base class
-    ar(cereal::base_class<ISMRMRD::ISMRMRD_WaveformHeader>(&header));
-}
-
-template <class Archive>
 void save(Archive &ar, ISMRMRD::ISMRMRD_Image const &image,  __attribute__((unused)) const unsigned int version) {
     ismrmrd_private::save_helper(ar, image.head, image.data, ismrmrd_size_of_image_data(&image), image.attribute_string,
          ISMRMRD::ismrmrd_size_of_image_attribute_string(&image));
@@ -660,24 +636,17 @@ void serialize(Archive &ar, ISMRMRD::ISMRMRD_Waveform &waveform, const unsigned 
 }
 
 template <class Archive, typename T>
-void serialize(Archive &ar, ISMRMRD::NDArray<T> &ndArray, const unsigned int version) {
-    if (ISMRMRD_SERIALIZE_VERSION != version)
-        throw std::runtime_error("cereal version mismatch");
+void serialize(Archive &ar, ISMRMRD::NDArray<T> &ndArray) {
     ar(ISMRMRD::Serialize::access(ndArray));
 }
 
 template <class Archive, typename T>
-void serialize(Archive &ar, ISMRMRD::Image<T> &image, const unsigned int version) {
-    if (ISMRMRD_SERIALIZE_VERSION != version)
-        throw std::runtime_error("cereal version mismatch");
-    std::cout<<"serialize function for Archive: "<<typeid(Archive).name()<<" and type: "<<typeid(T).name()<<"\n";
+void serialize(Archive &ar, ISMRMRD::Image<T> &image) {
     ar(ISMRMRD::Serialize::access(image));
 }
 
 template <class Archive>
-void serialize(Archive &ar, ISMRMRD::Acquisition &acq, const unsigned int version) {
-    if (ISMRMRD_SERIALIZE_VERSION != version)
-        throw std::runtime_error("cereal version mismatch");
+void serialize(Archive &ar, ISMRMRD::Acquisition &acq) {
     ar(ISMRMRD::Serialize::access(acq));
 }
 
@@ -720,31 +689,19 @@ CEREAL_CLASS_VERSION(ISMRMRD::ISMRMRD_Waveform, ISMRMRD_SERIALIZE_VERSION);
 CEREAL_CLASS_VERSION(ISMRMRD::ISMRMRD_Image, ISMRMRD_SERIALIZE_VERSION);
 CEREAL_CLASS_VERSION(ISMRMRD::ISMRMRD_NDArray, ISMRMRD_SERIALIZE_VERSION);
 
+CEREAL_CLASS_VERSION(ISMRMRD::IsmrmrdHeader, ISMRMRD_SERIALIZE_VERSION);
+// These types extend ISMRMRD_XXX structs, adding functions but not data.
+// Therefore, they use their base struct's serialize functions to allow for cross serialization between types.
+// They require the same version as their base structs.
 CEREAL_CLASS_VERSION(ISMRMRD::AcquisitionHeader, ISMRMRD_SERIALIZE_VERSION);
 CEREAL_CLASS_VERSION(ISMRMRD::WaveformHeader, ISMRMRD_SERIALIZE_VERSION);
-CEREAL_CLASS_VERSION(ISMRMRD::ImageHeader, ISMRMRD_SERIALIZE_VERSION);
-CEREAL_CLASS_VERSION(ISMRMRD::IsmrmrdHeader, ISMRMRD_SERIALIZE_VERSION);
-
-CEREAL_CLASS_VERSION(ISMRMRD::Acquisition, ISMRMRD_SERIALIZE_VERSION);
 CEREAL_CLASS_VERSION(ISMRMRD::Waveform, ISMRMRD_SERIALIZE_VERSION);
+CEREAL_CLASS_VERSION(ISMRMRD::ImageHeader, ISMRMRD_SERIALIZE_VERSION);
 
-CEREAL_CLASS_VERSION(ISMRMRD::Image<uint16_t>, ISMRMRD_SERIALIZE_VERSION);
-CEREAL_CLASS_VERSION(ISMRMRD::Image<int16_t>, ISMRMRD_SERIALIZE_VERSION);
-CEREAL_CLASS_VERSION(ISMRMRD::Image<uint32_t>, ISMRMRD_SERIALIZE_VERSION);
-CEREAL_CLASS_VERSION(ISMRMRD::Image<int32_t>, ISMRMRD_SERIALIZE_VERSION);
-CEREAL_CLASS_VERSION(ISMRMRD::Image<float>, ISMRMRD_SERIALIZE_VERSION);
-CEREAL_CLASS_VERSION(ISMRMRD::Image<double>, ISMRMRD_SERIALIZE_VERSION);
-CEREAL_CLASS_VERSION(ISMRMRD::Image<complex_float_t>, ISMRMRD_SERIALIZE_VERSION);
-CEREAL_CLASS_VERSION(ISMRMRD::Image<complex_double_t>, ISMRMRD_SERIALIZE_VERSION);
 
-CEREAL_CLASS_VERSION(ISMRMRD::NDArray<uint16_t>, ISMRMRD_SERIALIZE_VERSION);
-CEREAL_CLASS_VERSION(ISMRMRD::NDArray<int16_t>, ISMRMRD_SERIALIZE_VERSION);
-CEREAL_CLASS_VERSION(ISMRMRD::NDArray<uint32_t>, ISMRMRD_SERIALIZE_VERSION);
-CEREAL_CLASS_VERSION(ISMRMRD::NDArray<int32_t>, ISMRMRD_SERIALIZE_VERSION);
-CEREAL_CLASS_VERSION(ISMRMRD::NDArray<float>, ISMRMRD_SERIALIZE_VERSION);
-CEREAL_CLASS_VERSION(ISMRMRD::NDArray<double>, ISMRMRD_SERIALIZE_VERSION);
-CEREAL_CLASS_VERSION(ISMRMRD::NDArray<complex_float_t>, ISMRMRD_SERIALIZE_VERSION);
-CEREAL_CLASS_VERSION(ISMRMRD::NDArray<complex_double_t>, ISMRMRD_SERIALIZE_VERSION);
+// Do not version ISMRMRD::Acquisition, ISMRMRD::Image<T>, ISMRMRD::NDArray in order to allow
+// cross serialization and deserialization with their underlying ISMRMRD_XXX structs.
+// Versioning mismatches are caught during the underlying ISMRMRD_XXX deserialization.
 
 #endif
 

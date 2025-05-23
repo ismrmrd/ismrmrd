@@ -60,6 +60,38 @@ void check(T &value1, T &value2, cereal::CompressionType compression = cereal::C
     BOOST_CHECK_EQUAL(value1, value2);
 }
 
+template<typename T1, typename T2>
+void check_cross1(T1 &value1, T2 &value2){
+    BOOST_CHECK_NE(ISMRMRD::Serialize::access(value1), value2);
+    std::stringstream ss;
+    cereal::CompressionParameters parameters;
+    {
+        cereal::CompressiblePortableBinaryOutputArchive oarchive(ss);
+        oarchive(value1);
+    }
+    {
+        cereal::CompressiblePortableBinaryInputArchive iarchive(ss);
+        iarchive(value2);
+    }
+    BOOST_CHECK_EQUAL(ISMRMRD::Serialize::access(value1), value2);
+}
+
+template<typename T1, typename T2>
+void check_cross2(T1 &value1, T2 &value2){
+    BOOST_CHECK_NE(ISMRMRD::Serialize::access(value1), value2);
+    std::stringstream ss;
+    cereal::CompressionParameters parameters;
+    {
+        cereal::CompressiblePortableBinaryOutputArchive oarchive(ss);
+        oarchive(value2);
+    }
+    {
+        cereal::CompressiblePortableBinaryInputArchive iarchive(ss);
+        iarchive(value1);
+    }
+    BOOST_CHECK_EQUAL(ISMRMRD::Serialize::access(value1), value2);
+}
+
 BOOST_AUTO_TEST_SUITE(SerializeTest)
 
 BOOST_AUTO_TEST_CASE(test_ndarray_serialize) {
@@ -302,6 +334,70 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_NDArray_serialize, T, test_types) {
     *(value1.begin()) = static_cast<T>(5);
 
     check(value1, value2);
+}
+
+BOOST_AUTO_TEST_CASE(test_Acquisition_cross_serialize) {
+    ISMRMRD::Acquisition value1(3, 2, 1);
+    value1.measurement_uid() = 5;
+    auto data = value1.getDataPtr();
+    size_t datasize = value1.getNumberOfDataElements();
+    for (size_t i = 0; i < datasize; i++) {
+        data[i] = static_cast<complex_float_t>(i);
+    }
+    auto data2 = value1.getTrajPtr();
+    datasize = value1.getNumberOfTrajElements();
+    for (size_t i = 0; i < datasize; i++) {
+        data2[i] = static_cast<float>(i);
+    }
+
+    ISMRMRD::ISMRMRD_Acquisition value2;
+    ISMRMRD::ismrmrd_init_acquisition(&value2);
+
+
+    // first value is class, second value is struct
+    check_cross1(value1, value2);
+    value2.head.measurement_uid = 6;
+    *static_cast<complex_float_t*>(value2.data) = 999;
+    *static_cast<float*>(value2.traj) = 999;
+    check_cross2(value1, value2);
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(test_Image_cross_serialize, T, test_types) {
+    ISMRMRD::Image<T> value1(4,4,4,4);
+    auto data = value1.getDataPtr();
+    size_t datasize = value1.getNumberOfDataElements();
+    auto count=0;
+    for (size_t i = 0; i < datasize; i++) {
+        data[i] = count;
+        count++;
+    }
+    value1.setAttributeString("test");
+
+    ISMRMRD::ISMRMRD_Image value2;
+    ISMRMRD::ismrmrd_init_image(&value2);
+
+    value1.setMeasurementUid(5);
+    // first value is class, second value is struct
+    check_cross1(value1, value2);
+    value2.head.measurement_uid = 6;
+    *static_cast<T*>(value2.data) = 999;
+    char different_str[] = "abcde";
+    value2.attribute_string = different_str;
+    value2.head.attribute_string_len = sizeof(different_str);
+    check_cross2(value1, value2);
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(test_NDArray_cross_serialize, T, test_types) {
+    std::vector<size_t> data(3);
+    data[0] = data[1] = data[2] = 1;
+    ISMRMRD::NDArray<T> value1(data);
+    ISMRMRD::ISMRMRD_NDArray value2;
+    ISMRMRD::ismrmrd_init_ndarray(&value2);
+    *(value1.begin()) = static_cast<T>(5);
+    // first value is class, second value is struct
+    check_cross1(value1, value2);
+    *(static_cast<T*>(value2.data)) = static_cast<T>(6);
+    check_cross2(value1, value2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
