@@ -1,3 +1,4 @@
+#include <fstream>
 #include <boost/test/unit_test.hpp>
 
 #include "ismrmrd/dataset.h"

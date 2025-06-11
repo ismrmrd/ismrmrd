@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.21)
 foreach(p
     CMP0025 # CMake 3.0 Compiler id for Apple Clang is now ``AppleClang``.
     CMP0042 # CMake 3.0 ``MACOSX_RPATH`` is enabled by default.
@@ -218,17 +218,22 @@ set(ISMRMRD_TARGET_SOURCES
 )
 
 set(ISMRMRD_TARGET_LINK_LIBS ${ISMRMRD_DATASET_LIBRARIES})
-find_package(PugiXML CONFIG REQUIRED)
-list(APPEND ISMRMRD_TARGET_LINK_LIBS pugixml::pugixml)
 
 if (build4GE)
    list(APPEND ISMRMRD_TARGET_LINK_LIBS pthread z dl)
 endif ()
 
+find_package(pugixml CONFIG REQUIRED)
+
 # main library
 if (BUILD_STATIC)
+  if (WIN32)
+    add_definitions(-Dismrmrd_EXPORTS)
+  endif()
+  list(APPEND ISMRMRD_TARGET_LINK_LIBS pugixml::static)
   add_library(ismrmrd STATIC ${ISMRMRD_TARGET_SOURCES})
 else (BUILD_STATIC)
+  list(APPEND ISMRMRD_TARGET_LINK_LIBS pugixml::shared)
   add_library(ismrmrd SHARED ${ISMRMRD_TARGET_SOURCES})
 endif(BUILD_STATIC)
 

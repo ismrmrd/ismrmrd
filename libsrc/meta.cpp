@@ -23,7 +23,7 @@ namespace ISMRMRD {
             pugi::xml_node value = meta.child("value");
 
             if (!name || !value) {
-                std::runtime_error("Malformed metadata value");
+                throw std::runtime_error("Malformed metadata value");
             }
 
             while (value) {

@@ -5,9 +5,13 @@
   "dependencies": [
     {
       "name": "hdf5",
-      "features": ["threadsafe"]
+      "features": ["threadsafe"],
+      "platform": "!(windows & static)"
     },
-    "fftw3",
+    {
+      "name": "fftw3",
+      "platform": "!(windows & static)"
+    },
     "pugixml",
     "boost-test",
     "boost-random",
