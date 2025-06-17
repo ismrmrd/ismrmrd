@@ -1,11 +1,13 @@
 #ifndef ISMRMRD_EXPORT_H_
 #define ISMRMRD_EXPORT_H_
 
-#if defined (WIN32)
-#if defined (ismrmrd_EXPORTS)
+#if defined(WIN32)
+#if defined(ISMRMRD_EXPORT)
 #define EXPORTISMRMRD __declspec(dllexport)
-#else
+#elif defined(ISMRMRD_IMPORT)
 #define EXPORTISMRMRD __declspec(dllimport)
+#else
+#define EXPORTISMRMRD
 #endif
 #else
 #define EXPORTISMRMRD
