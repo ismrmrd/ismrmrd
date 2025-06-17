@@ -11,7 +11,7 @@ install(TARGETS ismrmrd_info DESTINATION bin)
 if (NOT WIN32)
   add_executable(ismrmrd_test_xml
     ismrmrd_test_xml.cpp)
-  target_link_libraries(ismrmrd_test_xml ismrmrd)
+  target_link_libraries(ismrmrd_test_xml ismrmrd ${ISMRMRD_PUGIXML_LIBRARIES})
   install(TARGETS ismrmrd_test_xml DESTINATION bin)
 endif()
 
@@ -21,7 +21,7 @@ if (HDF5_FOUND)
 
 
     if (WIN32 AND (CMAKE_VERSION VERSION_GREATER_EQUAL 3.21))
-     install(TARGETS ismrmrd_read_timing_test DESTINATION bin 
+     install(TARGETS ismrmrd_read_timing_test DESTINATION bin
             RUNTIME_DEPENDENCIES
             PRE_EXCLUDE_REGEXES "api-ms-" "ex-ms"
             POST_EXCLUDE_REGEXES ".*system32/.*\\.dll"
@@ -81,10 +81,10 @@ if (HDF5_FOUND)
 
         add_executable(ismrmrd_stream_recon_cartesian_2d stream_recon_cartesian_2d.cpp)
         target_link_libraries(ismrmrd_stream_recon_cartesian_2d ismrmrd ${FFTW3_LIBRARIES} ${Boost_PROGRAM_OPTIONS_LIBRARY})
-        
 
-        if (WIN32)       
-            install(TARGETS ismrmrd_stream_recon_cartesian_2d DESTINATION bin 
+
+        if (WIN32)
+            install(TARGETS ismrmrd_stream_recon_cartesian_2d DESTINATION bin
             RUNTIME_DEPENDENCIES
             PRE_EXCLUDE_REGEXES "api-ms-" "ex-ms"
             POST_EXCLUDE_REGEXES ".*system32/.*\\.dll"
