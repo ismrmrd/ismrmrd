@@ -37,7 +37,7 @@ void convert_stream_to_hdf5(std::string output_file, std::string groupname, std:
         deserializer.deserialize(hdr);
 
         // We will convert the XML header to a string and write it to the HDF5 file
-        std::stringstream xmlstream;
+        std::stringstream xmlstream(std::ios::out | std::ios::binary);
         ISMRMRD::serialize(hdr, xmlstream);
         d.writeHeader(xmlstream.str());
     }

@@ -15,6 +15,9 @@ if (NOT WIN32)
   install(TARGETS ismrmrd_test_xml DESTINATION bin)
 endif()
 
+add_executable(ismrmrd_debug_serialization ismrmrd_debug_serialization.cpp)
+target_link_libraries(ismrmrd_debug_serialization ismrmrd ${ISMRMRD_PUGIXML_LIBRARIES})
+
 if (HDF5_FOUND)
     add_executable(ismrmrd_read_timing_test read_timing_test.cpp)
     target_link_libraries(ismrmrd_read_timing_test ismrmrd ${HDF5_C_LIBRARIES})

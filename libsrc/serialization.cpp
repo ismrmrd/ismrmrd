@@ -58,7 +58,7 @@ void serialize(const std::string &str, WritableStreamView &ws) {
     }
 }
 
-template <typename T> 
+template <typename T>
 void serialize(const NDArray<T> &arr, WritableStreamView &ws) {
     uint16_t ver = arr.getVersion();
     uint16_t dtype = static_cast<uint16_t>(arr.getDataType());
@@ -153,7 +153,7 @@ void deserialize(std::string &str, ReadableStreamView &rs) {
     str.assign(&buf[0], len);
 }
 
-template <typename T> 
+template <typename T>
 void deserialize_ndarray_data(NDArray<T> &arr, ReadableStreamView &rs) {
     uint16_t ver;
     uint16_t ndim;
@@ -168,7 +168,7 @@ void deserialize_ndarray_data(NDArray<T> &arr, ReadableStreamView &rs) {
     rs.read(reinterpret_cast<char *>(arr.getDataPtr()), arr.getDataSize());
 }
 
-template <typename T> 
+template <typename T>
 void deserialize(NDArray<T> &arr, ReadableStreamView &rs) {
     uint16_t dtype;
     rs.read(reinterpret_cast<char *>(&dtype), sizeof(uint16_t));
@@ -201,7 +201,7 @@ void ProtocolSerializer::serialize(const TextMessage &tm) {
 }
 
 void ProtocolSerializer::serialize(const IsmrmrdHeader &hdr) {
-    std::stringstream str;
+    std::stringstream str(std::ios::out | std::ios::binary);
     ISMRMRD::serialize(hdr, str);
     std::string as_str = str.str();
     uint32_t size = static_cast<uint32_t>(as_str.size());
