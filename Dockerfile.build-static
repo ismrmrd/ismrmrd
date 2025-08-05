@@ -1,12 +1,13 @@
-# FROM mcr.microsoft.com/devcontainers/base:jammy AS ismrmrd_dev
-FROM ubuntu:noble AS ismrmrd_dev
+FROM ubuntu:noble AS ismrmrd_static
 
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y \
         cmake g++ ninja-build \
-        libboost-dev libboost-program-options-dev libboost-system-dev \
-        libboost-filesystem-dev libboost-thread-dev libboost-timer-dev \
-        libboost-program-options-dev libboost-test-dev libpugixml-dev \
+        libboost-dev libboost-filesystem-dev \
+        libboost-program-options-dev libboost-random-dev \
+        libboost-system-dev libboost-test-dev \
+        libboost-thread-dev libboost-timer-dev \
+        libfftw3-dev libhdf5-dev libpugixml-dev \
     && apt-get clean
 
 RUN mkdir -p /opt/code/ismrmrd
@@ -19,7 +20,6 @@ RUN cd /opt/code/ismrmrd && \
         -G Ninja \
         -D CMAKE_BUILD_TYPE=Release \
         -D CMAKE_INSTALL_PREFIX=/opt/package \
-        -D USE_HDF5_DATASET_SUPPORT=Off \
         -D BUILD_STATIC=On \
         ../ && \
     ninja && \

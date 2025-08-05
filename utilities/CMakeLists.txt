@@ -8,40 +8,26 @@ add_executable(ismrmrd_info ismrmrd_info.cpp)
 target_link_libraries(ismrmrd_info ismrmrd)
 install(TARGETS ismrmrd_info DESTINATION bin)
 
-if (NOT WIN32)
-  add_executable(ismrmrd_test_xml
-    ismrmrd_test_xml.cpp)
-  target_link_libraries(ismrmrd_test_xml ismrmrd ${ISMRMRD_PUGIXML_LIBRARIES})
-  install(TARGETS ismrmrd_test_xml DESTINATION bin)
-endif()
-
-add_executable(ismrmrd_debug_serialization ismrmrd_debug_serialization.cpp)
-target_link_libraries(ismrmrd_debug_serialization ismrmrd ${ISMRMRD_PUGIXML_LIBRARIES})
+add_executable(ismrmrd_test_xml ismrmrd_test_xml.cpp)
+target_link_libraries(ismrmrd_test_xml ismrmrd)
+install(TARGETS ismrmrd_test_xml DESTINATION bin)
 
 if (HDF5_FOUND)
     add_executable(ismrmrd_read_timing_test read_timing_test.cpp)
     target_link_libraries(ismrmrd_read_timing_test ismrmrd ${HDF5_C_LIBRARIES})
 
-
     if (WIN32 AND (CMAKE_VERSION VERSION_GREATER_EQUAL 3.21))
-     install(TARGETS ismrmrd_read_timing_test DESTINATION bin
-            RUNTIME_DEPENDENCIES
-            PRE_EXCLUDE_REGEXES "api-ms-" "ex-ms"
-            POST_EXCLUDE_REGEXES ".*system32/.*\\.dll"
-            DIRECTORIES "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/.."
-            )
+        install(TARGETS ismrmrd_read_timing_test DESTINATION bin
+                RUNTIME_DEPENDENCIES
+                PRE_EXCLUDE_REGEXES "api-ms-" "ex-ms"
+                POST_EXCLUDE_REGEXES ".*system32/.*\\.dll"
+                DIRECTORIES "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/.."
+                )
     else ()
         install(TARGETS ismrmrd_read_timing_test DESTINATION bin)
-        endif()
-
-    find_package(Boost 1.43 COMPONENTS program_options random)
-    if (WIN32)
-        add_definitions(-DBOOST_ALL_NO_LIB)
-        add_definitions(-DBOOST_ALL_DYN_LINK)
     endif()
-    find_package(FFTW3 COMPONENTS single)
 
-    if(FFTW3_FOUND AND Boost_FOUND)
+    if(FFTW_FOUND AND Boost_FOUND)
         message("FFTW3 and Boost Found... building utilities")
 
         if(WIN32)
@@ -51,7 +37,7 @@ if (HDF5_FOUND)
         include_directories(
             ${CMAKE_SOURCE_DIR/include}
             ${Boost_INCLUDE_DIR}
-            ${FFTW3_INCLUDE_DIR})
+            ${FFTW_INCLUDE_DIRS})
 
         # Shepp-Logan phantom
         add_executable(ismrmrd_generate_cartesian_shepp_logan
@@ -60,7 +46,7 @@ if (HDF5_FOUND)
         target_link_libraries( ismrmrd_generate_cartesian_shepp_logan
             ismrmrd
             ${Boost_PROGRAM_OPTIONS_LIBRARY}
-            ${FFTW3_LIBRARIES})
+            ${FFTW_LIBRARIES})
 
         install(TARGETS ismrmrd_generate_cartesian_shepp_logan DESTINATION bin)
 
@@ -70,7 +56,7 @@ if (HDF5_FOUND)
 		target_link_libraries( ismrmrd_recon_cartesian_2d
             ismrmrd
             ${Boost_PROGRAM_OPTIONS_LIBRARY}
-            ${FFTW3_LIBRARIES})
+            ${FFTW_LIBRARIES})
 
         install(TARGETS ismrmrd_recon_cartesian_2d DESTINATION bin)
 
@@ -83,7 +69,7 @@ if (HDF5_FOUND)
         install(TARGETS ismrmrd_stream_to_hdf5 DESTINATION bin)
 
         add_executable(ismrmrd_stream_recon_cartesian_2d stream_recon_cartesian_2d.cpp)
-        target_link_libraries(ismrmrd_stream_recon_cartesian_2d ismrmrd ${FFTW3_LIBRARIES} ${Boost_PROGRAM_OPTIONS_LIBRARY})
+        target_link_libraries(ismrmrd_stream_recon_cartesian_2d ismrmrd ${FFTW_LIBRARIES} ${Boost_PROGRAM_OPTIONS_LIBRARY})
 
 
         if (WIN32)

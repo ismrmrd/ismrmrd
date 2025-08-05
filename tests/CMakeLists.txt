@@ -1,15 +1,7 @@
-find_package(Boost COMPONENTS unit_test_framework filesystem)
-
 if (NOT Boost_UNIT_TEST_FRAMEWORK_FOUND)
     message("Boost Unit Test Framework not found. Not compiling tests")
     return()
 endif ()
-
-if (BUILD_STATIC)
-    set(Boost_USE_STATIC_LIBS On)
-else()
-    add_definitions(-DBOOST_TEST_DYN_LINK)
-endif()
 
 file(READ ${CMAKE_SOURCE_DIR}/schema/ismrmrd_example.xml ismrmrd_example)
 string(REPLACE "\"" "\\\"" ismrmrd_example ${ismrmrd_example})

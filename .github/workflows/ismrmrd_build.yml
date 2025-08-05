@@ -17,6 +17,10 @@ env:
   BUILD_TYPE: Release
   REGISTRY: ghcr.io
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,7 +29,7 @@ jobs:
       packages: write
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/build
@@ -76,3 +80,28 @@ jobs:
       shell: bash
       run: |
         ./docker/build-images.sh --tag "${GITHUB_REF##*/}" --push
+
+  build-static:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build docker image
+      run: |-
+        docker build -f Dockerfile.build-static -t ismrmrd_static .
+
+    - name: Test static binaries
+      run: |-
+        set -euo pipefail
+        test_command="set -euo pipefail \
+              && export PATH=$PATH:/opt/package/bin \
+              && test -f /opt/package/lib/libismrmrd.a \
+              && ! test -e /opt/package/lib/libismrmrd.so \
+              && ismrmrd_generate_cartesian_shepp_logan -o testdata.h5 \
+              && ismrmrd_hdf5_to_stream -i testdata.h5 --use-stdout \
+                | ismrmrd_stream_recon_cartesian_2d --use-stdin --use-stdout \
+                | ismrmrd_stream_to_hdf5 --use-stdin -o result.h5"
+        docker run ismrmrd_static /bin/bash -c "$test_command"

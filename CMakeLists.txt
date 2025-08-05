@@ -151,18 +151,30 @@ if (NOT (${ISMRMRD_XML_SCHEMA_SHA1} STREQUAL ${ISMRMRD_CURRENT_XML_SCHEMA_SHA1})
   message(FATAL_ERROR "     FATAL XML VERSION ERROR")
 endif()
 
+# Find static libraries only if linking statically
+if (BUILD_STATIC)
+    set(Boost_USE_STATIC_LIBS On)
+    set(HDF5_USE_STATIC_LIBRARIES TRUE)
+    set(FFTW_USE_STATIC_LIBS TRUE)
+else()
+    add_definitions(-DBOOST_TEST_DYN_LINK)
+endif()
+
+# Find Boost for tests and utilities
+find_package(Boost COMPONENTS filesystem random program_options unit_test_framework)
+find_package(pugixml CONFIG REQUIRED)
+find_package(FFTW COMPONENTS FLOAT_LIB)
+
 # Find HDF5 for dataset support
 if (USE_HDF5_DATASET_SUPPORT)
     if (VCPKG_TARGET_TRIPLET) #VCPKG HDF5 is packaged differently.
-        find_package(HDF5 CONFIG COMPONENTS C shared REQUIRED)
-        set(HDF5_C_LIBRARIES hdf5::hdf5-shared)
+        find_package(HDF5 CONFIG COMPONENTS C REQUIRED)
     else ()
         find_package(HDF5 COMPONENTS C REQUIRED)
     endif ()
     set(ISMRMRD_DATASET_SUPPORT true)
     set(ISMRMRD_DATASET_SOURCES libsrc/dataset.c libsrc/dataset.cpp)
-    set(ISMRMRD_DATASET_INCLUDE_DIR ${HDF5_INCLUDE_DIRS})
-    set(ISMRMRD_DATASET_LIBRARIES ${HDF5_C_LIBRARIES})
+    set(ISMRMRD_DATASET_LIBRARIES HDF5::HDF5)
     message(STATUS "HDF5 include found at: ${HDF5_INCLUDE_DIRS}")
     message(STATUS "HDF5 libs found at: ${HDF5_C_LIBRARIES}")
 else ()
@@ -218,7 +230,6 @@ if (build4GE)
    list(APPEND ISMRMRD_TARGET_LINK_LIBS pthread z dl)
 endif ()
 
-find_package(pugixml CONFIG REQUIRED)
 
 # main library
 if (BUILD_STATIC)
@@ -255,7 +266,7 @@ set_target_properties(ismrmrd
   VERSION ${ISMRMRD_VERSION_STRING}
   SOVERSION ${ISMRMRD_SOVERSION})
 
-target_link_libraries(ismrmrd PRIVATE ${ISMRMRD_TARGET_LINK_LIBS})
+target_link_libraries(ismrmrd PUBLIC ${ISMRMRD_TARGET_LINK_LIBS})
 list(APPEND ISMRMRD_LIBRARIES ismrmrd) # Add to list of libraries to be found
 list(APPEND ISMRMRD_LIBRARY_DIRS ${CMAKE_BINARY_DIR} ) # Add to list of directories to find libraries
 
