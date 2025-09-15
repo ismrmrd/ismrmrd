@@ -2,16 +2,11 @@ name: CMake
 
 on:
   push:
-    branches:
-      - master
-
+    branches: [master]
+    tags: ["v*.*.*"]
   pull_request:
-    branches:
-      - master
-
-  release:
-    types:
-      - created
+    branches: [master]
+  workflow_dispatch:
 
 env:
   BUILD_TYPE: Release

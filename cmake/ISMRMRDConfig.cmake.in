@@ -11,7 +11,7 @@ get_filename_component(ISMRMRD_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 
 include(${ISMRMRD_CMAKE_DIR}/ISMRMRDConfigVersion.cmake)
 
-#   ISMRMRD_SCHEMA_DIR   - where to find ismrmrd.xsd 
+#   ISMRMRD_SCHEMA_DIR   - where to find ismrmrd.xsd
 set(ISMRMRD_SCHEMA_DIR   "@CONFIG_ISMRMRD_SCHEMA_DIR@")
 #   ISMRMRD_INCLUDE_DIR  - where to find ismrmrd.h, etc.
 set(ISMRMRD_INCLUDE_DIRS "@CONFIG_ISMRMRD_TARGET_INCLUDE_DIRS@")
@@ -33,6 +33,10 @@ set(ISMRMRD_LIB_DIR "@CONFIG_ISMRMRD_LIBRARY_DIRS@")
 include(CMakeFindDependencyMacro)
 
 list(INSERT CMAKE_MODULE_PATH 0 ${ISMRMRD_CMAKE_DIR})
+
+if (@BUILD_STATIC@)
+    set(HDF5_USE_STATIC_LIBRARIES TRUE)
+endif()
 
 find_package(pugixml CONFIG)
 if (NOT pugixml_FOUND)

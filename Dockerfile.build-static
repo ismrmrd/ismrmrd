@@ -8,7 +8,13 @@ RUN apt-get update \
         libboost-system-dev libboost-test-dev \
         libboost-thread-dev libboost-timer-dev \
         libfftw3-dev libhdf5-dev libpugixml-dev \
+        locales \
     && apt-get clean
+
+RUN locale-gen en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
 
 RUN mkdir -p /opt/code/ismrmrd
 COPY . /opt/code/ismrmrd/
@@ -23,4 +29,5 @@ RUN cd /opt/code/ismrmrd && \
         -D BUILD_STATIC=On \
         ../ && \
     ninja && \
+    ./tests/test_ismrmrd && \
     ninja install
