@@ -33,7 +33,6 @@ jobs:
     - name: Configure CMake and install dependencies
       shell: pwsh
       working-directory: ${{github.workspace}}/build
-      shell: pwsh
       run: |-
           cmake "$env:GITHUB_WORKSPACE" -D CMAKE_BUILD_TYPE=Release \
             -D CMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake \
