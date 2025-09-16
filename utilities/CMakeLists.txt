@@ -15,17 +15,7 @@ install(TARGETS ismrmrd_test_xml DESTINATION bin)
 if (HDF5_FOUND)
     add_executable(ismrmrd_read_timing_test read_timing_test.cpp)
     target_link_libraries(ismrmrd_read_timing_test ismrmrd ${HDF5_C_LIBRARIES})
-
-    if (WIN32 AND (CMAKE_VERSION VERSION_GREATER_EQUAL 3.21))
-        install(TARGETS ismrmrd_read_timing_test DESTINATION bin
-                RUNTIME_DEPENDENCIES
-                PRE_EXCLUDE_REGEXES "api-ms-" "ex-ms"
-                POST_EXCLUDE_REGEXES ".*system32/.*\\.dll"
-                DIRECTORIES "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/.."
-                )
-    else ()
-        install(TARGETS ismrmrd_read_timing_test DESTINATION bin)
-    endif()
+    install(TARGETS ismrmrd_read_timing_test DESTINATION bin)
 
     if(FFTW_FOUND AND Boost_FOUND)
         message("FFTW3 and Boost Found... building utilities")
@@ -47,7 +37,6 @@ if (HDF5_FOUND)
             ismrmrd
             ${Boost_PROGRAM_OPTIONS_LIBRARY}
             ${FFTW_LIBRARIES})
-
         install(TARGETS ismrmrd_generate_cartesian_shepp_logan DESTINATION bin)
 
         # Shepp-Logan phantom
@@ -57,7 +46,6 @@ if (HDF5_FOUND)
             ismrmrd
             ${Boost_PROGRAM_OPTIONS_LIBRARY}
             ${FFTW_LIBRARIES})
-
         install(TARGETS ismrmrd_recon_cartesian_2d DESTINATION bin)
 
         add_executable(ismrmrd_hdf5_to_stream ismrmrd_hdf5_to_stream.cpp)
@@ -70,20 +58,7 @@ if (HDF5_FOUND)
 
         add_executable(ismrmrd_stream_recon_cartesian_2d stream_recon_cartesian_2d.cpp)
         target_link_libraries(ismrmrd_stream_recon_cartesian_2d ismrmrd ${FFTW_LIBRARIES} ${Boost_PROGRAM_OPTIONS_LIBRARY})
-
-
-        if (WIN32)
-            install(TARGETS ismrmrd_stream_recon_cartesian_2d DESTINATION bin
-            RUNTIME_DEPENDENCIES
-            PRE_EXCLUDE_REGEXES "api-ms-" "ex-ms"
-            POST_EXCLUDE_REGEXES ".*system32/.*\\.dll"
-            DIRECTORIES "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/.."
-            )
-            else()
-            install(TARGETS ismrmrd_stream_recon_cartesian_2d DESTINATION bin)
-        endif()
-
-
+        install(TARGETS ismrmrd_stream_recon_cartesian_2d DESTINATION bin)
     else()
         message("FFTW3 or Boost NOT Found, cannot build utilities")
     endif()

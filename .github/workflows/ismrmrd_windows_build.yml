@@ -11,16 +11,6 @@ on:
 jobs:
   windows-build:
 
-    strategy:
-      matrix:
-        include:
-          - vcpkg_triplet: x64-windows-static
-            build_static: ON
-            use_hdf5_dataset_support: OFF
-          - vcpkg_triplet: x64-windows
-            build_static: OFF
-            use_hdf5_dataset_support: ON
-
     runs-on: windows-latest
 
     steps:
@@ -36,9 +26,9 @@ jobs:
       run: |-
           cmake "$env:GITHUB_WORKSPACE" -D CMAKE_BUILD_TYPE=Release `
             -D CMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake `
-            -D VCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} `
-            -D BUILD_STATIC=${{ matrix.build_static }} `
-            -D USE_HDF5_DATASET_SUPPORT=${{ matrix.use_hdf5_dataset_support }}
+            -D VCPKG_TARGET_TRIPLET=x64-windows-static `
+            -D BUILD_STATIC=ON `
+            -D USE_HDF5_DATASET_SUPPORT=OFF
 
     - name: Build
       working-directory: ${{github.workspace}}/build
