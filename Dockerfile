@@ -23,7 +23,7 @@ COPY docker/entrypoint-stream.sh /entrypoints/
 RUN sed -i 's/\r$//' /entrypoints/*.sh
 RUN chmod +x /entrypoints/*.sh
 
-FROM mcr.microsoft.com/vscode/devcontainers/base:0.201.8-focal AS basecontainer
+FROM mcr.microsoft.com/devcontainers/base:1.2.4-jammy AS basecontainer
 
 # Install needed packages and setup non-root user.
 ARG USERNAME
@@ -37,10 +37,10 @@ RUN apt-get update && apt-get install -y \
     libc6-dbg \
     && rm -rf /var/lib/apt/lists/*
 
-ARG MAMBAFORGE_VERSION=22.9.0-2
+ARG MINIFORGE_VERSION=25.3.0-3
 
 # Based on https://github.com/conda-forge/miniforge-images/blob/master/ubuntu/Dockerfile
-RUN wget --no-hsts --quiet https://github.com/conda-forge/miniforge/releases/download/${MAMBAFORGE_VERSION}/Mambaforge-${MAMBAFORGE_VERSION}-Linux-$(uname -m).sh -O /tmp/miniforge.sh \
+RUN wget --no-hsts --quiet https://github.com/conda-forge/miniforge/releases/download/${MINIFORGE_VERSION}/Miniforge3-${MINIFORGE_VERSION}-Linux-$(uname -m).sh -O /tmp/miniforge.sh \
     && /bin/bash /tmp/miniforge.sh -b -p /opt/conda \
     && rm /tmp/miniforge.sh \
     && /opt/conda/bin/conda clean --tarballs --index-cache --packages --yes \

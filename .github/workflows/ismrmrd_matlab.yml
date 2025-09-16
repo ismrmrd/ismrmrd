@@ -2,23 +2,23 @@ name: Matlab
 
 on:
   push:
-    branches:
-      - master
-  
+    branches: [master]
+    tags: ["v*.*.*"]
   pull_request:
-    branches:
-      - master
+    branches: [master]
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Set up MATLAB
-      uses: matlab-actions/setup-matlab@v1
+      uses: matlab-actions/setup-matlab@v2
     - name: Run tests and generate artifacts
-      uses: matlab-actions/run-tests@v1
+      uses: matlab-actions/run-tests@v2
       with:
         test-results-junit: test-results/results.xml
         source-folder: matlab

@@ -1,13 +1,7 @@
-find_package(Boost 1.43 COMPONENTS unit_test_framework filesystem)
-
 if (NOT Boost_UNIT_TEST_FRAMEWORK_FOUND)
     message("Boost Unit Test Framework not found. Not compiling tests")
     return()
 endif ()
-
-if (NOT Boost_USE_STATIC_LIBS)
-    add_definitions(-DBOOST_TEST_DYN_LINK)
-endif()
 
 file(READ ${CMAKE_SOURCE_DIR}/schema/ismrmrd_example.xml ismrmrd_example)
 string(REPLACE "\"" "\\\"" ismrmrd_example ${ismrmrd_example})
@@ -21,7 +15,7 @@ configure_file(embedded_xml.h.in embedded_xml.h)
 
 include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include ${Boost_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
-add_executable(test_ismrmrd
+set(TEST_SOURCES
     test_main.cpp
     test_acquisitions.cpp
     test_images.cpp
@@ -30,16 +24,18 @@ add_executable(test_ismrmrd
     test_channels.cpp
     test_xml_header.cpp
     test_quaternions.cpp
-    test_serialization.cpp
-    test_dataset.cpp)
+    test_serialization.cpp)
 
+if (USE_HDF5_DATASET_SUPPORT)
+    set(TEST_SOURCES ${TEST_SOURCES}
+        test_dataset.cpp
+        test_end_to_end.cpp)
+
+    add_executable(benchmark_dataset benchmark_dataset.cpp)
+    target_link_libraries(benchmark_dataset ismrmrd ${Boost_LIBRARIES})
+    set_property(TARGET benchmark_dataset PROPERTY CXX_STANDARD 11)
+endif()
+
+add_executable(test_ismrmrd ${TEST_SOURCES})
 target_link_libraries(test_ismrmrd ismrmrd ${Boost_LIBRARIES})
-
 add_test(NAME check COMMAND test_ismrmrd )
-
-
-add_executable(benchmark_dataset
-     benchmark_dataset.cpp)
-     target_link_libraries(benchmark_dataset ismrmrd ${Boost_LIBRARIES})
-
-set_property(TARGET benchmark_dataset PROPERTY CXX_STANDARD 11)

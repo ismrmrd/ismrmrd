@@ -2,57 +2,38 @@ name: WindowsCMake
 
 on:
   push:
-    branches:
-      - master
-
+    branches: [master]
+    tags: ["v*.*.*"]
   pull_request:
-    branches:
-      - master
-
-env:
-  BUILD_TYPE: Release
-  VCPKG_DEFAULT_TRIPLET: x64-windows
-  VCPKG_BINARY_SOURCES: 'clear;nuget,GitHub,readwrite'
-
+    branches: [master]
+  workflow_dispatch:
 
 jobs:
   windows-build:
+
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Create Build Environment
       shell: pwsh
       run: cmake -E make_directory ${{github.workspace}}/build
 
-    - name: 'Setup NuGet Credentials'
-      shell: 'bash'
-      # Replace <OWNER> with your organization name
-      run: >
-              `vcpkg fetch nuget | tail -n 1`
-              sources add
-              -source "https://nuget.pkg.github.com/${GITHUB_REPOSITORY_OWNER}/index.json"
-              -storepasswordincleartext
-              -name "GitHub"
-              -username "${GITHUB_REPOSITORY_OWNER}"
-              -password "${{ secrets.GITHUB_TOKEN }}"
-
-    - name: Install dependencies
+    - name: Configure CMake and install dependencies
       shell: pwsh
-      run: |
-        vcpkg install
-        vcpkg list
-
-    - name: Configure CMake
       working-directory: ${{github.workspace}}/build
-      shell: pwsh
-      run: cmake $env:GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$env:BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
+      run: |-
+          cmake "$env:GITHUB_WORKSPACE" -D CMAKE_BUILD_TYPE=Release `
+            -D CMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake `
+            -D VCPKG_TARGET_TRIPLET=x64-windows-static `
+            -D BUILD_STATIC=ON `
+            -D USE_HDF5_DATASET_SUPPORT=OFF
 
     - name: Build
       working-directory: ${{github.workspace}}/build
       shell: pwsh
-      run: cmake --build . --config $env:BUILD_TYPE
+      run: cmake --build . --config Release --target all_build --target install
 
     - name: Test
       working-directory: ${{github.workspace}}/build
