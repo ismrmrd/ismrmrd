@@ -34,10 +34,10 @@ jobs:
       shell: pwsh
       working-directory: ${{github.workspace}}/build
       run: |-
-          cmake "$env:GITHUB_WORKSPACE" -D CMAKE_BUILD_TYPE=Release \
-            -D CMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake \
-            -D VCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
-            -D BUILD_STATIC=${{ matrix.build_static }} \
+          cmake "$env:GITHUB_WORKSPACE" -D CMAKE_BUILD_TYPE=Release `
+            -D CMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake `
+            -D VCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} `
+            -D BUILD_STATIC=${{ matrix.build_static }} `
             -D USE_HDF5_DATASET_SUPPORT=${{ matrix.use_hdf5_dataset_support }}
 
     - name: Build
