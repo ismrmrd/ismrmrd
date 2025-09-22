@@ -1,0 +1,33 @@
+FROM ubuntu:noble AS ismrmrd_static
+
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        cmake g++ ninja-build \
+        libboost-dev libboost-filesystem-dev \
+        libboost-program-options-dev libboost-random-dev \
+        libboost-system-dev libboost-test-dev \
+        libboost-thread-dev libboost-timer-dev \
+        libfftw3-dev libhdf5-dev libpugixml-dev \
+        locales \
+    && apt-get clean
+
+RUN locale-gen en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
+RUN mkdir -p /opt/code/ismrmrd
+COPY . /opt/code/ismrmrd/
+
+RUN cd /opt/code/ismrmrd && \
+    mkdir -p build && \
+    cd build && \
+    cmake \
+        -G Ninja \
+        -D CMAKE_BUILD_TYPE=Release \
+        -D CMAKE_INSTALL_PREFIX=/opt/package \
+        -D BUILD_STATIC=On \
+        ../ && \
+    ninja && \
+    ./tests/test_ismrmrd && \
+    ninja install

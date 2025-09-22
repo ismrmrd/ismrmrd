@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.21)
 foreach(p
     CMP0025 # CMake 3.0 Compiler id for Apple Clang is now ``AppleClang``.
     CMP0042 # CMake 3.0 ``MACOSX_RPATH`` is enabled by default.
@@ -19,6 +19,7 @@ set (ISMRMRD_CMAKE_DIR ${PROJECT_SOURCE_DIR}/cmake CACHE PATH
 
 # command line options
 option(USE_HDF5_DATASET_SUPPORT "Compile with support for reading and writing datasets to HDF5 files" ON)
+option(BUILD_STATIC "Build static library" OFF)
 option(BUILD_TESTS "Build unit tests " ON)
 option(BUILD_UTILITIES "Build utilities tests " ON)
 option(BUILD_EXAMPLES "Build examples tests " ON)
@@ -43,6 +44,8 @@ if(NOT "${CMAKE_CXX_STANDARD}")
 else()
   message(STATUS "CMAKE_CXX_STANDARD set externally to ${CMAKE_CXX_STANDARD}")
 endif()
+
+set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY true)
 
 if (WIN32)
     add_definitions(-DWIN32 -D_WIN32 -D_WINDOWS -DBOOST_UUID_FORCE_AUTO_LINK)
@@ -88,7 +91,7 @@ endif ()
 # For more information see http://semver.org/
 set(ISMRMRD_VERSION_MAJOR 1)
 set(ISMRMRD_VERSION_MINOR 14)
-set(ISMRMRD_VERSION_PATCH 2)
+set(ISMRMRD_VERSION_PATCH 3)
 
 set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
 set(ISMRMRD_SOVERSION ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR})
@@ -109,7 +112,6 @@ if (NOT VCPKG_VERSION_STRING STREQUAL ISMRMRD_VERSION_STRING)
 endif ()
 
 endif()
-
 
 set(ISMRMRD_XML_SCHEMA_SHA1  "40036f175a77542b50acbcfb0f019094c90b5e18")
 
@@ -147,24 +149,37 @@ if (NOT (${ISMRMRD_XML_SCHEMA_SHA1} STREQUAL ${ISMRMRD_CURRENT_XML_SCHEMA_SHA1})
   message(FATAL_ERROR "     FATAL XML VERSION ERROR")
 endif()
 
+# Find static libraries only if linking statically
+if (BUILD_STATIC)
+    set(Boost_USE_STATIC_LIBS On)
+    set(HDF5_USE_STATIC_LIBRARIES TRUE)
+    set(FFTW_USE_STATIC_LIBS TRUE)
+else()
+    add_definitions(-DBOOST_TEST_DYN_LINK)
+endif()
+
+# Find Boost for tests and utilities
+find_package(Boost COMPONENTS filesystem random program_options unit_test_framework)
+find_package(pugixml CONFIG REQUIRED)
+find_package(FFTW COMPONENTS FLOAT_LIB)
 
 # Find HDF5 for dataset support
-
-
 if (USE_HDF5_DATASET_SUPPORT)
     if (VCPKG_TARGET_TRIPLET) #VCPKG HDF5 is packaged differently.
-        find_package(HDF5 CONFIG COMPONENTS C shared REQUIRED)
-        set(HDF5_C_LIBRARIES hdf5::hdf5-shared)
+        find_package(HDF5 CONFIG COMPONENTS C REQUIRED)
+        if (BUILD_STATIC)
+          set(ISMRMRD_DATASET_LIBRARIES hdf5::hdf5-static)
+        else()
+          set(ISMRMRD_DATASET_LIBRARIES hdf5::hdf5-shared)
+        endif()
     else ()
         find_package(HDF5 COMPONENTS C REQUIRED)
+        set(ISMRMRD_DATASET_LIBRARIES HDF5::HDF5)
     endif ()
     set(ISMRMRD_DATASET_SUPPORT true)
     set(ISMRMRD_DATASET_SOURCES libsrc/dataset.c libsrc/dataset.cpp)
-    set(ISMRMRD_DATASET_INCLUDE_DIR ${HDF5_INCLUDE_DIRS})
-    set(ISMRMRD_DATASET_LIBRARIES ${HDF5_C_LIBRARIES})
     message(STATUS "HDF5 include found at: ${HDF5_INCLUDE_DIRS}")
     message(STATUS "HDF5 libs found at: ${HDF5_C_LIBRARIES}")
-
 else ()
     set(ISMRMRD_DATASET_SUPPORT false)
     message(WARNING " Dataset and file support unavailable!")
@@ -189,11 +204,9 @@ install(FILES ${CMAKE_BINARY_DIR}/include/ismrmrd/version.h DESTINATION include/
 # note: for the utilities in this project that need ismrmrd/version.h
 # remember to add ${CMAKE_BINARY_DIR}/include to the include path
 
-
 #  ---   VERSIONING  (end) ----
 
 #  ---   Main Library  (begin) ----
-# in windows, install the HDF5 dependencies
 
 # include directories for main library
 set(ISMRMRD_TARGET_INCLUDE_DIRS
@@ -215,30 +228,48 @@ set(ISMRMRD_TARGET_SOURCES
 )
 
 set(ISMRMRD_TARGET_LINK_LIBS ${ISMRMRD_DATASET_LIBRARIES})
-find_package(PugiXML CONFIG REQUIRED)
-list(APPEND ISMRMRD_TARGET_LINK_LIBS pugixml::pugixml)
 
 if (build4GE)
    list(APPEND ISMRMRD_TARGET_LINK_LIBS pthread z dl)
 endif ()
 
+
 # main library
-add_library(ismrmrd SHARED ${ISMRMRD_TARGET_SOURCES})
+if (BUILD_STATIC)
+  if (WIN32)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+  endif()
+  set(ISMRMRD_PUGIXML_LIBRARIES pugixml::static)
+  add_library(ismrmrd STATIC ${ISMRMRD_TARGET_SOURCES})
+else()
+  set(ISMRMRD_PUGIXML_LIBRARIES pugixml::shared)
+  add_library(ismrmrd SHARED ${ISMRMRD_TARGET_SOURCES})
+endif()
+
+list(APPEND ISMRMRD_TARGET_LINK_LIBS ${ISMRMRD_PUGIXML_LIBRARIES})
+
 target_include_directories(ismrmrd PUBLIC ${ISMRMRD_TARGET_INCLUDE_DIRS})
 if (USE_HDF5_DATASET_SUPPORT)
   target_compile_options(ismrmrd PUBLIC ${HDF5_DEFINITIONS})
 endif()
+
 add_library(ismrmrd::ismrmrd ALIAS ismrmrd)
-set_target_properties(ismrmrd PROPERTIES
-  VERSION ${ISMRMRD_VERSION_STRING}
-  SOVERSION ${ISMRMRD_SOVERSION}
+
+target_compile_definitions(
+    ismrmrd
+    PUBLIC $<$<CONFIG:Debug>:ISMRMRD_DEBUG>
+    INTERFACE $<$<NOT:$<BOOL:${BUILD_STATIC}>>:ISMRMRD_IMPORT>
+    PRIVATE $<$<CXX_COMPILER_ID:MSVC>:_CRT_SECURE_NO_WARNINGS>
 )
 
 set_target_properties(ismrmrd
   PROPERTIES
-  EXPORT_NAME ISMRMRD)
+  DEFINE_SYMBOL ISMRMRD_EXPORT
+  EXPORT_NAME ISMRMRD
+  VERSION ${ISMRMRD_VERSION_STRING}
+  SOVERSION ${ISMRMRD_SOVERSION})
 
-target_link_libraries(ismrmrd ${ISMRMRD_TARGET_LINK_LIBS})
+target_link_libraries(ismrmrd PUBLIC ${ISMRMRD_TARGET_LINK_LIBS})
 list(APPEND ISMRMRD_LIBRARIES ismrmrd) # Add to list of libraries to be found
 list(APPEND ISMRMRD_LIBRARY_DIRS ${CMAKE_BINARY_DIR} ) # Add to list of directories to find libraries
 
@@ -267,7 +298,6 @@ if (BUILD_UTILITIES)
   add_subdirectory(utilities)
 endif()
 
-
 if (HDF5_FOUND AND BUILD_EXAMPLES)
     add_subdirectory(examples/c)
 endif ()
@@ -275,7 +305,6 @@ endif ()
 # TODO: make this work on Windows
 if (BUILD_TESTS)
    if (NOT build4GE)
-
        enable_testing()
       add_subdirectory(tests)
    endif ()
