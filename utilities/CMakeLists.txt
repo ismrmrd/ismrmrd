@@ -42,7 +42,7 @@ if (HDF5_FOUND)
         # Shepp-Logan phantom
         add_executable(ismrmrd_recon_cartesian_2d
             recon_cartesian_2d.cpp)
-	target_link_libraries( ismrmrd_recon_cartesian_2d
+		target_link_libraries( ismrmrd_recon_cartesian_2d
             ismrmrd
             ${Boost_PROGRAM_OPTIONS_LIBRARY}
             ${FFTW_LIBRARIES})
