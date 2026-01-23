@@ -82,10 +82,7 @@
     "common": {
       "username": "automatic"
     },
-    "docker-from-docker": {
-      "version": "20.10",
-      "moby": false
-    },
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
     "git": "os-provided"
   }
 }

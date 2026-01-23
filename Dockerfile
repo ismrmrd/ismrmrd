@@ -7,13 +7,9 @@
 # subsequent stage and normalize the permissions.
 #########################################################
 
-ARG USERNAME="vscode"
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
+FROM mcr.microsoft.com/oss/busybox/busybox:1.33.1 AS file-normalizer
 
-FROM mcr.microsoft.com/oss/busybox/busybox:1.33.1 as file-normalizer
-
-COPY environment.yml /data/
+COPY environment.yml .devcontainer/devcontainer.bashrc /data/
 RUN chmod -R 555 /data/
 
 RUN mkdir -p /entrypoints
@@ -23,13 +19,12 @@ COPY docker/entrypoint-stream.sh /entrypoints/
 RUN sed -i 's/\r$//' /entrypoints/*.sh
 RUN chmod +x /entrypoints/*.sh
 
-FROM mcr.microsoft.com/devcontainers/base:1.2.4-jammy AS basecontainer
+FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04 AS basecontainer
 
 # Install needed packages and setup non-root user.
-ARG USERNAME
-ARG USER_UID
-ARG USER_GID
-
+ARG USERNAME="vscode"
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
 ARG CONDA_GID=900
 ARG CONDA_ENVIRONMENT_NAME=ismrmrd
 
@@ -37,7 +32,7 @@ RUN apt-get update && apt-get install -y \
     libc6-dbg \
     && rm -rf /var/lib/apt/lists/*
 
-ARG MINIFORGE_VERSION=25.3.0-3
+ARG MINIFORGE_VERSION=25.11.0-1
 
 # Based on https://github.com/conda-forge/miniforge-images/blob/master/ubuntu/Dockerfile
 RUN wget --no-hsts --quiet https://github.com/conda-forge/miniforge/releases/download/${MINIFORGE_VERSION}/Miniforge3-${MINIFORGE_VERSION}-Linux-$(uname -m).sh -O /tmp/miniforge.sh \
@@ -61,25 +56,27 @@ ARG USER_GID
 # Create a conda environment from the environment file in the repo root.
 COPY --from=file-normalizer --chown=$USER_UID:conda /data/environment.yml /tmp/build/
 RUN umask 0002 \
-    && /opt/conda/bin/mamba env create -f /tmp/build/environment.yml \
-    && /opt/conda/bin/mamba clean -fy \
+    && /opt/conda/bin/conda env create -f /tmp/build/environment.yml \
+    && /opt/conda/bin/conda clean -fy \
     && sudo chown -R :conda /opt/conda/envs
+
+# Add a file that is to be sourced from .bashrc and from the devops pipeline stages
+COPY --from=file-normalizer /data/devcontainer.bashrc /opt/devcontainer/
 
 # Add a section to /etc/bash.bashrc that ensures that a section is present at the end of ~/.bashrc.
 # We can't just write to .bashrc from here because it will be overwritten if the devcontainer user has
 # opted to use their own dotfiles repo. The dotfiles repo is cloned after the postCreateCommand
 # in the devcontainer.json file is executed.
 RUN echo "\n\
-if ! grep -q \"^source /opt/conda/etc/profile.d/conda.sh\" /home/${USERNAME}/.bashrc; then\n\
-	echo \"source /opt/conda/etc/profile.d/conda.sh\" >> /home/${USERNAME}/.bashrc\n\
-	echo \"conda activate $(grep 'name:' /tmp/build/environment.yml | awk '{print $2}')\" >> /home/${USERNAME}/.bashrc\n\
+if ! grep -q \"^source /opt/devcontainer/devcontainer.bashrc\" \${HOME}/.bashrc; then\n\
+	echo \"source /opt/devcontainer/devcontainer.bashrc\" >> \${HOME}/.bashrc\n\
 fi\n" >> /etc/bash.bashrc
 
 ENV CMAKE_GENERATOR=Ninja
 
 # Create a kits file for the VSCode CMake Tools extension, so you are not prompted for which kit to select whenever you open VSCode
 RUN mkdir -p /home/vscode/.local/share/CMakeTools \
-    && echo '[{"name":"GCC-11","compilers":{"C":"/opt/conda/envs/ismrmrd/bin/x86_64-conda_cos6-linux-gnu-gcc","CXX":"/opt/conda/envs/ismrmrd/bin/x86_64-conda_cos6-linux-gnu-g++"}}]' > /home/vscode/.local/share/CMakeTools/cmake-tools-kits.json \
+    && echo '[{"name":"GCC-15","compilers":{"C":"/opt/conda/envs/ismrmrd/bin/x86_64-conda-linux-gnu-gcc","CXX":"/opt/conda/envs/ismrmrd/bin/x86_64-conda-linux-gnu-g++"}}]' > /home/vscode/.local/share/CMakeTools/cmake-tools-kits.json \
     && chown vscode:conda /home/vscode/.local/share/CMakeTools/cmake-tools-kits.json
 
 FROM devcontainer AS ismrmrd-build
@@ -112,8 +109,8 @@ COPY --from=file-normalizer --chown=$USER_UID:conda /data/environment.yml /tmp/b
 RUN grep -v "#.*\<dev\>" /tmp/build/environment.yml > /tmp/build/filtered_environment.yml \
     && mv /tmp/build/filtered_environment.yml /tmp/build/environment.yml \
     && umask 0002 \
-    && /opt/conda/bin/mamba env create -f /tmp/build/environment.yml \
-    && /opt/conda/bin/mamba clean -fy \
+    && /opt/conda/bin/conda env create -f /tmp/build/environment.yml \
+    && /opt/conda/bin/conda clean -fy \
     && sudo chown -R :conda /opt/conda/envs
 
 COPY --from=ismrmrd-build --chown=$USER_UID:conda /opt/package /opt/conda/envs/ismrmrd/

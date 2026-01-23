@@ -12,29 +12,33 @@ jobs:
   build-conda-packages:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-13]
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash -l {0}
+        working-directory: conda
+
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+
       - uses: conda-incubator/setup-miniconda@v3
         with:
           miniforge-version: latest
-          activate-environment: ismrmrd-build
-          environment-file: conda/environment.yml
-          python-version: 3.9
-          auto-activate-base: false
+          auto-activate-base: true
+          activate-environment: ""
+          python-version: 3.13
+
       - name: Build conda package
-        shell: bash -l {0}
-        working-directory: conda
         run: |
+          bash -il ./setup-conda-build.sh
           ./package.sh
           echo "Packages built: $(find build_pkg -name ismrmrd*.tar.bz2)"
-      - name: Push conda package
-        shell: bash -l {0}
+
+      - name: Publish conda package
         if: ${{ github.event_name == 'release' }}
         env:
           ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
-        working-directory: conda
         run: |
           for p in $(find build_pkg -name ismrmrd*.tar.bz2)
           do

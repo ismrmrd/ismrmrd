@@ -17,19 +17,19 @@ requirements:
     - boost
     - clang>=13.0.1        # [osx]
     - clangxx>=13.0.1      # [osx]
-    - cmake>=3.20.0
-    - fftw=3.3.9
-    - gcc_linux-64>=9.0.0  # [linux64]
-    - gxx_linux-64>=9.0.0  # [linux64]
+    - cmake>=4.2.0
+    - fftw=3.3.*
+    - gcc_linux-64>=15.0.0  # [linux64]
+    - gxx_linux-64>=15.0.0  # [linux64]
     - git
-    - hdf5=1.10.6
-    - ninja=1.10.*
-    - pugixml=1.12.1
+    - hdf5=1.14.*
+    - ninja=1.13.*
+    - pugixml=1.15
   run:
     - boost {{ boost }}
-    - hdf5=1.10.6
-    - fftw=3.3.9
-    - pugixml=1.12.1
+    - hdf5=1.14.*
+    - fftw=3.3.*
+    - pugixml=1.15
 
 test:
   requires:

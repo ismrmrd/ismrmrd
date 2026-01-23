@@ -40,7 +40,8 @@ endif()
 
 # compiler flags
 if(NOT "${CMAKE_CXX_STANDARD}")
-  set(CMAKE_CXX_STANDARD 11)
+  set(CMAKE_CXX_STANDARD 17)
+  message(STATUS "CMAKE_CXX_STANDARD not set, defaulting to ${CMAKE_CXX_STANDARD}")
 else()
   message(STATUS "CMAKE_CXX_STANDARD set externally to ${CMAKE_CXX_STANDARD}")
 endif()
@@ -90,8 +91,8 @@ endif ()
 #in the utility libraries, that don't affect the data format itself.
 # For more information see http://semver.org/
 set(ISMRMRD_VERSION_MAJOR 1)
-set(ISMRMRD_VERSION_MINOR 14)
-set(ISMRMRD_VERSION_PATCH 3)
+set(ISMRMRD_VERSION_MINOR 15)
+set(ISMRMRD_VERSION_PATCH 0)
 
 set(ISMRMRD_VERSION_STRING ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR}.${ISMRMRD_VERSION_PATCH})
 set(ISMRMRD_SOVERSION ${ISMRMRD_VERSION_MAJOR}.${ISMRMRD_VERSION_MINOR})
@@ -154,12 +155,14 @@ if (BUILD_STATIC)
     set(Boost_USE_STATIC_LIBS On)
     set(HDF5_USE_STATIC_LIBRARIES TRUE)
     set(FFTW_USE_STATIC_LIBS TRUE)
+    message(STATUS "Building ISMRMRD as static library")
 else()
     add_definitions(-DBOOST_TEST_DYN_LINK)
+    message(STATUS "Building ISMRMRD as shared library")
 endif()
 
 # Find Boost for tests and utilities
-find_package(Boost COMPONENTS filesystem random program_options unit_test_framework)
+find_package(Boost CONFIG COMPONENTS filesystem random program_options unit_test_framework)
 find_package(pugixml CONFIG REQUIRED)
 find_package(FFTW COMPONENTS FLOAT_LIB)
 
