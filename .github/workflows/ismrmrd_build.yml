@@ -57,7 +57,7 @@ jobs:
     permissions:
       contents: read
       packages: write
-
+    steps:
     - name: Build and test docker images
       working-directory: ${{github.workspace}}
       run: |
