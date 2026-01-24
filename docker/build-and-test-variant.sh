@@ -33,7 +33,7 @@ case "$variant" in
                 && ismrmrd_hdf5_to_stream -i testdata.h5 --use-stdout \
                 | ismrmrd_stream_recon_cartesian_2d --use-stdin --use-stdout \
                 | ismrmrd_stream_to_hdf5 --use-stdin -o result.h5"
-        docker run ismrmrd-static /bin/bash -c "$test_command"
+        docker run --rm ismrmrd-static /bin/bash -c "$test_command"
         ;;
 
     "cpp98")
@@ -50,7 +50,7 @@ case "$variant" in
                 && ismrmrd_hdf5_to_stream -i testdata.h5 --use-stdout \
                 | ismrmrd_stream_recon_cartesian_2d --use-stdin --use-stdout \
                 | ismrmrd_stream_to_hdf5 --use-stdin -o result.h5"
-        docker run ismrmrd-cpp98 /bin/bash -c "$test_command"
+        docker run --rm ismrmrd-cpp98 /bin/bash -c "$test_command"
         ;;
 
     *)
