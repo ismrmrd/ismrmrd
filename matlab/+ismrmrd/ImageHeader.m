@@ -19,9 +19,9 @@ classdef ImageHeader < handle
         contrast = uint16([]);               % e.g. echo number in multi-echo %
         phase = uint16([]);                  % e.g. cardiac phase number %
         repetition = uint16([]);             % e.g. dynamic number for dynamic scanning %
-        set = uint16([]);                    % e.g. flow encodning set %
+        set = uint16([]);                    % e.g. flow encoding set %
         acquisition_time_stamp = uint32([]); % Acquisition clock %
-        physiology_time_stamp = uint32([]);  % Physiology time stamps, e.g. ecg, breating, etc. %
+        physiology_time_stamp = uint32([]);  % Physiology time stamps, e.g. ecg, breathing, etc. %
         image_type = uint16([]);             % e.g. magnitude, phase, complex, real, imag, etc. %
         image_index = uint16([]);			 % e.g. image number in series of images  %
         image_series_index = uint16([]);     % e.g. series number %

@@ -7,10 +7,10 @@ classdef AcquisitionHeader < handle
         measurement_uid = uint32([]);                  % Unique ID for the measurement %
         scan_counter = uint32([]);                     % Current acquisition number in the measurement %
         acquisition_time_stamp = uint32([]);           % Acquisition clock %
-        physiology_time_stamp = uint32([]);            % Physiology time stamps, e.g. ecg, breating, etc. %
+        physiology_time_stamp = uint32([]);            % Physiology time stamps, e.g. ecg, breathing, etc. %
         number_of_samples = uint16([]);                % Number of samples acquired %
         available_channels = uint16([]);               % Available coils %
-        active_channels = uint16([]);                  % Active coils on current acquisiton %
+        active_channels = uint16([]);                  % Active coils on current acquisition %
         channel_mask = uint64([]);                     % Mask to indicate which channels are active. Support for 1024 channels %
         discard_pre = uint16([]);                      % Samples to be discarded at the beginning of acquisition %
         discard_post = uint16([]);                     % Samples to be discarded at the end of acquisition %
@@ -341,10 +341,10 @@ classdef AcquisitionHeader < handle
             obj.measurement_uid =          reshape(typecast(reshape(bytearray(  11: 14, :), 1, 4 *      N), 'uint32'),  1, N);  % Unique ID for the measurement %
             obj.scan_counter =             reshape(typecast(reshape(bytearray(  15: 18, :), 1, 4 *      N), 'uint32'),  1, N);  % Current acquisition number in the measurement %
             obj.acquisition_time_stamp =   reshape(typecast(reshape(bytearray(  19: 22, :), 1, 4 *      N), 'uint32'),  1, N);  % Acquisition clock %
-            obj.physiology_time_stamp =    reshape(typecast(reshape(bytearray(  23: 34, :), 1, 4 *  3 * N), 'uint32'),  3, N);  % Physiology time stamps, e.g. ecg, breating, etc. %
+            obj.physiology_time_stamp =    reshape(typecast(reshape(bytearray(  23: 34, :), 1, 4 *  3 * N), 'uint32'),  3, N);  % Physiology time stamps, e.g. ecg, breathing, etc. %
             obj.number_of_samples =        reshape(typecast(reshape(bytearray(  35: 36, :), 1, 2 *      N), 'uint16'),  1, N);  % Number of samples acquired %
             obj.available_channels =       reshape(typecast(reshape(bytearray(  37: 38, :), 1, 2 *      N), 'uint16'),  1, N);  % Available coils %
-            obj.active_channels =          reshape(typecast(reshape(bytearray(  39: 40, :), 1, 2 *      N), 'uint16'),  1, N);  % Active coils on current acquisiton %
+            obj.active_channels =          reshape(typecast(reshape(bytearray(  39: 40, :), 1, 2 *      N), 'uint16'),  1, N);  % Active coils on current acquisition %
             obj.channel_mask =             reshape(typecast(reshape(bytearray(  41:168, :), 1, 8 * 16 * N), 'uint64'), 16, N);  % Mask to indicate which channels are active. Support for 1024 channels %
             obj.discard_pre =              reshape(typecast(reshape(bytearray( 169:170, :), 1, 2 *      N), 'uint16'),  1, N);  % Samples to be discarded at the beginning of acquisition %
             obj.discard_post =             reshape(typecast(reshape(bytearray( 171:172, :), 1, 2 *      N), 'uint16'),  1, N);  % Samples to be discarded at the end of acquisition %
@@ -358,7 +358,7 @@ classdef AcquisitionHeader < handle
             obj.slice_dir =                reshape(typecast(reshape(bytearray( 219:230, :), 1, 4 *  3 * N), 'single'),  3, N);  % Directional cosines of the slice %
             obj.patient_table_position =   reshape(typecast(reshape(bytearray( 231:242, :), 1, 4 *  3 * N), 'single'),  3, N);  % Patient table off-center %
             obj.idx.kspace_encode_step_1 = reshape(typecast(reshape(bytearray( 243:244, :), 1, 2 *      N), 'uint16'),  1, N);  % phase encoding line number %
-            obj.idx.kspace_encode_step_2 = reshape(typecast(reshape(bytearray( 245:246, :), 1, 2 *      N), 'uint16'),  1, N);  % partition encodning number %
+            obj.idx.kspace_encode_step_2 = reshape(typecast(reshape(bytearray( 245:246, :), 1, 2 *      N), 'uint16'),  1, N);  % partition encoding number %
             obj.idx.average =              reshape(typecast(reshape(bytearray( 247:248, :), 1, 2 *      N), 'uint16'),  1, N);  % signal average number %
             obj.idx.slice =                reshape(typecast(reshape(bytearray( 249:250, :), 1, 2 *      N), 'uint16'),  1, N);  % imaging slice number %
             obj.idx.contrast =             reshape(typecast(reshape(bytearray( 251:252, :), 1, 2 *      N), 'uint16'),  1, N);  % echo number in multi-echo %
