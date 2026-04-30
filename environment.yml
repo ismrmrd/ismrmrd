@@ -3,16 +3,16 @@ channels:
   - conda-forge
 dependencies:
   - boost=1.84.0
-  - cmake=4.2.2           # dev
-  - doxygen=1.13.2        # dev
+  - cmake=4.2.2               # dev
+  - doxygen=1.13.2            # dev
   - fftw=3.3.10
-  - gcc_linux-64=15.2.0   # dev
-  - gdb=17.1              # dev
-  - gxx_linux-64=15.2.0   # dev
-  - h5py=3.15.1           # dev
+  - c-compiler               # dev
+  - cxx-compiler             # dev
+  - gdb=17.1                  # dev
+  - h5py=3.15.1               # dev
   - hdf5=1.14.6
-  - just=1.46.0           # dev
-  - ninja=1.13.2          # dev
-  - numpy=2.4.1           # dev
+  - just=1.46.0               # dev
+  - ninja=1.13.2              # dev
+  - numpy=2.4.1               # dev
   - pugixml=1.15
-  - python=3.13.7         # dev
+  - python=3.13.7             # dev
