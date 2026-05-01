@@ -17,6 +17,7 @@ requirements:
     - boost
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
+    - sdkroot_env_osx-arm64 <16  # [osx and arm64]
     - cmake>=4.2.0
     - fftw=3.3.*
     - git

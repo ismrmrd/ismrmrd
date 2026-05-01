@@ -1,5 +1,13 @@
 boost:
-    - 1.80.0
+    - 1.80.0   # [not osx]
     - 1.84.0
 pin_run_as_build:
     boost: x.x
+
+MACOSX_DEPLOYMENT_TARGET:   # [osx]
+    - "13.0"                 # [osx]
+
+c_compiler_version:         # [osx]
+    - "19"                  # [osx]
+cxx_compiler_version:       # [osx]
+    - "19"                  # [osx]
