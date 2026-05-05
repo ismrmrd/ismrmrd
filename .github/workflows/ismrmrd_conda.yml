@@ -12,7 +12,7 @@ jobs:
   build-conda-packages:
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-24.04, ubuntu-24.04-arm, macos-26]
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -33,14 +33,15 @@ jobs:
         run: |
           bash -il ./setup-conda-build.sh
           ./package.sh
-          echo "Packages built: $(find build_pkg -name ismrmrd*.tar.bz2)"
+          echo "Packages built: $(find build_pkg -name 'ismrmrd*.conda' -o -name 'ismrmrd*.tar.bz2')"
 
       - name: Publish conda package
-        if: ${{ github.event_name == 'release' }}
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
         env:
           ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
         run: |
-          for p in $(find build_pkg -name ismrmrd*.tar.bz2)
+          find build_pkg \( -name 'ismrmrd*.conda' -o -name 'ismrmrd*.tar.bz2' \) -print0 |
+          while IFS= read -r -d '' p
           do
             ./publish_package.sh -u ismrmrd -t "$ANACONDA_TOKEN" -p "$p"
           done

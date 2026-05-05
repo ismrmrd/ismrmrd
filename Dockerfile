@@ -7,7 +7,7 @@
 # subsequent stage and normalize the permissions.
 #########################################################
 
-FROM mcr.microsoft.com/oss/busybox/busybox:1.33.1 AS file-normalizer
+FROM mcr.microsoft.com/azurelinux/busybox:1.36 AS file-normalizer
 
 COPY environment.yml .devcontainer/devcontainer.bashrc /data/
 RUN chmod -R 555 /data/
@@ -76,7 +76,10 @@ ENV CMAKE_GENERATOR=Ninja
 
 # Create a kits file for the VSCode CMake Tools extension, so you are not prompted for which kit to select whenever you open VSCode
 RUN mkdir -p /home/vscode/.local/share/CMakeTools \
-    && echo '[{"name":"GCC-15","compilers":{"C":"/opt/conda/envs/ismrmrd/bin/x86_64-conda-linux-gnu-gcc","CXX":"/opt/conda/envs/ismrmrd/bin/x86_64-conda-linux-gnu-g++"}}]' > /home/vscode/.local/share/CMakeTools/cmake-tools-kits.json \
+    && CC=$(/opt/conda/bin/conda run -n ismrmrd sh -c 'echo $CC') \
+    && CXX=$(/opt/conda/bin/conda run -n ismrmrd sh -c 'echo $CXX') \
+    && GCC_VERSION=$(${CC} --version | head -1 | grep -oP '\d+\.\d+\.\d+' | head -1 | cut -d. -f1) \
+    && echo "[{\"name\":\"GCC-${GCC_VERSION}\",\"compilers\":{\"C\":\"${CC}\",\"CXX\":\"${CXX}\"}}]" > /home/vscode/.local/share/CMakeTools/cmake-tools-kits.json \
     && chown vscode:conda /home/vscode/.local/share/CMakeTools/cmake-tools-kits.json
 
 FROM devcontainer AS ismrmrd-build
