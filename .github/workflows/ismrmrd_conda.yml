@@ -36,7 +36,7 @@ jobs:
           echo "Packages built: $(find build_pkg -name 'ismrmrd*.conda' -o -name 'ismrmrd*.tar.bz2')"
 
       - name: Publish conda package
-        if: ${{ github.event_name == 'release' }}
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
         env:
           ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
         run: |
