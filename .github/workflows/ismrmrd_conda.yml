@@ -40,7 +40,8 @@ jobs:
         env:
           ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
         run: |
-          for p in $(find build_pkg \( -name 'ismrmrd*.conda' -o -name 'ismrmrd*.tar.bz2' \))
+          find build_pkg \( -name 'ismrmrd*.conda' -o -name 'ismrmrd*.tar.bz2' \) -print0 |
+          while IFS= read -r -d '' p
           do
             ./publish_package.sh -u ismrmrd -t "$ANACONDA_TOKEN" -p "$p"
           done
