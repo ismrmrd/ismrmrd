@@ -18,7 +18,7 @@ An MRD AcquisitionHeader accompanies each readout containing metadata common to 
 | channel_mask           | Bit mask indicating active coils (64\*16 = 1024 bits)                                                                                              | uint64 (x16)        |  40 bytes |
 | discard_pre            | Number of readout samples to be discarded at the beginning (e.g. if the ADC is active during gradient events)                                      | uint16              | 168 bytes |
 | discard_post           | Number of readout samples to be discarded at the end (e.g. if the ADC is active during gradient events)                                            | uint16              | 170 bytes |
-| center_sample          | Index of the readout sample corresponing to k-space center (zero indexed)                                                                          | uint16              | 172 bytes |
+| center_sample          | Index of the readout sample corresponding to k-space center (zero indexed)                                                                          | uint16              | 172 bytes |
 | encoding_space_ref     | Indexed reference to the encoding spaces enumerated in the MRD (xml) header                                                                        | uint16              | 174 bytes |
 | trajectory_dimensions  | Dimensionality of the k-space trajectory vector (e.g. 2 for 2D radial (k<sub>x</sub>, k<sub>y</sub>), 0 for no trajectory data)                    | uint16              | 176 bytes |
 | sample_time_us         | Readout bandwidth, as time between samples in microseconds                                                                                         | float (32 bit)      | 178 bytes |

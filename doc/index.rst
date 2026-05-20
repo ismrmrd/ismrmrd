@@ -16,7 +16,7 @@ Please cite this paper if you use the format.
 
 .. toctree::
   :maxdepth: 2
-  :caption: MRD Data Primatives
+  :caption: MRD Data Primitives
 
   mrd_header
   mrd_raw_data
