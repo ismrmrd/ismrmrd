@@ -26,6 +26,8 @@ extern "C" {
 typedef struct ISMRMRD_WaveformHeader
 {
     uint16_t version;
+    uint16_t pad1;
+    uint32_t pad2;
     /**< First unsigned int indicates the version */
     uint64_t flags;
     /**< bit field with flags */
