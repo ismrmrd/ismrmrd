@@ -1,6 +1,7 @@
 boost:
     - 1.80.0   # [not osx]
     - 1.84.0
+    - 1.90.0
 pin_run_as_build:
     boost: x.x
 
